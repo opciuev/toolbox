@@ -1,6 +1,8 @@
 {
   "version": 2,
   "name": "toolbox-flyooo",
+  "buildCommand": "echo 'No build step required for static site'",
+  "outputDirectory": "./",
   "headers": [
     {
       "source": "/(.*)",
