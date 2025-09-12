@@ -114,7 +114,8 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ## 🌐 在线访问
 
-**网站地址**: [https://toolbox.flyooo.uk](https://toolbox.flyooo.uk)
+**主站 (Vercel)**: [https://toolbox.flyooo.uk](https://toolbox.flyooo.uk)  
+**镜像站 (GitHub Pages)**: [https://opciuev.github.io/toolbox](https://opciuev.github.io/toolbox)
 
 ## 📞 联系方式
 
