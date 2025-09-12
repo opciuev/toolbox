@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实用工具集合</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .tool-category {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .tool-category:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .category-title {
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .category-description {
+            color: #4a5568;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .tool-list {
+            list-style: none;
+        }
+
+        .tool-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #2d3748;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .tool-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-left-color: white;
+            transform: translateX(5px);
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .coming-soon::after {
+            content: '即将推出';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fbb6ce;
+            color: #702459;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .tool-category {
+                padding: 1.5rem;
+            }
+        }
+
+        /* アニメーション効果 */
+        .tool-category {
+            animation: fadeInUp 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .tool-category:nth-child(1) { animation-delay: 0.1s; }
+        .tool-category:nth-child(2) { animation-delay: 0.2s; }
+        .tool-category:nth-child(3) { animation-delay: 0.3s; }
+        .tool-category:nth-child(4) { animation-delay: 0.4s; }
+        .tool-category:nth-child(5) { animation-delay: 0.5s; }
+        .tool-category:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-banner {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-banner h3 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-banner p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛠️ 实用工具集合</h1>
+        <p>一站式在线工具平台，提供随机生成、数据处理、文本工具、开发辅助等多种实用功能</p>
+    </div>
+
+    <div class="container">
+        <div class="stats-banner">
+            <h3>🎯 工具统计</h3>
+            <p>目前提供 <strong>25+</strong> 种实用工具，持续更新中...</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- 随机数和概率统计 -->
+            <div class="tool-category">
+                <span class="category-icon">🎲</span>
+                <h2 class="category-title">随机生成 & 统计</h2>
+                <p class="category-description">强大的随机数生成工具，支持各种分布类型和统计分析</p>
+                <ul class="tool-list">
+                    <li class="tool-item">
+                        <a href="random.html" class="tool-link">随机数生成器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="#" class="tool-link coming-soon">统计图表分析</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="#" class="tool-link coming-soon">概率分布生成</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 自定义生成器 -->
+            <div class="tool-category">
+                <span class="category-icon">🎨</span>
+                <h2 class="category-title">自定义生成器</h2>
+                <p class="category-description">各种创意生成工具，满足不同场景的随机生成需求</p>
+                <ul class="tool-list">
+                    <li class="tool-item">
+                        <a href="generators.html" class="tool-link">颜色生成器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="generators.html" class="tool-link">密码生成器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="generators.html" class="tool-link">名字生成器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="generators.html" class="tool-link">决策器</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 游戏化功能 -->
+            <div class="tool-category">
+                <span class="category-icon">🎮</span>
+                <h2 class="category-title">互动游戏</h2>
+                <p class="category-description">有趣的游戏化工具，让随机选择变得更加有趣</p>
+                <ul class="tool-list">
+                    <li class="tool-item">
+                        <a href="games.html" class="tool-link">幸运转盘</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="games.html" class="tool-link">抽奖系统</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="games.html" class="tool-link">掷骰子</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="games.html" class="tool-link">猜数字游戏</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 数据工具 -->
+            <div class="tool-category">
+                <span class="category-icon">💾</span>
+                <h2 class="category-title">数据工具</h2>
+                <p class="category-description">常用的数据处理和转换工具集合</p>
+                <ul class="tool-list">
+                    <li class="tool-item">
+                        <a href="data-tools.html" class="tool-link">UUID 生成器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="data-tools.html" class="tool-link">二维码生成器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="data-tools.html" class="tool-link">Base64 编解码</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="data-tools.html" class="tool-link">JSON 格式化</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="data-tools.html" class="tool-link">时间戳转换</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 文本处理 -->
+            <div class="tool-category">
+                <span class="category-icon">📝</span>
+                <h2 class="category-title">文本处理</h2>
+                <p class="category-description">强大的文本分析和处理工具</p>
+                <ul class="tool-list">
+                    <li class="tool-item">
+                        <a href="text-tools.html" class="tool-link">文本统计</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="text-tools.html" class="tool-link">大小写转换</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="text-tools.html" class="tool-link">去重复工具</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="text-tools.html" class="tool-link">Lorem 生成器</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 开发者工具 -->
+            <div class="tool-category">
+                <span class="category-icon">👨‍💻</span>
+                <h2 class="category-title">开发者工具</h2>
+                <p class="category-description">面向程序员的实用开发辅助工具</p>
+                <ul class="tool-list">
+                    <li class="tool-item">
+                        <a href="dev-tools.html" class="tool-link">正则表达式测试</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="dev-tools.html" class="tool-link">颜色选择器</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="dev-tools.html" class="tool-link">CSS 渐变生成</a>
+                    </li>
+                    <li class="tool-item">
+                        <a href="dev-tools.html" class="tool-link">字符编码转换</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 実用ツールコレクション | 持续添加更多实用工具</p>
+    </div>
+
+    <script>
+        // ページロード時のアニメーション
+        document.addEventListener('DOMContentLoaded', function() {
+            // 各カテゴリーカードに遅延アニメーションを適用
+            const categories = document.querySelectorAll('.tool-category');
+            categories.forEach((category, index) => {
+                category.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // 統計バナーの数値カウントアニメーション
+            animateCounter();
+        });
+
+        /**
+         * 統計数値のカウントアップアニメーション
+         */
+        function animateCounter() {
+            const statsElement = document.querySelector('.stats-banner strong');
+            if (!statsElement) return;
+
+            const targetNumber = 15;
+            let currentNumber = 0;
+            const increment = targetNumber / 30; // 30フレームで完了
+            
+            const timer = setInterval(() => {
+                currentNumber += increment;
+                if (currentNumber >= targetNumber) {
+                    currentNumber = targetNumber;
+                    clearInterval(timer);
+                }
+                statsElement.textContent = Math.floor(currentNumber) + '+';
+            }, 50);
+        }
+
+        // ツールリンクのホバー効果
+        document.querySelectorAll('.tool-link').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px) scale(1.02)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                if (this.classList.contains('coming-soon')) {
+                    this.style.transform = 'translateX(0) scale(1)';
+                }
+            });
+        });
+
+        // "即将推出"のツールクリック処理
+        document.querySelectorAll('.coming-soon').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showComingSoonMessage();
+            });
+        });
+
+        /**
+         * "即将推出"メッセージ表示
+         */
+        function showComingSoonMessage() {
+            // 簡易的なモーダル風メッセージ
+            const message = document.createElement('div');
+            message.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 2rem 3rem;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    text-align: center;
+                    animation: fadeInScale 0.3s ease-out;
+                ">
+                    <h3 style="margin-bottom: 1rem;">🚀 敬请期待</h3>
+                    <p>这个功能正在开发中，很快就会发布！</p>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        margin-top: 1rem;
+                        background: white;
+                        color: #667eea;
+                        border: none;
+                        padding: 0.5rem 1rem;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 600;
+                    ">了解</button>
+                </div>
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.5);
+                    z-index: 999;
+                " onclick="this.parentElement.remove()"></div>
+            `;
+            
+            // CSSアニメーションを追加
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInScale {
+                    from {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(message);
+
+            // 3秒後に自動的に閉じる
+            setTimeout(() => {
+                if (document.body.contains(message)) {
+                    message.remove();
+                    style.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

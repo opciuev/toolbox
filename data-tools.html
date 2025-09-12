@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据工具集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .nav-back a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-back a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .tool-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .secondary-btn {
+            background: #48bb78;
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .danger-btn {
+            background: #e53e3e;
+        }
+
+        .danger-btn:hover {
+            box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4);
+        }
+
+        .result-area {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .result-text {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            white-space: pre-wrap;
+            color: #2d3748;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #4299e1;
+        }
+
+        .qr-code-display {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .qr-code-display canvas {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+
+        .timestamp-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .timestamp-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .timestamp-item h4 {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .timestamp-item .value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #2d3748;
+            word-break: break-all;
+        }
+
+        .json-formatter {
+            position: relative;
+        }
+
+        .format-options {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .format-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #feb2b2;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #9ae6b4;
+        }
+
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-back {
+                position: relative;
+                top: auto;
+                left: auto;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .timestamp-display {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- QRコード生成のためのライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="nav-back">
+        <a href="index.html">← 返回主页</a>
+    </div>
+
+    <div class="header">
+        <h1>💾 数据工具</h1>
+        <p>常用的数据处理和转换工具集合</p>
+    </div>
+
+    <div class="container">
+        <div class="tools-grid">
+            <!-- UUID生成器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🆔</span>
+                    UUID 生成器
+                </div>
+                
+                <div class="input-group">
+                    <label>UUID 版本:</label>
+                    <select id="uuidVersion">
+                        <option value="v4" selected>UUID v4 (随机)</option>
+                        <option value="v1">UUID v1 (基于时间)</option>
+                        <option value="simple">简化版 (无连字符)</option>
+                        <option value="short">短 UUID (8位)</option>
+                    </select>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>生成数量:</label>
+                        <input type="number" id="uuidCount" value="5" min="1" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label>格式:</label>
+                        <select id="uuidFormat">
+                            <option value="uppercase">大写</option>
+                            <option value="lowercase" selected>小写</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="tool-btn" onclick="generateUUID()">生成 UUID</button>
+                <button class="secondary-btn" onclick="generateSingleUUID()">单个生成</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="uuidResult">点击生成 UUID</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('uuidResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 二维码生成器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">📱</span>
+                    二维码生成器
+                </div>
+                
+                <div class="input-group">
+                    <label>要编码的内容:</label>
+                    <textarea id="qrText" placeholder="输入文本、URL或其他内容" rows="3">https://example.com</textarea>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>尺寸:</label>
+                        <select id="qrSize">
+                            <option value="200">200x200</option>
+                            <option value="300" selected>300x300</option>
+                            <option value="400">400x400</option>
+                            <option value="500">500x500</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>错误纠正级别:</label>
+                        <select id="qrErrorLevel">
+                            <option value="L">低 (7%)</option>
+                            <option value="M" selected>中 (15%)</option>
+                            <option value="Q">高 (25%)</option>
+                            <option value="H">最高 (30%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>前景色:</label>
+                        <input type="color" id="qrForeground" value="#000000">
+                    </div>
+                    <div class="input-group">
+                        <label>背景色:</label>
+                        <input type="color" id="qrBackground" value="#ffffff">
+                    </div>
+                </div>
+
+                <button class="tool-btn" onclick="generateQR()">生成二维码</button>
+                <button class="secondary-btn" onclick="downloadQR()">下载图片</button>
+                
+                <div class="qr-code-display" id="qrDisplay">
+                    <p>输入内容后点击生成二维码</p>
+                </div>
+            </div>
+
+            <!-- Base64编解码 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔐</span>
+                    Base64 编解码
+                </div>
+                
+                <div class="input-group">
+                    <label>输入文本:</label>
+                    <textarea id="base64Input" placeholder="输入要编码或解码的文本" rows="4"></textarea>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="base64UrlSafe">
+                    <label>URL 安全编码 (替换 +/= 为 -_)</label>
+                </div>
+
+                <button class="tool-btn" onclick="encodeBase64()">编码</button>
+                <button class="tool-btn" onclick="decodeBase64()">解码</button>
+                <button class="danger-btn" onclick="clearBase64()">清空</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="base64Result">编码或解码结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('base64Result')">复制</button>
+                </div>
+            </div>
+
+            <!-- JSON格式化 -->
+            <div class="tool-card json-formatter">
+                <div class="tool-title">
+                    <span class="tool-icon">📄</span>
+                    JSON 格式化工具
+                </div>
+                
+                <div class="input-group">
+                    <label>JSON 内容:</label>
+                    <textarea id="jsonInput" placeholder='输入JSON内容，例如：{"name":"张三","age":25}' rows="4"></textarea>
+                </div>
+
+                <div class="format-options">
+                    <button class="format-btn active" data-indent="2" onclick="setJsonIndent(this, 2)">2空格</button>
+                    <button class="format-btn" data-indent="4" onclick="setJsonIndent(this, 4)">4空格</button>
+                    <button class="format-btn" data-indent="tab" onclick="setJsonIndent(this, '\t')">Tab</button>
+                    <button class="format-btn" data-indent="0" onclick="setJsonIndent(this, 0)">压缩</button>
+                </div>
+
+                <button class="tool-btn" onclick="formatJSON()">格式化</button>
+                <button class="tool-btn" onclick="validateJSON()">验证</button>
+                <button class="secondary-btn" onclick="minifyJSON()">压缩</button>
+                <button class="danger-btn" onclick="clearJSON()">清空</button>
+                
+                <div id="jsonMessage"></div>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="jsonResult">格式化结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('jsonResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 时间戳转换器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">⏰</span>
+                    时间戳转换器
+                </div>
+                
+                <div class="input-group">
+                    <label>时间戳输入:</label>
+                    <input type="text" id="timestampInput" placeholder="输入时间戳 (秒或毫秒)">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>时间戳类型:</label>
+                        <select id="timestampType">
+                            <option value="seconds">秒级时间戳</option>
+                            <option value="milliseconds" selected>毫秒级时间戳</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>时区:</label>
+                        <select id="timezone">
+                            <option value="Asia/Shanghai" selected>中国标准时间 (CST)</option>
+                            <option value="UTC">协调世界时 (UTC)</option>
+                            <option value="America/New_York">美东时间 (EST)</option>
+                            <option value="Europe/London">格林威治时间 (GMT)</option>
+                            <option value="Asia/Tokyo">日本标准时间 (JST)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="tool-btn" onclick="convertTimestamp()">转换时间戳</button>
+                <button class="secondary-btn" onclick="getCurrentTimestamp()">获取当前时间戳</button>
+                <button class="secondary-btn" onclick="convertToTimestamp()">日期转时间戳</button>
+                
+                <div class="input-group" style="margin-top: 1rem;">
+                    <label>日期时间输入 (用于转换为时间戳):</label>
+                    <input type="datetime-local" id="dateInput">
+                </div>
+                
+                <div class="timestamp-display" id="timestampDisplay">
+                    <div class="timestamp-item">
+                        <h4>时间戳</h4>
+                        <div class="value" id="timestampValue">-</div>
+                    </div>
+                    <div class="timestamp-item">
+                        <h4>本地时间</h4>
+                        <div class="value" id="localTime">-</div>
+                    </div>
+                    <div class="timestamp-item">
+                        <h4>UTC时间</h4>
+                        <div class="value" id="utcTime">-</div>
+                    </div>
+                    <div class="timestamp-item">
+                        <h4>ISO 8601</h4>
+                        <div class="value" id="isoTime">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- URL编解码 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔗</span>
+                    URL 编解码工具
+                </div>
+                
+                <div class="input-group">
+                    <label>URL 内容:</label>
+                    <textarea id="urlInput" placeholder="输入要编码或解码的URL" rows="4"></textarea>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="urlComponent">
+                    <label>组件编码 (只编码特殊字符，保留URL结构)</label>
+                </div>
+
+                <button class="tool-btn" onclick="encodeURL()">URL编码</button>
+                <button class="tool-btn" onclick="decodeURL()">URL解码</button>
+                <button class="danger-btn" onclick="clearURL()">清空</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="urlResult">编码或解码结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('urlResult')">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentJsonIndent = 2;
+        let qrCodeCanvas = null;
+
+        // === UUID生成関数 ===
+
+        /**
+         * UUIDを生成
+         */
+        function generateUUID() {
+            const version = document.getElementById('uuidVersion').value;
+            const count = parseInt(document.getElementById('uuidCount').value);
+            const format = document.getElementById('uuidFormat').value;
+            
+            const uuids = [];
+            for (let i = 0; i < count; i++) {
+                let uuid;
+                switch (version) {
+                    case 'v4':
+                        uuid = generateUUIDv4();
+                        break;
+                    case 'v1':
+                        uuid = generateUUIDv1();
+                        break;
+                    case 'simple':
+                        uuid = generateUUIDv4().replace(/-/g, '');
+                        break;
+                    case 'short':
+                        uuid = generateShortUUID();
+                        break;
+                }
+                
+                uuids.push(format === 'uppercase' ? uuid.toUpperCase() : uuid.toLowerCase());
+            }
+            
+            document.getElementById('uuidResult').textContent = uuids.join('\n');
+        }
+
+        /**
+         * 単一のUUIDを生成
+         */
+        function generateSingleUUID() {
+            document.getElementById('uuidCount').value = 1;
+            generateUUID();
+        }
+
+        /**
+         * UUID v4生成 (ランダム)
+         */
+        function generateUUIDv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        /**
+         * UUID v1生成 (時間ベース)
+         */
+        function generateUUIDv1() {
+            const timestamp = Date.now();
+            const random = Math.random().toString(16).substring(2, 15);
+            const clockSeq = Math.floor(Math.random() * 0x4000);
+            
+            // 簡略化されたv1実装
+            return `${timestamp.toString(16).padStart(8, '0').substring(0,8)}-${random.substring(0,4)}-1${random.substring(4,7)}-${(clockSeq | 0x8000).toString(16)}-${random.substring(7,19)}`;
+        }
+
+        /**
+         * 短いUUID生成
+         */
+        function generateShortUUID() {
+            return Math.random().toString(36).substring(2, 10);
+        }
+
+        // === QRコード生成関数 ===
+
+        /**
+         * QRコードを生成
+         */
+        function generateQR() {
+            const text = document.getElementById('qrText').value.trim();
+            if (!text) {
+                alert('请输入要生成二维码的内容！');
+                return;
+            }
+
+            // 检查QRCode库是否可用
+            if (typeof QRCode === 'undefined') {
+                alert('二维码库加载失败，请检查网络连接！');
+                return;
+            }
+
+            const size = parseInt(document.getElementById('qrSize').value);
+            const errorLevel = document.getElementById('qrErrorLevel').value;
+            const foreground = document.getElementById('qrForeground').value;
+            const background = document.getElementById('qrBackground').value;
+
+            // 验证输入
+            if (isNaN(size) || size < 100 || size > 1000) {
+                alert('请选择有效的二维码尺寸！');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const options = {
+                width: size,
+                height: size,
+                errorCorrectionLevel: errorLevel,
+                color: {
+                    dark: foreground,
+                    light: background
+                }
+            };
+
+            QRCode.toCanvas(canvas, text, options)
+                .then(() => {
+                    const display = document.getElementById('qrDisplay');
+                    display.innerHTML = '';
+                    display.appendChild(canvas);
+                    qrCodeCanvas = canvas;
+                })
+                .catch(err => {
+                    console.error('QR Code generation error:', err);
+                    alert('二维码生成失败: ' + err.message);
+                });
+        }
+
+        /**
+         * QRコード画像をダウンロード
+         */
+        function downloadQR() {
+            if (!qrCodeCanvas) {
+                alert('请先生成二维码！');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = qrCodeCanvas.toDataURL();
+            link.click();
+        }
+
+        // === Base64エンコード/デコード関数 ===
+
+        /**
+         * Base64エンコード
+         */
+        function encodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            if (!input) return;
+
+            try {
+                // 使用现代方法处理UTF-8编码
+                const utf8Bytes = new TextEncoder().encode(input);
+                let binary = '';
+                utf8Bytes.forEach(byte => {
+                    binary += String.fromCharCode(byte);
+                });
+                let encoded = btoa(binary);
+                
+                if (document.getElementById('base64UrlSafe').checked) {
+                    encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                }
+                
+                document.getElementById('base64Result').textContent = encoded;
+            } catch (error) {
+                document.getElementById('base64Result').textContent = 'エンコードエラー: ' + error.message;
+            }
+        }
+
+        /**
+         * Base64デコード
+         */
+        function decodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            if (!input) return;
+
+            try {
+                let toDecode = input;
+                
+                if (document.getElementById('base64UrlSafe').checked) {
+                    toDecode = toDecode.replace(/-/g, '+').replace(/_/g, '/');
+                    // パディングを追加
+                    while (toDecode.length % 4) {
+                        toDecode += '=';
+                    }
+                }
+                
+                // 使用现代方法处理UTF-8解码
+                const binary = atob(toDecode);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                const decoded = new TextDecoder().decode(bytes);
+                document.getElementById('base64Result').textContent = decoded;
+            } catch (error) {
+                document.getElementById('base64Result').textContent = 'デコードエラー: ' + error.message;
+            }
+        }
+
+        /**
+         * Base64クリア
+         */
+        function clearBase64() {
+            document.getElementById('base64Input').value = '';
+            document.getElementById('base64Result').textContent = '编码或解码结果将显示在这里';
+        }
+
+        // === JSON関連関数 ===
+
+        /**
+         * JSONフォーマット設定
+         */
+        function setJsonIndent(button, indent) {
+            document.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            currentJsonIndent = indent;
+        }
+
+        /**
+         * JSON整形
+         */
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            if (!input) return;
+
+            try {
+                const parsed = JSON.parse(input);
+                const formatted = JSON.stringify(parsed, null, currentJsonIndent);
+                document.getElementById('jsonResult').textContent = formatted;
+                showJsonMessage('JSON格式化成功！', 'success');
+            } catch (error) {
+                showJsonMessage('JSON解析错误: ' + error.message, 'error');
+            }
+        }
+
+        /**
+         * JSON検証
+         */
+        function validateJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            if (!input) {
+                showJsonMessage('请输入JSON内容', 'error');
+                return;
+            }
+
+            try {
+                JSON.parse(input);
+                showJsonMessage('✅ JSON格式正确！', 'success');
+            } catch (error) {
+                showJsonMessage('❌ JSON格式错误: ' + error.message, 'error');
+            }
+        }
+
+        /**
+         * JSON圧縮
+         */
+        function minifyJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            if (!input) return;
+
+            try {
+                const parsed = JSON.parse(input);
+                const minified = JSON.stringify(parsed);
+                document.getElementById('jsonResult').textContent = minified;
+                showJsonMessage('JSON压缩成功！', 'success');
+            } catch (error) {
+                showJsonMessage('JSON解析错误: ' + error.message, 'error');
+            }
+        }
+
+        /**
+         * JSONクリア
+         */
+        function clearJSON() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('jsonResult').textContent = '格式化结果将显示在这里';
+            document.getElementById('jsonMessage').innerHTML = '';
+        }
+
+        /**
+         * JSONメッセージ表示
+         */
+        function showJsonMessage(message, type) {
+            const messageDiv = document.getElementById('jsonMessage');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        // === タイムスタンプ変換関数 ===
+
+        /**
+         * タイムスタンプ変換
+         */
+        function convertTimestamp() {
+            const input = document.getElementById('timestampInput').value.trim();
+            if (!input) return;
+
+            const type = document.getElementById('timestampType').value;
+            const timezone = document.getElementById('timezone').value;
+            
+            let timestamp = parseInt(input);
+            if (isNaN(timestamp)) {
+                alert('请输入有效的时间戳数字！');
+                return;
+            }
+
+            // 验证时间戳范围 (1970-2099年)
+            const minTimestamp = 0;
+            const maxTimestamp = 4102444800000; // 2099年12月31日
+            
+            let originalTimestamp = timestamp;
+            
+            // 秒级を毫秒级に変換
+            if (type === 'seconds') {
+                timestamp *= 1000;
+            }
+
+            if (timestamp < minTimestamp || timestamp > maxTimestamp) {
+                alert('时间戳超出有效范围 (1970-2099年)！');
+                return;
+            }
+
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) {
+                alert('无效的时间戳！');
+                return;
+            }
+            
+            displayTimestamp(timestamp, date);
+        }
+
+        /**
+         * 現在のタイムスタンプを取得
+         */
+        function getCurrentTimestamp() {
+            const now = Date.now();
+            const date = new Date(now);
+            
+            document.getElementById('timestampInput').value = now;
+            displayTimestamp(now, date);
+        }
+
+        /**
+         * 日付をタイムスタンプに変換
+         */
+        function convertToTimestamp() {
+            const dateInput = document.getElementById('dateInput').value;
+            if (!dateInput) {
+                alert('请选择日期时间！');
+                return;
+            }
+
+            const date = new Date(dateInput);
+            const timestamp = date.getTime();
+            
+            document.getElementById('timestampInput').value = timestamp;
+            displayTimestamp(timestamp, date);
+        }
+
+        /**
+         * タイムスタンプ表示
+         */
+        function displayTimestamp(timestamp, date) {
+            document.getElementById('timestampValue').textContent = timestamp;
+            document.getElementById('localTime').textContent = date.toLocaleString('zh-CN');
+            document.getElementById('utcTime').textContent = date.toUTCString();
+            document.getElementById('isoTime').textContent = date.toISOString();
+        }
+
+        // === URL エンコード/デコード関数 ===
+
+        /**
+         * URLエンコード
+         */
+        function encodeURL() {
+            const input = document.getElementById('urlInput').value;
+            if (!input) return;
+
+            try {
+                const isComponent = document.getElementById('urlComponent').checked;
+                const encoded = isComponent ? encodeURIComponent(input) : encodeURI(input);
+                document.getElementById('urlResult').textContent = encoded;
+            } catch (error) {
+                document.getElementById('urlResult').textContent = 'エンコードエラー: ' + error.message;
+            }
+        }
+
+        /**
+         * URLデコード
+         */
+        function decodeURL() {
+            const input = document.getElementById('urlInput').value;
+            if (!input) return;
+
+            try {
+                const decoded = decodeURIComponent(input);
+                document.getElementById('urlResult').textContent = decoded;
+            } catch (error) {
+                document.getElementById('urlResult').textContent = 'デコードエラー: ' + error.message;
+            }
+        }
+
+        /**
+         * URLクリア
+         */
+        function clearURL() {
+            document.getElementById('urlInput').value = '';
+            document.getElementById('urlResult').textContent = '编码或解码结果将显示在这里';
+        }
+
+        // === 共通関数 ===
+
+        /**
+         * クリップボードにコピー
+         */
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = element.parentElement.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '已复制!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // フォールバック方法
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                alert('已复制到剪贴板！');
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            getCurrentTimestamp();
+        });
+    </script>
+</body>
+</html>

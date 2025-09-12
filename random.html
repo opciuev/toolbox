@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机数生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            min-width: 400px;
+            max-width: 500px;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-number {
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .result.animate {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .options {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .options h3 {
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+
+        .history {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .history h3 {
+            margin-bottom: 1rem;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .clear-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 随机数生成器</h1>
+        
+        <div class="input-row">
+            <div class="input-group">
+                <label for="min">最小值:</label>
+                <input type="number" id="min" value="1">
+            </div>
+            <div class="input-group">
+                <label for="max">最大值:</label>
+                <input type="number" id="max" value="100">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="count">生成数量:</label>
+            <input type="number" id="count" value="1" min="1" max="50">
+        </div>
+
+        <div class="options">
+            <h3>选项</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="allowDuplicates" checked>
+                <label for="allowDuplicates">允许重复数字</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="sortResults">
+                <label for="sortResults">排序结果</label>
+            </div>
+        </div>
+
+        <button class="generate-btn" onclick="generateRandomNumbers()">
+            生成随机数
+        </button>
+
+        <div class="result" id="result">
+            <div class="result-label">点击按钮生成随机数</div>
+        </div>
+
+        <div class="history">
+            <h3>历史记录</h3>
+            <div class="history-list" id="historyList"></div>
+            <button class="clear-btn" onclick="clearHistory()">清除历史</button>
+        </div>
+    </div>
+
+    <script>
+        // ランダム数の履歴を保存する配列
+        let history = [];
+
+        /**
+         * ランダム数を生成する主要な関数
+         */
+        function generateRandomNumbers() {
+            const min = parseInt(document.getElementById('min').value);
+            const max = parseInt(document.getElementById('max').value);
+            const count = parseInt(document.getElementById('count').value);
+            const allowDuplicates = document.getElementById('allowDuplicates').checked;
+            const sortResults = document.getElementById('sortResults').checked;
+
+            // 入力検証 - NaN チェックを追加
+            if (isNaN(min) || isNaN(max) || isNaN(count)) {
+                alert('请输入有效的数字！');
+                return;
+            }
+
+            if (min > max) {
+                alert('最小值不能大于最大值！');
+                return;
+            }
+
+            if (count <= 0 || count > 50) {
+                alert('生成数量必须在1到50之间！');
+                return;
+            }
+
+            if (!allowDuplicates && count > (max - min + 1)) {
+                alert('不允许重复时，生成数量不能超过数值范围！');
+                return;
+            }
+
+            // ランダム数を生成
+            let results = [];
+            const availableNumbers = [];
+
+            // 重複を許可しない場合、利用可能な数値のプールを作成
+            if (!allowDuplicates) {
+                for (let i = min; i <= max; i++) {
+                    availableNumbers.push(i);
+                }
+            }
+
+            // 指定された数だけランダム数を生成
+            for (let i = 0; i < count; i++) {
+                let randomNumber;
+                
+                if (allowDuplicates) {
+                    // 重複を許可する場合
+                    randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+                } else {
+                    // 重複を許可しない場合
+                    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                    randomNumber = availableNumbers[randomIndex];
+                    availableNumbers.splice(randomIndex, 1);
+                }
+                
+                results.push(randomNumber);
+            }
+
+            // 結果をソートする（オプション）
+            if (sortResults) {
+                results.sort((a, b) => a - b);
+            }
+
+            // 結果を表示
+            displayResults(results);
+            
+            // 履歴に追加
+            addToHistory(results);
+        }
+
+        /**
+         * 結果を画面に表示する
+         */
+        function displayResults(results) {
+            const resultDiv = document.getElementById('result');
+            
+            // アニメーション効果を追加
+            resultDiv.classList.add('animate');
+            
+            if (results.length === 1) {
+                resultDiv.innerHTML = `
+                    <div class="result-label">生成的随机数:</div>
+                    <div class="result-number">${results[0]}</div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result-label">生成的随机数 (${results.length}个):</div>
+                    <div class="result-number" style="font-size: 1.5rem; line-height: 1.5;">
+                        ${results.join(', ')}
+                    </div>
+                `;
+            }
+
+            // アニメーションクラスを削除（次回のアニメーションのため）
+            setTimeout(() => {
+                resultDiv.classList.remove('animate');
+            }, 600);
+        }
+
+        /**
+         * 履歴に結果を追加する
+         */
+        function addToHistory(results) {
+            const timestamp = new Date().toLocaleTimeString();
+            const historyEntry = {
+                results: results.slice(),
+                time: timestamp
+            };
+            
+            history.unshift(historyEntry);
+            
+            // 履歴は最大20件まで保持
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        /**
+         * 履歴表示を更新する
+         */
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            history.forEach((entry, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.textContent = `${entry.results.join(',')} (${entry.time})`;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        /**
+         * 履歴をクリアする
+         */
+        function clearHistory() {
+            history = [];
+            updateHistoryDisplay();
+        }
+
+        // エンターキーでの生成をサポート
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                generateRandomNumbers();
+            }
+        });
+
+        // 初期状態で一度実行してサンプルを表示
+        window.onload = function() {
+            // ページロード時に簡単なウェルカムメッセージを表示
+            setTimeout(() => {
+                generateRandomNumbers();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

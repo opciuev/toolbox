@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互动游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .nav-back a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-back a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .game-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .game-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        /* 幸运转盘样式 */
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 2rem auto;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #2d3748;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #e53e3e;
+            z-index: 10;
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: #2d3748;
+            border-radius: 50%;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 掷骰子样式 */
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .dice.rolling {
+            animation: rollDice 1s ease-in-out;
+        }
+
+        @keyframes rollDice {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            75% { transform: rotate(270deg) scale(1.1); }
+        }
+
+        /* 抽奖系统样式 */
+        .lottery-items {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .lottery-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .lottery-item input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            margin-right: 1rem;
+        }
+
+        .lottery-item input:focus {
+            outline: none;
+        }
+
+        .weight-input {
+            width: 60px;
+            padding: 0.25rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            text-align: center;
+        }
+
+        /* 猜数字游戏样式 */
+        .guess-game {
+            text-align: center;
+        }
+
+        .guess-input {
+            width: 120px;
+            padding: 1rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            margin: 1rem;
+        }
+
+        .guess-feedback {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            min-height: 2rem;
+        }
+
+        .game-stats {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        /* 共通のボタンスタイル */
+        .game-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .game-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secondary-btn {
+            background: #48bb78;
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .danger-btn {
+            background: #e53e3e;
+        }
+
+        .danger-btn:hover {
+            box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .result-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 1rem 0;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-back {
+                position: relative;
+                top: auto;
+                left: auto;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .wheel-container {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-back">
+        <a href="index.html">← 返回主页</a>
+    </div>
+
+    <div class="header">
+        <h1>🎮 互动游戏</h1>
+        <p>有趣的游戏化工具，让随机选择变得更加有趣</p>
+    </div>
+
+    <div class="container">
+        <div class="games-grid">
+            <!-- 幸运转盘 -->
+            <div class="game-card">
+                <div class="game-title">
+                    <span class="game-icon">🎡</span>
+                    幸运转盘
+                </div>
+                
+                <div class="wheel-container">
+                    <div class="wheel-pointer"></div>
+                    <div class="wheel" id="wheel">
+                        <!-- 转盘片段将通过JS生成 -->
+                    </div>
+                    <div class="wheel-center">GO</div>
+                </div>
+
+                <div class="input-group">
+                    <label>转盘选项 (用逗号分隔):</label>
+                    <input type="text" id="wheelOptions" value="选项1,选项2,选项3,选项4,选项5,选项6" placeholder="输入选项，用逗号分隔">
+                </div>
+
+                <button class="game-btn" onclick="updateWheel()">更新转盘</button>
+                <button class="game-btn" onclick="spinWheel()" id="spinBtn">开始转动</button>
+                
+                <div class="result-display" id="wheelResult">点击转动转盘</div>
+            </div>
+
+            <!-- 掷骰子 -->
+            <div class="game-card">
+                <div class="game-title">
+                    <span class="game-icon">🎲</span>
+                    掷骰子模拟器
+                </div>
+
+                <div class="input-group">
+                    <label>骰子数量:</label>
+                    <select id="diceCount" onchange="updateDiceDisplay()">
+                        <option value="1">1个骰子</option>
+                        <option value="2" selected>2个骰子</option>
+                        <option value="3">3个骰子</option>
+                        <option value="4">4个骰子</option>
+                        <option value="5">5个骰子</option>
+                        <option value="6">6个骰子</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>骰子面数:</label>
+                    <select id="diceSides">
+                        <option value="4">4面骰子</option>
+                        <option value="6" selected>6面骰子</option>
+                        <option value="8">8面骰子</option>
+                        <option value="10">10面骰子</option>
+                        <option value="12">12面骰子</option>
+                        <option value="20">20面骰子</option>
+                    </select>
+                </div>
+
+                <div class="dice-container" id="diceContainer">
+                    <!-- 骰子将通过JS生成 -->
+                </div>
+
+                <button class="game-btn" onclick="rollDice()">掷骰子</button>
+                
+                <div class="result-display" id="diceResult">点击掷骰子</div>
+                
+                <div class="game-stats" id="diceStats" style="display: none;">
+                    <strong>统计信息:</strong><br>
+                    总计: <span id="diceSum">0</span><br>
+                    平均值: <span id="diceAvg">0</span><br>
+                    最大值: <span id="diceMax">0</span><br>
+                    最小值: <span id="diceMin">0</span>
+                </div>
+            </div>
+
+            <!-- 抽奖系统 -->
+            <div class="game-card">
+                <div class="game-title">
+                    <span class="game-icon">🎁</span>
+                    抽奖系统
+                </div>
+
+                <div class="input-group">
+                    <label>抽奖物品列表:</label>
+                    <div class="lottery-items" id="lotteryItems">
+                        <div class="lottery-item">
+                            <input type="text" value="一等奖" placeholder="奖品名称">
+                            <input type="number" class="weight-input" value="1" min="1" placeholder="权重">
+                            <button class="danger-btn" onclick="removeLotteryItem(this)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">删除</button>
+                        </div>
+                        <div class="lottery-item">
+                            <input type="text" value="二等奖" placeholder="奖品名称">
+                            <input type="number" class="weight-input" value="3" min="1" placeholder="权重">
+                            <button class="danger-btn" onclick="removeLotteryItem(this)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">删除</button>
+                        </div>
+                        <div class="lottery-item">
+                            <input type="text" value="三等奖" placeholder="奖品名称">
+                            <input type="number" class="weight-input" value="6" min="1" placeholder="权重">
+                            <button class="danger-btn" onclick="removeLotteryItem(this)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">删除</button>
+                        </div>
+                        <div class="lottery-item">
+                            <input type="text" value="参与奖" placeholder="奖品名称">
+                            <input type="number" class="weight-input" value="10" min="1" placeholder="权重">
+                            <button class="danger-btn" onclick="removeLotteryItem(this)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">删除</button>
+                        </div>
+                    </div>
+                    <button class="secondary-btn" onclick="addLotteryItem()">+ 添加奖品</button>
+                </div>
+
+                <button class="game-btn" onclick="drawLottery()">开始抽奖</button>
+                
+                <div class="result-display" id="lotteryResult">点击开始抽奖</div>
+            </div>
+
+            <!-- 猜数字游戏 -->
+            <div class="game-card">
+                <div class="game-title">
+                    <span class="game-icon">🔢</span>
+                    猜数字游戏
+                </div>
+
+                <div class="guess-game">
+                    <div class="input-group">
+                        <label>难度选择:</label>
+                        <select id="gameDifficulty" onchange="startNewGame()">
+                            <option value="easy">简单 (1-50)</option>
+                            <option value="medium" selected>中等 (1-100)</option>
+                            <option value="hard">困难 (1-500)</option>
+                            <option value="expert">专家 (1-1000)</option>
+                        </select>
+                    </div>
+
+                    <p>我已经想了一个数字，请你来猜猜看！</p>
+                    
+                    <input type="number" class="guess-input" id="guessInput" placeholder="?" min="1">
+                    <br>
+                    <button class="game-btn" onclick="makeGuess()">猜这个数字</button>
+                    <button class="secondary-btn" onclick="startNewGame()">重新开始</button>
+                    
+                    <div class="guess-feedback" id="guessFeedback">请输入你的猜测</div>
+                    
+                    <div class="game-stats">
+                        <strong>游戏信息:</strong><br>
+                        当前范围: <span id="gameRange">1 - 100</span><br>
+                        已猜次数: <span id="guessCount">0</span><br>
+                        最佳记录: <span id="bestScore">未完成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバルゲーム変数
+        let wheelSpinning = false;
+        let currentWheelOptions = [];
+        let targetNumber = 0;
+        let guessCount = 0;
+        let gameRange = { min: 1, max: 100 };
+        let bestScores = {
+            easy: localStorage.getItem('bestScore_easy') || '未完成',
+            medium: localStorage.getItem('bestScore_medium') || '未完成',
+            hard: localStorage.getItem('bestScore_hard') || '未完成',
+            expert: localStorage.getItem('bestScore_expert') || '未完成'
+        };
+
+        /**
+         * ページロード時の初期化
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            updateWheel();
+            updateDiceDisplay();
+            startNewGame();
+        });
+
+        // === 幸運の輪関連の関数 ===
+
+        /**
+         * ホイールを更新
+         */
+        function updateWheel() {
+            const options = document.getElementById('wheelOptions').value.split(',').map(s => s.trim()).filter(s => s);
+            if (options.length < 2) {
+                alert('请至少输入2个选项！');
+                return;
+            }
+            
+            currentWheelOptions = options;
+            const wheel = document.getElementById('wheel');
+            wheel.innerHTML = '';
+            
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+            const segmentAngle = 360 / options.length;
+            
+            options.forEach((option, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.style.background = colors[index % colors.length];
+                segment.style.transform = `rotate(${index * segmentAngle}deg)`;
+                
+                // テキストを追加
+                const text = document.createElement('div');
+                text.style.position = 'absolute';
+                text.style.top = '10px';
+                text.style.left = '50%';
+                text.style.transform = 'translateX(-50%)';
+                text.style.fontSize = '12px';
+                text.style.fontWeight = 'bold';
+                text.style.color = 'white';
+                text.style.textShadow = '1px 1px 2px rgba(0,0,0,0.8)';
+                text.textContent = option.length > 8 ? option.substring(0, 6) + '...' : option;
+                segment.appendChild(text);
+                
+                wheel.appendChild(segment);
+            });
+        }
+
+        /**
+         * ホイールを回転
+         */
+        function spinWheel() {
+            if (wheelSpinning || currentWheelOptions.length < 2) return;
+            
+            wheelSpinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.textContent = '转动中...';
+            
+            const wheel = document.getElementById('wheel');
+            const randomSpin = Math.floor(Math.random() * 360) + 1440; // 最低转4圈
+            
+            wheel.style.transform = `rotate(${randomSpin}deg)`;
+            
+            setTimeout(() => {
+                const normalizedAngle = randomSpin % 360;
+                const segmentAngle = 360 / currentWheelOptions.length;
+                // 修正角度计算 - 考虑指针位置
+                const adjustedAngle = (360 - normalizedAngle + segmentAngle / 2) % 360;
+                const selectedIndex = Math.floor(adjustedAngle / segmentAngle) % currentWheelOptions.length;
+                const selectedOption = currentWheelOptions[selectedIndex];
+                
+                document.getElementById('wheelResult').textContent = `🎉 ${selectedOption}`;
+                
+                wheelSpinning = false;
+                spinBtn.disabled = false;
+                spinBtn.textContent = '开始转动';
+            }, 4000);
+        }
+
+        // === サイコロ関連の関数 ===
+
+        /**
+         * サイコロ表示を更新
+         */
+        function updateDiceDisplay() {
+            const count = parseInt(document.getElementById('diceCount').value);
+            const container = document.getElementById('diceContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const dice = document.createElement('div');
+                dice.className = 'dice';
+                dice.id = `dice${i}`;
+                dice.textContent = '?';
+                container.appendChild(dice);
+            }
+        }
+
+        /**
+         * サイコロを振る
+         */
+        function rollDice() {
+            const count = parseInt(document.getElementById('diceCount').value);
+            const sides = parseInt(document.getElementById('diceSides').value);
+            const results = [];
+            
+            // アニメーション開始
+            for (let i = 0; i < count; i++) {
+                const dice = document.getElementById(`dice${i}`);
+                dice.classList.add('rolling');
+                dice.textContent = '🎲';
+            }
+            
+            // 結果計算とアニメーション終了
+            setTimeout(() => {
+                let sum = 0;
+                for (let i = 0; i < count; i++) {
+                    const result = Math.floor(Math.random() * sides) + 1;
+                    results.push(result);
+                    sum += result;
+                    
+                    const dice = document.getElementById(`dice${i}`);
+                    dice.classList.remove('rolling');
+                    dice.textContent = result;
+                }
+                
+                // 結果表示
+                document.getElementById('diceResult').textContent = `结果: ${results.join(', ')}`;
+                
+                // 統計情報表示
+                document.getElementById('diceSum').textContent = sum;
+                document.getElementById('diceAvg').textContent = (sum / count).toFixed(1);
+                document.getElementById('diceMax').textContent = Math.max(...results);
+                document.getElementById('diceMin').textContent = Math.min(...results);
+                document.getElementById('diceStats').style.display = 'block';
+            }, 1000);
+        }
+
+        // === 宝くじシステム関連の関数 ===
+
+        /**
+         * 宝くじアイテムを追加
+         */
+        function addLotteryItem() {
+            const container = document.getElementById('lotteryItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'lottery-item';
+            newItem.innerHTML = `
+                <input type="text" placeholder="奖品名称">
+                <input type="number" class="weight-input" value="1" min="1" placeholder="权重">
+                <button class="danger-btn" onclick="removeLotteryItem(this)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">删除</button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        /**
+         * 宝くじアイテムを削除
+         */
+        function removeLotteryItem(button) {
+            const container = document.getElementById('lotteryItems');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('至少需要保留一个奖品！');
+            }
+        }
+
+        /**
+         * 宝くじ抽選
+         */
+        function drawLottery() {
+            const items = document.querySelectorAll('#lotteryItems .lottery-item');
+            const lotteryPool = [];
+            
+            // 重み付きプールを作成
+            items.forEach(item => {
+                const name = item.querySelector('input[type="text"]').value.trim();
+                const weight = parseInt(item.querySelector('.weight-input').value);
+                
+                if (name) {
+                    for (let i = 0; i < weight; i++) {
+                        lotteryPool.push(name);
+                    }
+                }
+            });
+            
+            if (lotteryPool.length === 0) {
+                alert('请至少添加一个有效的奖品！');
+                return;
+            }
+            
+            // 抽選実行
+            const winner = lotteryPool[Math.floor(Math.random() * lotteryPool.length)];
+            document.getElementById('lotteryResult').textContent = `🎊 恭喜获得: ${winner}`;
+        }
+
+        // === 数字当てゲーム関連の関数 ===
+
+        /**
+         * 新しいゲームを開始
+         */
+        function startNewGame() {
+            const difficulty = document.getElementById('gameDifficulty').value;
+            
+            switch (difficulty) {
+                case 'easy':
+                    gameRange = { min: 1, max: 50 };
+                    break;
+                case 'medium':
+                    gameRange = { min: 1, max: 100 };
+                    break;
+                case 'hard':
+                    gameRange = { min: 1, max: 500 };
+                    break;
+                case 'expert':
+                    gameRange = { min: 1, max: 1000 };
+                    break;
+            }
+            
+            targetNumber = Math.floor(Math.random() * (gameRange.max - gameRange.min + 1)) + gameRange.min;
+            guessCount = 0;
+            
+            document.getElementById('gameRange').textContent = `${gameRange.min} - ${gameRange.max}`;
+            document.getElementById('guessCount').textContent = guessCount;
+            document.getElementById('bestScore').textContent = bestScores[difficulty];
+            document.getElementById('guessFeedback').textContent = '请输入你的猜测';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').focus();
+        }
+
+        /**
+         * 数字を推測
+         */
+        function makeGuess() {
+            const guessInput = document.getElementById('guessInput');
+            const guess = parseInt(guessInput.value);
+            
+            if (isNaN(guess) || guess < gameRange.min || guess > gameRange.max) {
+                alert(`请输入 ${gameRange.min} 到 ${gameRange.max} 之间的数字！`);
+                return;
+            }
+            
+            guessCount++;
+            document.getElementById('guessCount').textContent = guessCount;
+            
+            const feedback = document.getElementById('guessFeedback');
+            
+            if (guess === targetNumber) {
+                feedback.textContent = `🎉 恭喜你猜对了！数字是 ${targetNumber}，你用了 ${guessCount} 次。`;
+                feedback.style.color = '#48bb78';
+                
+                // ベストスコア更新
+                const difficulty = document.getElementById('gameDifficulty').value;
+                const currentBest = bestScores[difficulty];
+                if (currentBest === '未完成' || guessCount < parseInt(currentBest)) {
+                    bestScores[difficulty] = guessCount;
+                    localStorage.setItem(`bestScore_${difficulty}`, guessCount);
+                    document.getElementById('bestScore').textContent = guessCount;
+                    feedback.textContent += ' 🏆 新纪录！';
+                }
+            } else if (guess < targetNumber) {
+                feedback.textContent = '太小了！试试更大的数字。';
+                feedback.style.color = '#4299e1';
+            } else {
+                feedback.textContent = '太大了！试试更小的数字。';
+                feedback.style.color = '#ed8936';
+            }
+            
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        // エンターキーサポート
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'guessInput') {
+                    makeGuess();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本处理工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .nav-back a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-back a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .tool-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .secondary-btn {
+            background: #48bb78;
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .danger-btn {
+            background: #e53e3e;
+        }
+
+        .danger-btn:hover {
+            box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4);
+        }
+
+        .result-area {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .result-text {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            white-space: pre-wrap;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #4299e1;
+        }
+
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stats-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .stats-item h4 {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .stats-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+
+        .lorem-options {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .word-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .highlight {
+            background-color: #ffd700;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-back {
+                position: relative;
+                top: auto;
+                left: auto;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .stats-display {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-back">
+        <a href="index.html">← 返回主页</a>
+    </div>
+
+    <div class="header">
+        <h1>📝 文本处理工具</h1>
+        <p>强大的文本分析和处理工具集合</p>
+    </div>
+
+    <div class="container">
+        <div class="tools-grid">
+            <!-- 文本统计分析 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">📊</span>
+                    文本统计分析
+                </div>
+                
+                <div class="input-group">
+                    <label>输入文本:</label>
+                    <textarea id="statsText" placeholder="输入要分析的文本内容..." rows="6"></textarea>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSpaces">
+                    <label>包含空格计数</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="caseSensitive">
+                    <label>区分大小写</label>
+                </div>
+
+                <button class="tool-btn" onclick="analyzeText()">分析文本</button>
+                <button class="secondary-btn" onclick="showWordFrequency()">词频统计</button>
+                <button class="danger-btn" onclick="clearStats()">清空</button>
+                
+                <div class="stats-display" id="textStats">
+                    <div class="stats-item">
+                        <h4>字符数</h4>
+                        <div class="value" id="charCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>单词数</h4>
+                        <div class="value" id="wordCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>句子数</h4>
+                        <div class="value" id="sentenceCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>段落数</h4>
+                        <div class="value" id="paragraphCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>行数</h4>
+                        <div class="value" id="lineCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>平均字数/句</h4>
+                        <div class="value" id="avgWordsPerSentence">0</div>
+                    </div>
+                </div>
+
+                <div class="word-cloud" id="wordFrequency"></div>
+            </div>
+
+            <!-- 大小写转换 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔤</span>
+                    大小写转换工具
+                </div>
+                
+                <div class="input-group">
+                    <label>输入文本:</label>
+                    <textarea id="caseText" placeholder="输入要转换的文本..." rows="4"></textarea>
+                </div>
+
+                <button class="tool-btn" onclick="convertCase('upper')">转为大写</button>
+                <button class="tool-btn" onclick="convertCase('lower')">转为小写</button>
+                <button class="tool-btn" onclick="convertCase('title')">标题格式</button>
+                <button class="tool-btn" onclick="convertCase('sentence')">句子格式</button>
+                <button class="secondary-btn" onclick="convertCase('toggle')">切换大小写</button>
+                <button class="secondary-btn" onclick="convertCase('camel')">驼峰格式</button>
+                <button class="danger-btn" onclick="clearCase()">清空</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="caseResult">转换结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('caseResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 文本去重工具 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔄</span>
+                    文本去重工具
+                </div>
+                
+                <div class="input-group">
+                    <label>输入文本 (每行一个条目):</label>
+                    <textarea id="duplicateText" placeholder="输入要去重的文本，每行一条..." rows="6"></textarea>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>分隔符:</label>
+                        <select id="separator">
+                            <option value="line" selected>换行符</option>
+                            <option value="comma">逗号</option>
+                            <option value="semicolon">分号</option>
+                            <option value="space">空格</option>
+                            <option value="tab">制表符</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>排序方式:</label>
+                        <select id="sortOrder">
+                            <option value="none">保持原序</option>
+                            <option value="asc" selected>升序</option>
+                            <option value="desc">降序</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="trimWhitespace" checked>
+                    <label>去除首尾空格</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="ignoreCase">
+                    <label>忽略大小写</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="removeEmpty" checked>
+                    <label>移除空行</label>
+                </div>
+
+                <button class="tool-btn" onclick="removeDuplicates()">去除重复</button>
+                <button class="secondary-btn" onclick="findDuplicates()">查找重复项</button>
+                <button class="danger-btn" onclick="clearDuplicates()">清空</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="duplicateResult">去重结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('duplicateResult')">复制</button>
+                </div>
+
+                <div class="stats-display" style="margin-top: 1rem;">
+                    <div class="stats-item">
+                        <h4>原始条目</h4>
+                        <div class="value" id="originalCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>去重后</h4>
+                        <div class="value" id="uniqueCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>重复项</h4>
+                        <div class="value" id="duplicateCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lorem ipsum 生成器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">📄</span>
+                    Lorem Ipsum 生成器
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>生成类型:</label>
+                        <select id="loremType">
+                            <option value="words">单词</option>
+                            <option value="sentences" selected>句子</option>
+                            <option value="paragraphs">段落</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>数量:</label>
+                        <input type="number" id="loremCount" value="5" min="1" max="100">
+                    </div>
+                </div>
+
+                <div class="lorem-options">
+                    <button class="option-btn active" data-style="classic" onclick="setLoremStyle(this)">经典Lorem</button>
+                    <button class="option-btn" data-style="chinese" onclick="setLoremStyle(this)">中文示例</button>
+                    <button class="option-btn" data-style="tech" onclick="setLoremStyle(this)">技术文档</button>
+                    <button class="option-btn" data-style="business" onclick="setLoremStyle(this)">商务内容</button>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="startWithLorem">
+                    <label>以 "Lorem ipsum" 开始</label>
+                </div>
+
+                <button class="tool-btn" onclick="generateLorem()">生成文本</button>
+                <button class="secondary-btn" onclick="generateMoreLorem()">生成更多</button>
+                <button class="danger-btn" onclick="clearLorem()">清空</button>
+                
+                <div class="result-area">
+                    <div class="result-text" id="loremResult">生成的文本将显示在这里</div>
+                    <button class="copy-btn" onclick="copyToClipboard('loremResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 文本搜索和替换 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔍</span>
+                    文本搜索替换
+                </div>
+                
+                <div class="input-group">
+                    <label>原始文本:</label>
+                    <textarea id="searchText" placeholder="输入要处理的文本..." rows="4"></textarea>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>搜索内容:</label>
+                        <input type="text" id="findText" placeholder="要查找的文本">
+                    </div>
+                    <div class="input-group">
+                        <label>替换为:</label>
+                        <input type="text" id="replaceText" placeholder="替换后的文本">
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="matchCase">
+                    <label>区分大小写</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="wholeWord">
+                    <label>全词匹配</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useRegex">
+                    <label>使用正则表达式</label>
+                </div>
+
+                <button class="tool-btn" onclick="searchAndHighlight()">查找并高亮</button>
+                <button class="tool-btn" onclick="replaceText()">替换全部</button>
+                <button class="secondary-btn" onclick="replaceFirst()">替换首个</button>
+                <button class="danger-btn" onclick="clearSearch()">清空</button>
+                
+                <div class="result-area">
+                    <div class="result-text" id="searchResult">搜索和替换结果将显示在这里</div>
+                    <button class="copy-btn" onclick="copyToClipboard('searchResult')">复制</button>
+                </div>
+
+                <div class="stats-display" style="margin-top: 1rem;">
+                    <div class="stats-item">
+                        <h4>匹配数</h4>
+                        <div class="value" id="matchCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>替换数</h4>
+                        <div class="value" id="replaceCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文本格式化工具 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">✨</span>
+                    文本格式化工具
+                </div>
+                
+                <div class="input-group">
+                    <label>输入文本:</label>
+                    <textarea id="formatText" placeholder="输入要格式化的文本..." rows="4"></textarea>
+                </div>
+
+                <button class="tool-btn" onclick="formatText('removeExtraSpaces')">移除多余空格</button>
+                <button class="tool-btn" onclick="formatText('removeLineBreaks')">移除换行符</button>
+                <button class="tool-btn" onclick="formatText('addLineNumbers')">添加行号</button>
+                <button class="secondary-btn" onclick="formatText('reverseText')">反转文本</button>
+                <button class="secondary-btn" onclick="formatText('shuffleWords')">随机排序单词</button>
+                <button class="secondary-btn" onclick="formatText('sortLines')">按行排序</button>
+                <button class="danger-btn" onclick="clearFormat()">清空</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="formatResult">格式化结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('formatResult')">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentLoremStyle = 'classic';
+
+        // テンプレートデータ
+        const loremTemplates = {
+            classic: {
+                words: ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore', 'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud', 'exercitation', 'ullamco', 'laboris', 'nisi', 'aliquip', 'ex', 'ea', 'commodo', 'consequat'],
+                sentences: ['Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.']
+            },
+            chinese: {
+                words: ['这是', '一个', '示例', '文本', '内容', '用于', '展示', '排版', '效果', '请', '替换', '为', '实际', '内容', '测试', '数据', '样本', '模板', '演示', '临时', '占位', '文字'],
+                sentences: ['这是一个示例文本内容，用于展示页面的排版效果。', '请将此处的文字替换为实际的内容。', '这只是一个临时的占位文本，用于测试页面布局。', '实际项目中应该使用真实的内容来替代这些示例文字。']
+            },
+            tech: {
+                words: ['API', '数据库', '服务器', '客户端', '接口', '函数', '变量', '对象', '方法', '属性', '配置', '部署', '测试', '调试', '优化', '性能', '安全', '架构', '框架', '模块'],
+                sentences: ['API接口提供了标准化的数据交互方式。', '数据库设计需要考虑性能和扩展性。', '前端组件应该具备良好的可复用性。', '系统架构要支持高并发和负载均衡。']
+            },
+            business: {
+                words: ['客户', '服务', '产品', '市场', '销售', '管理', '团队', '项目', '目标', '策略', '分析', '报告', '流程', '效率', '质量', '成本', '收益', '风险', '机会', '挑战'],
+                sentences: ['我们致力于为客户提供优质的产品和服务。', '市场分析显示了巨大的增长潜力和商业机会。', '团队协作是项目成功的关键因素。', '持续改进流程可以提高工作效率和产品质量。']
+            }
+        };
+
+        // === テキスト統計分析関数 ===
+
+        /**
+         * テキスト分析
+         */
+        function analyzeText() {
+            const text = document.getElementById('statsText').value;
+            const includeSpaces = document.getElementById('includeSpaces').checked;
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            
+            if (!text) return;
+
+            // 文字数カウント
+            const charCount = includeSpaces ? text.length : text.replace(/\s/g, '').length;
+            
+            // 単語数カウント
+            const trimmedText = text.trim();
+            const wordCount = trimmedText === '' ? 0 : trimmedText.split(/\s+/).filter(word => word.length > 0).length;
+            
+            // 文数カウント
+            const sentences = text.split(/[.!?。！？]+/).filter(s => s.trim().length > 0);
+            const sentenceCount = sentences.length;
+            
+            // 段落数カウント
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+            const paragraphCount = paragraphs.length;
+            
+            // 行数カウント
+            const lines = text.split('\n');
+            const lineCount = lines.length;
+            
+            // 平均単語数/文
+            const avgWordsPerSentence = sentenceCount > 0 ? (wordCount / sentenceCount).toFixed(1) : 0;
+            
+            // 結果表示
+            document.getElementById('charCount').textContent = charCount;
+            document.getElementById('wordCount').textContent = wordCount;
+            document.getElementById('sentenceCount').textContent = sentenceCount;
+            document.getElementById('paragraphCount').textContent = paragraphCount;
+            document.getElementById('lineCount').textContent = lineCount;
+            document.getElementById('avgWordsPerSentence').textContent = avgWordsPerSentence;
+        }
+
+        /**
+         * 単語頻度分析表示
+         */
+        function showWordFrequency() {
+            const text = document.getElementById('statsText').value;
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            
+            if (!text) return;
+
+            const processedText = caseSensitive ? text : text.toLowerCase();
+            const words = processedText.match(/\b\w+\b/g) || [];
+            
+            // 頻度カウント
+            const frequency = {};
+            words.forEach(word => {
+                frequency[word] = (frequency[word] || 0) + 1;
+            });
+
+            // 上位10個を抽出
+            const topWords = Object.entries(frequency)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 15);
+
+            // 表示
+            const container = document.getElementById('wordFrequency');
+            container.innerHTML = '';
+            
+            topWords.forEach(([word, count]) => {
+                const wordItem = document.createElement('div');
+                wordItem.className = 'word-item';
+                wordItem.textContent = `${word} (${count})`;
+                container.appendChild(wordItem);
+            });
+        }
+
+        /**
+         * 統計クリア
+         */
+        function clearStats() {
+            document.getElementById('statsText').value = '';
+            document.getElementById('charCount').textContent = '0';
+            document.getElementById('wordCount').textContent = '0';
+            document.getElementById('sentenceCount').textContent = '0';
+            document.getElementById('paragraphCount').textContent = '0';
+            document.getElementById('lineCount').textContent = '0';
+            document.getElementById('avgWordsPerSentence').textContent = '0';
+            document.getElementById('wordFrequency').innerHTML = '';
+        }
+
+        // === ケース変換関数 ===
+
+        /**
+         * ケース変換
+         */
+        function convertCase(type) {
+            const text = document.getElementById('caseText').value;
+            if (!text) return;
+
+            let result = '';
+            
+            switch (type) {
+                case 'upper':
+                    result = text.toUpperCase();
+                    break;
+                case 'lower':
+                    result = text.toLowerCase();
+                    break;
+                case 'title':
+                    result = text.replace(/\w\S*/g, (txt) => 
+                        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+                    break;
+                case 'sentence':
+                    result = text.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, (c) => 
+                        c.toUpperCase());
+                    break;
+                case 'toggle':
+                    result = text.split('').map(char => 
+                        char === char.toUpperCase() ? char.toLowerCase() : char.toUpperCase()
+                    ).join('');
+                    break;
+                case 'camel':
+                    result = text.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => 
+                        index === 0 ? word.toLowerCase() : word.toUpperCase()
+                    ).replace(/\s+/g, '');
+                    break;
+            }
+            
+            document.getElementById('caseResult').textContent = result;
+        }
+
+        /**
+         * ケース変換クリア
+         */
+        function clearCase() {
+            document.getElementById('caseText').value = '';
+            document.getElementById('caseResult').textContent = '转换结果将显示在这里';
+        }
+
+        // === 重複除去関数 ===
+
+        /**
+         * 重複を除去
+         */
+        function removeDuplicates() {
+            const text = document.getElementById('duplicateText').value;
+            if (!text) return;
+
+            const separator = getSeparator();
+            const sortOrder = document.getElementById('sortOrder').value;
+            const trimWhitespace = document.getElementById('trimWhitespace').checked;
+            const ignoreCase = document.getElementById('ignoreCase').checked;
+            const removeEmpty = document.getElementById('removeEmpty').checked;
+
+            let items = text.split(separator);
+            const originalCount = items.length;
+
+            // 空白除去
+            if (trimWhitespace) {
+                items = items.map(item => item.trim());
+            }
+
+            // 空行除去
+            if (removeEmpty) {
+                items = items.filter(item => item.length > 0);
+            }
+
+            // 重複除去
+            if (ignoreCase) {
+                const uniqueSet = new Set();
+                const result = [];
+                items.forEach(item => {
+                    const lowerItem = item.toLowerCase();
+                    if (!uniqueSet.has(lowerItem)) {
+                        uniqueSet.add(lowerItem);
+                        result.push(item);
+                    }
+                });
+                items = result;
+            } else {
+                items = [...new Set(items)];
+            }
+
+            // ソート
+            if (sortOrder === 'asc') {
+                items.sort((a, b) => a.localeCompare(b));
+            } else if (sortOrder === 'desc') {
+                items.sort((a, b) => b.localeCompare(a));
+            }
+
+            // 結果表示
+            document.getElementById('duplicateResult').textContent = items.join('\n');
+            
+            // 統計更新
+            document.getElementById('originalCount').textContent = originalCount;
+            document.getElementById('uniqueCount').textContent = items.length;
+            document.getElementById('duplicateCount').textContent = originalCount - items.length;
+        }
+
+        /**
+         * 重複項目を見つける
+         */
+        function findDuplicates() {
+            const text = document.getElementById('duplicateText').value;
+            if (!text) return;
+
+            const separator = getSeparator();
+            const trimWhitespace = document.getElementById('trimWhitespace').checked;
+            const ignoreCase = document.getElementById('ignoreCase').checked;
+
+            let items = text.split(separator);
+
+            if (trimWhitespace) {
+                items = items.map(item => item.trim());
+            }
+
+            // 頻度カウント
+            const frequency = {};
+            items.forEach(item => {
+                const key = ignoreCase ? item.toLowerCase() : item;
+                frequency[key] = (frequency[key] || 0) + 1;
+            });
+
+            // 重複項目を抽出
+            const duplicates = Object.entries(frequency)
+                .filter(([, count]) => count > 1)
+                .map(([item, count]) => `${item} (${count}回)`);
+
+            document.getElementById('duplicateResult').textContent = 
+                duplicates.length > 0 ? duplicates.join('\n') : '重複項目はありません';
+        }
+
+        /**
+         * 区切り文字を取得
+         */
+        function getSeparator() {
+            const sep = document.getElementById('separator').value;
+            switch (sep) {
+                case 'line': return '\n';
+                case 'comma': return ',';
+                case 'semicolon': return ';';
+                case 'space': return ' ';
+                case 'tab': return '\t';
+                default: return '\n';
+            }
+        }
+
+        /**
+         * 重複除去クリア
+         */
+        function clearDuplicates() {
+            document.getElementById('duplicateText').value = '';
+            document.getElementById('duplicateResult').textContent = '去重结果将显示在这里';
+            document.getElementById('originalCount').textContent = '0';
+            document.getElementById('uniqueCount').textContent = '0';
+            document.getElementById('duplicateCount').textContent = '0';
+        }
+
+        // === Lorem Ipsum生成関数 ===
+
+        /**
+         * Loremスタイル設定
+         */
+        function setLoremStyle(button) {
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            currentLoremStyle = button.getAttribute('data-style');
+        }
+
+        /**
+         * Lorem Ipsum生成
+         */
+        function generateLorem() {
+            const type = document.getElementById('loremType').value;
+            const count = parseInt(document.getElementById('loremCount').value);
+            const startWithLorem = document.getElementById('startWithLorem').checked;
+            const template = loremTemplates[currentLoremStyle];
+
+            let result = '';
+            
+            switch (type) {
+                case 'words':
+                    const words = [];
+                    for (let i = 0; i < count; i++) {
+                        words.push(template.words[Math.floor(Math.random() * template.words.length)]);
+                    }
+                    result = words.join(' ') + '.';
+                    break;
+                    
+                case 'sentences':
+                    const sentences = [];
+                    for (let i = 0; i < count; i++) {
+                        sentences.push(template.sentences[Math.floor(Math.random() * template.sentences.length)]);
+                    }
+                    result = sentences.join(' ');
+                    break;
+                    
+                case 'paragraphs':
+                    const paragraphs = [];
+                    for (let i = 0; i < count; i++) {
+                        const sentenceCount = 3 + Math.floor(Math.random() * 4); // 3-6文
+                        const paragraphSentences = [];
+                        for (let j = 0; j < sentenceCount; j++) {
+                            paragraphSentences.push(template.sentences[Math.floor(Math.random() * template.sentences.length)]);
+                        }
+                        paragraphs.push(paragraphSentences.join(' '));
+                    }
+                    result = paragraphs.join('\n\n');
+                    break;
+            }
+
+            // Lorem ipsumで開始
+            if (startWithLorem && currentLoremStyle === 'classic') {
+                if (type === 'words') {
+                    result = 'Lorem ipsum ' + result;
+                } else {
+                    result = result.replace(/^[^.]+\./, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.');
+                }
+            }
+
+            document.getElementById('loremResult').textContent = result;
+        }
+
+        /**
+         * より多くのLorem生成
+         */
+        function generateMoreLorem() {
+            const currentContent = document.getElementById('loremResult').textContent;
+            generateLorem();
+            const newContent = document.getElementById('loremResult').textContent;
+            document.getElementById('loremResult').textContent = currentContent + '\n\n' + newContent;
+        }
+
+        /**
+         * Loremクリア
+         */
+        function clearLorem() {
+            document.getElementById('loremResult').textContent = '生成的文本将显示在这里';
+        }
+
+        // === 検索・置換関数 ===
+
+        /**
+         * 検索してハイライト
+         */
+        function searchAndHighlight() {
+            const text = document.getElementById('searchText').value;
+            const findText = document.getElementById('findText').value;
+            
+            if (!text || !findText) return;
+
+            const matchCase = document.getElementById('matchCase').checked;
+            const wholeWord = document.getElementById('wholeWord').checked;
+            const useRegex = document.getElementById('useRegex').checked;
+
+            let pattern;
+            let flags = matchCase ? 'g' : 'gi';
+
+            try {
+                if (useRegex) {
+                    pattern = new RegExp(findText, flags);
+                } else {
+                    let escapedFind = findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    if (wholeWord) {
+                        escapedFind = '\\b' + escapedFind + '\\b';
+                    }
+                    pattern = new RegExp(escapedFind, flags);
+                }
+
+                const matches = text.match(pattern);
+                const matchCount = matches ? matches.length : 0;
+                
+                const highlightedText = text.replace(pattern, '<span class="highlight">$&</span>');
+                
+                document.getElementById('searchResult').innerHTML = highlightedText;
+                document.getElementById('matchCount').textContent = matchCount;
+                document.getElementById('replaceCount').textContent = '0';
+            } catch (error) {
+                alert('正规表达式错误: ' + error.message);
+            }
+        }
+
+        /**
+         * テキスト置換
+         */
+        function replaceText() {
+            const text = document.getElementById('searchText').value;
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            
+            if (!text || !findText) return;
+
+            const matchCase = document.getElementById('matchCase').checked;
+            const wholeWord = document.getElementById('wholeWord').checked;
+            const useRegex = document.getElementById('useRegex').checked;
+
+            let pattern;
+            let flags = matchCase ? 'g' : 'gi';
+
+            try {
+                if (useRegex) {
+                    pattern = new RegExp(findText, flags);
+                } else {
+                    let escapedFind = findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    if (wholeWord) {
+                        escapedFind = '\\b' + escapedFind + '\\b';
+                    }
+                    pattern = new RegExp(escapedFind, flags);
+                }
+
+                const matches = text.match(pattern);
+                const matchCount = matches ? matches.length : 0;
+                
+                const replacedText = text.replace(pattern, replaceText);
+                
+                document.getElementById('searchResult').textContent = replacedText;
+                document.getElementById('matchCount').textContent = matchCount;
+                document.getElementById('replaceCount').textContent = matchCount;
+            } catch (error) {
+                alert('正规表达式错误: ' + error.message);
+            }
+        }
+
+        /**
+         * 最初の一致を置換
+         */
+        function replaceFirst() {
+            const text = document.getElementById('searchText').value;
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            
+            if (!text || !findText) return;
+
+            const matchCase = document.getElementById('matchCase').checked;
+            const wholeWord = document.getElementById('wholeWord').checked;
+            const useRegex = document.getElementById('useRegex').checked;
+
+            let pattern;
+            let flags = matchCase ? '' : 'i';
+
+            try {
+                if (useRegex) {
+                    pattern = new RegExp(findText, flags);
+                } else {
+                    let escapedFind = findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    if (wholeWord) {
+                        escapedFind = '\\b' + escapedFind + '\\b';
+                    }
+                    pattern = new RegExp(escapedFind, flags);
+                }
+
+                const replacedText = text.replace(pattern, replaceText);
+                const wasReplaced = replacedText !== text;
+                
+                document.getElementById('searchResult').textContent = replacedText;
+                document.getElementById('matchCount').textContent = wasReplaced ? '1' : '0';
+                document.getElementById('replaceCount').textContent = wasReplaced ? '1' : '0';
+            } catch (error) {
+                alert('正规表达式错误: ' + error.message);
+            }
+        }
+
+        /**
+         * 検索クリア
+         */
+        function clearSearch() {
+            document.getElementById('searchText').value = '';
+            document.getElementById('findText').value = '';
+            document.getElementById('replaceText').value = '';
+            document.getElementById('searchResult').textContent = '搜索和替换结果将显示在这里';
+            document.getElementById('matchCount').textContent = '0';
+            document.getElementById('replaceCount').textContent = '0';
+        }
+
+        // === テキスト整形関数 ===
+
+        /**
+         * テキスト整形
+         */
+        function formatText(action) {
+            const text = document.getElementById('formatText').value;
+            if (!text) return;
+
+            let result = '';
+            
+            switch (action) {
+                case 'removeExtraSpaces':
+                    result = text.replace(/\s+/g, ' ').trim();
+                    break;
+                case 'removeLineBreaks':
+                    result = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+                    break;
+                case 'addLineNumbers':
+                    const lines = text.split('\n');
+                    result = lines.map((line, index) => `${String(index + 1).padStart(3, ' ')}: ${line}`).join('\n');
+                    break;
+                case 'reverseText':
+                    result = text.split('').reverse().join('');
+                    break;
+                case 'shuffleWords':
+                    const words = text.split(/(\s+)/);
+                    const wordIndices = [];
+                    const nonWords = [];
+                    words.forEach((word, index) => {
+                        if (word.trim()) {
+                            wordIndices.push(index);
+                        } else {
+                            nonWords[index] = word;
+                        }
+                    });
+                    
+                    // 単語のみをシャッフル
+                    for (let i = wordIndices.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        const temp = words[wordIndices[i]];
+                        words[wordIndices[i]] = words[wordIndices[j]];
+                        words[wordIndices[j]] = temp;
+                    }
+                    result = words.join('');
+                    break;
+                case 'sortLines':
+                    result = text.split('\n').sort().join('\n');
+                    break;
+            }
+            
+            document.getElementById('formatResult').textContent = result;
+        }
+
+        /**
+         * 整形クリア
+         */
+        function clearFormat() {
+            document.getElementById('formatText').value = '';
+            document.getElementById('formatResult').textContent = '格式化结果将显示在这里';
+        }
+
+        // === 共通関数 ===
+
+        /**
+         * クリップボードにコピー
+         */
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            let text;
+            
+            // HTMLコンテンツがある場合はテキストのみを取得
+            if (element.innerHTML !== element.textContent) {
+                text = element.textContent;
+            } else {
+                text = element.textContent;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = element.parentElement.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '已复制!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // フォールバック方法
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                alert('已复制到剪贴板！');
+            });
+        }
+    </script>
+</body>
+</html>

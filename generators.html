@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .nav-back a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-back a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .generators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .generator-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .generator-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .generator-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .generator-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-area {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .result-text {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            word-break: break-all;
+            text-align: center;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #4299e1;
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .decision-options {
+            margin-bottom: 1rem;
+        }
+
+        .option-input {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-input input {
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .remove-option {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .add-option {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .name-categories {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .generators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-back {
+                position: relative;
+                top: auto;
+                left: auto;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-back">
+        <a href="index.html">← 返回主页</a>
+    </div>
+
+    <div class="header">
+        <h1>🎨 自定义生成器</h1>
+        <p>各种创意生成工具，满足不同场景的随机生成需求</p>
+    </div>
+
+    <div class="container">
+        <div class="generators-grid">
+            <!-- 颜色生成器 -->
+            <div class="generator-card">
+                <div class="generator-title">
+                    <span class="generator-icon">🎨</span>
+                    随机颜色生成器
+                </div>
+                
+                <div class="color-preview" id="colorPreview" style="background: #667eea;"></div>
+                
+                <div class="input-group">
+                    <label>颜色格式:</label>
+                    <select id="colorFormat">
+                        <option value="hex">十六进制 (#RRGGBB)</option>
+                        <option value="rgb">RGB (rgb(r,g,b))</option>
+                        <option value="hsl">HSL (hsl(h,s%,l%))</option>
+                    </select>
+                </div>
+
+                <button class="generate-btn" onclick="generateColor()">生成随机颜色</button>
+                
+                <div class="result-area">
+                    <span class="result-text" id="colorResult">#667eea</span>
+                    <button class="copy-btn" onclick="copyToClipboard('colorResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 密码生成器 -->
+            <div class="generator-card">
+                <div class="generator-title">
+                    <span class="generator-icon">🔐</span>
+                    安全密码生成器
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>密码长度:</label>
+                        <input type="number" id="passwordLength" value="12" min="4" max="128">
+                    </div>
+                    <div class="input-group">
+                        <label>生成数量:</label>
+                        <input type="number" id="passwordCount" value="1" min="1" max="10">
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeUppercase" checked>
+                    <label>包含大写字母 (A-Z)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeLowercase" checked>
+                    <label>包含小写字母 (a-z)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeNumbers" checked>
+                    <label>包含数字 (0-9)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSymbols">
+                    <label>包含特殊字符 (!@#$%^&*)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="excludeSimilar">
+                    <label>排除相似字符 (0oO1lI)</label>
+                </div>
+
+                <button class="generate-btn" onclick="generatePassword()">生成安全密码</button>
+                
+                <div class="result-area">
+                    <span class="result-text" id="passwordResult">点击生成密码</span>
+                    <button class="copy-btn" onclick="copyToClipboard('passwordResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 随机名字生成器 -->
+            <div class="generator-card">
+                <div class="generator-title">
+                    <span class="generator-icon">👤</span>
+                    随机名字生成器
+                </div>
+
+                <div class="input-group">
+                    <label>名字类型:</label>
+                    <div class="name-categories">
+                        <button class="category-btn active" data-category="chinese" onclick="selectNameCategory(this)">中文名字</button>
+                        <button class="category-btn" data-category="english" onclick="selectNameCategory(this)">英文名字</button>
+                        <button class="category-btn" data-category="japanese" onclick="selectNameCategory(this)">日文名字</button>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>性别:</label>
+                        <select id="nameGender">
+                            <option value="random">随机</option>
+                            <option value="male">男性</option>
+                            <option value="female">女性</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>生成数量:</label>
+                        <input type="number" id="nameCount" value="5" min="1" max="20">
+                    </div>
+                </div>
+
+                <button class="generate-btn" onclick="generateNames()">生成随机名字</button>
+                
+                <div class="result-area">
+                    <span class="result-text" id="nameResult">点击生成名字</span>
+                    <button class="copy-btn" onclick="copyToClipboard('nameResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 随机决策器 -->
+            <div class="generator-card">
+                <div class="generator-title">
+                    <span class="generator-icon">🎯</span>
+                    随机决策器
+                </div>
+
+                <div class="input-group">
+                    <label>决策选项:</label>
+                    <div class="decision-options" id="decisionOptions">
+                        <div class="option-input">
+                            <input type="text" placeholder="输入选项 1" value="是">
+                            <button class="remove-option" onclick="removeOption(this)">×</button>
+                        </div>
+                        <div class="option-input">
+                            <input type="text" placeholder="输入选项 2" value="否">
+                            <button class="remove-option" onclick="removeOption(this)">×</button>
+                        </div>
+                        <div class="option-input">
+                            <input type="text" placeholder="输入选项 3" value="再考虑一下">
+                            <button class="remove-option" onclick="removeOption(this)">×</button>
+                        </div>
+                    </div>
+                    <button class="add-option" onclick="addOption()">+ 添加选项</button>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="weightedDecision">
+                    <label>启用权重模式 (使用选项长度作为权重)</label>
+                </div>
+
+                <button class="generate-btn" onclick="makeDecision()">做出决策</button>
+                
+                <div class="result-area">
+                    <span class="result-text" id="decisionResult">点击做出决策</span>
+                    <button class="copy-btn" onclick="copyToClipboard('decisionResult')">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentNameCategory = 'chinese';
+
+        // 名前データベース
+        const nameDatabase = {
+            chinese: {
+                surnames: ['李', '王', '张', '刘', '陈', '杨', '赵', '黄', '周', '吴', '徐', '孙', '胡', '朱', '高', '林', '何', '郭', '马', '罗'],
+                maleNames: ['伟', '强', '磊', '军', '洋', '勇', '杰', '俊', '波', '超', '华', '鹏', '飞', '宇', '峰', '亮', '涛', '明', '辉', '刚'],
+                femaleNames: ['丽', '娟', '秀', '华', '慧', '巧', '美', '娜', '静', '淑', '惠', '珠', '翠', '雅', '芝', '玲', '凤', '洁', '梅', '琳']
+            },
+            english: {
+                maleNames: ['James', 'Robert', 'John', 'Michael', 'David', 'William', 'Richard', 'Joseph', 'Thomas', 'Christopher', 'Charles', 'Daniel', 'Matthew', 'Anthony', 'Mark', 'Donald', 'Steven', 'Paul', 'Andrew', 'Joshua'],
+                femaleNames: ['Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Susan', 'Jessica', 'Sarah', 'Karen', 'Nancy', 'Lisa', 'Betty', 'Dorothy', 'Sandra', 'Ashley', 'Kimberly', 'Emily', 'Donna', 'Margaret'],
+                surnames: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin']
+            },
+            japanese: {
+                surnames: ['佐藤', '鈴木', '高橋', '田中', '渡辺', '伊藤', '山本', '中村', '小林', '加藤', '吉田', '山田', '佐々木', '山口', '松本', '井上', '木村', '林', '斎藤', '清水'],
+                maleNames: ['翔太', '大輝', '拓海', '翔', '大樹', '駿', '匠', '蓮', '颯太', '陽向', '悠斗', '湊', '樹', '大和', '陸', '颯', '朝陽', '蒼', '悠真', '碧'],
+                femaleNames: ['美咲', '美羽', '結愛', '心春', '陽菜', '凛', '花', '結衣', '咲良', '莉子', '美桜', '結月', '愛莉', '心美', '杏', '美結', '心花', '美月', '愛美', '心愛']
+            }
+        };
+
+        /**
+         * カラー生成関数
+         */
+        function generateColor() {
+            const format = document.getElementById('colorFormat').value;
+            let colorValue, displayColor;
+
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+
+            switch (format) {
+                case 'hex':
+                    colorValue = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                    displayColor = `rgb(${r}, ${g}, ${b})`;
+                    break;
+                case 'rgb':
+                    colorValue = `rgb(${r}, ${g}, ${b})`;
+                    displayColor = `rgb(${r}, ${g}, ${b})`;
+                    break;
+                case 'hsl':
+                    const hsl = rgbToHsl(r, g, b);
+                    colorValue = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+                    displayColor = `rgb(${r}, ${g}, ${b})`;
+                    break;
+            }
+
+            document.getElementById('colorPreview').style.background = displayColor;
+            document.getElementById('colorResult').textContent = colorValue;
+        }
+
+        /**
+         * RGB から HSL への変換
+         */
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        /**
+         * パスワード生成関数
+         */
+        function generatePassword() {
+            const length = parseInt(document.getElementById('passwordLength').value);
+            const count = parseInt(document.getElementById('passwordCount').value);
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+            const excludeSimilar = document.getElementById('excludeSimilar').checked;
+
+            // 入力検証
+            if (isNaN(length) || isNaN(count)) {
+                alert('请输入有效的数字！');
+                return;
+            }
+
+            if (length < 4 || length > 128) {
+                alert('密码长度必须在4到128之间！');
+                return;
+            }
+
+            if (count < 1 || count > 10) {
+                alert('生成数量必须在1到10之间！');
+                return;
+            }
+
+            // 文字セットの構築
+            let charset = '';
+            if (includeUppercase) charset += excludeSimilar ? 'ABCDEFGHJKLMNPQRSTUVWXYZ' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeLowercase) charset += excludeSimilar ? 'abcdefghjkmnpqrstuvwxyz' : 'abcdefghijklmnopqrstuvwxyz';
+            if (includeNumbers) charset += excludeSimilar ? '23456789' : '0123456789';
+            if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            if (charset === '') {
+                alert('请至少选择一种字符类型！');
+                return;
+            }
+
+            const passwords = [];
+            for (let i = 0; i < count; i++) {
+                let password = '';
+                for (let j = 0; j < length; j++) {
+                    password += charset.charAt(Math.floor(Math.random() * charset.length));
+                }
+                passwords.push(password);
+            }
+
+            document.getElementById('passwordResult').textContent = passwords.join('\n');
+        }
+
+        /**
+         * 名前カテゴリー選択
+         */
+        function selectNameCategory(button) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            currentNameCategory = button.getAttribute('data-category');
+        }
+
+        /**
+         * 名前生成関数
+         */
+        function generateNames() {
+            const count = parseInt(document.getElementById('nameCount').value);
+            const gender = document.getElementById('nameGender').value;
+            const category = currentNameCategory;
+
+            // 入力検証
+            if (isNaN(count)) {
+                alert('请输入有效的数字！');
+                return;
+            }
+
+            if (count < 1 || count > 20) {
+                alert('生成数量必须在1到20之间！');
+                return;
+            }
+
+            const names = [];
+            const db = nameDatabase[category];
+
+            if (!db) {
+                alert('名字数据库错误！');
+                return;
+            }
+
+            for (let i = 0; i < count; i++) {
+                let name = '';
+                
+                if (category === 'chinese' || category === 'japanese') {
+                    const surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
+                    let givenName = '';
+                    
+                    if (gender === 'male') {
+                        givenName = db.maleNames[Math.floor(Math.random() * db.maleNames.length)];
+                    } else if (gender === 'female') {
+                        givenName = db.femaleNames[Math.floor(Math.random() * db.femaleNames.length)];
+                    } else {
+                        const allNames = [...db.maleNames, ...db.femaleNames];
+                        givenName = allNames[Math.floor(Math.random() * allNames.length)];
+                    }
+                    
+                    name = surname + givenName;
+                } else { // English
+                    let givenName = '';
+                    if (gender === 'male') {
+                        givenName = db.maleNames[Math.floor(Math.random() * db.maleNames.length)];
+                    } else if (gender === 'female') {
+                        givenName = db.femaleNames[Math.floor(Math.random() * db.femaleNames.length)];
+                    } else {
+                        const allNames = [...db.maleNames, ...db.femaleNames];
+                        givenName = allNames[Math.floor(Math.random() * allNames.length)];
+                    }
+                    
+                    const surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
+                    name = `${givenName} ${surname}`;
+                }
+                
+                names.push(name);
+            }
+
+            document.getElementById('nameResult').textContent = names.join(', ');
+        }
+
+        /**
+         * 決定を下す関数
+         */
+        function makeDecision() {
+            const optionInputs = document.querySelectorAll('#decisionOptions input');
+            const options = Array.from(optionInputs)
+                .map(input => input.value.trim())
+                .filter(value => value !== '');
+
+            if (options.length === 0) {
+                alert('请至少添加一个选项！');
+                return;
+            }
+
+            const weighted = document.getElementById('weightedDecision').checked;
+            let selectedOption;
+
+            if (weighted) {
+                // 重み付き選択（文字列の長さを重みとする）
+                const weights = options.map(option => option.length);
+                const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+                const random = Math.random() * totalWeight;
+                
+                let currentWeight = 0;
+                for (let i = 0; i < options.length; i++) {
+                    currentWeight += weights[i];
+                    if (random <= currentWeight) {
+                        selectedOption = options[i];
+                        break;
+                    }
+                }
+            } else {
+                // 均等選択
+                selectedOption = options[Math.floor(Math.random() * options.length)];
+            }
+
+            document.getElementById('decisionResult').textContent = `决策结果: ${selectedOption}`;
+        }
+
+        /**
+         * 選択肢を追加
+         */
+        function addOption() {
+            const optionsContainer = document.getElementById('decisionOptions');
+            const optionCount = optionsContainer.children.length;
+            
+            const newOption = document.createElement('div');
+            newOption.className = 'option-input';
+            newOption.innerHTML = `
+                <input type="text" placeholder="输入选项 ${optionCount + 1}">
+                <button class="remove-option" onclick="removeOption(this)">×</button>
+            `;
+            
+            optionsContainer.appendChild(newOption);
+        }
+
+        /**
+         * 選択肢を削除
+         */
+        function removeOption(button) {
+            const optionsContainer = document.getElementById('decisionOptions');
+            if (optionsContainer.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('至少需要保留一个选项！');
+            }
+        }
+
+        /**
+         * クリップボードにコピー
+         */
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = element.parentElement.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '已复制!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // フォールバック方法
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                alert('已复制到剪贴板！');
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            generateColor();
+        });
+    </script>
+</body>
+</html>

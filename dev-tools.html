@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发者工具集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .nav-back a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-back a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .tool-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .secondary-btn {
+            background: #48bb78;
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .danger-btn {
+            background: #e53e3e;
+        }
+
+        .danger-btn:hover {
+            box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4);
+        }
+
+        .result-area {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .result-text {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            white-space: pre-wrap;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #4299e1;
+        }
+
+        /* 正規表現テスター */
+        .regex-matches {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .match-item {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .regex-flags {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .flag-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flag-checkbox input {
+            width: auto;
+            transform: scale(1.2);
+        }
+
+        /* カラーピッカー */
+        .color-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .color-preview {
+            height: 150px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .color-values {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .color-value-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .color-value-item:last-child {
+            border-bottom: none;
+        }
+
+        .palette-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .palette-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .palette-color:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+
+        /* CSS グラデーション */
+        .gradient-preview {
+            height: 150px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .gradient-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .color-stop {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .color-stop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .remove-stop {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* 文字エンコーディング */
+        .encoding-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .encoding-tab {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .encoding-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .encoding-result {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0 8px 8px 8px;
+            padding: 1rem;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-back {
+                position: relative;
+                top: auto;
+                left: auto;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .color-display {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-back">
+        <a href="index.html">← 返回主页</a>
+    </div>
+
+    <div class="header">
+        <h1>👨‍💻 开发者工具</h1>
+        <p>面向程序员的实用开发辅助工具集合</p>
+    </div>
+
+    <div class="container">
+        <div class="tools-grid">
+            <!-- 正则表达式测试器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔍</span>
+                    正则表达式测试器
+                </div>
+                
+                <div class="input-group">
+                    <label>正则表达式:</label>
+                    <input type="text" id="regexPattern" placeholder="输入正则表达式，例如：\d{3}-\d{3}-\d{4}" value="(\d{3})-(\d{3})-(\d{4})">
+                </div>
+
+                <div class="regex-flags">
+                    <div class="flag-checkbox">
+                        <input type="checkbox" id="globalFlag" checked>
+                        <label>g (全局)</label>
+                    </div>
+                    <div class="flag-checkbox">
+                        <input type="checkbox" id="ignoreCaseFlag">
+                        <label>i (忽略大小写)</label>
+                    </div>
+                    <div class="flag-checkbox">
+                        <input type="checkbox" id="multilineFlag">
+                        <label>m (多行)</label>
+                    </div>
+                    <div class="flag-checkbox">
+                        <input type="checkbox" id="dotAllFlag">
+                        <label>s (单行模式)</label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>测试文本:</label>
+                    <textarea id="regexTestText" rows="4" placeholder="输入要测试的文本...">联系方式：张三 123-456-7890，李四 987-654-3210</textarea>
+                </div>
+
+                <button class="tool-btn" onclick="testRegex()">测试正则</button>
+                <button class="secondary-btn" onclick="loadRegexExample()">示例模式</button>
+                <button class="danger-btn" onclick="clearRegex()">清空</button>
+                
+                <div class="regex-matches" id="regexMatches">
+                    <p>匹配结果将显示在这里</p>
+                </div>
+
+                <div class="result-area">
+                    <pre class="result-text" id="regexResult">JavaScript代码将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('regexResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- 颜色选择器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🎨</span>
+                    高级颜色选择器
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>颜色输入:</label>
+                        <input type="color" id="colorPicker" value="#667eea">
+                    </div>
+                    <div class="input-group">
+                        <label>颜色代码:</label>
+                        <input type="text" id="colorInput" value="#667eea" placeholder="#RRGGBB">
+                    </div>
+                </div>
+
+                <div class="color-display">
+                    <div class="color-preview" id="colorPreview">#667eea</div>
+                    <div class="color-values" id="colorValues">
+                        <!-- 颜色值将通过JS生成 -->
+                    </div>
+                </div>
+
+                <button class="tool-btn" onclick="updateColor()">更新颜色</button>
+                <button class="secondary-btn" onclick="generateRandomColor()">随机颜色</button>
+                <button class="secondary-btn" onclick="generatePalette()">生成调色板</button>
+
+                <div class="input-group">
+                    <label>调色板:</label>
+                    <div class="palette-colors" id="paletteColors">
+                        <!-- 调色板将通过JS生成 -->
+                    </div>
+                </div>
+
+                <div class="result-area">
+                    <pre class="result-text" id="colorCodes">颜色代码将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('colorCodes')">复制</button>
+                </div>
+            </div>
+
+            <!-- CSS渐变生成器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🌈</span>
+                    CSS 渐变生成器
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>渐变类型:</label>
+                        <select id="gradientType" onchange="updateGradient()">
+                            <option value="linear">线性渐变</option>
+                            <option value="radial">径向渐变</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>方向/角度:</label>
+                        <select id="gradientDirection" onchange="updateGradient()">
+                            <option value="to right">向右 (→)</option>
+                            <option value="to left">向左 (←)</option>
+                            <option value="to bottom">向下 (↓)</option>
+                            <option value="to top">向上 (↑)</option>
+                            <option value="45deg">45度 (↗)</option>
+                            <option value="90deg">90度 (↓)</option>
+                            <option value="135deg">135度 (↙)</option>
+                            <option value="180deg">180度 (←)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="gradient-preview" id="gradientPreview">渐变预览</div>
+
+                <div class="gradient-controls" id="gradientControls">
+                    <!-- 渐变控制点将通过JS生成 -->
+                </div>
+
+                <button class="tool-btn" onclick="addColorStop()">+ 添加颜色点</button>
+                <button class="secondary-btn" onclick="randomizeGradient()">随机渐变</button>
+                <button class="danger-btn" onclick="resetGradient()">重置</button>
+
+                <div class="result-area">
+                    <pre class="result-text" id="gradientCSS">CSS代码将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('gradientCSS')">复制</button>
+                </div>
+            </div>
+
+            <!-- 字符编码转换器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">🔣</span>
+                    字符编码转换器
+                </div>
+
+                <div class="input-group">
+                    <label>输入文本:</label>
+                    <textarea id="encodingInput" rows="3" placeholder="输入要转换的文本...">Hello, 世界! 🌍</textarea>
+                </div>
+
+                <div class="encoding-tabs">
+                    <button class="encoding-tab active" data-encoding="unicode" onclick="switchEncodingTab(this)">Unicode</button>
+                    <button class="encoding-tab" data-encoding="utf8" onclick="switchEncodingTab(this)">UTF-8</button>
+                    <button class="encoding-tab" data-encoding="hex" onclick="switchEncodingTab(this)">十六进制</button>
+                    <button class="encoding-tab" data-encoding="binary" onclick="switchEncodingTab(this)">二进制</button>
+                    <button class="encoding-tab" data-encoding="html" onclick="switchEncodingTab(this)">HTML实体</button>
+                </div>
+
+                <button class="tool-btn" onclick="convertEncoding()">转换编码</button>
+                <button class="secondary-btn" onclick="convertAll()">全部转换</button>
+                <button class="danger-btn" onclick="clearEncoding()">清空</button>
+
+                <div class="encoding-result" id="encodingResult">
+                    编码结果将显示在这里
+                </div>
+
+                <div class="result-area" style="margin-top: 1rem;">
+                    <pre class="result-text" id="allEncodings">所有编码格式将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('allEncodings')">复制</button>
+                </div>
+            </div>
+
+            <!-- HTML/XML 格式化器 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">📋</span>
+                    HTML/XML 格式化器
+                </div>
+
+                <div class="input-group">
+                    <label>HTML/XML 内容:</label>
+                    <textarea id="htmlInput" rows="6" placeholder="输入HTML或XML代码..."><div class="container"><h1>标题</h1><p>这是一段文本。</p><ul><li>项目1</li><li>项目2</li></ul></div></textarea>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>缩进类型:</label>
+                        <select id="indentType">
+                            <option value="spaces">空格</option>
+                            <option value="tabs">制表符</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>缩进大小:</label>
+                        <select id="indentSize">
+                            <option value="2" selected>2</option>
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="tool-btn" onclick="formatHTML()">格式化</button>
+                <button class="tool-btn" onclick="minifyHTML()">压缩</button>
+                <button class="secondary-btn" onclick="validateHTML()">验证</button>
+                <button class="danger-btn" onclick="clearHTML()">清空</button>
+
+                <div class="result-area">
+                    <pre class="result-text" id="htmlResult">格式化结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('htmlResult')">复制</button>
+                </div>
+            </div>
+
+            <!-- CSS 美化工具 -->
+            <div class="tool-card">
+                <div class="tool-title">
+                    <span class="tool-icon">💄</span>
+                    CSS 美化工具
+                </div>
+
+                <div class="input-group">
+                    <label>CSS 代码:</label>
+                    <textarea id="cssInput" rows="6" placeholder="输入CSS代码...">body{margin:0;padding:0;font-family:Arial,sans-serif}.container{max-width:1200px;margin:0 auto;padding:20px}.btn{background:#007bff;color:white;padding:10px 20px;border:none;border-radius:4px}</textarea>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>格式化选项:</label>
+                        <select id="cssFormat">
+                            <option value="expanded" selected>展开格式</option>
+                            <option value="compact">紧凑格式</option>
+                            <option value="compressed">压缩格式</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>缩进:</label>
+                        <select id="cssIndent">
+                            <option value="2" selected>2空格</option>
+                            <option value="4">4空格</option>
+                            <option value="tab">制表符</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="tool-btn" onclick="formatCSS()">美化CSS</button>
+                <button class="tool-btn" onclick="minifyCSS()">压缩CSS</button>
+                <button class="secondary-btn" onclick="addPrefix()">添加前缀</button>
+                <button class="danger-btn" onclick="clearCSS()">清空</button>
+
+                <div class="result-area">
+                    <pre class="result-text" id="cssResult">格式化结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('cssResult')">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentEncodingTab = 'unicode';
+        let gradientStops = [
+            { color: '#667eea', position: 0 },
+            { color: '#764ba2', position: 100 }
+        ];
+
+        // === 正規表現テスター ===
+
+        /**
+         * 正規表現テスト
+         */
+        function testRegex() {
+            const pattern = document.getElementById('regexPattern').value;
+            const testText = document.getElementById('regexTestText').value;
+            
+            if (!pattern || !testText) return;
+
+            try {
+                const flags = getRegexFlags();
+                const regex = new RegExp(pattern, flags);
+                
+                // matchAll需要全局标志，如果没有则使用exec循环
+                let matches = [];
+                if (flags.includes('g')) {
+                    matches = [...testText.matchAll(regex)];
+                } else {
+                    const match = regex.exec(testText);
+                    if (match) {
+                        matches = [match];
+                    }
+                }
+                
+                displayMatches(matches, testText);
+                generateRegexCode(pattern, flags);
+                
+            } catch (error) {
+                document.getElementById('regexMatches').innerHTML = 
+                    `<p style="color: #e53e3e;">正则表达式错误: ${error.message}</p>`;
+            }
+        }
+
+        /**
+         * 正規表現フラグを取得
+         */
+        function getRegexFlags() {
+            let flags = '';
+            if (document.getElementById('globalFlag').checked) flags += 'g';
+            if (document.getElementById('ignoreCaseFlag').checked) flags += 'i';
+            if (document.getElementById('multilineFlag').checked) flags += 'm';
+            if (document.getElementById('dotAllFlag').checked) flags += 's';
+            return flags;
+        }
+
+        /**
+         * マッチ結果を表示
+         */
+        function displayMatches(matches, text) {
+            const container = document.getElementById('regexMatches');
+            
+            if (matches.length === 0) {
+                container.innerHTML = '<p>マッチなし</p>';
+                return;
+            }
+
+            let html = `<p><strong>マッチ数: ${matches.length}</strong></p>`;
+            matches.forEach((match, index) => {
+                html += `<div class="match-item">`;
+                html += `<strong>マッチ ${index + 1}:</strong> "${match[0]}"<br>`;
+                if (match.length > 1) {
+                    for (let i = 1; i < match.length; i++) {
+                        if (match[i] !== undefined) {
+                            html += `グループ ${i}: "${match[i]}"<br>`;
+                        }
+                    }
+                }
+                html += `位置: ${match.index} - ${match.index + match[0].length - 1}`;
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        /**
+         * JavaScriptコード生成
+         */
+        function generateRegexCode(pattern, flags) {
+            const code = `// 正規表現
+const regex = /${pattern}/${flags};
+const text = "${document.getElementById('regexTestText').value.replace(/"/g, '\\"')}";
+
+// マッチテスト
+const matches = text.match(regex);
+console.log(matches);
+
+// 全マッチを取得
+const allMatches = [...text.matchAll(regex)];
+allMatches.forEach((match, index) => {
+    console.log(\`マッチ \${index + 1}: \${match[0]}\`);
+});`;
+
+            document.getElementById('regexResult').textContent = code;
+        }
+
+        /**
+         * 正規表現例をロード
+         */
+        function loadRegexExample() {
+            const examples = [
+                { pattern: '\\b\\d{3}-\\d{3}-\\d{4}\\b', text: '联系方式：张三 123-456-7890，李四 987-654-3210' },
+                { pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}', text: '邮箱：user@example.com, admin@test.org' },
+                { pattern: 'https?:\\/\\/[\\w\\.-]+\\.[a-z]{2,}[\\/\\w\\.-]*', text: '网站：https://www.example.com/page' },
+                { pattern: '\\b(?:19|20)\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])\\b', text: '日期：2024-01-15, 2023-12-31' }
+            ];
+            
+            const example = examples[Math.floor(Math.random() * examples.length)];
+            document.getElementById('regexPattern').value = example.pattern;
+            document.getElementById('regexTestText').value = example.text;
+            testRegex();
+        }
+
+        /**
+         * 正規表現クリア
+         */
+        function clearRegex() {
+            document.getElementById('regexPattern').value = '';
+            document.getElementById('regexTestText').value = '';
+            document.getElementById('regexMatches').innerHTML = '<p>匹配结果将显示在这里</p>';
+            document.getElementById('regexResult').textContent = 'JavaScript代码将显示在这里';
+        }
+
+        // === カラーピッカー ===
+
+        /**
+         * カラー更新
+         */
+        function updateColor() {
+            const colorInput = document.getElementById('colorInput').value;
+            const colorPicker = document.getElementById('colorPicker');
+            
+            try {
+                // カラーコード検証とフォーマット
+                const color = normalizeColor(colorInput);
+                colorPicker.value = color;
+                displayColorValues(color);
+            } catch (error) {
+                alert('无效的颜色代码');
+            }
+        }
+
+        /**
+         * カラーコード正規化
+         */
+        function normalizeColor(color) {
+            color = color.trim();
+            
+            // HEX形式に変換
+            if (color.startsWith('#')) {
+                if (color.length === 4) {
+                    // #RGB -> #RRGGBB
+                    color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+                }
+                return color;
+            }
+            
+            // RGB形式をサポート
+            const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (rgbMatch) {
+                const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+                const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+                const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+                return `#${r}${g}${b}`;
+            }
+            
+            throw new Error('Invalid color format');
+        }
+
+        /**
+         * カラー値表示
+         */
+        function displayColorValues(hex) {
+            const rgb = hexToRgb(hex);
+            if (!rgb) {
+                alert('无效的颜色格式！');
+                return;
+            }
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            
+            document.getElementById('colorPreview').style.background = hex;
+            document.getElementById('colorPreview').textContent = hex;
+            
+            const valuesHtml = `
+                <div class="color-value-item">
+                    <span>HEX:</span>
+                    <code>${hex}</code>
+                </div>
+                <div class="color-value-item">
+                    <span>RGB:</span>
+                    <code>rgb(${rgb.r}, ${rgb.g}, ${rgb.b})</code>
+                </div>
+                <div class="color-value-item">
+                    <span>HSL:</span>
+                    <code>hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)</code>
+                </div>
+                <div class="color-value-item">
+                    <span>CMYK:</span>
+                    <code>${rgbToCmyk(rgb.r, rgb.g, rgb.b)}</code>
+                </div>
+            `;
+            
+            document.getElementById('colorValues').innerHTML = valuesHtml;
+            
+            const allCodes = `HEX: ${hex}
+RGB: rgb(${rgb.r}, ${rgb.g}, ${rgb.b})
+HSL: hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)
+CMYK: ${rgbToCmyk(rgb.r, rgb.g, rgb.b)}`;
+            
+            document.getElementById('colorCodes').textContent = allCodes;
+        }
+
+        /**
+         * ランダムカラー生成
+         */
+        function generateRandomColor() {
+            const hex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            document.getElementById('colorPicker').value = hex;
+            document.getElementById('colorInput').value = hex;
+            displayColorValues(hex);
+        }
+
+        /**
+         * パレット生成
+         */
+        function generatePalette() {
+            const baseColor = document.getElementById('colorPicker').value;
+            const rgb = hexToRgb(baseColor);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            
+            const palette = [];
+            
+            // 類似色
+            for (let i = -2; i <= 2; i++) {
+                const newHue = (hsl.h + i * 30 + 360) % 360;
+                const color = hslToHex(newHue, hsl.s, hsl.l);
+                palette.push(color);
+            }
+            
+            // 明度違い
+            for (let i = 20; i <= 80; i += 20) {
+                if (i !== hsl.l) {
+                    const color = hslToHex(hsl.h, hsl.s, i);
+                    palette.push(color);
+                }
+            }
+            
+            displayPalette([...new Set(palette)]);
+        }
+
+        /**
+         * パレット表示
+         */
+        function displayPalette(colors) {
+            const container = document.getElementById('paletteColors');
+            container.innerHTML = '';
+            
+            colors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'palette-color';
+                colorDiv.style.backgroundColor = color;
+                colorDiv.title = color;
+                colorDiv.onclick = () => {
+                    document.getElementById('colorPicker').value = color;
+                    document.getElementById('colorInput').value = color;
+                    displayColorValues(color);
+                };
+                container.appendChild(colorDiv);
+            });
+        }
+
+        // === CSS グラデーション ===
+
+        /**
+         * グラデーション更新
+         */
+        function updateGradient() {
+            generateGradientCSS();
+        }
+
+        /**
+         * カラーストップ追加
+         */
+        function addColorStop() {
+            const newStop = {
+                color: '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'),
+                position: 50
+            };
+            gradientStops.push(newStop);
+            gradientStops.sort((a, b) => a.position - b.position);
+            renderGradientControls();
+            generateGradientCSS();
+        }
+
+        /**
+         * グラデーション制御UI表示
+         */
+        function renderGradientControls() {
+            const container = document.getElementById('gradientControls');
+            container.innerHTML = '';
+            
+            gradientStops.forEach((stop, index) => {
+                const stopDiv = document.createElement('div');
+                stopDiv.className = 'color-stop';
+                stopDiv.innerHTML = `
+                    <div class="color-stop-header">
+                        <strong>颜色点 ${index + 1}</strong>
+                        ${gradientStops.length > 2 ? `<button class="remove-stop" onclick="removeColorStop(${index})">删除</button>` : ''}
+                    </div>
+                    <div class="input-group">
+                        <label>颜色:</label>
+                        <input type="color" value="${stop.color}" onchange="updateColorStop(${index}, 'color', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>位置 (%):</label>
+                        <input type="range" min="0" max="100" value="${stop.position}" onchange="updateColorStop(${index}, 'position', this.value)">
+                        <input type="number" min="0" max="100" value="${stop.position}" onchange="updateColorStop(${index}, 'position', this.value)" style="width: 70px; margin-left: 10px;">
+                    </div>
+                `;
+                container.appendChild(stopDiv);
+            });
+        }
+
+        /**
+         * カラーストップ更新
+         */
+        function updateColorStop(index, property, value) {
+            gradientStops[index][property] = property === 'position' ? parseInt(value) : value;
+            if (property === 'position') {
+                gradientStops.sort((a, b) => a.position - b.position);
+                renderGradientControls();
+            }
+            generateGradientCSS();
+        }
+
+        /**
+         * カラーストップ削除
+         */
+        function removeColorStop(index) {
+            if (gradientStops.length > 2) {
+                gradientStops.splice(index, 1);
+                renderGradientControls();
+                generateGradientCSS();
+            }
+        }
+
+        /**
+         * グラデーションCSS生成
+         */
+        function generateGradientCSS() {
+            const type = document.getElementById('gradientType').value;
+            const direction = document.getElementById('gradientDirection').value;
+            
+            const colorStops = gradientStops
+                .map(stop => `${stop.color} ${stop.position}%`)
+                .join(', ');
+            
+            const css = `background: ${type}-gradient(${direction}, ${colorStops});`;
+            
+            document.getElementById('gradientPreview').style.background = 
+                `${type}-gradient(${direction}, ${colorStops})`;
+            
+            document.getElementById('gradientCSS').textContent = css;
+        }
+
+        /**
+         * ランダムグラデーション
+         */
+        function randomizeGradient() {
+            gradientStops = [
+                { color: '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'), position: 0 },
+                { color: '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'), position: 100 }
+            ];
+            renderGradientControls();
+            generateGradientCSS();
+        }
+
+        /**
+         * グラデーションリセット
+         */
+        function resetGradient() {
+            gradientStops = [
+                { color: '#667eea', position: 0 },
+                { color: '#764ba2', position: 100 }
+            ];
+            renderGradientControls();
+            generateGradientCSS();
+        }
+
+        // === エンコーディング変換 ===
+
+        /**
+         * エンコーディングタブ切替
+         */
+        function switchEncodingTab(button) {
+            document.querySelectorAll('.encoding-tab').forEach(tab => tab.classList.remove('active'));
+            button.classList.add('active');
+            currentEncodingTab = button.getAttribute('data-encoding');
+            convertEncoding();
+        }
+
+        /**
+         * エンコーディング変換
+         */
+        function convertEncoding() {
+            const text = document.getElementById('encodingInput').value;
+            if (!text) return;
+
+            let result = '';
+            
+            switch (currentEncodingTab) {
+                case 'unicode':
+                    result = textToUnicode(text);
+                    break;
+                case 'utf8':
+                    result = textToUTF8(text);
+                    break;
+                case 'hex':
+                    result = textToHex(text);
+                    break;
+                case 'binary':
+                    result = textToBinary(text);
+                    break;
+                case 'html':
+                    result = textToHTML(text);
+                    break;
+            }
+            
+            document.getElementById('encodingResult').textContent = result;
+        }
+
+        /**
+         * 全エンコーディング変換
+         */
+        function convertAll() {
+            const text = document.getElementById('encodingInput').value;
+            if (!text) return;
+
+            const allEncodings = `Unicode: ${textToUnicode(text)}
+
+UTF-8 Bytes: ${textToUTF8(text)}
+
+Hex: ${textToHex(text)}
+
+Binary: ${textToBinary(text)}
+
+HTML Entities: ${textToHTML(text)}`;
+
+            document.getElementById('allEncodings').textContent = allEncodings;
+        }
+
+        /**
+         * エンコーディングクリア
+         */
+        function clearEncoding() {
+            document.getElementById('encodingInput').value = '';
+            document.getElementById('encodingResult').textContent = '编码结果将显示在这里';
+            document.getElementById('allEncodings').textContent = '所有编码格式将显示在这里';
+        }
+
+        // === HTML整形 ===
+
+        /**
+         * HTML整形
+         */
+        function formatHTML() {
+            const html = document.getElementById('htmlInput').value;
+            const indentType = document.getElementById('indentType').value;
+            const indentSize = parseInt(document.getElementById('indentSize').value);
+            
+            const indent = indentType === 'tabs' ? '\t' : ' '.repeat(indentSize);
+            const formatted = formatHTMLString(html, indent);
+            
+            document.getElementById('htmlResult').textContent = formatted;
+        }
+
+        /**
+         * HTML圧縮
+         */
+        function minifyHTML() {
+            const html = document.getElementById('htmlInput').value;
+            const minified = html
+                .replace(/>\s+</g, '><')
+                .replace(/\s+/g, ' ')
+                .trim();
+            
+            document.getElementById('htmlResult').textContent = minified;
+        }
+
+        /**
+         * HTML検証
+         */
+        function validateHTML() {
+            const html = document.getElementById('htmlInput').value;
+            // 简单的HTML验证
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const errors = doc.querySelectorAll('parsererror');
+                
+                if (errors.length > 0) {
+                    alert('HTML格式存在错误');
+                } else {
+                    alert('HTML格式正确');
+                }
+            } catch (error) {
+                alert('HTML验证失败: ' + error.message);
+            }
+        }
+
+        /**
+         * HTMLクリア
+         */
+        function clearHTML() {
+            document.getElementById('htmlInput').value = '';
+            document.getElementById('htmlResult').textContent = '格式化结果将显示在这里';
+        }
+
+        // === CSS美化 ===
+
+        /**
+         * CSS美化
+         */
+        function formatCSS() {
+            const css = document.getElementById('cssInput').value;
+            const format = document.getElementById('cssFormat').value;
+            const indentType = document.getElementById('cssIndent').value;
+            
+            const indent = indentType === 'tab' ? '\t' : ' '.repeat(parseInt(indentType));
+            let formatted = '';
+            
+            switch (format) {
+                case 'expanded':
+                    formatted = formatCSSExpanded(css, indent);
+                    break;
+                case 'compact':
+                    formatted = formatCSSCompact(css);
+                    break;
+                case 'compressed':
+                    formatted = css.replace(/\s+/g, ' ').replace(/;\s*}/g, '}').trim();
+                    break;
+            }
+            
+            document.getElementById('cssResult').textContent = formatted;
+        }
+
+        /**
+         * CSS圧縮
+         */
+        function minifyCSS() {
+            const css = document.getElementById('cssInput').value;
+            const minified = css
+                .replace(/\/\*[\s\S]*?\*\//g, '')
+                .replace(/\s+/g, ' ')
+                .replace(/;\s*}/g, '}')
+                .replace(/\s*{\s*/g, '{')
+                .replace(/;\s*/g, ';')
+                .replace(/,\s*/g, ',')
+                .trim();
+            
+            document.getElementById('cssResult').textContent = minified;
+        }
+
+        /**
+         * ベンダープレフィックス追加
+         */
+        function addPrefix() {
+            const css = document.getElementById('cssInput').value;
+            // 简单的前缀添加示例
+            let prefixed = css
+                .replace(/transform:/g, '-webkit-transform:;\n  -moz-transform:;\n  -ms-transform:;\n  transform:')
+                .replace(/transition:/g, '-webkit-transition:;\n  -moz-transition:;\n  -ms-transition:;\n  transition:')
+                .replace(/border-radius:/g, '-webkit-border-radius:;\n  -moz-border-radius:;\n  border-radius:');
+            
+            document.getElementById('cssResult').textContent = prefixed;
+        }
+
+        /**
+         * CSSクリア
+         */
+        function clearCSS() {
+            document.getElementById('cssInput').value = '';
+            document.getElementById('cssResult').textContent = '格式化结果将显示在这里';
+        }
+
+        // === ユーティリティ関数 ===
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+        }
+
+        function hslToHex(h, s, l) {
+            h /= 360; s /= 100; l /= 100;
+            const a = s * Math.min(l, 1 - l);
+            const f = n => {
+                const k = (n + h * 12) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
+
+        function rgbToCmyk(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const k = 1 - Math.max(r, Math.max(g, b));
+            const c = (1 - r - k) / (1 - k) || 0;
+            const m = (1 - g - k) / (1 - k) || 0;
+            const y = (1 - b - k) / (1 - k) || 0;
+            return `cmyk(${Math.round(c * 100)}%, ${Math.round(m * 100)}%, ${Math.round(y * 100)}%, ${Math.round(k * 100)}%)`;
+        }
+
+        function textToUnicode(text) {
+            return [...text].map(char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`).join('');
+        }
+
+        function textToUTF8(text) {
+            return new TextEncoder().encode(text).join(' ');
+        }
+
+        function textToHex(text) {
+            return [...text].map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+        }
+
+        function textToBinary(text) {
+            return [...text].map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+        }
+
+        function textToHTML(text) {
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+        }
+
+        function formatHTMLString(html, indent) {
+            // 简单的HTML格式化
+            return html
+                .replace(/></g, '>\n<')
+                .split('\n')
+                .map((line, index) => {
+                    const depth = (line.match(/</g) || []).length - (line.match(/\//g) || []).length;
+                    return indent.repeat(Math.max(0, depth)) + line.trim();
+                })
+                .join('\n');
+        }
+
+        function formatCSSExpanded(css, indent) {
+            return css
+                .replace(/\{/g, ' {\n')
+                .replace(/\}/g, '\n}\n')
+                .replace(/;/g, ';\n')
+                .split('\n')
+                .map(line => line.includes('{') || line.includes('}') ? line : indent + line)
+                .join('\n');
+        }
+
+        function formatCSSCompact(css) {
+            return css.replace(/\{/g, ' { ').replace(/\}/g, ' }\n').replace(/;/g, '; ');
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = element.parentElement.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '已复制!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('已复制到剪贴板！');
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // カラーピッカーイベント
+            document.getElementById('colorPicker').addEventListener('change', function() {
+                document.getElementById('colorInput').value = this.value;
+                displayColorValues(this.value);
+            });
+            
+            document.getElementById('colorInput').addEventListener('input', updateColor);
+            
+            // 初期カラー表示
+            displayColorValues('#667eea');
+            
+            // グラデーション初期化
+            renderGradientControls();
+            generateGradientCSS();
+            
+            // 初期正規表現テスト
+            testRegex();
+        });
+    </script>
+</body>
+</html>

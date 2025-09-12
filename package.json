@@ -1,0 +1,27 @@
+{
+  "name": "random-tools-collection",
+  "version": "1.0.0",
+  "description": "一个功能丰富的在线工具集合，包含随机数生成、文本处理、数据转换、开发者工具等25+种实用功能",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "random-number-generator",
+    "web-tools",
+    "text-processing",
+    "data-conversion",
+    "developer-tools",
+    "utilities",
+    "online-tools"
+  ],
+  "author": "syl",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/opciuev/toolbox"
+  },
+  "homepage": "https://toolbox.flyooo.uk"
+}
