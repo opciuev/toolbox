@@ -341,8 +341,7 @@
             }
         }
     </style>
-    <!-- QRコード生成のためのライブラリ -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- 二维码生成 - 使用多种方案 -->
 </head>
 <body>
     <div class="nav-back">
@@ -357,7 +356,7 @@
     <div class="container">
         <div class="tools-grid">
             <!-- UUID生成器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="uuid-generator">
                 <div class="tool-title">
                     <span class="tool-icon">🆔</span>
                     UUID 生成器
@@ -397,7 +396,7 @@
             </div>
 
             <!-- 二维码生成器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="qr-generator">
                 <div class="tool-title">
                     <span class="tool-icon">📱</span>
                     二维码生成器
@@ -419,12 +418,12 @@
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>错误纠正级别:</label>
-                        <select id="qrErrorLevel">
-                            <option value="L">低 (7%)</option>
-                            <option value="M" selected>中 (15%)</option>
-                            <option value="Q">高 (25%)</option>
-                            <option value="H">最高 (30%)</option>
+                        <label>生成方式:</label>
+                        <select id="qrMethod">
+                            <option value="api1" selected>QR Server API</option>
+                            <option value="api2">QuickChart API</option>
+                            <option value="api3">Google Charts API</option>
+                            <option value="canvas">Canvas绘制</option>
                         </select>
                     </div>
                 </div>
@@ -449,7 +448,7 @@
             </div>
 
             <!-- Base64编解码 -->
-            <div class="tool-card">
+            <div class="tool-card" id="base64-codec">
                 <div class="tool-title">
                     <span class="tool-icon">🔐</span>
                     Base64 编解码
@@ -476,7 +475,7 @@
             </div>
 
             <!-- JSON格式化 -->
-            <div class="tool-card json-formatter">
+            <div class="tool-card json-formatter" id="json-formatter">
                 <div class="tool-title">
                     <span class="tool-icon">📄</span>
                     JSON 格式化工具
@@ -508,7 +507,7 @@
             </div>
 
             <!-- 时间戳转换器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="timestamp-converter">
                 <div class="tool-title">
                     <span class="tool-icon">⏰</span>
                     时间戳转换器
@@ -686,16 +685,10 @@
                 return;
             }
 
-            // 检查QRCode库是否可用
-            if (typeof QRCode === 'undefined') {
-                alert('二维码库加载失败，请检查网络连接！');
-                return;
-            }
-
             const size = parseInt(document.getElementById('qrSize').value);
-            const errorLevel = document.getElementById('qrErrorLevel').value;
-            const foreground = document.getElementById('qrForeground').value;
-            const background = document.getElementById('qrBackground').value;
+            const method = document.getElementById('qrMethod').value;
+            const foreground = document.getElementById('qrForeground').value.replace('#', '');
+            const background = document.getElementById('qrBackground').value.replace('#', '');
 
             // 验证输入
             if (isNaN(size) || size < 100 || size > 1000) {
@@ -703,28 +696,154 @@
                 return;
             }
 
-            const canvas = document.createElement('canvas');
-            const options = {
-                width: size,
-                height: size,
-                errorCorrectionLevel: errorLevel,
-                color: {
-                    dark: foreground,
-                    light: background
-                }
-            };
+            const display = document.getElementById('qrDisplay');
+            display.innerHTML = '<p>正在生成二维码...</p>';
 
-            QRCode.toCanvas(canvas, text, options)
-                .then(() => {
-                    const display = document.getElementById('qrDisplay');
-                    display.innerHTML = '';
-                    display.appendChild(canvas);
-                    qrCodeCanvas = canvas;
-                })
-                .catch(err => {
-                    console.error('QR Code generation error:', err);
-                    alert('二维码生成失败: ' + err.message);
-                });
+            switch (method) {
+                case 'api1':
+                    generateQRWithAPI1(text, size, foreground, background);
+                    break;
+                case 'api2':
+                    generateQRWithAPI2(text, size, foreground, background);
+                    break;
+                case 'api3':
+                    generateQRWithAPI3(text, size, foreground, background);
+                    break;
+                case 'canvas':
+                    generateQRWithCanvas(text, size, foreground, background);
+                    break;
+                default:
+                    generateQRWithAPI1(text, size, foreground, background);
+            }
+        }
+
+        // 方案1：QR Server API
+        function generateQRWithAPI1(text, size, foreground, background) {
+            const encodedText = encodeURIComponent(text);
+            const url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodedText}&color=${foreground}&bgcolor=${background}`;
+            
+            const img = new Image();
+            img.onload = function() {
+                const display = document.getElementById('qrDisplay');
+                display.innerHTML = '';
+                display.appendChild(img);
+                
+                // 转换为canvas以便下载
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                qrCodeCanvas = canvas;
+            };
+            img.onerror = function() {
+                document.getElementById('qrDisplay').innerHTML = '<p style="color: red;">二维码生成失败，请尝试其他方式</p>';
+            };
+            img.src = url;
+            img.style.maxWidth = '100%';
+        }
+
+        // 方案2：QuickChart API
+        function generateQRWithAPI2(text, size, foreground, background) {
+            const encodedText = encodeURIComponent(text);
+            const url = `https://quickchart.io/qr?text=${encodedText}&size=${size}&dark=${foreground}&light=${background}`;
+            
+            const img = new Image();
+            img.onload = function() {
+                const display = document.getElementById('qrDisplay');
+                display.innerHTML = '';
+                display.appendChild(img);
+                
+                // 转换为canvas以便下载
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                qrCodeCanvas = canvas;
+            };
+            img.onerror = function() {
+                // 如果失败，尝试方案1
+                generateQRWithAPI1(text, size, foreground, background);
+            };
+            img.src = url;
+            img.style.maxWidth = '100%';
+        }
+
+        // 方案3：Google Charts API
+        function generateQRWithAPI3(text, size, foreground, background) {
+            const encodedText = encodeURIComponent(text);
+            const url = `https://chart.googleapis.com/chart?chs=${size}x${size}&cht=qr&chl=${encodedText}&chco=${foreground}&chf=bg,s,${background}`;
+            
+            const img = new Image();
+            img.onload = function() {
+                const display = document.getElementById('qrDisplay');
+                display.innerHTML = '';
+                display.appendChild(img);
+                
+                // 转换为canvas以便下载
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                qrCodeCanvas = canvas;
+            };
+            img.onerror = function() {
+                // 如果失败，尝试方案1
+                generateQRWithAPI1(text, size, foreground, background);
+            };
+            img.src = url;
+            img.style.maxWidth = '100%';
+        }
+
+        // 方案4：Canvas绘制（简单版本）
+        function generateQRWithCanvas(text, size, foreground, background) {
+            // 这是一个简化的二维码生成，实际应用中需要完整的QR算法
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // 填充背景
+            ctx.fillStyle = '#' + background;
+            ctx.fillRect(0, 0, size, size);
+            
+            // 简单的模拟二维码图案
+            ctx.fillStyle = '#' + foreground;
+            const moduleSize = Math.floor(size / 25);
+            
+            // 绘制定位标记
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if ((i === 0 || i === 6 || j === 0 || j === 6) || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
+                        ctx.fillRect(i * moduleSize, j * moduleSize, moduleSize, moduleSize);
+                        ctx.fillRect((18 + i) * moduleSize, j * moduleSize, moduleSize, moduleSize);
+                        ctx.fillRect(i * moduleSize, (18 + j) * moduleSize, moduleSize, moduleSize);
+                    }
+                }
+            }
+            
+            // 添加一些随机模块来模拟数据
+            for (let i = 8; i < 17; i++) {
+                for (let j = 8; j < 17; j++) {
+                    if (Math.random() > 0.5) {
+                        ctx.fillRect(i * moduleSize, j * moduleSize, moduleSize, moduleSize);
+                    }
+                }
+            }
+            
+            const display = document.getElementById('qrDisplay');
+            display.innerHTML = '';
+            display.appendChild(canvas);
+            qrCodeCanvas = canvas;
+            
+            // 添加提示
+            const note = document.createElement('p');
+            note.textContent = '注意：这是简化版二维码，仅供演示，无法扫描';
+            note.style.color = '#666';
+            note.style.fontSize = '12px';
+            display.appendChild(note);
         }
 
         /**

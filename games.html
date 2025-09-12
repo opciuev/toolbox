@@ -105,8 +105,8 @@
         /* 幸运转盘样式 */
         .wheel-container {
             position: relative;
-            width: 250px;
-            height: 250px;
+            width: 300px;
+            height: 300px;
             margin: 2rem auto;
         }
 
@@ -118,6 +118,9 @@
             position: relative;
             overflow: hidden;
             transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .wheel-segment {
@@ -382,7 +385,7 @@
     <div class="container">
         <div class="games-grid">
             <!-- 幸运转盘 -->
-            <div class="game-card">
+            <div class="game-card" id="lucky-wheel">
                 <div class="game-title">
                     <span class="game-icon">🎡</span>
                     幸运转盘
@@ -408,7 +411,7 @@
             </div>
 
             <!-- 掷骰子 -->
-            <div class="game-card">
+            <div class="game-card" id="dice-game">
                 <div class="game-title">
                     <span class="game-icon">🎲</span>
                     掷骰子模拟器
@@ -456,7 +459,7 @@
             </div>
 
             <!-- 抽奖系统 -->
-            <div class="game-card">
+            <div class="game-card" id="lottery-system">
                 <div class="game-title">
                     <span class="game-icon">🎁</span>
                     抽奖系统
@@ -495,7 +498,7 @@
             </div>
 
             <!-- 猜数字游戏 -->
-            <div class="game-card">
+            <div class="game-card" id="guess-number">
                 <div class="game-title">
                     <span class="game-icon">🔢</span>
                     猜数字游戏
@@ -558,7 +561,7 @@
         // === 幸運の輪関連の関数 ===
 
         /**
-         * ホイールを更新
+         * ホイールを更新 - 使用Canvas绘制更准确的转盘
          */
         function updateWheel() {
             const options = document.getElementById('wheelOptions').value.split(',').map(s => s.trim()).filter(s => s);
@@ -568,33 +571,85 @@
             }
             
             currentWheelOptions = options;
-            const wheel = document.getElementById('wheel');
-            wheel.innerHTML = '';
+            const wheelContainer = document.getElementById('wheel');
+            wheelContainer.innerHTML = '';
+            
+            // 创建Canvas元素
+            const canvas = document.createElement('canvas');
+            canvas.width = 284; // 300 - 8*2 (边框宽度)
+            canvas.height = 284;
+            canvas.style.width = '284px';
+            canvas.style.height = '284px';
+            canvas.style.borderRadius = '50%';
+            canvas.id = 'wheelCanvas';
+            
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 140;
             
             const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
-            const segmentAngle = 360 / options.length;
+            const segmentAngle = (2 * Math.PI) / options.length;
+            
+            // 存储每个扇形的角度信息，用于后续选择判断
+            window.wheelSegments = [];
             
             options.forEach((option, index) => {
-                const segment = document.createElement('div');
-                segment.className = 'wheel-segment';
-                segment.style.background = colors[index % colors.length];
-                segment.style.transform = `rotate(${index * segmentAngle}deg)`;
+                const startAngle = index * segmentAngle - Math.PI / 2; // 从顶部开始
+                const endAngle = startAngle + segmentAngle;
                 
-                // テキストを追加
-                const text = document.createElement('div');
-                text.style.position = 'absolute';
-                text.style.top = '10px';
-                text.style.left = '50%';
-                text.style.transform = 'translateX(-50%)';
-                text.style.fontSize = '12px';
-                text.style.fontWeight = 'bold';
-                text.style.color = 'white';
-                text.style.textShadow = '1px 1px 2px rgba(0,0,0,0.8)';
-                text.textContent = option.length > 8 ? option.substring(0, 6) + '...' : option;
-                segment.appendChild(text);
+                // 存储扇形信息
+                window.wheelSegments.push({
+                    option: option,
+                    startAngle: startAngle,
+                    endAngle: endAngle,
+                    index: index
+                });
                 
-                wheel.appendChild(segment);
+                // 调试信息 - 显示角度和弧度
+                console.log(`绘制扇形 ${index}: ${option}`);
+                console.log(`  弧度: ${startAngle.toFixed(3)} - ${endAngle.toFixed(3)}`);
+                console.log(`  角度: ${(startAngle * 180 / Math.PI).toFixed(1)}° - ${(endAngle * 180 / Math.PI).toFixed(1)}°`);
+                
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // 绘制文字
+                ctx.save();
+                const textAngle = startAngle + segmentAngle / 2;
+                const textRadius = radius * 0.65;
+                const textX = centerX + Math.cos(textAngle) * textRadius;
+                const textY = centerY + Math.sin(textAngle) * textRadius;
+                
+                ctx.translate(textX, textY);
+                ctx.rotate(textAngle + Math.PI / 2);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 2;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                // 文字长度限制
+                const maxLength = segmentAngle > 1 ? 10 : 6;
+                const displayText = option.length > maxLength ? option.substring(0, maxLength-2) + '..' : option;
+                ctx.fillText(displayText, 0, 0);
+                
+                ctx.restore();
             });
+            
+            wheelContainer.appendChild(canvas);
         }
 
         /**
@@ -608,24 +663,78 @@
             spinBtn.disabled = true;
             spinBtn.textContent = '转动中...';
             
-            const wheel = document.getElementById('wheel');
-            const randomSpin = Math.floor(Math.random() * 360) + 1440; // 最低转4圈
+            const wheelContainer = document.getElementById('wheel');
+            const canvas = wheelContainer.querySelector('canvas');
+            if (!canvas) return;
             
-            wheel.style.transform = `rotate(${randomSpin}deg)`;
+            // 重置转盘到初始位置（重要！）
+            console.log('开始新的转动，重置转盘位置');
+            canvas.style.transition = 'none';
+            canvas.style.transform = 'rotate(0deg)';
+            
+            // 强制重绘，确保重置生效
+            canvas.offsetHeight;
+            
+            const randomSpin = Math.floor(Math.random() * 360) + 1440; // 最低转4圈
+            console.log('生成随机旋转角度:', randomSpin);
+            
+            // 应用旋转动画到Canvas
+            canvas.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+            canvas.style.transform = `rotate(${randomSpin}deg)`;
+            console.log('开始转动动画');
             
             setTimeout(() => {
-                const normalizedAngle = randomSpin % 360;
+                const finalAngle = randomSpin % 360;
                 const segmentAngle = 360 / currentWheelOptions.length;
-                // 修正角度计算 - 考虑指针位置
-                const adjustedAngle = (360 - normalizedAngle + segmentAngle / 2) % 360;
-                const selectedIndex = Math.floor(adjustedAngle / segmentAngle) % currentWheelOptions.length;
+                
+                // 网上标准算法 - 参考搜索结果的实现
+                // 指针固定在顶部，转盘旋转了finalAngle度
+                
+                // 1. 将角度转换为弧度并标准化到0-2π范围
+                const currentAngleRad = (finalAngle * Math.PI / 180) % (2 * Math.PI);
+                const normalizedAngle = currentAngleRad < 0 ? currentAngleRad + 2 * Math.PI : currentAngleRad;
+                
+                // 2. 使用标准公式计算选中的扇形索引
+                // 公式：index = Math.floor((2π - normalizedAngle) / segmentAngle) % segments.length
+                const segmentAngleRad = (2 * Math.PI) / currentWheelOptions.length;
+                let selectedIndex = Math.floor((2 * Math.PI - normalizedAngle) / segmentAngleRad) % currentWheelOptions.length;
+                
+                // 3. 确保索引为正数
+                if (selectedIndex < 0) selectedIndex += currentWheelOptions.length;
+                
                 const selectedOption = currentWheelOptions[selectedIndex];
+                
+                // 详细调试信息
+                console.log('=== 转盘选择调试 (网上标准算法) ===');
+                console.log('转盘旋转角度(度):', finalAngle);
+                console.log('转盘角度(弧度):', normalizedAngle);
+                console.log('每个扇形角度(弧度):', segmentAngleRad);
+                console.log('标准公式计算:', `Math.floor((2π - ${normalizedAngle.toFixed(3)}) / ${segmentAngleRad.toFixed(3)})`);
+                console.log('计算结果:', Math.floor((2 * Math.PI - normalizedAngle) / segmentAngleRad));
+                console.log('取模后索引:', selectedIndex);
+                console.log('选中选项:', selectedOption);
+                console.log('---扇形分布验证---');
+                currentWheelOptions.forEach((opt, i) => {
+                    const startAngle = i * segmentAngleRad;
+                    const endAngle = (i + 1) * segmentAngleRad;
+                    const startDeg = (startAngle * 180 / Math.PI).toFixed(1);
+                    const endDeg = (endAngle * 180 / Math.PI).toFixed(1);
+                    const isSelected = i === selectedIndex ? ' ← 选中' : '';
+                    console.log(`扇形${i}: ${opt} [${startDeg}° - ${endDeg}°]${isSelected}`);
+                });
+                console.log(`使用标准公式：index = Math.floor((2π - angle) / segmentAngle) % length`);
                 
                 document.getElementById('wheelResult').textContent = `🎉 ${selectedOption}`;
                 
+                // 重置状态，准备下次转动
                 wheelSpinning = false;
                 spinBtn.disabled = false;
                 spinBtn.textContent = '开始转动';
+                
+                // 保持当前位置，但移除transition，为下次转动做准备
+                canvas.style.transition = 'none';
+                
+                console.log('转盘转动完成，已重置状态');
             }, 4000);
         }
 

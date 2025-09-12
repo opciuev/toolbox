@@ -434,7 +434,7 @@
     <div class="container">
         <div class="tools-grid">
             <!-- 正则表达式测试器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="regex-tester">
                 <div class="tool-title">
                     <span class="tool-icon">🔍</span>
                     正则表达式测试器
@@ -484,7 +484,7 @@
             </div>
 
             <!-- 颜色选择器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="color-picker">
                 <div class="tool-title">
                     <span class="tool-icon">🎨</span>
                     高级颜色选择器
@@ -526,7 +526,7 @@
             </div>
 
             <!-- CSS渐变生成器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="gradient-generator">
                 <div class="tool-title">
                     <span class="tool-icon">🌈</span>
                     CSS 渐变生成器
@@ -572,7 +572,7 @@
             </div>
 
             <!-- 字符编码转换器 -->
-            <div class="tool-card">
+            <div class="tool-card" id="encoding-converter">
                 <div class="tool-title">
                     <span class="tool-icon">🔣</span>
                     字符编码转换器
@@ -1357,15 +1357,38 @@ HTML Entities: ${textToHTML(text)}`;
         }
 
         function formatHTMLString(html, indent) {
-            // 简单的HTML格式化
-            return html
+            // 改进的HTML格式化算法
+            const lines = html
                 .replace(/></g, '>\n<')
                 .split('\n')
-                .map((line, index) => {
-                    const depth = (line.match(/</g) || []).length - (line.match(/\//g) || []).length;
-                    return indent.repeat(Math.max(0, depth)) + line.trim();
-                })
-                .join('\n');
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            let result = [];
+            let indentLevel = 0;
+            
+            for (let line of lines) {
+                // 如果是结束标签，先减少缩进级别
+                if (line.startsWith('</')) {
+                    indentLevel = Math.max(0, indentLevel - 1);
+                }
+                
+                // 添加当前行（带缩进）
+                result.push(indent.repeat(indentLevel) + line);
+                
+                // 如果是开始标签（不是自闭合标签），增加缩进级别
+                if (line.startsWith('<') && !line.startsWith('</') && !line.endsWith('/>')) {
+                    // 检查是否是自闭合标签（如 <br>, <img>, <input> 等）
+                    const tagName = line.match(/<(\w+)/);
+                    const selfClosingTags = ['br', 'img', 'input', 'hr', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
+                    
+                    if (tagName && !selfClosingTags.includes(tagName[1].toLowerCase())) {
+                        indentLevel++;
+                    }
+                }
+            }
+            
+            return result.join('\n');
         }
 
         function formatCSSExpanded(css, indent) {

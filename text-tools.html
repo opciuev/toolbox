@@ -346,7 +346,7 @@
     <div class="container">
         <div class="tools-grid">
             <!-- 文本统计分析 -->
-            <div class="tool-card">
+            <div class="tool-card" id="text-stats">
                 <div class="tool-title">
                     <span class="tool-icon">📊</span>
                     文本统计分析
@@ -396,13 +396,21 @@
                         <h4>平均字数/句</h4>
                         <div class="value" id="avgWordsPerSentence">0</div>
                     </div>
+                    <div class="stats-item">
+                        <h4>字节数(UTF-8)</h4>
+                        <div class="value" id="byteCount">0</div>
+                    </div>
+                    <div class="stats-item">
+                        <h4>字节数(GBK)</h4>
+                        <div class="value" id="byteCountGBK">0</div>
+                    </div>
                 </div>
 
                 <div class="word-cloud" id="wordFrequency"></div>
             </div>
 
             <!-- 大小写转换 -->
-            <div class="tool-card">
+            <div class="tool-card" id="case-conversion">
                 <div class="tool-title">
                     <span class="tool-icon">🔤</span>
                     大小写转换工具
@@ -428,7 +436,7 @@
             </div>
 
             <!-- 文本去重工具 -->
-            <div class="tool-card">
+            <div class="tool-card" id="text-dedup">
                 <div class="tool-title">
                     <span class="tool-icon">🔄</span>
                     文本去重工具
@@ -604,8 +612,33 @@
                 </div>
             </div>
 
+            <!-- 半角全角转换工具 -->
+            <div class="tool-card" id="width-conversion">
+                <div class="tool-title">
+                    <span class="tool-icon">🔄</span>
+                    半角全角转换
+                </div>
+                
+                <div class="input-group">
+                    <label>输入文本:</label>
+                    <textarea id="widthText" placeholder="输入要转换的文本..." rows="4">Hello World！１２３ＡＢＣ（测试）エラー ｴﾗｰ こんにちは コンニチハ</textarea>
+                </div>
+
+                <button class="tool-btn" onclick="convertToFullWidth()">转为全角</button>
+                <button class="tool-btn" onclick="convertToHalfWidth()">转为半角</button>
+                <button class="secondary-btn" onclick="convertNumbers()">仅转数字</button>
+                <button class="secondary-btn" onclick="convertLetters()">仅转字母</button>
+                <button class="secondary-btn" onclick="convertPunctuation()">仅转标点</button>
+                <button class="danger-btn" onclick="clearWidth()">清空</button>
+                
+                <div class="result-area">
+                    <pre class="result-text" id="widthResult">转换结果将显示在这里</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('widthResult')">复制</button>
+                </div>
+            </div>
+
             <!-- 文本格式化工具 -->
-            <div class="tool-card">
+            <div class="tool-card" id="text-format">
                 <div class="tool-title">
                     <span class="tool-icon">✨</span>
                     文本格式化工具
@@ -690,6 +723,10 @@
             // 平均単語数/文
             const avgWordsPerSentence = sentenceCount > 0 ? (wordCount / sentenceCount).toFixed(1) : 0;
             
+            // バイト数カウント
+            const utf8Bytes = new TextEncoder().encode(text).length;
+            const gbkBytes = calculateGBKBytes(text);
+            
             // 結果表示
             document.getElementById('charCount').textContent = charCount;
             document.getElementById('wordCount').textContent = wordCount;
@@ -697,6 +734,8 @@
             document.getElementById('paragraphCount').textContent = paragraphCount;
             document.getElementById('lineCount').textContent = lineCount;
             document.getElementById('avgWordsPerSentence').textContent = avgWordsPerSentence;
+            document.getElementById('byteCount').textContent = utf8Bytes;
+            document.getElementById('byteCountGBK').textContent = gbkBytes;
         }
 
         /**
@@ -745,6 +784,8 @@
             document.getElementById('paragraphCount').textContent = '0';
             document.getElementById('lineCount').textContent = '0';
             document.getElementById('avgWordsPerSentence').textContent = '0';
+            document.getElementById('byteCount').textContent = '0';
+            document.getElementById('byteCountGBK').textContent = '0';
             document.getElementById('wordFrequency').innerHTML = '';
         }
 
@@ -1192,6 +1233,260 @@
         function clearFormat() {
             document.getElementById('formatText').value = '';
             document.getElementById('formatResult').textContent = '格式化结果将显示在这里';
+        }
+
+        // === 字节数计算函数 ===
+
+        /**
+         * 计算GBK编码字节数（近似）
+         */
+        function calculateGBKBytes(text) {
+            let bytes = 0;
+            for (let i = 0; i < text.length; i++) {
+                const char = text.charAt(i);
+                const code = char.charCodeAt(0);
+                
+                // ASCII字符占1字节
+                if (code <= 0x7F) {
+                    bytes += 1;
+                } 
+                // 中文字符和其他多字节字符占2字节
+                else {
+                    bytes += 2;
+                }
+            }
+            return bytes;
+        }
+
+        // === 半角全角转换函数 ===
+
+        /**
+         * 正确的假名全半角转换实现
+         * 基于完整的Unicode映射表，确保转换准确性
+         */
+
+        /**
+         * 转为全角
+         */
+        function convertToFullWidth() {
+            const text = document.getElementById('widthText').value;
+            if (!text) return;
+
+            let result = text;
+            
+            // 1. 半角ASCII字符转全角 (U+0021-U+007E -> U+FF01-U+FF5E)
+            result = result.replace(/[\u0021-\u007E]/g, function(char) {
+                return String.fromCharCode(char.charCodeAt(0) + 0xFEE0);
+            });
+            
+            // 2. 半角空格转全角空格
+            result = result.replace(/\u0020/g, '\u3000');
+            
+            // 3. 先处理浊音和半浊音组合 (必须在单个字符转换之前)
+            result = result.replace(/([ｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎｳ])ﾞ/g, function(match, base) {
+                const dakutenMap = {
+                    'ｶ': 'ガ', 'ｷ': 'ギ', 'ｸ': 'グ', 'ｹ': 'ゲ', 'ｺ': 'ゴ',
+                    'ｻ': 'ザ', 'ｼ': 'ジ', 'ｽ': 'ズ', 'ｾ': 'ゼ', 'ｿ': 'ゾ',
+                    'ﾀ': 'ダ', 'ﾁ': 'ヂ', 'ﾂ': 'ヅ', 'ﾃ': 'デ', 'ﾄ': 'ド',
+                    'ﾊ': 'バ', 'ﾋ': 'ビ', 'ﾌ': 'ブ', 'ﾍ': 'ベ', 'ﾎ': 'ボ',
+                    'ｳ': 'ヴ'
+                };
+                return dakutenMap[base] || match;
+            });
+            
+            result = result.replace(/([ﾊﾋﾌﾍﾎ])ﾟ/g, function(match, base) {
+                const handakutenMap = {
+                    'ﾊ': 'パ', 'ﾋ': 'ピ', 'ﾌ': 'プ', 'ﾍ': 'ペ', 'ﾎ': 'ポ'
+                };
+                return handakutenMap[base] || match;
+            });
+            
+            // 4. 半角片假名转全角片假名 (完整映射表)
+            const halfToFullMap = {
+                // 标点符号
+                '｡': '。', '｢': '「', '｣': '」', '､': '、', '･': '・',
+                // 片假名
+                'ｦ': 'ヲ', 'ｧ': 'ァ', 'ｨ': 'ィ', 'ｩ': 'ゥ', 'ｪ': 'ェ', 'ｫ': 'ォ',
+                'ｬ': 'ャ', 'ｭ': 'ュ', 'ｮ': 'ョ', 'ｯ': 'ッ', 'ｰ': 'ー',
+                'ｱ': 'ア', 'ｲ': 'イ', 'ｳ': 'ウ', 'ｴ': 'エ', 'ｵ': 'オ',
+                'ｶ': 'カ', 'ｷ': 'キ', 'ｸ': 'ク', 'ｹ': 'ケ', 'ｺ': 'コ',
+                'ｻ': 'サ', 'ｼ': 'シ', 'ｽ': 'ス', 'ｾ': 'セ', 'ｿ': 'ソ',
+                'ﾀ': 'タ', 'ﾁ': 'チ', 'ﾂ': 'ツ', 'ﾃ': 'テ', 'ﾄ': 'ト',
+                'ﾅ': 'ナ', 'ﾆ': 'ニ', 'ﾇ': 'ヌ', 'ﾈ': 'ネ', 'ﾉ': 'ノ',
+                'ﾊ': 'ハ', 'ﾋ': 'ヒ', 'ﾌ': 'フ', 'ﾍ': 'ヘ', 'ﾎ': 'ホ',
+                'ﾏ': 'マ', 'ﾐ': 'ミ', 'ﾑ': 'ム', 'ﾒ': 'メ', 'ﾓ': 'モ',
+                'ﾔ': 'ヤ', 'ﾕ': 'ユ', 'ﾖ': 'ヨ',
+                'ﾗ': 'ラ', 'ﾘ': 'リ', 'ﾙ': 'ル', 'ﾚ': 'レ', 'ﾛ': 'ロ',
+                'ﾜ': 'ワ', 'ﾝ': 'ン',
+                // 符号
+                'ﾞ': '゛', 'ﾟ': '゜'
+            };
+            
+            result = result.replace(/[\uFF61-\uFF9F]/g, function(char) {
+                return halfToFullMap[char] || char;
+            });
+            
+            document.getElementById('widthResult').textContent = result;
+        }
+
+        /**
+         * 转为半角
+         */
+        function convertToHalfWidth() {
+            const text = document.getElementById('widthText').value;
+            if (!text) return;
+
+            let result = text;
+            
+            // 1. 全角ASCII字符转半角 (U+FF01-U+FF5E -> U+0021-U+007E)
+            result = result.replace(/[\uFF01-\uFF5E]/g, function(char) {
+                return String.fromCharCode(char.charCodeAt(0) - 0xFEE0);
+            });
+            
+            // 2. 全角空格转半角空格
+            result = result.replace(/\u3000/g, '\u0020');
+            
+            // 3. 平假名转片假名 (因为平假名没有直接的半角形式)
+            result = result.replace(/[\u3041-\u3096]/g, function(char) {
+                const code = char.charCodeAt(0);
+                // 平假名到片假名的偏移量是0x60
+                return String.fromCharCode(code + 0x60);
+            });
+            
+            // 4. 全角片假名转半角片假名 (完整映射表，包括浊音分解)
+            const fullToHalfMap = {
+                // 标点符号
+                '。': '｡', '「': '｢', '」': '｣', '、': '､', '・': '･',
+                // 基本片假名
+                'ヲ': 'ｦ', 'ァ': 'ｧ', 'ィ': 'ｨ', 'ゥ': 'ｩ', 'ェ': 'ｪ', 'ォ': 'ｫ',
+                'ャ': 'ｬ', 'ュ': 'ｭ', 'ョ': 'ｮ', 'ッ': 'ｯ', 'ー': 'ｰ',
+                'ア': 'ｱ', 'イ': 'ｲ', 'ウ': 'ｳ', 'エ': 'ｴ', 'オ': 'ｵ',
+                'カ': 'ｶ', 'キ': 'ｷ', 'ク': 'ｸ', 'ケ': 'ｹ', 'コ': 'ｺ',
+                'サ': 'ｻ', 'シ': 'ｼ', 'ス': 'ｽ', 'セ': 'ｾ', 'ソ': 'ｿ',
+                'タ': 'ﾀ', 'チ': 'ﾁ', 'ツ': 'ﾂ', 'テ': 'ﾃ', 'ト': 'ﾄ',
+                'ナ': 'ﾅ', 'ニ': 'ﾆ', 'ヌ': 'ﾇ', 'ネ': 'ﾈ', 'ノ': 'ﾉ',
+                'ハ': 'ﾊ', 'ヒ': 'ﾋ', 'フ': 'ﾌ', 'ヘ': 'ﾍ', 'ホ': 'ﾎ',
+                'マ': 'ﾏ', 'ミ': 'ﾐ', 'ム': 'ﾑ', 'メ': 'ﾒ', 'モ': 'ﾓ',
+                'ヤ': 'ﾔ', 'ユ': 'ﾕ', 'ヨ': 'ﾖ',
+                'ラ': 'ﾗ', 'リ': 'ﾘ', 'ル': 'ﾙ', 'レ': 'ﾚ', 'ロ': 'ﾛ',
+                'ワ': 'ﾜ', 'ン': 'ﾝ',
+                // 浊音 (分解为基字符+浊音符)
+                'ガ': 'ｶﾞ', 'ギ': 'ｷﾞ', 'グ': 'ｸﾞ', 'ゲ': 'ｹﾞ', 'ゴ': 'ｺﾞ',
+                'ザ': 'ｻﾞ', 'ジ': 'ｼﾞ', 'ズ': 'ｽﾞ', 'ゼ': 'ｾﾞ', 'ゾ': 'ｿﾞ',
+                'ダ': 'ﾀﾞ', 'ヂ': 'ﾁﾞ', 'ヅ': 'ﾂﾞ', 'デ': 'ﾃﾞ', 'ド': 'ﾄﾞ',
+                'バ': 'ﾊﾞ', 'ビ': 'ﾋﾞ', 'ブ': 'ﾌﾞ', 'ベ': 'ﾍﾞ', 'ボ': 'ﾎﾞ',
+                'ヴ': 'ｳﾞ',
+                // 半浊音 (分解为基字符+半浊音符)
+                'パ': 'ﾊﾟ', 'ピ': 'ﾋﾟ', 'プ': 'ﾌﾟ', 'ペ': 'ﾍﾟ', 'ポ': 'ﾎﾟ',
+                // 符号
+                '゛': 'ﾞ', '゜': 'ﾟ'
+            };
+            
+            result = result.replace(/[\u3000-\u30FF]/g, function(char) {
+                return fullToHalfMap[char] || char;
+            });
+            
+            document.getElementById('widthResult').textContent = result;
+        }
+
+        /**
+         * 仅转换数字
+         */
+        function convertNumbers() {
+            const text = document.getElementById('widthText').value;
+            if (!text) return;
+
+            // 检测是否包含全角数字
+            const hasFullWidth = /[０-９]/.test(text);
+            
+            let result;
+            if (hasFullWidth) {
+                // 全角数字转半角
+                result = text.replace(/[０-９]/g, function(char) {
+                    return String.fromCharCode(char.charCodeAt(0) - 0xFF10 + 0x30);
+                });
+            } else {
+                // 半角数字转全角
+                result = text.replace(/[0-9]/g, function(char) {
+                    return String.fromCharCode(char.charCodeAt(0) - 0x30 + 0xFF10);
+                });
+            }
+            
+            document.getElementById('widthResult').textContent = result;
+        }
+
+        /**
+         * 仅转换字母
+         */
+        function convertLetters() {
+            const text = document.getElementById('widthText').value;
+            if (!text) return;
+
+            // 检测是否包含全角字母
+            const hasFullWidth = /[Ａ-Ｚａ-ｚ]/.test(text);
+            
+            let result;
+            if (hasFullWidth) {
+                // 全角字母转半角
+                result = text.replace(/[Ａ-Ｚａ-ｚ]/g, function(char) {
+                    return String.fromCharCode(char.charCodeAt(0) - 0xFF00 + 0x20);
+                });
+            } else {
+                // 半角字母转全角
+                result = text.replace(/[A-Za-z]/g, function(char) {
+                    return String.fromCharCode(char.charCodeAt(0) - 0x20 + 0xFF00);
+                });
+            }
+            
+            document.getElementById('widthResult').textContent = result;
+        }
+
+        /**
+         * 仅转换标点符号
+         */
+        function convertPunctuation() {
+            const text = document.getElementById('widthText').value;
+            if (!text) return;
+
+            // 常见标点符号映射
+            const fullToHalf = {
+                '！': '!', '？': '?', '：': ':', '；': ';', '，': ',', '。': '.', 
+                '（': '(', '）': ')', '【': '[', '】': ']', '｛': '{', '｝': '}',
+                '＂': '"', '＇': "'", '｀': '`', '～': '~', '＠': '@', '＃': '#',
+                '％': '%', '＆': '&', '＊': '*', '＋': '+', '－': '-', '＝': '=',
+                '｜': '|', '＼': '\\', '／': '/', '＜': '<', '＞': '>', '＿': '_'
+            };
+            
+            const halfToFull = {};
+            Object.keys(fullToHalf).forEach(key => {
+                halfToFull[fullToHalf[key]] = key;
+            });
+
+            // 检测是否包含全角标点
+            const hasFullWidth = Object.keys(fullToHalf).some(char => text.includes(char));
+            
+            let result = text;
+            if (hasFullWidth) {
+                // 全角标点转半角
+                Object.keys(fullToHalf).forEach(full => {
+                    result = result.replace(new RegExp(full, 'g'), fullToHalf[full]);
+                });
+            } else {
+                // 半角标点转全角
+                Object.keys(halfToFull).forEach(half => {
+                    result = result.replace(new RegExp('\\' + half, 'g'), halfToFull[half]);
+                });
+            }
+            
+            document.getElementById('widthResult').textContent = result;
+        }
+
+        /**
+         * 清空半角全角转换
+         */
+        function clearWidth() {
+            document.getElementById('widthText').value = '';
+            document.getElementById('widthResult').textContent = '转换结果将显示在这里';
         }
 
         // === 共通関数 ===
