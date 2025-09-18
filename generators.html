@@ -172,6 +172,67 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
+        .toggle-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .advanced-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .advanced-options h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .advanced-options small {
+            display: block;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .toggle-btn {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
         .result-area {
             margin-top: 1.5rem;
             padding: 1.5rem;
@@ -385,7 +446,7 @@
             </div>
 
             <!-- 随机名字生成器 -->
-            <div class="generator-card">
+            <div class="generator-card" id="name-generator">
                 <div class="generator-title">
                     <span class="generator-icon">👤</span>
                     随机名字生成器
@@ -415,7 +476,65 @@
                     </div>
                 </div>
 
-                <button class="generate-btn" onclick="generateNames()">生成随机名字</button>
+                <!-- 高级自定义选项 -->
+                <div class="advanced-options" id="advancedOptions" style="display: none;">
+                    <h4 style="margin: 1rem 0 0.5rem 0; color: #2d3748;">🎯 高级自定义 (仅支持中文名字)</h4>
+                    
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>指定姓氏:</label>
+                            <input type="text" id="customSurname" placeholder="留空则随机，如：李、王、张">
+                        </div>
+                        <div class="input-group">
+                            <label>名字字数:</label>
+                            <select id="nameLength">
+                                <option value="random">随机</option>
+                                <option value="1">1个字</option>
+                                <option value="2">2个字</option>
+                                <option value="3">3个字</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>第一个字必须是:</label>
+                            <input type="text" id="firstChar" placeholder="留空则随机，如：志、文、雅" maxlength="1">
+                        </div>
+                        <div class="input-group">
+                            <label>第二个字必须是:</label>
+                            <input type="text" id="secondChar" placeholder="留空则随机，如：华、明、丽" maxlength="1">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>第三个字必须是:</label>
+                            <input type="text" id="thirdChar" placeholder="留空则随机，如：轩、涵、萱" maxlength="1">
+                        </div>
+                        <div class="input-group">
+                            <label>结尾字必须是:</label>
+                            <input type="text" id="endingChar" placeholder="留空则随机，如：儿、子、然" maxlength="1">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>包含字符:</label>
+                        <input type="text" id="mustContain" placeholder="名字中必须包含的字符，如：心、月、阳">
+                        <small style="color: #666; font-size: 0.9rem;">多个字符用逗号分隔，至少包含其中一个</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label>排除字符:</label>
+                        <input type="text" id="mustExclude" placeholder="名字中不能包含的字符，如：死、病、苦">
+                        <small style="color: #666; font-size: 0.9rem;">多个字符用逗号分隔，这些字符都不会出现</small>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="generate-btn" onclick="generateNames()">生成随机名字</button>
+                    <button class="toggle-btn" onclick="toggleAdvancedOptions()">高级选项</button>
+                </div>
                 
                 <div class="result-area">
                     <span class="result-text" id="nameResult">点击生成名字</span>
@@ -471,9 +590,29 @@
         // 名前データベース
         const nameDatabase = {
             chinese: {
-                surnames: ['李', '王', '张', '刘', '陈', '杨', '赵', '黄', '周', '吴', '徐', '孙', '胡', '朱', '高', '林', '何', '郭', '马', '罗'],
+                surnames: ['李', '王', '张', '刘', '陈', '杨', '赵', '黄', '周', '吴', '徐', '孙', '胡', '朱', '高', '林', '何', '郭', '马', '罗', '梁', '宋', '郑', '谢', '韩', '唐', '冯', '于', '董', '萧', '程', '曹', '袁', '邓', '许', '傅', '沈', '曾', '彭', '吕'],
                 maleNames: ['伟', '强', '磊', '军', '洋', '勇', '杰', '俊', '波', '超', '华', '鹏', '飞', '宇', '峰', '亮', '涛', '明', '辉', '刚'],
-                femaleNames: ['丽', '娟', '秀', '华', '慧', '巧', '美', '娜', '静', '淑', '惠', '珠', '翠', '雅', '芝', '玲', '凤', '洁', '梅', '琳']
+                femaleNames: ['丽', '娟', '秀', '华', '慧', '巧', '美', '娜', '静', '淑', '惠', '珠', '翠', '雅', '芝', '玲', '凤', '洁', '梅', '琳'],
+                // 扩展的字符库用于高级自定义
+                commonChars: [
+                    // 男性常用字
+                    '志', '文', '武', '德', '明', '亮', '强', '伟', '刚', '毅', '勇', '智', '仁', '义', '礼', '信', '忠', '孝', '廉', '耻',
+                    '建', '立', '成', '功', '达', '进', '兴', '发', '富', '贵', '荣', '华', '昌', '盛', '康', '健', '安', '宁', '和', '平',
+                    '天', '地', '人', '君', '臣', '父', '子', '师', '友', '兄', '弟', '夫', '妻', '长', '幼', '尊', '卑', '贤', '愚', '善',
+                    '恶', '正', '邪', '真', '假', '美', '丑', '好', '坏', '新', '旧', '大', '小', '多', '少', '高', '低', '远', '近', '深',
+                    '浅', '宽', '窄', '粗', '细', '厚', '薄', '重', '轻', '快', '慢', '早', '晚', '前', '后', '左', '右', '上', '下', '东',
+                    '西', '南', '北', '中', '外', '内', '里', '表', '头', '尾', '始', '终', '先', '后', '今', '古', '来', '去', '生', '死',
+                    // 女性常用字
+                    '雅', '静', '淑', '慧', '巧', '美', '丽', '娜', '婷', '妍', '艳', '芳', '香', '兰', '菊', '梅', '竹', '莲', '荷', '桃',
+                    '李', '杏', '樱', '花', '草', '叶', '枝', '果', '实', '种', '根', '茎', '蕊', '瓣', '香', '甜', '苦', '辣', '酸', '咸',
+                    '温', '凉', '热', '冷', '暖', '寒', '春', '夏', '秋', '冬', '晨', '午', '晚', '夜', '日', '月', '星', '云', '雨', '雪',
+                    '风', '雷', '电', '霜', '露', '雾', '霞', '虹', '彩', '光', '影', '声', '音', '色', '香', '味', '触', '感', '情', '爱',
+                    '喜', '怒', '哀', '乐', '悲', '欢', '笑', '哭', '歌', '舞', '诗', '画', '书', '琴', '棋', '剑', '茶', '酒', '花', '鸟',
+                    // 通用吉祥字
+                    '福', '禄', '寿', '喜', '财', '运', '缘', '缘', '祥', '瑞', '吉', '庆', '欢', '乐', '幸', '福', '安', '康', '健', '长',
+                    '久', '永', '恒', '固', '稳', '定', '宁', '静', '和', '谐', '美', '好', '优', '秀', '卓', '越', '杰', '出', '非', '凡',
+                    '超', '群', '独', '特', '珍', '贵', '宝', '贝', '心', '肝', '宝', '贝', '掌', '上', '明', '珠', '如', '意', '称', '心'
+                ]
             },
             english: {
                 maleNames: ['James', 'Robert', 'John', 'Michael', 'David', 'William', 'Richard', 'Joseph', 'Thomas', 'Christopher', 'Charles', 'Daniel', 'Matthew', 'Anthony', 'Mark', 'Donald', 'Steven', 'Paul', 'Andrew', 'Joshua'],
@@ -611,12 +750,31 @@
         /**
          * 名前生成関数
          */
+        /**
+         * 切换高级选项显示/隐藏
+         */
+        function toggleAdvancedOptions() {
+            const advancedOptions = document.getElementById('advancedOptions');
+            const toggleBtn = event.target;
+            
+            if (advancedOptions.style.display === 'none') {
+                advancedOptions.style.display = 'block';
+                toggleBtn.textContent = '隐藏高级选项';
+            } else {
+                advancedOptions.style.display = 'none';
+                toggleBtn.textContent = '高级选项';
+            }
+        }
+
+        /**
+         * 生成随机名字 - 支持高级自定义
+         */
         function generateNames() {
             const count = parseInt(document.getElementById('nameCount').value);
             const gender = document.getElementById('nameGender').value;
             const category = currentNameCategory;
 
-            // 入力検証
+            // 输入验证
             if (isNaN(count)) {
                 alert('请输入有效的数字！');
                 return;
@@ -635,42 +793,179 @@
                 return;
             }
 
-            for (let i = 0; i < count; i++) {
-                let name = '';
-                
-                if (category === 'chinese' || category === 'japanese') {
-                    const surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
-                    let givenName = '';
-                    
-                    if (gender === 'male') {
-                        givenName = db.maleNames[Math.floor(Math.random() * db.maleNames.length)];
-                    } else if (gender === 'female') {
-                        givenName = db.femaleNames[Math.floor(Math.random() * db.femaleNames.length)];
+            // 检查是否使用高级选项
+            const advancedOptions = document.getElementById('advancedOptions');
+            const useAdvanced = advancedOptions.style.display !== 'none' && category === 'chinese';
+
+            if (useAdvanced) {
+                // 使用高级自定义生成中文名字
+                for (let i = 0; i < count; i++) {
+                    const name = generateAdvancedChineseName(db, gender);
+                    if (name) {
+                        names.push(name);
                     } else {
-                        const allNames = [...db.maleNames, ...db.femaleNames];
-                        givenName = allNames[Math.floor(Math.random() * allNames.length)];
+                        // 如果高级生成失败，回退到简单生成
+                        names.push(generateSimpleName(db, gender, category));
                     }
-                    
-                    name = surname + givenName;
-                } else { // English
-                    let givenName = '';
-                    if (gender === 'male') {
-                        givenName = db.maleNames[Math.floor(Math.random() * db.maleNames.length)];
-                    } else if (gender === 'female') {
-                        givenName = db.femaleNames[Math.floor(Math.random() * db.femaleNames.length)];
-                    } else {
-                        const allNames = [...db.maleNames, ...db.femaleNames];
-                        givenName = allNames[Math.floor(Math.random() * allNames.length)];
-                    }
-                    
-                    const surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
-                    name = `${givenName} ${surname}`;
                 }
-                
-                names.push(name);
+            } else {
+                // 使用简单生成
+                for (let i = 0; i < count; i++) {
+                    names.push(generateSimpleName(db, gender, category));
+                }
             }
 
-            document.getElementById('nameResult').textContent = names.join(', ');
+            if (names.length === 0) {
+                document.getElementById('nameResult').textContent = '无法生成符合条件的名字，请调整设置';
+            } else {
+                document.getElementById('nameResult').textContent = names.join(', ');
+            }
+        }
+
+        /**
+         * 生成简单名字（原有逻辑）
+         */
+        function generateSimpleName(db, gender, category) {
+            if (category === 'chinese' || category === 'japanese') {
+                const surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
+                let givenName = '';
+                
+                if (gender === 'male') {
+                    givenName = db.maleNames[Math.floor(Math.random() * db.maleNames.length)];
+                } else if (gender === 'female') {
+                    givenName = db.femaleNames[Math.floor(Math.random() * db.femaleNames.length)];
+                } else {
+                    const allNames = [...db.maleNames, ...db.femaleNames];
+                    givenName = allNames[Math.floor(Math.random() * allNames.length)];
+                }
+                
+                return surname + givenName;
+            } else { // English
+                let givenName = '';
+                if (gender === 'male') {
+                    givenName = db.maleNames[Math.floor(Math.random() * db.maleNames.length)];
+                } else if (gender === 'female') {
+                    givenName = db.femaleNames[Math.floor(Math.random() * db.femaleNames.length)];
+                } else {
+                    const allNames = [...db.maleNames, ...db.femaleNames];
+                    givenName = allNames[Math.floor(Math.random() * allNames.length)];
+                }
+                
+                const surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
+                return `${givenName} ${surname}`;
+            }
+        }
+
+        /**
+         * 生成高级自定义中文名字
+         */
+        function generateAdvancedChineseName(db, gender) {
+            // 获取高级选项参数
+            const customSurname = document.getElementById('customSurname').value.trim();
+            const nameLength = document.getElementById('nameLength').value;
+            const firstChar = document.getElementById('firstChar').value.trim();
+            const secondChar = document.getElementById('secondChar').value.trim();
+            const thirdChar = document.getElementById('thirdChar').value.trim();
+            const endingChar = document.getElementById('endingChar').value.trim();
+            const mustContain = document.getElementById('mustContain').value.trim();
+            const mustExclude = document.getElementById('mustExclude').value.trim();
+
+            // 确定姓氏
+            let surname = '';
+            if (customSurname) {
+                surname = customSurname.charAt(0); // 只取第一个字符
+            } else {
+                surname = db.surnames[Math.floor(Math.random() * db.surnames.length)];
+            }
+
+            // 确定名字长度
+            let targetLength = 1;
+            if (nameLength === 'random') {
+                targetLength = Math.floor(Math.random() * 3) + 1; // 1-3个字
+            } else {
+                targetLength = parseInt(nameLength);
+            }
+
+            // 构建字符池
+            let charPool = [...db.commonChars];
+            
+            // 根据性别调整字符池
+            if (gender === 'male') {
+                charPool = charPool.concat(db.maleNames);
+            } else if (gender === 'female') {
+                charPool = charPool.concat(db.femaleNames);
+            } else {
+                charPool = charPool.concat(db.maleNames, db.femaleNames);
+            }
+
+            // 去重
+            charPool = [...new Set(charPool)];
+
+            // 处理排除字符
+            if (mustExclude) {
+                const excludeChars = mustExclude.split(',').map(s => s.trim()).filter(s => s);
+                charPool = charPool.filter(char => !excludeChars.includes(char));
+            }
+
+            // 生成名字
+            let givenName = '';
+            let attempts = 0;
+            const maxAttempts = 100;
+
+            while (attempts < maxAttempts) {
+                givenName = '';
+                
+                for (let i = 0; i < targetLength; i++) {
+                    let char = '';
+                    
+                    // 根据位置选择字符
+                    if (i === 0 && firstChar) {
+                        char = firstChar;
+                    } else if (i === 1 && secondChar) {
+                        char = secondChar;
+                    } else if (i === 2 && thirdChar) {
+                        char = thirdChar;
+                    } else if (i === targetLength - 1 && endingChar) {
+                        char = endingChar;
+                    } else {
+                        // 从字符池中随机选择
+                        char = charPool[Math.floor(Math.random() * charPool.length)];
+                    }
+                    
+                    givenName += char;
+                }
+
+                // 验证必须包含的字符
+                let isValid = true;
+                if (mustContain) {
+                    const containChars = mustContain.split(',').map(s => s.trim()).filter(s => s);
+                    const hasRequired = containChars.some(char => givenName.includes(char));
+                    if (!hasRequired) {
+                        isValid = false;
+                    }
+                }
+
+                // 验证不能包含的字符
+                if (mustExclude && isValid) {
+                    const excludeChars = mustExclude.split(',').map(s => s.trim()).filter(s => s);
+                    const hasExcluded = excludeChars.some(char => givenName.includes(char));
+                    if (hasExcluded) {
+                        isValid = false;
+                    }
+                }
+
+                if (isValid) {
+                    break;
+                }
+
+                attempts++;
+            }
+
+            if (attempts >= maxAttempts) {
+                return null; // 生成失败
+            }
+
+            return surname + givenName;
         }
 
         /**
