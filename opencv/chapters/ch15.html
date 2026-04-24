@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 15 章 轮廓的检测与匹配 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 15 章</span>
+      <h1 class="chapter-title">轮廓的检测与匹配</h1>
+      <div class="chapter-meta">本章共 6 个小节 · findContours · drawContours · hierarchy · moments · Hu 矩 · 形状匹配</div>
+
+      <div class="chapter-intro">
+        边缘检测取得的边缘线有时并不连续。轮廓检测则进一步分析影像中可能的形状，定位形状并取得其特征，
+        例如质心、面积、周长和边界框。这些资料可用于后续的影像识别与形状匹配。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">15-1</span>
+        <h2>影像内图形的轮廓</h2>
+      </div>
+
+      <p class="content-text">
+        轮廓是影像内图形或外形的边缘线条。使用 <code>findContours()</code> 找轮廓前，通常需要先把彩色影像转为灰阶，
+        再做阈值处理得到黑白二值影像；也可以理解为在黑色影像中寻找白色物体。
+      </p>
+
+      <h3>15-1-1 找寻图形轮廓 findContours()</h3>
+
+      <div class="code-syntax">contours, hierarchy = cv2.findContours(image, mode, method)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 返回值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>contours</code></td><td>影像中找到的所有轮廓。资料类型是列表，列表元素是各轮廓的像素点坐标数组。</td></tr>
+          <tr><td><code>hierarchy</code></td><td>轮廓之间的层次关系。</td></tr>
+          <tr><td><code>image</code></td><td>8 位单通道影像。若来源是彩色影像，需要先转灰阶并二值化。</td></tr>
+          <tr><td><code>mode</code></td><td>轮廓检测模式，例如 <code>RETR_EXTERNAL</code>、<code>RETR_LIST</code>、<code>RETR_CCOMP</code>、<code>RETR_TREE</code>。</td></tr>
+          <tr><td><code>method</code></td><td>轮廓近似方法，例如 <code>CHAIN_APPROX_NONE</code>、<code>CHAIN_APPROX_SIMPLE</code>、<code>CHAIN_APPROX_TC89_L1</code>。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>15-1-2 绘制图形的轮廓 drawContours()</h3>
+
+      <div class="code-syntax">image = cv2.drawContours(src_image, contours, contourIdx, color, thickness, lineType, hierarchy, maxLevel, offset)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src_image</code></td><td>要绘制轮廓的目标影像。函数会直接修改这张影像。</td></tr>
+          <tr><td><code>contours</code></td><td><code>findContours()</code> 得到的轮廓列表。</td></tr>
+          <tr><td><code>contourIdx</code></td><td>要绘制的轮廓索引；设为 <code>-1</code> 表示绘制所有轮廓。</td></tr>
+          <tr><td><code>color</code></td><td>BGR 格式轮廓颜色。</td></tr>
+          <tr><td><code>thickness</code></td><td>线条粗细；设为 <code>-1</code> 表示填满轮廓。</td></tr>
+          <tr><td><code>hierarchy</code></td><td>可选，轮廓层次资料。</td></tr>
+          <tr><td><code>maxLevel</code></td><td>可选，绘制的轮廓层次深度。</td></tr>
+          <tr><td><code>offset</code></td><td>可选，绘制轮廓时的偏移量。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">15-2</span>
+        <h2>绘制影像内图形轮廓的系列实例</h2>
+      </div>
+
+      <p class="content-text">
+        本节从简单二值图开始，逐步演示找轮廓、绘制轮廓、列出轮廓属性、只检测外部轮廓、检测所有轮廓，
+        以及在一般照片中绘制轮廓或使用遮罩取出目标。
+      </p>
+
+      <p class="code-title">程序实例 ch15_1.py：在 easy.jpg 中找外部轮廓并以绿色绘制</p>
+      <div class="code-block"># ch15_1.py
+import cv2
+
+src = cv2.imread("easy.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 5)
+cv2.imshow("result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">外部轮廓</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_1_find_contours_result.png" alt="ch15_1.py findContours 和 drawContours 执行结果">
+          <div class="caption">使用 <code>RETR_EXTERNAL</code> 只检测外部轮廓，参考原书第 <strong>15-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch15_1-1.py：再次显示 src，观察 drawContours() 是否影响原始影像</p>
+      <div class="code-block"># ch15_1-1.py
+# 与 ch15_1.py 相同，但在绘制后再显示一次 src。
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 5)
+cv2.imshow("result", dst)
+cv2.imshow("src1", src)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">drawContours 会更新来源影像</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_1_1_find_contours_repeat_result.png" alt="ch15_1-1.py 再次显示 src 的结果">
+          <div class="caption"><code>drawContours()</code> 执行后，等号左侧结果与原 <code>src</code> 内容都会显示轮廓，参考原书第 <strong>15-6</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch15_2.py / ch15_3.py / ch15_4.py：查看 contours 的类型、数量与各轮廓属性</p>
+      <div class="code-block"># ch15_2.py
+print(f"资料类型 = {type(contours)}")
+print(f"轮廓数量 = {len(contours)}")
+
+# ch15_3.py
+n = len(contours)
+imgList = []
+for i in range(n):
+    img = np.zeros(src.shape, np.uint8)
+    imgList.append(img)
+    imgList[i] = cv2.drawContours(imgList[i], contours, i, (255, 255, 255), 5)
+    cv2.imshow("contours" + str(i), imgList[i])
+
+# ch15_4.py
+for i in range(len(contours)):
+    print(f"contours[{i}].shape = {contours[i].shape}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">轮廓列表与索引</span>
+        <div class="result-box-content">
+          <p>这组实例的重点是观察 <code>contours</code> 的资料类型、轮廓数量，并用索引逐一绘制轮廓。</p>
+          <p>若只需要表现程序输出，使用文字和代码块即可；这里不使用截图，避免把 hierarchy 章节的截图误放到本节。</p>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch15_6.py / ch15_7.py：外部轮廓与所有轮廓</p>
+      <div class="code-block"># ch15_6.py
+src = cv2.imread("easy1.jpg")
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+# ch15_7.py
+# 若要检测所有轮廓，将检测模式改为 RETR_LIST。
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)</div>
+
+      <p class="code-title">程序实例 ch15_8.py / ch15_9.py / ch15_10.py：绘制一般影像轮廓与目标取出</p>
+      <div class="code-block"># ch15_8.py
+src = cv2.imread("lake.jpg")
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 150, 255, cv2.THRESH_BINARY)
+cv2.imshow("binary", dst_binary)
+contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 2)
+cv2.imshow("result", dst)
+
+# ch15_9.py
+# 使用白色实心轮廓建立遮罩，可视为取出图案。
+mask = np.zeros(src.shape[:2], np.uint8)
+dst = cv2.drawContours(mask, contours, -1, 255, -1)
+dst_result = cv2.bitwise_and(src, src, mask=dst)
+
+# ch15_10.py
+# 保留天空背景，但将灯塔以黑色显示。
+mask = np.ones(src.shape[:2], np.uint8) * 255
+dst = cv2.drawContours(mask, contours, -1, 0, -1)
+dst_result = cv2.bitwise_and(src, src, mask=dst)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">一般影像轮廓</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_10_lake_contours_result.png" alt="ch15_8 到 ch15_10 湖边建筑轮廓处理结果">
+          <div class="caption">这张截图对应 <code>ch15_8.py</code>：显示原始影像、二值影像与绿色轮廓结果；后续实例再用遮罩清除背景或保留背景，参考原书第 <strong>15-10</strong> 至 <strong>15-13</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">15-3</span>
+        <h2>认识轮廓层级 hierarchy</h2>
+      </div>
+
+      <p class="content-text">
+        <code>hierarchy</code> 用来定义轮廓之间的层级关系。每个轮廓对应一个含 4 个元素的数组：
+        <code>[Next, Previous, First_Child, Parent]</code>，分别代表同层下一个轮廓、同层前一个轮廓、第一个子轮廓、父轮廓。
+      </p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>检测模式</th><th>层级行为</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>RETR_EXTERNAL</code></td><td>只检测外部轮廓。</td></tr>
+          <tr><td><code>RETR_LIST</code></td><td>检测所有轮廓，但不建立层级关系。</td></tr>
+          <tr><td><code>RETR_CCOMP</code></td><td>检测所有轮廓，同时建立两个层级关系。</td></tr>
+          <tr><td><code>RETR_TREE</code></td><td>检测所有轮廓，同时建立完整树状层级关系。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch15_11.py / ch15_12.py / ch15_13.py / ch15_14.py：不同检测模式的 hierarchy</p>
+      <div class="code-block"># ch15_11.py
+src = cv2.imread("easy2.jpg")
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+print(f"hierarchy 资料类型：{type(hierarchy)}")
+print(f"列印层级 \n {hierarchy}")
+
+# ch15_12.py
+contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+# ch15_13.py
+src = cv2.imread("easy3.jpg")
+contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+# ch15_14.py
+contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">RETR_EXTERNAL 输出示例</span>
+        <div class="result-box-content result-output">hierarchy 资料类型：&lt;class 'numpy.ndarray'&gt;
+列印层级
+[[[ 1 -1 -1 -1]
+  [-1  0 -1 -1]]]</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">RETR_EXTERNAL 层级截图</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_13_retr_ccomp_result.png" alt="ch15_11.py RETR_EXTERNAL hierarchy 执行结果">
+          <div class="caption"><code>ch15_11.py</code> 使用 <code>RETR_EXTERNAL</code>，两个外部轮廓都没有父轮廓或子轮廓。</div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">RETR_CCOMP 层级</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_3_hierarchy_result.png" alt="ch15_13.py RETR_CCOMP hierarchy 执行结果">
+          <div class="caption"><code>ch15_13.py</code> 的 <code>RETR_CCOMP</code> 输出呈现外层与内层轮廓的两层关系，参考原书第 <strong>15-18</strong> 至 <strong>15-22</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">15-4</span>
+        <h2>轮廓的特征：影像矩（Image moments）</h2>
+      </div>
+
+      <p class="content-text">
+        轮廓的特征包括质心、面积、周长、边界框等。影像矩是一组统计参数，可记录像素所在位置与强度分布，
+        常用于比较轮廓与模式识别。
+      </p>
+
+      <div class="code-syntax">m = cv2.moments(array, binaryImage)</div>
+
+      <p class="content-text">
+        基础影像矩可推导轮廓质心。若 <code>m00</code> 是零阶矩，则质心坐标为：
+      </p>
+
+      <div class="code-syntax">cx = m10 / m00
+cy = m01 / m00</div>
+
+      <p class="code-title">程序实例 ch15_15.py / ch15_16.py：列印影像矩并绘制质心</p>
+      <div class="code-block"># ch15_15.py
+for i in range(len(contours)):
+    M = cv2.moments(contours[i])
+    print(f"轮廓面积 str({i}) = {M['m00']}")
+    print(f"影像矩 str({i}) = \n{M}")
+
+# ch15_16.py
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 5)
+for c in contours:
+    M = cv2.moments(c)
+    cx = int(M["m10"] / M["m00"])
+    cy = int(M["m01"] / M["m00"])
+    cv2.circle(dst, (cx, cy), 5, (255, 0, 0), -1)
+cv2.imshow("result", dst)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">影像矩与质心</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_15_area_moments_result.png" alt="ch15_15.py 列印轮廓面积和影像矩">
+          <div class="caption"><code>ch15_15.py</code> 逐一列印轮廓面积与影像矩，输出内容较长，保留截图的换行结构。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_16_centroid_result.png" alt="ch15_16.py 为每个轮廓绘制中心点">
+          <div class="caption"><code>ch15_16.py</code> 使用 <code>m10 / m00</code> 与 <code>m01 / m00</code> 计算质心，并在每个轮廓中心绘制蓝点。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        OpenCV 也提供 <code>contourArea()</code> 与 <code>arcLength()</code>，分别用于计算轮廓面积和轮廓周长。
+      </p>
+
+      <div class="code-syntax">area = cv2.contourArea(contour, oriented)
+length = cv2.arcLength(contour, closed)</div>
+
+      <p class="code-title">程序实例 ch15_17.py / ch15_18.py：计算轮廓面积与周长</p>
+      <div class="code-block"># ch15_17.py
+for i in range(len(contours)):
+    area = cv2.contourArea(contours[i])
+    print(f"轮廓({i})面积 = {area}")
+
+# ch15_18.py
+for i in range(len(contours)):
+    length = cv2.arcLength(contours[i], True)
+    print(f"轮廓({i})周长 = {length}")</div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">15-5</span>
+        <h2>轮廓外形的匹配：Hu 矩</h2>
+      </div>
+
+      <p class="content-text">
+        中心矩对轮廓平移具有不变性，但对外形匹配仍不够。Hu 矩是归一化中心矩的组合，
+        在平移、缩放和旋转下保持相对稳定，因此常用于轮廓外形匹配。
+      </p>
+
+      <div class="code-syntax">hu = cv2.HuMoments(m)</div>
+
+      <p class="code-title">程序实例 ch15_19.py / ch15_20.py / ch15_21.py：计算不同轮廓的 Hu 矩</p>
+      <div class="code-block"># ch15_19.py
+src = cv2.imread("heart.jpg")
+M = cv2.moments(contours[0])
+hu = cv2.HuMoments(M)
+print(f"Hu Moments = \n{hu}")
+
+# ch15_20.py
+src = cv2.imread("3heart.jpg")
+for i in range(len(contours)):
+    M = cv2.moments(contours[i])
+    hu = cv2.HuMoments(M)
+    print(f"轮廓({i}) Hu 矩 = \n{hu}")
+
+# ch15_21.py
+src = cv2.imread("3shapes.jpg")
+for i in range(len(contours)):
+    M = cv2.moments(contours[i])
+    hu = cv2.HuMoments(M)
+    print(f"轮廓({i}) Hu 矩 = \n{hu}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">Hu 矩比较</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_20_hu_moments_3heart_result.png" alt="ch15_20.py 3heart Hu Moments 执行结果">
+          <div class="caption">三颗心形轮廓的 Hu 矩接近，参考原书第 <strong>15-31</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_21_hu_moments_3shapes_result.png" alt="ch15_21.py 3shapes Hu Moments 执行结果">
+          <div class="caption">不同形状的 Hu 矩差异更明显，参考原书第 <strong>15-32</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">15-6</span>
+        <h2>再谈轮廓外形匹配</h2>
+      </div>
+
+      <p class="content-text">
+        除了直接观察 Hu 矩，也可以使用 <code>matchShapes()</code> 直接比较两个轮廓，返回值越接近 0，外形越相似。
+      </p>
+
+      <div class="code-syntax">retval = cv2.matchShapes(contour1, contour2, method, parameter)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>method</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cv2.CONTOURS_MATCH_I1</code></td><td>使用 Hu 矩计算差异。</td></tr>
+          <tr><td><code>cv2.CONTOURS_MATCH_I2</code></td><td>使用另一种 Hu 矩距离计算方式。</td></tr>
+          <tr><td><code>cv2.CONTOURS_MATCH_I3</code></td><td>使用最大相对差异。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch15_22.py：使用 matchShapes() 比较轮廓</p>
+      <div class="code-block"># ch15_22.py
+src = cv2.imread("myheart.jpg")
+contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+match0 = cv2.matchShapes(contours[0], contours[0], 1, 0)
+print(f"轮廓0和0比较 = {match0}")
+match1 = cv2.matchShapes(contours[0], contours[1], 1, 0)
+print(f"轮廓0和1比较 = {match1}")
+match2 = cv2.matchShapes(contours[0], contours[2], 1, 0)
+print(f"轮廓0和2比较 = {match2}")</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">轮廓0和0比较 = 0.0
+轮廓0和1比较 = 0.00046299603915214704
+轮廓0和2比较 = 0.29307592277155203</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">matchShapes 结果</span>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_22_match_shapes_result.png" alt="ch15_22.py matchShapes 执行结果">
+          <div class="caption">轮廓 0 与自己比较为 0；轮廓 1 只是旋转，结果接近 0；轮廓 2 差异较大，参考原书第 <strong>15-35</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        OpenCV 还提供形状场景距离与 Hausdorff 距离。两者都属于形状比较方法，可用于进一步衡量轮廓相似度。
+      </p>
+
+      <div class="code-syntax">sd = cv2.createShapeContextDistanceExtractor()
+distance = sd.computeDistance(contour1, contour2)
+
+hd = cv2.createHausdorffDistanceExtractor()
+distance = hd.computeDistance(contour1, contour2)</div>
+
+      <p class="code-title">程序实例 ch15_23.py / ch15_24.py：Shape Context 与 Hausdorff 距离</p>
+      <div class="code-block"># ch15_23.py
+sc = cv2.createShapeContextDistanceExtractor()
+distance = sc.computeDistance(contours[0], contours[1])
+print(f"Shape Context distance = {distance}")
+
+# ch15_24.py
+hd = cv2.createHausdorffDistanceExtractor()
+distance = hd.computeDistance(contours[0], contours[1])
+print(f"Hausdorff distance = {distance}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">Hausdorff 距离</span>
+        <div class="result-box-content result-output">影像1和1比较 = 0.0
+影像0和1比较 = 12.206555366516113
+影像0和2比较 = 8.5440034866333</div>
+        <div class="result-box-image">
+          <img src="images/ch15/ch15_23_shape_context_result.png" alt="ch15_24.py Hausdorff Distance 执行结果">
+          <div class="caption"><code>ch15_24.py</code> 使用 Hausdorff 距离比较轮廓，相同影像距离为 0，形状越不同距离越大。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">本章重点回顾</span>
+        <div class="exercise-box-content">
+          <p>1. <code>findContours()</code> 用于找轮廓，输入影像必须是 8 位单通道二值影像。</p>
+          <p>2. <code>drawContours()</code> 会直接修改来源影像；如果要保留原图，应先使用 <code>copy()</code>。</p>
+          <p>3. <code>hierarchy</code> 的四个元素分别表示同层前后关系、子轮廓与父轮廓。</p>
+          <p>4. 影像矩、Hu 矩和形状距离都可用于轮廓特征与外形匹配。</p>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch14.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 14 章 影像金字塔</div>
+          </div>
+        </a>
+        <a href="ch16.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 16 章 轮廓拟合与凸包的相关应用</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch15");</script>
+</body>
+</html>

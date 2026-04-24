@@ -69,7 +69,7 @@ const chapters = [
     sections: ["17-1 宽高比","17-2 轮廓的极点","17-3 Extent","17-4 Solidity","17-5 等效直径","17-6 遮罩和非0像素","17-7 最小值与最大值","17-8 均值与标准差","17-9 方向"]
   },
   {
-    id: "ch18", title: "第 18 章 直线检测到车道检测", file: "ch18.html",
+    id: "ch18", title: "第 18 章 从直线检测到无人驾驶车道检测", file: "ch18.html",
     sections: ["18-1 霍夫变换原理","18-2 HoughLines()","18-3 HoughLinesP()","18-4 霍夫圆环变换"]
   },
   {
@@ -136,7 +136,7 @@ const chapters = [
 
 const readyChapters = new Set([
   "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07",
-  "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14"
+  "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16", "ch17", "ch18", "ch19"
 ]);
 
 // Build sidebar HTML

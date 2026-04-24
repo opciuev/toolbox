@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 18 章 从直线检测到无人驾驶车道检测 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 18 章</span>
+      <h1 class="chapter-title">从直线检测到无人驾驶车道检测</h1>
+      <div class="chapter-meta">霍夫变换的基础原理解说 · HoughLines() 函数 · HoughLinesP() 函数 · 霍夫圆环变换检测</div>
+
+      <div class="chapter-intro">
+        霍夫变换可以将影像中的几何形状转换为参数空间中的点，再借由累加与投票找出最可能存在的直线或圆形。本章从直线的笛卡儿表示法说起，逐步进入 OpenCV 的直线与圆形检测函数，最后以车道线检测作为应用范例。
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">章首页与小节目录</span>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_01.png" alt="第 18 章 从直线检测到无人驾驶车道检测 章首页">
+          <div class="caption">原书第 18-1 页：本章包含 18-1、18-2、18-3、18-4 四个小节。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">18-1</span>
+        <h2>霍夫变换的基础原理解说</h2>
+      </div>
+
+      <p class="content-text">
+        霍夫变换（Hough Transform）最初是 1962 年由霍夫提出专利申请，专利名称是「辨识复杂图案的方法」（Method and Means for Recognizing Complex Patterns）。此方法的主要观念是任何一条直线可以用斜率（slope）和截距（intercept）表示，同时使用斜率和截距将一条直线参数化。
+      </p>
+      <p class="content-text">
+        现在广泛使用的霍夫变换，是 1972 年由 Richard Duda 和 Peter Hart 发明。经典的霍夫变换是侦测影像中的直线，之后的霍夫变换不仅能辨识直线，也可以辨识其他简单形状，例如圆形和椭圆形。1981 年 Dana H. Ballard 发表了 <em>Generalizing the Hough transform to detect arbitrary shapes</em>，自此电脑视觉领域开始流行应用霍夫变换；目前最流行的自动驾驶，也使用霍夫变换对行车的车道进行检测。
+      </p>
+
+      <h3>18-1-1 认识笛卡儿座标与霍夫座标</h3>
+      <p class="content-text">
+        笛卡儿座标系统就是我们熟知的直角座标系统。在直角座标系统中，一条直线可以用下列方程式表示：
+      </p>
+      <div class="code-syntax">y = mx + b</div>
+      <p class="content-text">
+        在上述方程式中，<code>m</code> 代表斜率，<code>b</code> 代表截距。相同的概念若映射到霍夫空间，斜率 <code>m</code> 和截距 <code>b</code> 也可以当作座标，因此笛卡儿座标中的一条直线，会映射到霍夫空间中的一个点。
+      </p>
+
+      <h3>18-1-2 映射观念</h3>
+      <p class="content-text">
+        笛卡儿空间中存在 1 个点，可以映射到霍夫空间成一条线；笛卡儿空间中存在 2 个点，可以映射到霍夫空间成两条交叉的直线。若笛卡儿空间两个点 <code>(x0, y0)</code> 和 <code>(x1, y1)</code> 可以连成一条直线，假设直线为 <code>y = m1x + b1</code>，则这条直线映射到霍夫空间的点是 <code>(m1, b1)</code>。
+      </p>
+      <div class="code-syntax">b = -x0m + y0
+b = -x1m + y1</div>
+
+      <h3>18-1-3 认识极座标的基本定义</h3>
+      <p class="content-text">
+        极座标（Polar coordinate system）是一个二维的座标系统，每一个点的位置使用夹角和相对原点的距离表示。点可写成 <code>(r cosθ, r sinθ)</code>。
+      </p>
+
+      <h3>18-1-4 霍夫变换与极座标</h3>
+      <p class="content-text">
+        在笛卡儿座标系统中，直线方程式 <code>y = m0x + b0</code> 的最大问题是无法表示一条垂直线，因为斜率值会是无限大。因此 Richard Duda 和 Peter Hart 发明使用极座标方式表示直线的参数，下方左图是笛卡儿空间，右图是霍夫空间；相当于极座标上的线映射到霍夫空间也是一个点 <code>(ρ, θ)</code>。
+      </p>
+      <div class="code-syntax">ρ = x cosθ + y sinθ</div>
+
+      <div class="result-box">
+        <span class="result-box-header">霍夫变换原理图</span>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_02.png" alt="霍夫变换基础原理和笛卡儿座标图">
+          <div class="caption">原书第 18-2 页：霍夫变换背景、笛卡儿座标与直线方程式。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_03.png" alt="笛卡儿座标直线与霍夫空间映射解说">
+          <div class="caption">原书第 18-3 页：笛卡儿座标中的点与直线映射到霍夫空间。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_04.png" alt="两点映射和霍夫空间交点解说">
+          <div class="caption">原书第 18-4 页：两点形成直线时，霍夫空间中的曲线交会关系。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_05.png" alt="霍夫空间交点和极座标基本定义">
+          <div class="caption">原书第 18-5 页：霍夫空间交点与极座标 <code>(r cosθ, r sinθ)</code>。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_06.png" alt="霍夫变换与极座标 rho theta">
+          <div class="caption">原书第 18-6 页：使用 <code>ρ = x cosθ + y sinθ</code> 表示直线。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">18-2</span>
+        <h2>HoughLines() 函数</h2>
+      </div>
+
+      <p class="content-text">
+        OpenCV 提供了两种用于检测直线的霍夫变换函数，本节先说明基本版的 <code>HoughLines()</code>。这个函数需要输入二值影像，实务上常先将影像转为灰阶，再使用 Canny 做边缘侦测。
+      </p>
+      <div class="code-syntax">lines = cv2.HoughLines(image, rho, theta, threshold)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 回传值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>lines</code></td><td>函数回传值，直线参数，格式是 <code>(ρ, θ)</code>，元素类型是 Numpy 阵列。</td></tr>
+          <tr><td><code>image</code></td><td>要辨识的影像，这是二值影像；建议先使用 Canny 边缘侦测。</td></tr>
+          <tr><td><code>rho</code></td><td>以像素为单位的距离 <code>ρ</code>，常将此值设为 <code>1</code>，表示检测所有可能的半径长度。</td></tr>
+          <tr><td><code>theta</code></td><td>检测角度 <code>θ</code>，常将此值设为 <code>π/180</code>，表示检测所有可能的角度。</td></tr>
+          <tr><td><code>threshold</code></td><td>阈值；如果此值越小，所检测的直线就会越多。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程式实例 ch18_1.py：使用 calendar.jpg 当作影像，然后 HoughLines() 函数检测此影像内的直线。</p>
+      <div class="code-block"># ch18_1.py
+import cv2
+import numpy as np
+
+src = cv2.imread('calendar.jpg', cv2.IMREAD_COLOR)
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)      # 转成灰阶
+edges = cv2.Canny(src_gray, 100, 200)                 # 使用 Canny 边缘检测
+cv2.imshow("Canny", edges)                            # 显示 Canny 边缘线条
+lines = cv2.HoughLines(edges, 1, np.pi/180, 200)      # 检测直线
+
+# 绘制直线
+for line in lines:
+    rho, theta = line[0]                              # lines 回传
+    a = np.cos(theta)                                 # cos(theta)
+    b = np.sin(theta)                                 # sin(theta)
+    x0 = rho * a
+    y0 = rho * b
+    x1 = int(x0 + 1000*(-b))                          # 建立 x1
+    y1 = int(y0 + 1000*(a))                           # 建立 y1
+    x2 = int(x0 - 1000*(-b))                          # 建立 x2
+    y2 = int(y0 - 1000*(a))                           # 建立 y2
+    cv2.line(src, (x1, y1), (x2, y2), (0, 255, 0), 2) # 绘制绿色线条
+cv2.imshow("dst", src)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">HoughLines() 执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_07.png" alt="HoughLines 函数语法与参数说明">
+          <div class="caption">原书第 18-7 页：<code>HoughLines()</code> 语法与 <code>lines</code>、<code>image</code>、<code>rho</code>、<code>theta</code>、<code>threshold</code> 参数说明。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_08.png" alt="ch18_1.py HoughLines calendar 执行结果">
+          <div class="caption">原书第 18-8 页：原始影像、Canny 边缘影像与 HoughLines() 检测结果。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">18-3</span>
+        <h2>HoughLinesP() 函数</h2>
+      </div>
+
+      <p class="content-text">
+        <code>HoughLinesP()</code> 是进阶版的直线检测函数，基本上是 18-2 节 <code>HoughLines()</code> 的改良，主要增加 <code>minLineLength</code> 和 <code>maxLineGap</code> 参数。此函数所采用的方法称为机率霍夫变换法。
+      </p>
+      <div class="code-syntax">lines = cv2.HoughLinesP(image, rho, theta, threshold, minLineLength, maxLineGap)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 回传值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>lines</code></td><td>函数回传值，直线参数为 <code>(x1, y1)</code> 和 <code>(x2, y2)</code>，只要将两点连起来就构成直线。</td></tr>
+          <tr><td><code>image</code></td><td>要辨识的二值影像，建议先使用 Canny 边缘侦测。</td></tr>
+          <tr><td><code>rho</code></td><td>以像素为单位的距离，常设为 <code>1</code>。</td></tr>
+          <tr><td><code>theta</code></td><td>检测角度，常设为 <code>π/180</code>。</td></tr>
+          <tr><td><code>threshold</code></td><td>阈值；如果此值越小，检测的直线会越多。</td></tr>
+          <tr><td><code>minLineLength</code></td><td>检测直线的最小长度，短于该长度的直线会被舍去。</td></tr>
+          <tr><td><code>maxLineGap</code></td><td>线段之间最大的允许间隙，短于该长度会被视为一条直线。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程式实例 ch18_2.py：使用 lane.jpg 影像，设计仓库道路识别。</p>
+      <div class="code-block"># ch18_2.py
+# 将 ch18_1.py 的第 5 行影像改成 lane.jpg。
+src = cv2.imread('lane.jpg', cv2.IMREAD_COLOR)</div>
+
+      <p class="content-text">
+        上述范例可用于简单道路识别。对于复杂的图，可能需要不断调整 <code>HoughLines()</code> 函数的 <code>threshold</code> 参数。实际应用不同影像时，必须适度调整 <code>HoughLinesP()</code> 的参数。
+      </p>
+
+      <p class="code-title">程式实例 ch18_3.py：无人驾驶汽车的道路检测。</p>
+      <div class="code-block"># ch18_3.py
+import cv2
+import numpy as np
+
+src = cv2.imread('roadtest.jpg', cv2.IMREAD_COLOR)
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)      # 转成灰阶
+edges = cv2.Canny(src_gray, 50, 200)                  # 使用 Canny 边缘检测
+cv2.imshow("Canny", edges)                            # 显示 Canny 边缘线条
+lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, minLineLength=10, maxLineGap=100)
+# 绘制检测到的直线
+for line in lines:
+    x1, y1, x2, y2 = line[0]
+    cv2.line(src, (x1, y1), (x2, y2), (255, 0, 0), 3)
+cv2.imshow("dst", src)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="content-text">
+        检测所有车道时，当无人车在驾驶时，更重要的是检测目前车子所在车道。此时可以使用阈值处理，将目前所在车道或要专注的车道处理成 ROI 区域，这个 ROI 区块用遮罩处理。
+      </p>
+      <div class="note-box">
+        <span class="note-icon">注</span>
+        <span>实际应用不同影像时，必须适度调整 <code>HoughLinesP()</code> 的参数。</span>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">HoughLinesP() 执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_09.png" alt="ch18_2.py lane HoughLines 道路识别执行结果">
+          <div class="caption">原书第 18-9 页：仓库道路影像与直线检测结果。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_10.png" alt="ch18_3.py roadtest 无人驾驶车道检测执行结果">
+          <div class="caption">原书第 18-10 页：道路、Canny 边缘与 HoughLinesP() 车道线检测结果。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">18-4</span>
+        <h2>霍夫圆环变换检测</h2>
+      </div>
+
+      <p class="content-text">
+        霍夫变换除了可以检测直线，也可以用于检测其他形状的物体。本节讲解检测圆形物体的函数 <code>HoughCircles()</code>。在霍夫圆环检测中，其实就是要检测圆形的中心点 <code>(x, y)</code> 座标，和圆环的半径 <code>r</code>。
+      </p>
+      <div class="code-syntax">circles = cv2.HoughCircles(image, method, dp, minDist,
+                           circles, param1, param2, minRadius, maxRadius)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 回传值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>circles</code></td><td>函数回传值，由圆中心点和半径所组成的 <code>numpy.ndarray</code> 阵列，格式是 <code>[(x1, y1, r1), (x2, y2, r2), ...]</code>。</td></tr>
+          <tr><td><code>image</code></td><td>要辨识的二值影像，需先二值化处理。</td></tr>
+          <tr><td><code>method</code></td><td>目前可以使用 <code>HOUGH_GRADIENT</code>，此方法先对影像执行 Canny 边缘检测，再使用 Sobel 演算法计算区域梯度并累加圆中心。</td></tr>
+          <tr><td><code>dp</code></td><td>累加器分辨率。例如 <code>dp=1</code> 时，累加器与输入影像有相同解析度；<code>dp=2</code> 时，累加器宽高为输入影像的一半。</td></tr>
+          <tr><td><code>minDist</code></td><td>两个不同圆之间最小的距离。太小会将多个邻接圆检测为一个圆；太大则部分圆无法检测出来。</td></tr>
+          <tr><td><code>param1</code></td><td>与 <code>method</code> 相关的高阈值，预设值是 100；一般低阈值是高阈值的一半。</td></tr>
+          <tr><td><code>param2</code></td><td>与 <code>method</code> 相关的低阈值，预设值是 100。</td></tr>
+          <tr><td><code>minRadius</code></td><td>圆半径的最小值，小于此半径的圆将被舍去，预设值是 0。</td></tr>
+          <tr><td><code>maxRadius</code></td><td>圆半径的最大值，大于此半径的圆将被舍去，预设值是 0。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="content-text">
+        使用这个函数时，为了降低影像噪音，建议可以先用 <code>medianBlur()</code> 去除影像杂质。
+      </p>
+
+      <p class="code-title">程式实例 ch18_4.py：有一个影像内含多个圆圈，这个程式会将半径大于 70 的圆圈起来。半径小于 70 或其他外形的物件则不理会。</p>
+      <div class="code-block"># ch18_4.py
+import cv2
+import numpy as np
+
+src = cv2.imread('shapes.jpg')
+cv2.imshow("src", src)
+image = cv2.medianBlur(src, 5)                                         # 过滤杂讯
+src_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)                     # 转成灰阶
+circles = cv2.HoughCircles(src_gray, cv2.HOUGH_GRADIENT, 1, 100, param1=50,
+                           param2=30, minRadius=70, maxRadius=200)
+circles = np.uint(np.around(circles))                                  # 转成整数
+# 绘制检测到的圆
+for c in circles[0]:
+    x, y, r = c
+    cv2.circle(src, (x, y), r, (0, 255, 0), 3)                         # 绿色绘圆外圈
+    cv2.circle(src, (x, y), 2, (0, 0, 255), 2)                         # 红色绘圆中心
+cv2.imshow("dst", src)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">HoughCircles() 执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_11.png" alt="HoughCircles 函数语法和参数说明">
+          <div class="caption">原书第 18-11 页：HoughCircles() 语法与参数说明。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch18/ch18_page_12.png" alt="ch18_4.py HoughCircles shapes 执行结果">
+          <div class="caption">原书第 18-12 页：检测半径大于 70 的圆圈，并以绿色外圈与红色中心点标示。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题与本章重点</span>
+        <div class="exercise-box-content">
+          <p>习题 1：使用 <code>lane2.jpg</code>，扩充 <code>ch18_2.py</code>，建立仓库道路影像。</p>
+          <p>习题 2：请重新设计 <code>ch18_4.py</code>，将所有圆圈起来。</p>
+          <p>1. 霍夫变换将影像空间的几何形状映射到参数空间，借由交会与投票判断最可能的直线或圆。</p>
+          <p>2. <code>HoughLines()</code> 回传 <code>(ρ, θ)</code>，需要再转换为两个端点后用 <code>cv2.line()</code> 绘图。</p>
+          <p>3. <code>HoughLinesP()</code> 直接回传 <code>(x1, y1, x2, y2)</code>，较适合车道线等线段检测。</p>
+          <p>4. <code>HoughCircles()</code> 可检测圆心与半径，实作前建议先用 <code>medianBlur()</code> 降噪。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch18/ch18_page_13.png" alt="第 18 章习题 lane2 仓库道路影像">
+            <div class="caption">原书第 18-13 页：习题 1 与习题 2 的参考输出。</div>
+          </div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch18/ch18_page_14.png" alt="第 18 章习题全部圆圈检测参考输出">
+            <div class="caption">原书第 18-14 页：习题 2 的全部圆圈检测参考输出。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+          <a href="ch17.html">
+            <div>
+              <div class="nav-label">&larr; 上一章</div>
+              <div class="nav-title">第 17 章 轮廓的特征</div>
+            </div>
+          </a>
+          <a href="ch19.html">
+            <div>
+              <div class="nav-label">下一章 &rarr;</div>
+              <div class="nav-title">第 19 章 直方图均衡化</div>
+            </div>
+          </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch18");</script>
+</body>
+</html>

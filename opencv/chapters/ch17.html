@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 17 章 轮廓的特征 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 17 章</span>
+      <h1 class="chapter-title">轮廓的特征</h1>
+      <div class="chapter-meta">本章共 9 个小节 · 宽高比 · 极点 · Extent · Solidity · 等效直径 · 遮罩 · 最小值最大值 · 均值标准差 · 方向</div>
+
+      <div class="chapter-intro">
+        这一章介绍找到轮廓后，能够进一步计算的常用特征。前一章已经说明如何取得轮廓、外接矩形、凸包、拟合椭圆等资料，本章继续使用这些结果，说明如何计算宽高比、轮廓极点、轮廓面积比例、像素坐标资讯、影像像素统计，以及方向角等资讯。
+      </div>
+
+      <div class="note-box">
+        <span class="note-icon">共用流程</span>
+        <span>多数范例都会先读取影像、转灰阶、二值化，再用 <code>findContours()</code> 取得轮廓。代码中的图片名与原书保持一致，例如 <code>explode1.jpg</code>、<code>hand.jpg</code>、<code>forest.png</code>。</span>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">17-1</span>
+        <h2>宽高比（Aspect Ratio）</h2>
+      </div>
+
+      <p class="content-text">
+        在 16-1-1 节说明过，使用 <code>boundingRect()</code> 函数可以将影像内的轮廓使用矩形框起来，同时回传值的元组格式是 <code>(x, y, w, h)</code>，将 <code>w</code>（width）除以 <code>h</code>（height）就可以得到轮廓的宽高比。
+      </p>
+
+      <div class="code-syntax">宽高比 = w(width) / h(height)</div>
+
+      <p class="code-title">程序实例 ch17_1.py：重新设计 ch16_2.py，列出轮廓的宽高比。</p>
+      <div class="code-block"># ch17_1.py
+import cv2
+
+src = cv2.imread("explode1.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+x, y, w, h = cv2.boundingRect(contours[0])
+dst = cv2.rectangle(src, (x, y), (x + w, y + h), (0, 255, 255), 2)
+cv2.imshow("dst", dst)
+
+aspectratio = w / h
+print(f"宽高比 = {aspectratio}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">宽高比 = 1.78</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">宽高比运行画面</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_01_aspect_ratio.png" alt="ch17_1.py 宽高比执行结果">
+          <div class="caption">参考原书第 17-2 页，显示 <code>explode1.jpg</code> 的外接矩形与宽高比输出。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">17-2</span>
+        <h2>轮廓的极点</h2>
+      </div>
+
+      <h3>17-2-1 认识轮廓点坐标</h3>
+      <p class="content-text">
+        所谓轮廓的极点是指最上方点、最下方点、最左端点和最右端点。在 15-1-1 节曾经说明，使用 <code>findContours()</code> 函数后，所回传的 <code>contours</code> 其实就是轮廓点坐标资讯的阵列。
+      </p>
+
+      <p class="code-title">程序实例 ch17_2.py：认识轮廓点坐标的资料格式。</p>
+      <div class="code-block"># ch17_2.py
+import cv2
+
+src = cv2.imread("explode1.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+print(f"资料格式 = {type(cnt)}")
+print(f"资料维度 = {cnt.ndim}")
+print(f"资料长度 = {len(cnt)}")
+for i in range(3):
+    print(cnt[i])
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">资料格式 = &lt;class 'numpy.ndarray'&gt;
+资料维度 = 3
+资料长度 = 88
+[[186  39]]
+[[181  44]]
+[[180  44]]</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">轮廓点阵列</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_02_contour_points.png" alt="ch17_2.py 轮廓点阵列执行结果">
+          <div class="caption">参考原书第 17-3 页，可看到轮廓点资料是三维阵列。</div>
+        </div>
+      </div>
+
+      <h3>17-2-2 Numpy 模组的 argmax() 和 argmin() 函数</h3>
+      <p class="content-text">
+        Numpy 模组的 <code>argmax()</code> 函数可以回传阵列的最大值索引，<code>argmin()</code> 函数可以回传阵列的最小值索引。
+      </p>
+
+      <div class="code-syntax">max_i = np.argmax(data)
+min_i = np.argmin(data)</div>
+
+      <p class="code-title">程序实例 ch17_3.py：从简单阵列认识 argmax() 和 argmin() 的用法。</p>
+      <div class="code-block"># ch17_3.py
+import numpy as np
+
+data = np.array([3, 9, 8, 5, 2])
+print(f"data = {data}")
+max_i = np.argmax(data)
+print(f"最大值索引 = {max_i}")
+print(f"最大值 = {data[max_i]}")
+min_i = np.argmin(data)
+print(f"最小值索引 = {min_i}")
+print(f"最小值 = {data[min_i]}")</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">data = [3 9 8 5 2]
+最大值索引 = 1
+最大值 = 9
+最小值索引 = 4
+最小值 = 2</div>
+      </div>
+
+      <p class="code-title">程序实例 ch17_4.py：使用物件导向方式呼叫 argmax() 和 argmin()。</p>
+      <div class="code-block"># ch17_4.py
+import numpy as np
+
+data = np.array([3, 9, 8, 5, 2])
+print(f"data = {data}")
+max_i = data.argmax()
+print(f"最大值索引 = {max_i}")
+print(f"最大值 = {data[max_i]}")
+min_i = data.argmin()
+print(f"最小值索引 = {min_i}")
+print(f"最小值 = {data[min_i]}")</div>
+
+      <p class="code-title">程序实例 ch17_5.py：将 argmax() 函数应用在二维阵列。</p>
+      <div class="code-block"># ch17_5.py
+import numpy as np
+
+data = np.array([[3, 9],
+                 [8, 5],
+                 [2, 3]])
+print(f"data = {data}")
+max_i = data[:, 0].argmax()
+print(f"最大值索引 = {max_i}")
+print(f"最大值 = {data[max_i][0]}")
+print(f"最大值点 = {data[max_i]}")
+max_val = tuple(data[data[:, 0].argmax()])
+print(f"最大值点 = {max_val}")</div>
+
+      <p class="code-title">程序实例 ch17_6.py：使用 ch17_2.py 的前三笔轮廓资料，将本节观念扩充到三维阵列。</p>
+      <div class="code-block"># ch17_6.py
+import numpy as np
+
+data = np.array([[[186, 39]],
+                 [[181, 44]],
+                 [[180, 44]]])
+print(f"原始资料data = \n{data}")
+n = len(data)
+print(f"原始阵列的资料笔数 = {n}")
+for i in range(n):
+    print(data[i])
+print(f"资料维度 = {data.ndim}")
+max_i = data[:, :, 0].argmax()
+print(f"x 最大值索引 = {max_i}")
+print(f"x 最大值 = {data[:, :, 0].max()}")
+print(f"tuple(data[data[:, :, 0].argmax()][0]) = {tuple(data[data[:, :, 0].argmax()][0])}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">argmax 与 argmin</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_03_argmax_argmin.png" alt="ch17_3.py 到 ch17_6.py argmax argmin 说明">
+          <div class="caption">参考原书第 17-4 页，显示一维阵列的索引、最大值与最小值输出。</div>
+        </div>
+      </div>
+
+      <h3>17-2-3 找出轮廓极点坐标</h3>
+      <p class="content-text">
+        延续前一小节的范例，可以使用下列索引找出轮廓的极大值与极小值：轮廓 x 极大值、x 极小值、y 极大值与 y 极小值所对应的轮廓点坐标。
+      </p>
+
+      <div class="code-syntax">轮廓 x 极大值相对应轮廓最右点的坐标：cnt[cnt[:, :, 0].argmax()][0]
+轮廓 x 极小值相对应轮廓最左点的坐标：cnt[cnt[:, :, 0].argmin()][0]
+轮廓 y 极大值相对应轮廓最下点的坐标：cnt[cnt[:, :, 1].argmax()][0]
+轮廓 y 极小值相对应轮廓最上点的坐标：cnt[cnt[:, :, 1].argmin()][0]</div>
+
+      <p class="code-title">程序实例 ch17_7.py：使用黄色点标出轮廓最上点和最下点，绿色点标出最左点和最右点。</p>
+      <div class="code-block"># ch17_7.py
+import cv2
+
+src = cv2.imread("explode1.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+left = tuple(cnt[cnt[:, :, 0].argmin()][0])
+right = tuple(cnt[cnt[:, :, 0].argmax()][0])
+top = tuple(cnt[cnt[:, :, 1].argmin()][0])
+bottom = tuple(cnt[cnt[:, :, 1].argmax()][0])
+
+print(f"最左点 = {left}")
+print(f"最右点 = {right}")
+print(f"最上点 = {top}")
+print(f"最下点 = {bottom}")
+
+dst = cv2.circle(src, left, 5, (0, 255, 0), -1)
+dst = cv2.circle(src, right, 5, (0, 255, 0), -1)
+dst = cv2.circle(src, top, 5, (0, 255, 255), -1)
+dst = cv2.circle(src, bottom, 5, (0, 255, 255), -1)
+cv2.imshow("dst", dst)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">最左点 = (66, 75)
+最右点 = (243, 99)
+最上点 = (186, 39)
+最下点 = (150, 128)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">轮廓极点</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_04_extreme_points.png" alt="ch17_7.py 轮廓极点标注结果">
+          <div class="caption">参考原书第 17-7 页，黄色点表示上下极点，绿色点表示左右极点。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">17-3</span>
+        <h2>Extent</h2>
+      </div>
+
+      <p class="content-text">
+        在轮廓的特征中所说的 <strong>Extent</strong>，是指轮廓面积与包围轮廓的矩形面积比。
+      </p>
+
+      <div class="code-syntax">Extent = 轮廓面积 / 矩形面积</div>
+
+      <p class="code-title">程序实例 ch17_8.py：计算 <code>explode1.jpg</code> 影像内轮廓面积与外接矩形的比值。</p>
+      <div class="code-block"># ch17_8.py
+import cv2
+
+src = cv2.imread("explode1.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 5)
+con_area = cv2.contourArea(contours[0])
+x, y, w, h = cv2.boundingRect(contours[0])
+dst = cv2.rectangle(src, (x, y), (x + w, y + h), (0, 255, 255), 3)
+cv2.imshow("dst", dst)
+
+square_area = w * h
+extent = con_area / square_area
+print(f"Extent = {extent}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">Extent = 0.4125561979752309</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">Extent 运行画面</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_05_extent.png" alt="ch17_8.py Extent 运行结果">
+          <div class="caption">参考原书第 17-8 页，绿色是轮廓，黄色是外接矩形。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">17-4</span>
+        <h2>Solidity</h2>
+      </div>
+
+      <p class="content-text">
+        在轮廓的特征中所说的 <strong>Solidity</strong>，是指轮廓面积与包围轮廓的凸包面积比。
+      </p>
+
+      <div class="code-syntax">Solidity = 轮廓面积 / 凸包面积</div>
+
+      <p class="code-title">程序实例 ch17_9.py：计算 <code>explode1.jpg</code> 影像内轮廓面积与外接凸包形的比值。</p>
+      <div class="code-block"># ch17_9.py
+import cv2
+
+src = cv2.imread("explode1.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 3)
+con_area = cv2.contourArea(contours[0])
+hull = cv2.convexHull(contours[0])
+dst = cv2.polylines(src, [hull], True, (0, 255, 255), 2)
+cv2.imshow("dst", dst)
+
+convex_area = cv2.contourArea(hull)
+solidity = con_area / convex_area
+print(f"Solidity = {solidity}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">Solidity = 0.5604014041514042</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">Solidity 运行画面</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_06_solidity.png" alt="ch17_9.py Solidity 运行结果">
+          <div class="caption">参考原书第 17-9 页，黄色线条为凸包边界。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">17-5</span>
+        <h2>等效直径（Equivalent Diameter）</h2>
+      </div>
+
+      <p class="content-text">
+        所谓等效直径是指与轮廓面积相等圆形的直径，公式如下。
+      </p>
+
+      <div class="code-syntax">equivalent_diameter = sqrt(4 * contour_area / pi)</div>
+
+      <p class="code-title">程序实例 ch17_10.py：绘制与轮廓面积相等的圆，同时列出等效直径。</p>
+      <div class="code-block"># ch17_10.py
+import cv2
+import numpy as np
+
+src = cv2.imread("star1.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 3)
+con_area = cv2.contourArea(contours[0])
+ed = np.sqrt(4 * con_area / np.pi)
+print(f"等效直径 = {ed}")
+
+dst = cv2.circle(src, (260, 110), int(ed / 2), (0, 255, 0), 3)
+cv2.imshow("dst", dst)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">等效直径 = 70.6267187961067</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">等效直径运行画面</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_07_equivalent_diameter.png" alt="ch17_10.py 等效直径运行结果">
+          <div class="caption">参考原书第 17-10 页，右侧圆形与左侧轮廓具有相同面积。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">17-6</span>
+        <h2>遮罩和非 0 像素点的坐标讯息</h2>
+      </div>
+
+      <p class="content-text">
+        经过前面的遮罩概念后，可以取得影像中轮廓的资讯，也可以取得轮廓影像像素点的坐标。在使用 <code>drawContours()</code> 函数时，如果将 <code>thickness</code> 设为 <code>-1</code>，可以获得实心轮廓，这个实心轮廓常作为后续处理时的遮罩。
+      </p>
+
+      <h3>17-6-1 使用 Numpy 的阵列模组取得非 0 像素点坐标讯息</h3>
+      <div class="code-syntax">loc_img = np.nonzero(img)
+points = np.transpose(np.nonzero(img))</div>
+
+      <p class="code-title">程序实例 ch17_11.py：产生 3 x 5 矩阵，然后列出非 0 元素坐标。</p>
+      <div class="code-block"># ch17_11.py
+import cv2
+import numpy as np
+
+height = 3
+width = 5
+img = np.random.randint(2, size=(height, width))
+print("列印内容 = \n", img)
+loc_img = np.nonzero(img)
+print(f"非0元素的坐标 = \n{loc_img}")</div>
+
+      <p class="code-title">程序实例 ch17_12.py：增加转置函数 transpose()，重新设计 ch17_11.py。</p>
+      <div class="code-block"># ch17_12.py
+import numpy as np
+
+height = 3
+width = 5
+img = np.random.randint(2, size=(height, width))
+print("列印内容 = \n", img)
+nonzero_img = np.nonzero(img)
+print("非0元素的坐标 = \n", nonzero_img)
+loc_img = np.transpose(nonzero_img)
+print(f"非0元素的坐标 = \n{loc_img}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">Numpy 非 0 元素坐标</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_08_nonzero_numpy.png" alt="ch17_11.py 和 ch17_12.py Numpy 非 0 坐标结果">
+          <div class="caption">参考原书第 17-11 页至第 17-12 页，显示 <code>nonzero()</code> 与 <code>transpose()</code> 的输出差异。</div>
+        </div>
+      </div>
+
+      <h3>17-6-2 获得空心与实心非 0 像素点坐标讯息</h3>
+      <p class="content-text">
+        使用 <code>drawContours()</code> 函数时，如果 <code>thickness</code> 设定为 <code>-1</code>，轮廓就会成为实心轮廓；若为正数，则绘制的是轮廓线条。下列程序将建立空心与实心轮廓并列出非 0 像素点。
+      </p>
+
+      <p class="code-title">程序实例 ch17_13.py：绘制空心与实心轮廓，同时列出坐标资讯。</p>
+      <div class="code-block"># ch17_13.py
+import cv2
+import numpy as np
+
+src = cv2.imread("simple.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+mask1 = np.zeros(src_gray.shape, np.uint8)
+dst1 = cv2.drawContours(mask1, [cnt], 0, 255, 1)
+points1 = np.transpose(np.nonzero(dst1))
+
+mask2 = np.zeros(src_gray.shape, np.uint8)
+dst2 = cv2.drawContours(mask2, [cnt], 0, 255, -1)
+points2 = np.transpose(np.nonzero(dst2))
+
+print(f"空心像素点长度 = {len(points1)}")
+print("空心像素点")
+print(points1)
+print(f"实心像素点长度 = {len(points2)}")
+print("实心像素点")
+print(points2)
+
+cv2.imshow("dst1", dst1)
+cv2.imshow("dst2", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <h3>17-6-3 使用 OpenCV 函数获得非 0 像素点坐标讯息</h3>
+      <p class="content-text">
+        OpenCV 模组有提供 <code>findNonZero()</code> 函数，可以获得非 0 像素点的坐标讯息。这个函数的语法如下：
+      </p>
+
+      <div class="code-syntax">idx = cv2.findNonZero(src)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 返回值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>idx</code></td><td>回传像素点的坐标讯息，格式是 <code>(column, row)</code>。</td></tr>
+          <tr><td><code>src</code></td><td>原始影像。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch17_14.py：从简单矩阵影像取得非 0 像素点坐标。</p>
+      <div class="code-block"># ch17_14.py
+import cv2
+import numpy as np
+
+height = 3
+width = 5
+img = np.random.randint(2, size=(height, width))
+print("列印内容 = \n", img)
+loc_img = cv2.findNonZero(img)
+print(f"非0元素的坐标 = \n{loc_img}")</div>
+
+      <p class="code-title">程序实例 ch17_15.py：使用 <code>findNonZero()</code> 重新设计 ch17_13.py。</p>
+      <div class="code-block"># ch17_15.py
+import cv2
+import numpy as np
+
+src = cv2.imread("simple.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+mask1 = np.zeros(src_gray.shape, np.uint8)
+dst1 = cv2.drawContours(mask1, [cnt], 0, 255, 1)
+points1 = cv2.findNonZero(dst1)
+
+mask2 = np.zeros(src_gray.shape, np.uint8)
+dst2 = cv2.drawContours(mask2, [cnt], 0, 255, -1)
+points2 = cv2.findNonZero(dst2)
+
+print(f"空心像素点长度 = {len(points1)}")
+print("空心像素点")
+print(points1)
+print(f"实心像素点长度 = {len(points2)}")
+print("实心像素点")
+print(points2)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">非 0 像素点坐标</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_09_nonzero_opencv.png" alt="ch17_14.py findNonZero 结果">
+          <div class="caption">参考原书第 17-13 页，显示 OpenCV <code>findNonZero()</code> 的输出格式。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_10_find_nonzero.png" alt="ch17_15.py 空心与实心轮廓坐标结果">
+          <div class="caption">参考原书第 17-14 页，显示空心与实心轮廓的非 0 像素点数量。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-7">
+        <span class="section-number">17-7</span>
+        <h2>找寻影像物件最小值与最大值与他们的坐标</h2>
+      </div>
+
+      <p class="content-text">
+        轮廓特征中有一个很重要的观念，是找寻轮廓内部影像的最小值、最大值，以及它们的座标。OpenCV 提供 <code>minMaxLoc()</code> 函数处理这项问题。
+      </p>
+
+      <div class="code-syntax">minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(src, mask=mask)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 返回值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>minVal</code></td><td>最小值。</td></tr>
+          <tr><td><code>maxVal</code></td><td>最大值。</td></tr>
+          <tr><td><code>minLoc</code></td><td>最小值坐标，格式是 <code>(column, row)</code>。</td></tr>
+          <tr><td><code>maxLoc</code></td><td>最大值坐标，格式是 <code>(column, row)</code>。</td></tr>
+          <tr><td><code>image</code></td><td>单通道的影像。</td></tr>
+          <tr><td><code>mask</code></td><td>可选参数。设定遮罩后，可以找寻此遮罩内的最大值、最小值与坐标。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>17-7-1 从阵列找最大值与最小值和他们的坐标</h3>
+      <p class="content-text">
+        先将矩阵想成缩小版影像，从简单数值开始比较容易理解。
+      </p>
+
+      <p class="code-title">程序实例 ch17_16.py：使用 0 到 255 多随机数建立一个 3 x 5 矩阵，然后列出最大值、最小值元素与其坐标。</p>
+      <div class="code-block"># ch17_16.py
+import cv2
+import numpy as np
+
+height = 3
+width = 5
+img = np.random.randint(256, size=(height, width))
+print("列印内容 = \n", img)
+minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img)
+print(f"最小值 = {minVal}, 位置 = {minLoc}")
+print(f"最大值 = {maxVal}, 位置 = {maxLoc}")</div>
+
+      <h3>17-7-2 影像实作与医学应用说明</h3>
+      <p class="content-text">
+        原书以 <code>hand1.jpg</code> 手部影像为例，手掌上有黑点与白点。程序会使用遮罩找出手部影像内的最小灰阶值、最大灰阶值，以及它们的位置。
+      </p>
+
+      <p class="code-title">程序实例 ch17_17.py：使用 hand.jpg 侦测手部影像最大与最小像素值，同时列出坐标。</p>
+      <div class="code-block"># ch17_17.py
+import cv2
+import numpy as np
+
+src = cv2.imread("hand.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(src_gray, 50, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+mask = np.zeros(src_gray.shape, np.uint8)
+mask = cv2.drawContours(mask, [cnt], -1, (255, 255, 255), -1)
+src2 = cv2.bitwise_and(src, src, mask=mask)
+
+minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(src_gray, mask=mask)
+print(f"最小像素值 = {minVal}")
+print(f"最小像素位置 = {minLoc}")
+print(f"最大像素值 = {maxVal}")
+print(f"最大像素位置 = {maxLoc}")
+
+cv2.circle(src, minLoc, 20, (0, 255, 0), 3)
+cv2.circle(src, maxLoc, 20, (0, 0, 255), 3)
+cv2.imshow("mask", mask)
+cv2.imshow("src2", src2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">最小像素值 = 15.0
+最小像素位置 = (178, 242)
+最大像素值 = 255.0
+最大像素位置 = (275, 290)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">minMaxLoc 与遮罩</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_11_minmaxloc_mask.png" alt="ch17_17.py minMaxLoc 遮罩与手部影像结果">
+          <div class="caption">参考原书第 17-17 页，显示手部影像、遮罩、最小值与最大值标记。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-8">
+        <span class="section-number">17-8</span>
+        <h2>计算影像的像素的均值与标准差</h2>
+      </div>
+
+      <h3>17-8-1 计算影像的像素均值</h3>
+      <p class="content-text">
+        OpenCV 有提供 <code>mean()</code> 函数，可以计算影像像素的均值。
+      </p>
+
+      <div class="code-syntax">meanVal = cv2.mean(img, mask=mask)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 返回值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>meanVal</code></td><td>回传影像各通道（BGR channel）的均值和 Alpha 透明度。</td></tr>
+          <tr><td><code>img</code></td><td>输入影像。</td></tr>
+          <tr><td><code>mask</code></td><td>可选参数，可以计算遮罩影像的均值。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>17-8-2 影像的像素均值简单实例</h3>
+      <p class="code-title">程序实例 ch17_18.py：计算一幅影像 <code>forest.png</code> 的像素均值。</p>
+      <div class="code-block"># ch17_18.py
+import cv2
+
+src = cv2.imread("forest.png")
+cv2.imshow("src", src)
+channels = cv2.mean(src)
+print(channels)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">(115.71672000482117, 146.2766417733353, 193.187279061606, 0.0)</div>
+      </div>
+
+      <h3>17-8-3 使用遮罩观念计算像素均值</h3>
+      <p class="code-title">程序实例 ch17_19.py：使用 <code>hand.jpg</code> 重新设计 ch17_18.py，观察执行结果。</p>
+      <div class="code-block"># ch17_19.py
+import cv2
+import numpy as np
+
+src = cv2.imread("hand.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(src_gray, 50, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+mask = np.zeros(src_gray.shape, np.uint8)
+mask = cv2.drawContours(mask, [cnt], -1, (255, 255, 255), -1)
+channels = cv2.mean(src, mask=mask)
+print(channels)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch17_20.py：重新设计 ch17_19.py，计算手部的颜色均值。</p>
+      <div class="code-block"># ch17_20.py
+import cv2
+import numpy as np
+
+src = cv2.imread("hand.jpg")
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(src_gray, 50, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+cnt = contours[0]
+mask = np.zeros(src_gray.shape, np.uint8)
+mask = cv2.drawContours(mask, [cnt], -1, (255, 255, 255), -1)
+channels = cv2.mean(src, mask=mask)
+print(channels)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">像素均值</span>
+        <div class="result-box-image">
+          <img src="images/ch17/ch17_12_mean_hand.png" alt="ch17_18.py 到 ch17_20.py 影像像素均值结果">
+          <div class="caption">参考原书第 17-19 页，显示森林影像、手部遮罩与均值输出。</div>
+        </div>
+      </div>
+
+      <h3>17-8-4 计算影像的像素标准差</h3>
+      <p class="content-text">
+        OpenCV 有提供 <code>meanStdDev()</code> 函数，可以计算影像像素的均值和标准差。
+      </p>
+
+      <div class="code-syntax">mean, std = cv2.meanStdDev(img, mask=mask)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 返回值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>mean</code></td><td>回传影像各通道（BGR channel）的均值。</td></tr>
+          <tr><td><code>std</code></td><td>回传影像各通道（BGR channel）的标准差。</td></tr>
+          <tr><td><code>img</code></td><td>输入影像。</td></tr>
+          <tr><td><code>mask</code></td><td>可选参数，可以计算遮罩影像的均值和标准差。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch17_21.py：计算 <code>forest.png</code> 影像的像素标准差。</p>
+      <div class="code-block"># ch17_21.py
+import cv2
+
+src = cv2.imread("forest.png")
+cv2.imshow("src", src)
+mean, std = cv2.meanStdDev(src)
+print(f"均值 = \n{mean}")
+print(f"标准差 = \n{std}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">均值 =
+[[115.71672001]
+ [146.27664177]
+ [193.18727906]]
+标准差 =
+[[77.92939784]
+ [67.79052664]
+ [53.17257724]]</div>
+      </div>
+
+      <div class="section-heading" id="section-9">
+        <span class="section-number">17-9</span>
+        <h2>方向</h2>
+      </div>
+
+      <p class="content-text">
+        在轮廓特征中，有一个观念是方向。在 16-1-4 节曾介绍 <code>fitEllipse()</code> 函数，这个函数可以将影像内的轮廓使用最佳化椭圆形包起来，同时在执行时会回传 <code>retval</code> 元组资料。
+      </p>
+
+      <div class="code-syntax">(x, y)：椭圆中心点坐标。
+(a, b)：长短轴的直径。
+angle：代表旋转角度。</div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 列出 <code>hand.jpg</code> 手形的最左、最右、最上、最下点。同时最上点与最下点用黄色，最左点与最右点用绿色。注：需要使用不同的圆点，同时检测最外层轮廓。</p>
+          <p>2. 计算 <code>cloud.jpg</code> 的宽高比和 Solidity，同时用红色描绘凸包、黄色描绘矩形框。</p>
+          <p>3. 计算 <code>eagle.jpg</code> 影像轮廓像素值的均值和标准差。</p>
+          <p>4. 使用 <code>minn.jpg</code> 影像，绘制绿色的影像轮廓，将此影像轮廓当作遮罩，计算此遮罩区域影像像素的均值和标准差。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch17/ch17_13_orientation_ex1.png" alt="第 17 章习题 1 与 2 参考结果">
+            <div class="caption">参考原书第 17-22 页，显示手形极点与云朵轮廓参考结果。</div>
+          </div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch17/ch17_14_orientation_ex3.png" alt="第 17 章习题 3 与 4 参考结果">
+            <div class="caption">参考原书第 17-23 页，显示 eagle 与 minn 影像练习输出。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+          <a href="ch16.html">
+            <div>
+              <div class="nav-label">&larr; 上一章</div>
+              <div class="nav-title">第 16 章 轮廓拟合与凸包的相关应用</div>
+            </div>
+          </a>
+          <a href="ch18.html">
+            <div>
+              <div class="nav-label">下一章 &rarr;</div>
+              <div class="nav-title">第 18 章 从直线检测到无人驾驶车道检测</div>
+            </div>
+          </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像处理与 AI 视觉学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch17");</script>
+</body>
+</html>

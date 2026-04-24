@@ -134,7 +134,7 @@
     const grid = document.getElementById("chapter-grid");
     chapters.forEach((ch) => {
       const isAppendix = ch.id.startsWith("appendix");
-      const isReady = ["ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14"].includes(ch.id);
+      const isReady = ["ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16", "ch17", "ch18", "ch19"].includes(ch.id);
       const statusHtml = isReady
         ? '<span class="card-status ready">已完成</span>'
         : '<span class="card-status todo">待建置</span>';
