@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 9 章 阈值处理迈向数字情报 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 9 章</span>
+      <h1 class="chapter-title">阈值处理迈向数字情报</h1>
+      <div class="chapter-meta">本章共 5 个小节 · threshold、Otsu、自适应阈值、位平面、数字水印</div>
+
+      <div class="chapter-intro">
+        阈值处理会把像素值与指定临界值比较，再依规则改写像素。本章覆盖 <code>cv2.threshold()</code> 的多种类型、
+        Otsu 自动阈值、自适应阈值、位平面分解，以及把水印藏入最低有效位的做法。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">9-1</span>
+        <h2>threshold() 函数</h2>
+      </div>
+
+      <p class="content-text">
+        <code>threshold()</code> 返回两个值：<code>ret</code> 是实际阈值，<code>dst</code> 是处理后的图像。
+      </p>
+      <div class="code-syntax">ret, dst = cv2.threshold(src, thresh, maxval, type)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>类型</th><th>规则</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cv2.THRESH_BINARY</code></td><td>大于阈值设为 <code>maxval</code>，否则设为 0。</td></tr>
+          <tr><td><code>cv2.THRESH_BINARY_INV</code></td><td>BINARY 的反向版本。</td></tr>
+          <tr><td><code>cv2.THRESH_TRUNC</code></td><td>大于阈值的像素被截断为阈值，小于等于阈值则保留。</td></tr>
+          <tr><td><code>cv2.THRESH_TOZERO</code></td><td>大于阈值保留原值，否则设为 0。</td></tr>
+          <tr><td><code>cv2.THRESH_TOZERO_INV</code></td><td>TOZERO 的反向版本。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>9-1-1 THRESH_BINARY</h3>
+      <p class="code-title">程序实例 ch9_1.py：随机数组的 BINARY 阈值处理</p>
+      <div class="code-block"># ch9_1.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=(3, 5), dtype=np.uint8)
+ret, dst = cv2.threshold(src, 127, 255, cv2.THRESH_BINARY)
+print(f"src =\n{src}")
+print(f"ret = {ret}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_2.py：灰度图像二值化</p>
+      <div class="code-block"># ch9_2.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+ret1, dst1 = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+ret2, dst2 = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY)
+cv2.imshow("Original", img)
+cv2.imshow("threshold 127", dst1)
+cv2.imshow("threshold 80", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_2_binary_gray.png" alt="ch9_2.py 灰度图像二值化结果">
+          <div class="caption">灰度图像使用不同阈值的二值化结果，参考原书第 <strong>9-3</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch9_3.py：彩色图像二值化</p>
+      <div class="code-block"># ch9_3.py
+import cv2
+
+img = cv2.imread("jk.jpg")
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_3_binary_color.png" alt="ch9_3.py 彩色图像二值化结果">
+          <div class="caption">彩色图像逐通道二值化结果，参考原书第 <strong>9-4</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch9_4.py：numbers.jpg 数字图形二值化</p>
+      <div class="code-block"># ch9_4.py
+import cv2
+
+img = cv2.imread("numbers.jpg", cv2.IMREAD_GRAYSCALE)
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_4_numbers_binary.png" alt="ch9_4.py 数字图形二值化结果">
+          <div class="caption">数字图形的二值化结果，参考原书第 <strong>9-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>9-1-2 THRESH_BINARY_INV</h3>
+      <p class="code-title">程序实例 ch9_5.py：随机数组的 BINARY_INV</p>
+      <div class="code-block"># ch9_5.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=(3, 5), dtype=np.uint8)
+ret, dst = cv2.threshold(src, 127, 255, cv2.THRESH_BINARY_INV)
+print(f"src =\n{src}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_6.py：灰度图像 BINARY_INV</p>
+      <div class="code-block"># ch9_6.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch9_7.py：彩色图像 BINARY_INV</p>
+      <div class="code-block"># ch9_7.py
+import cv2
+
+img = cv2.imread("jk.jpg")
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch9_8.py：numbers.jpg 使用 BINARY_INV</p>
+      <div class="code-block"># ch9_8.py
+import cv2
+
+img = cv2.imread("numbers.jpg", cv2.IMREAD_GRAYSCALE)
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_8_numbers_binary_inv.png" alt="ch9_8.py 数字图形反二值化结果">
+          <div class="caption">数字图形的反二值化结果，参考原书第 <strong>9-8</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>9-1-3 THRESH_TRUNC</h3>
+      <p class="code-title">程序实例 ch9_9.py：随机数组的 TRUNC</p>
+      <div class="code-block"># ch9_9.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=(3, 5), dtype=np.uint8)
+ret, dst = cv2.threshold(src, 127, 255, cv2.THRESH_TRUNC)
+print(f"src =\n{src}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_10.py：灰度图像 TRUNC</p>
+      <div class="code-block"># ch9_10.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_TRUNC)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch9_11.py：彩色图像 TRUNC</p>
+      <div class="code-block"># ch9_11.py
+import cv2
+
+img = cv2.imread("jk.jpg")
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_TRUNC)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_11_trunc_color.png" alt="ch9_11.py 彩色图像 TRUNC 结果">
+          <div class="caption">彩色图像使用 TRUNC 的结果，参考原书第 <strong>9-11</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>9-1-4 THRESH_TOZERO</h3>
+      <p class="code-title">程序实例 ch9_12.py：随机数组的 TOZERO</p>
+      <div class="code-block"># ch9_12.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=(3, 5), dtype=np.uint8)
+ret, dst = cv2.threshold(src, 127, 255, cv2.THRESH_TOZERO)
+print(f"src =\n{src}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_13.py：灰度图像 TOZERO</p>
+      <div class="code-block"># ch9_13.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_TOZERO)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_13_tozero_gray.png" alt="ch9_13.py 灰度图像 TOZERO 结果">
+          <div class="caption">灰度图像使用 TOZERO 的结果，参考原书第 <strong>9-13</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch9_14.py：彩色图像 TOZERO</p>
+      <div class="code-block"># ch9_14.py
+import cv2
+
+img = cv2.imread("jk.jpg")
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_TOZERO)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <h3>9-1-5 THRESH_TOZERO_INV</h3>
+      <p class="code-title">程序实例 ch9_15.py：随机数组的 TOZERO_INV</p>
+      <div class="code-block"># ch9_15.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=(3, 5), dtype=np.uint8)
+ret, dst = cv2.threshold(src, 127, 255, cv2.THRESH_TOZERO_INV)
+print(f"src =\n{src}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_16.py：灰度图像 TOZERO_INV</p>
+      <div class="code-block"># ch9_16.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_TOZERO_INV)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch9_17.py：彩色图像 TOZERO_INV</p>
+      <div class="code-block"># ch9_17.py
+import cv2
+
+img = cv2.imread("jk.jpg")
+ret, dst = cv2.threshold(img, 127, 255, cv2.THRESH_TOZERO_INV)
+cv2.imshow("Original", img)
+cv2.imshow("Result", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_17_tozero_inv_color.png" alt="ch9_17.py 彩色图像 TOZERO_INV 结果">
+          <div class="caption">彩色图像使用 TOZERO_INV 的结果，参考原书第 <strong>9-17</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">9-2</span>
+        <h2>Otsu 算法</h2>
+      </div>
+
+      <p class="content-text">
+        Otsu 方法会自动寻找适合的阈值。使用时把阈值参数设为 <code>0</code>，并把 <code>cv2.THRESH_OTSU</code> 与阈值类型相加。
+      </p>
+
+      <p class="code-title">程序实例 ch9_18.py：列出原始数组与测试数组</p>
+      <div class="code-block"># ch9_18.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=(5, 5), dtype=np.uint8)
+print(f"src =\n{src}")
+ret, dst = cv2.threshold(src, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+print(f"ret = {ret}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_19.py：测试 Otsu 回传阈值与数组</p>
+      <div class="code-block"># ch9_19.py
+import cv2
+import numpy as np
+
+src = np.array([[0, 0, 0, 50, 50], [50, 50, 100, 100, 100], [150, 150, 200, 200, 255]], dtype=np.uint8)
+ret, dst = cv2.threshold(src, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+print(f"ret = {ret}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch9_20.py：比较固定阈值 127 与 Otsu 方法</p>
+      <div class="code-block"># ch9_20.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+ret1, dst1 = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+ret2, dst2 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+cv2.imshow("Original", img)
+cv2.imshow("threshold 127", dst1)
+cv2.imshow("Otsu", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_20_otsu_result.png" alt="ch9_20.py Otsu 阈值结果">
+          <div class="caption">固定阈值与 Otsu 自动阈值对比，参考原书第 <strong>9-20</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">9-3</span>
+        <h2>自适应阈值方法</h2>
+      </div>
+
+      <p class="content-text">
+        自适应阈值会根据像素附近区域动态计算阈值，适合光照不均匀的图像。
+      </p>
+      <div class="code-syntax">dst = cv2.adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C)</div>
+
+      <p class="code-title">程序实例 ch9_21.py：建筑物图像的自适应阈值</p>
+      <div class="code-block"># ch9_21.py
+import cv2
+
+img = cv2.imread("minnesota.jpg", cv2.IMREAD_GRAYSCALE)
+ret, th1 = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+th2 = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
+th3 = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+
+cv2.imshow("Original", img)
+cv2.imshow("threshold", th1)
+cv2.imshow("adaptive mean", th2)
+cv2.imshow("adaptive gaussian", th3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_21_adaptive_threshold.png" alt="ch9_21.py 自适应阈值结果">
+          <div class="caption">普通阈值与自适应阈值对比，参考原书第 <strong>9-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">9-4</span>
+        <h2>平面图的分解</h2>
+      </div>
+
+      <p class="content-text">
+        一个 8-bit 灰度像素由 8 个位组成，从最低位 <code>u0</code> 到最高位 <code>u7</code>。把每个位拆出来显示，就得到位平面。
+        高位平面对视觉影响较大，最低位平面影响较小。
+      </p>
+
+      <p class="code-title">程序实例 ch9_22.py：将原始图像分解为 8 个位平面</p>
+      <div class="code-block"># ch9_22.py
+import cv2
+import numpy as np
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+planes = []
+for i in range(8):
+    plane = cv2.bitwise_and(img, 2 ** i)
+    plane = np.where(plane > 0, 255, 0).astype(np.uint8)
+    planes.append(plane)
+    cv2.imshow(f"u{i}", plane)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">高位平面</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_22_bit_planes_high.png" alt="ch9_22.py 高位平面">
+          <div class="caption">较高位平面保留较明显轮廓，参考原书第 <strong>9-22</strong> 页。</div>
+        </div>
+      </div>
+      <div class="result-box">
+        <span class="result-box-header">低位平面</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_22_bit_planes_low.png" alt="ch9_22.py 低位平面">
+          <div class="caption">低位平面多为细节和噪声，参考原书第 <strong>9-22</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch9_23.py：验证最低有效位对视觉影响小</p>
+      <div class="code-block"># ch9_23.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+img_lsb0 = cv2.bitwise_and(img, 254)
+
+cv2.imshow("Original", img)
+cv2.imshow("LSB set 0", img_lsb0)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_23_lsb_effect.png" alt="ch9_23.py 最低有效位影响">
+          <div class="caption">清除最低有效位后视觉差异很小，参考原书第 <strong>9-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">9-5</span>
+        <h2>数字水印</h2>
+      </div>
+
+      <p class="content-text">
+        数字水印可利用最低有效位实现：先把原图最低位清为 0，再把二值化后的水印压缩到 0 或 1，最后加到原图中。
+        提取时只要取最低位再放大到 255 即可。
+      </p>
+
+      <p class="code-title">程序实例 ch9_24.py：将水印嵌入原始图像</p>
+      <div class="code-block"># ch9_24.py
+import cv2
+
+img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+watermark = cv2.imread("copyright.jpg", cv2.IMREAD_GRAYSCALE)
+ret, wm = cv2.threshold(watermark, 127, 1, cv2.THRESH_BINARY)
+
+img_clear = cv2.bitwise_and(img, 254)
+embedded = cv2.add(img_clear, wm)
+cv2.imshow("embedded", embedded)
+cv2.imwrite("watermark_image.jpg", embedded)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_24_embed_watermark.png" alt="ch9_24.py 嵌入水印结果">
+          <div class="caption">水印嵌入最低有效位后的图像，参考原书第 <strong>9-24</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch9_25.py：提取数字水印</p>
+      <div class="code-block"># ch9_25.py
+import cv2
+import numpy as np
+
+img = cv2.imread("watermark_image.jpg", cv2.IMREAD_GRAYSCALE)
+watermark = cv2.bitwise_and(img, 1)
+watermark = np.where(watermark > 0, 255, 0).astype(np.uint8)
+
+cv2.imshow("watermark", watermark)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch09/ch9_25_extract_watermark.png" alt="ch9_25.py 提取水印结果">
+          <div class="caption">从最低有效位提取出的水印，参考原书第 <strong>9-25</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：参考 <code>ch9_4.py</code>，处理 <code>ex9_1.jpg</code> 得到指定二值化结果。</p>
+          <p>2：参考 <code>ch9_8.py</code>，处理 <code>ex9_1.jpg</code> 得到反二值化结果。</p>
+          <p>3：扩充 <code>ch9_21.py</code>，加入 <code>THRESH_TOZERO</code> 与 <code>THRESH_TOZERO_INV</code> 的对比。</p>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch08.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 8 章 图像计算迈向图像创作</div>
+          </div>
+        </a>
+        <a href="ch10.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 10 章 图像的几何变换</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch09");</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 1 章 图像的读取、显示与保存 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Layout -->
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <span class="chapter-badge">第 1 章</span>
+      <h1 class="chapter-title">图像的读取、显示与保存</h1>
+      <div class="chapter-meta">本章共 5 个小节 &middot; OpenCV 入门基础</div>
+
+      <div class="chapter-intro">
+        OpenCV 的全名是 <strong>O</strong>pen Source <strong>C</strong>omputer <strong>V</strong>ision Library，这一章将从 OpenCV 最基础的认识图像说起。本章将讲解下列知识：
+        <ol class="content-list" style="margin-top:8px; margin-bottom:0;">
+          <li><strong class="highlight">读取</strong>图像</li>
+          <li><strong class="highlight">显示</strong>图像</li>
+          <li><strong class="highlight">保存</strong>图像</li>
+          <li>认识图像的<strong class="highlight">属性</strong></li>
+        </ol>
+      </div>
+
+      <!-- ===== 1-0 建议阅读书籍 ===== -->
+      <div class="section-heading" id="section-0">
+        <span class="section-number">1-0</span>
+        <h2>建议阅读书籍</h2>
+      </div>
+
+      <p class="content-text">
+        这本书主要是讲解使用 Python 搭配 OpenCV 模块，完整讲解图像处理至 AI 视觉的知识，建议读者要有 Python 基础知识。同时 <strong>OpenCV</strong> 是使用 <strong>Numpy</strong> 模块的数组概念处理图像的文件，所以也建议要有 Numpy 的基础知识。
+      </p>
+
+      <!-- ===== 1-1 程序导入 OpenCV 模块 ===== -->
+      <div class="section-heading" id="section-1">
+        <span class="section-number">1-1</span>
+        <h2>程序导入 OpenCV 模块</h2>
+      </div>
+
+      <p class="content-text">
+        在使用 OpenCV 前，需要安装 OpenCV，读者可以参考附录 A。设计程序前需要使用下列方式导入 OpenCV 模块。
+      </p>
+
+      <div class="code-syntax">import cv2</div>
+
+      <!-- ===== 1-2 读取图像文件 ===== -->
+      <div class="section-heading" id="section-2">
+        <span class="section-number">1-2</span>
+        <h2>读取图像文件</h2>
+      </div>
+
+      <h3 class="subsection-heading">1-2-1 图像读取 imread() 的语法</h3>
+
+      <p class="content-text">
+        OpenCV 读取图像文件是使用 <code>imread()</code> 函数，此函数的语法如下：
+      </p>
+
+      <div class="code-syntax">image = cv2.imread(path, flag) &nbsp;&nbsp;&nbsp;&nbsp;# 返回的 image 是图像对象</div>
+
+      <ul class="param-list">
+        <li>上述 <code>imread()</code> 函数有返回值 image，所返回的是读取到的对象。如果读取失败，则返回值是 <code>None</code>，常见的错误是图像对象名称或路径错误。</li>
+        <li>第 1 个参数 <strong>path</strong> 是指含路径的图像文件，如果省略路径就是指目前工作的文件夹。</li>
+        <li>第 2 个参数 <strong>flag</strong> 是可选参数，可以称是<strong class="highlight">图像旗标</strong>，这是命名常量主要是说明读取图像文件的类型。如果有省略，表示依原图像格式读取。</li>
+      </ul>
+
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th>命名常量</th>
+            <th>值</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>IMREAD_UNCHANGED</code></td>
+            <td>-1</td>
+            <td>依原图像读取图像，保留 alpha 透明度通道</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_GRAYSCALE</code></td>
+            <td>0</td>
+            <td>将图像转为灰度再读取</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_COLOR</code></td>
+            <td>1</td>
+            <td>将图像转为三通道 BGR 彩色再读取</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_ANYDEPTH</code></td>
+            <td>2</td>
+            <td>当图像有 16 位或 32 位时，返回相对应深度的图像。否则，将图像转为 8 位</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_ANYCOLOR</code></td>
+            <td>4</td>
+            <td>以所有可能的颜色读取图像</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_LOAD_GDAL</code></td>
+            <td>8</td>
+            <td>使用 GDAL 驱动程序读取图像</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_REDUCED_GRAYSCALE_2</code></td>
+            <td>16</td>
+            <td>将图像转为灰度，同时缩小至原先的 1/2</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_REDUCED_COLOR_2</code></td>
+            <td>17</td>
+            <td>将图像转为三通道 BGR 彩色，同时缩小至原先的 1/2</td>
+          </tr>
+          <tr>
+            <td><code>IMREAD_IGNORE_ORIENTATION</code></td>
+            <td>128</td>
+            <td>不以 EXIF 方向旋转图像</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note-box">
+        <span class="note-icon">注</span>
+        <span>引用上述常量时左边需要加上 cv2，例如：<code>cv2.IMREAD_GRAYSCALE</code>。</span>
+      </div>
+
+      <p class="code-title">程序示例 ch1_1.py：观察读取文件的返回值</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch1_1.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img1 = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)              <span class="comment"># 读取图像</span>
+<span class="line-num">5</span><span class="builtin">print</span>(<span class="string">f"成功读取 : {type(img1)}"</span>)
+<span class="line-num">6</span>img2 = cv2.<span class="function">imread</span>(<span class="string">"none.jpg"</span>)            <span class="comment"># 读取图像</span>
+<span class="line-num">7</span><span class="builtin">print</span>(<span class="string">f"读取失败 : {type(img2)}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">成功读取 : &lt;class 'numpy.ndarray'&gt;<br>读取失败 : &lt;class 'NoneType'&gt;</div>
+      </div>
+
+      <h3 class="subsection-heading">1-2-2 可读取的图像格式</h3>
+
+      <p class="content-text">OpenCV 的 <code>cv2.imread()</code> 可以读取的常见图像格式有下列几种：</p>
+      <ul class="content-list">
+        <li><strong>Windows 的位图</strong>：*.bmp</li>
+        <li><strong>JPEG 格式图</strong>：*.jpg、*.jpeg、*.jpe</li>
+        <li><strong>TIFF 格式图</strong>：*.tiff、*.tif</li>
+        <li><strong>PNG 格式图</strong>：PNG 是 Portable Network Graphics 的缩写，*.png</li>
+      </ul>
+
+      <!-- ===== 1-3 显示图像与关闭图像窗口 ===== -->
+      <div class="section-heading" id="section-3">
+        <span class="section-number">1-3</span>
+        <h2>显示图像与关闭图像窗口</h2>
+      </div>
+
+      <p class="content-text">OpenCV 有提供几个与显示图像有关的函数，下列将一一解说。</p>
+
+      <h3 class="subsection-heading">1-3-1 使用 OpenCV 显示图像</h3>
+
+      <p class="content-text">
+        OpenCV 可以使用 <code>cv2.imshow()</code> 将读取的图像对象显示在 OpenCV 窗口内，此函数的使用格式如下：
+      </p>
+
+      <div class="code-syntax">cv2.imshow(window_name, image)</div>
+
+      <ul class="param-list">
+        <li><strong>window_name</strong>：是未来要显示的窗口标题名称。</li>
+        <li><strong>image</strong>：是指要显示的图像对象。</li>
+      </ul>
+
+      <p class="content-text">上述 <code>imshow()</code> 函数实际上是执行下列 2 个步骤：</p>
+      <ol class="content-list">
+        <li>创建标题是 window_name 的窗口，所创建的窗口无法更改大小。</li>
+        <li>将 image 图像对象在 window_name 窗口显示。</li>
+      </ol>
+
+      <p class="code-title">程序示例 ch1_2.py：显示图像</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch1_2.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                <span class="comment"># 读取图像</span>
+<span class="line-num">5</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture"</span>, img)             <span class="comment"># 显示图像</span></div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch01/ch1_2_result.png" alt="ch1_2.py 执行结果">
+          <div class="caption">运行后打开的 MyPicture 窗口，显示 jk.jpg 图像。按右上方的关闭钮可关闭窗口。</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading">1-3-2 关闭 OpenCV 窗口</h3>
+
+      <p class="content-text">将图像显示在 OpenCV 窗口后，若是想删除窗口可以使用下列函数。</p>
+
+      <div class="code-syntax">cv2.destroyWindow(window_name) &nbsp;&nbsp;&nbsp;&nbsp;# 删除单一所<strong class="highlight">指定</strong>的窗口
+cv2.destroyAllWindows() &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 删除所有 OpenCV 的图像窗口</div>
+
+      <p class="code-title">程序示例 ch1_3.py：图像闪一下随即关闭的应用</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch1_3.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                <span class="comment"># 读取图像</span>
+<span class="line-num">5</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture"</span>, img)             <span class="comment"># 显示图像</span>
+<span class="line-num">6</span>cv2.<span class="function">destroyWindow</span>(<span class="string">"MyPicture"</span>)         <span class="comment"># 关闭窗口</span></div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">图像闪一下随即关闭。上述第 5 行显示图像，第 6 行是关闭图像，所以造成图像闪一下随即关闭。</div>
+      </div>
+
+      <h3 class="subsection-heading">1-3-3 等待按键的事件</h3>
+
+      <p class="content-text">OpenCV 的 <code>cv2.waitKey()</code> 函数会等待按键事件，语法如下：</p>
+
+      <div class="code-syntax">ret_key = cv2.waitKey(delay)</div>
+
+      <ul class="param-list">
+        <li><strong>ret_key</strong>：是返回值，如果在指定时间没有按下键盘的键，则返回值是 -1。如果有按下键盘的键，则返回值是按键的 ASCII 码。常见的键盘按键对应的 ASCII 码值如下：
+          <br><code>Enter</code>：13 &nbsp;&nbsp; <code>Esc</code>：27 &nbsp;&nbsp; <code>Backspace</code>：8 &nbsp;&nbsp; <code>Space</code>：32
+        </li>
+        <li><strong>delay</strong>：单位是毫秒，每 1000 毫秒等于 1 秒。</li>
+      </ul>
+
+      <p class="content-text">
+        使用 OpenCV 显示图像时可以使用 <code>cv2.waitKey(delay)</code> 设置图像显示的时间，或是在显示时间内按键盘的任意键，也可以让 <code>cv2.waitKey()</code> 函数执行结束。若是 delay=0 或是省略，代表无限期等待。若是设为 delay=1000 相当于有等待 1 秒的效果。
+      </p>
+
+      <p class="code-title">程序示例 ch1_4.py：让图像持续显示，直到按下右上方的关闭钮</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch1_4.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                <span class="comment"># 读取图像</span>
+<span class="line-num">5</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture"</span>, img)             <span class="comment"># 显示图像</span>
+<span class="line-num">6</span>ret_value = cv2.<span class="function">waitKey</span>(0)             <span class="comment"># 无限等待</span>
+<span class="line-num">7</span>cv2.<span class="function">destroyWindow</span>(<span class="string">"MyPicture"</span>)         <span class="comment"># 关闭窗口</span></div>
+
+      <p class="code-title">程序示例 ch1_5.py：让图像显示 5 秒或是有键盘按键发生</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch1_5.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                <span class="comment"># 读取图像</span>
+<span class="line-num">5</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture"</span>, img)             <span class="comment"># 显示图像</span>
+<span class="line-num">6</span>ret_value = cv2.<span class="function">waitKey</span>(5000)          <span class="comment"># 等待 5 秒</span>
+<span class="line-num">7</span>cv2.<span class="function">destroyWindow</span>(<span class="string">"MyPicture"</span>)         <span class="comment"># 关闭窗口</span>
+<span class="line-num">8</span><span class="builtin">print</span>(<span class="string">f"ret_value = {ret_value}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">等待 5 秒没有按键发生：ret_value = -1<br>直接按键盘 e 的结果：ret_value = 101</div>
+        <div class="result-box-image">
+          <img src="images/ch01/ch1_5_shell.png" alt="ch1_5.py Python Shell 执行结果" style="max-width:600px;">
+          <div class="caption">左图为等待 5 秒无按键的结果 <code>ret_value = -1</code>；右图为直接按 <code>e</code> 键的结果 <code>ret_value = 101</code>（e 的 ASCII 码）。截图见原书第 <strong>1-6</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">注意</span>
+        <div class="result-box-image">
+          <img src="images/ch01/ch1_5_result.png" alt="输入法切换说明" style="max-width:400px;">
+          <div class="caption">按键检测前建议将输入法切换至英文 (ENG)，否则 ret_value 值可能会对应到中文输入法状态。</div>
+        </div>
+      </div>
+
+      <p class="content-text">如果输入是一般键盘键，可以使用 <code>ret_value == ord(key)</code> 判断是否是按了特定的键盘字符。</p>
+
+      <p class="code-title">程序示例 ch1_5_1.py：让图像持续显示，直到按下键盘的 q 或 Q 键</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch1_5_1.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                <span class="comment"># 读取图像</span>
+<span class="line-num">5</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture"</span>, img)             <span class="comment"># 显示图像</span>
+<span class="line-num">6</span>ret_value = cv2.<span class="function">waitKey</span>(0)             <span class="comment"># 无限等待</span>
+<span class="line-num">7</span><span class="keyword">if</span> ret_value == <span class="builtin">ord</span>(<span class="string">'Q'</span>) <span class="keyword">or</span> ret_value == <span class="builtin">ord</span>(<span class="string">'q'</span>):
+<span class="line-num">8</span>    cv2.<span class="function">destroyWindow</span>(<span class="string">"MyPicture"</span>)     <span class="comment"># 关闭窗口</span></div>
+
+      <h3 class="subsection-heading">1-3-4 创建 OpenCV 图像窗口</h3>
+
+      <p class="content-text">
+        使用 OpenCV 的 <code>imshow()</code> 函数显示图像时，默认系统会创建一个图像窗口，这个默认所创建的图像窗口，窗口大小是固定，无法更改。不过 OpenCV 也有提供 <code>namedWindow()</code> 创建未来要显示图像的窗口，它的语法如下：
+      </p>
+
+      <div class="code-syntax">cv2.namedWindow(window_name, flag)</div>
+
+      <ul class="param-list">
+        <li><strong>window_name</strong>：是未来要显示的窗口名称。</li>
+        <li><strong>flag</strong>：是指窗口旗标参数，可能值如下：
+          <br><code>WINDOW_NORMAL</code>：如果设置，用户可以自行调整窗口大小。
+          <br><code>WINDOW_AUTOSIZE</code>：系统将依图像调整窗口大小，用户无法调整窗口大小，这是默认。
+          <br><code>WINDOW_OPENGL</code>：将以 OpenGL 支持方式打开窗口。
+        </li>
+      </ul>
+
+      <p class="code-title">程序示例 ch1_6.py：以彩色和灰度显示图像的应用</p>
+      <div class="code-block"><span class="line-num"> 1</span><span class="comment"># ch1_6.py</span>
+<span class="line-num"> 2</span><span class="keyword">import</span> cv2
+<span class="line-num"> 3</span>cv2.<span class="function">namedWindow</span>(<span class="string">"MyPicture1"</span>)                          <span class="comment"># 使用默认</span>
+<span class="line-num"> 4</span>cv2.<span class="function">namedWindow</span>(<span class="string">"MyPicture2"</span>, cv2.WINDOW_NORMAL)       <span class="comment"># 可以调整大小</span>
+<span class="line-num"> 5</span>img1 = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                             <span class="comment"># 彩色读取</span>
+<span class="line-num"> 6</span>img2 = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>, cv2.IMREAD_GRAYSCALE)      <span class="comment"># 灰色读取</span>
+<span class="line-num"> 7</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture1"</span>, img1)                          <span class="comment"># 显示图像 img1</span>
+<span class="line-num"> 8</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture2"</span>, img2)                          <span class="comment"># 显示图像 img2</span>
+<span class="line-num"> 9</span>cv2.<span class="function">waitKey</span>(3000)                                       <span class="comment"># 等待 3 秒</span>
+<span class="line-num">10</span>cv2.<span class="function">destroyWindow</span>(<span class="string">"MyPicture1"</span>)                        <span class="comment"># 删除 MyPicture1</span>
+<span class="line-num">11</span>cv2.<span class="function">waitKey</span>(8000)                                       <span class="comment"># 等待 8 秒</span>
+<span class="line-num">12</span>cv2.<span class="function">destroyAllWindows</span>()                                 <span class="comment"># 删除所有窗口</span></div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch01/ch1_6_result.png" alt="ch1_6.py 执行结果">
+          <div class="caption">同时显示两个窗口：左侧 MyPicture1 为彩色（默认大小，不可调整），右侧 MyPicture2 为灰度（WINDOW_NORMAL，可调整大小）。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        上述程序第 6 行，<code>cv2.IMREAD_GRAYSCALE</code> 也可以使用 0 代替，读者可以参考 ch1_6_1.py，可以获得一样的结果。
+      </p>
+      <div class="code-syntax">img2 = cv2.imread("jk.jpg", 0) &nbsp;&nbsp;&nbsp;&nbsp;# 灰色读取</div>
+
+      <!-- ===== 1-4 保存图像 ===== -->
+      <div class="section-heading" id="section-4">
+        <span class="section-number">1-4</span>
+        <h2>保存图像</h2>
+      </div>
+
+      <p class="content-text">OpenCV 可以使用 <code>imwrite()</code> 保存图像，它的使用语法如下：</p>
+
+      <div class="code-syntax">ret = cv2.imwrite(path, image)</div>
+
+      <ul class="param-list">
+        <li>第 1 个参数 <strong>path</strong> 是保存保存结果的图像文件名称，此名称含路径，如果省略路径就是指目前工作的文件夹。此外，除了可以使用相同的图像格式保存外，也可以使用不同的图像格式保存图像文件，例如：jpg、tiff、png … 等。</li>
+        <li>第 2 个参数 <strong>image</strong> 是要保存的图像对象。</li>
+      </ul>
+
+      <p class="content-text">如果保存图像成功会返回 <code>True</code>，否则返回 <code>False</code>。</p>
+
+      <p class="code-title">程序示例 ch1_7.py：将 jk.jpg 保存成 out1_7_1.tiff 和 out1_7_2.png</p>
+      <div class="code-block"><span class="line-num"> 1</span><span class="comment"># ch1_7.py</span>
+<span class="line-num"> 2</span><span class="keyword">import</span> cv2
+<span class="line-num"> 3</span>cv2.<span class="function">namedWindow</span>(<span class="string">"MyPicture"</span>)                      <span class="comment"># 使用默认</span>
+<span class="line-num"> 4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                         <span class="comment"># 彩色读取</span>
+<span class="line-num"> 5</span>cv2.<span class="function">imshow</span>(<span class="string">"MyPicture"</span>, img)                       <span class="comment"># 显示图像 img</span>
+<span class="line-num"> 6</span>ret = cv2.<span class="function">imwrite</span>(<span class="string">"out1_7_1.tiff"</span>, img)           <span class="comment"># 将文件写入 out1_7_1.tiff</span>
+<span class="line-num"> 7</span><span class="keyword">if</span> ret:
+<span class="line-num"> 8</span>    <span class="builtin">print</span>(<span class="string">"保存文件成功"</span>)
+<span class="line-num"> 9</span><span class="keyword">else</span>:
+<span class="line-num">10</span>    <span class="builtin">print</span>(<span class="string">"保存文件失败"</span>)
+<span class="line-num">11</span>ret = cv2.<span class="function">imwrite</span>(<span class="string">"out1_7_2.png"</span>, img)            <span class="comment"># 将文件写入 out1_7_2.png</span>
+<span class="line-num">12</span><span class="keyword">if</span> ret:
+<span class="line-num">13</span>    <span class="builtin">print</span>(<span class="string">"保存文件成功"</span>)
+<span class="line-num">14</span><span class="keyword">else</span>:
+<span class="line-num">15</span>    <span class="builtin">print</span>(<span class="string">"保存文件失败"</span>)
+<span class="line-num">16</span>cv2.<span class="function">waitKey</span>(3000)                                  <span class="comment"># 等待 3 秒</span>
+<span class="line-num">17</span>cv2.<span class="function">destroyAllWindows</span>()                            <span class="comment"># 删除所有窗口</span></div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">保存文件成功<br>保存文件成功</div>
+        <div class="result-box-image">
+          <img src="images/ch01/ch1_7_result.png" alt="ch1_7.py 执行结果" style="max-width:500px;">
+          <div class="caption">运行后在 ch1 文件夹可以看到新产生的 out1_7_1.tiff 和 out1_7_2.png 两个图像文件。</div>
+        </div>
+      </div>
+
+      <!-- Exercise -->
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：分别以彩色和灰度读取自己的图像，在屏幕显示，同时以下列方式保存。</p>
+          <ul class="content-list">
+            <li>用 <code>jk_color.bmp</code> 文件名称：彩色保存。</li>
+            <li>用 <code>jk_gray.bmp</code> 文件名称：灰度保存。</li>
+          </ul>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch01/exercise_ref.png" alt="习题参考效果">
+            <div class="caption">参考效果：左侧 Color 彩色窗口，右侧 Gray 灰度窗口。截图见原书第 <strong>1-10</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Navigation -->
+      <div class="page-nav">
+        <div></div>
+        <a href="ch02.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 2 章 认识图像表示方法</div>
+          </div>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    OpenCV 图像创意迈向 AI 视觉王者归来 — 个人学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch01");</script>
+</body>
+</html>

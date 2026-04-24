@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 3 章 学习 OpenCV 需要的 Numpy 知识 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body class="chapter-output-pre">
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+
+      <span class="chapter-badge">第 3 章</span>
+      <h1 class="chapter-title">学习 OpenCV 需要的 Numpy 知识</h1>
+      <div class="chapter-meta">本章共 6 节 · ndarray、dtype、数组创建、切片、复制、axis、vstack/hstack</div>
+
+      <div class="chapter-intro">
+        OpenCV 的图像在 Python 中通常以 NumPy 的 <code>ndarray</code> 保存。要正确理解图像尺寸、通道、像素索引和图像拼接，
+        需要先掌握数组的数据类型、形状、索引、切片与合并。本页按原书第 3 章结构整理，保留示例编号、函数语法、参数含义、输出形态与练习方向。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">3-1</span>
+        <h2>数组 ndarray</h2>
+      </div>
+
+      <p class="content-text">
+        Python 的列表和元组也能存放一组数据，但在大量数值计算、图像处理、科学运算和 AI 任务中，普通列表的速度和资源效率都不够理想。
+        NumPy 是 Numerical Python 的缩写，核心目标就是让 Python 能高效率处理数组数据。
+      </p>
+      <p class="content-text">
+        NumPy 的主要数组对象是 <code>ndarray</code>。OpenCV 读取到的灰度图、彩色图和带透明通道的图像，底层都可以看作二维或三维的
+        <code>ndarray</code>。因此后续读取图像、访问像素、分割通道、合并图像时，都会反复使用本章这些数组操作。
+      </p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>ndarray 特性</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>固定大小</td><td>数组创建后形状是明确的。需要改变排列方式时，一般使用 <code>reshape()</code> 重新解释形状。</td></tr>
+          <tr><td>元素类型一致</td><td>同一个数组内的元素通常使用同一种数据类型，例如 <code>uint8</code>、<code>int32</code>、<code>float64</code>。</td></tr>
+          <tr><td>适合矩阵运算</td><td>数组可以直接与数字、数组进行批量运算，不需要手动逐项循环。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note-box">
+        <span class="note-icon">关联</span>
+        <span>OpenCV 图像的 <code>shape</code>、<code>size</code>、<code>dtype</code> 都来自 NumPy 数组属性。图像处理前先确认这些属性，可以避免通道顺序和索引方向错误。</span>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">3-2</span>
+        <h2>Numpy 的数据类型</h2>
+      </div>
+
+      <p class="content-text">
+        NumPy 对数据类型有明确区分。图像处理中最常见的是 <code>uint8</code>，因为 8 位无符号整数刚好能表示 <code>0</code> 到 <code>255</code> 的像素强度。
+        进行数学运算或归一化时，也经常会遇到 <code>float32</code>、<code>float64</code>。
+      </p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>类型</th><th>含义</th><th>常见用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>bool</code></td><td>布尔类型，值为 <code>True</code> 或 <code>False</code></td><td>遮罩、条件判断结果</td></tr>
+          <tr><td><code>int</code>、<code>intc</code>、<code>intp</code></td><td>整数类型，宽度依平台或 C 语言类型而定</td><td>索引、计数、一般整数运算</td></tr>
+          <tr><td><code>int8</code>、<code>int16</code>、<code>int32</code>、<code>int64</code></td><td>有符号整数，数字表示位数</td><td>需要正负范围的整数数据</td></tr>
+          <tr><td><code>uint8</code>、<code>uint16</code>、<code>uint32</code>、<code>uint64</code></td><td>无符号整数，最小值为 0</td><td>图像像素、二值图、灰度图、彩色图</td></tr>
+          <tr><td><code>float</code>、<code>float16</code>、<code>float32</code>、<code>float64</code></td><td>浮点数</td><td>归一化、滤波、机器学习输入</td></tr>
+          <tr><td><code>complex</code>、<code>complex64</code>、<code>complex128</code></td><td>复数类型</td><td>频域运算等特殊场景</td></tr>
+        </tbody>
+      </table>
+
+      <p class="content-text">常用的 <code>ndarray</code> 属性如下：</p>
+      <table class="content-table">
+        <thead>
+          <tr><th>属性</th><th>说明</th><th>示例含义</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>dtype</code></td><td>数组元素的数据类型</td><td><code>uint8</code>、<code>int32</code>、<code>float64</code></td></tr>
+          <tr><td><code>itemsize</code></td><td>每个元素占用的字节数</td><td><code>int32</code> 通常为 4 字节，<code>int8</code> 为 1 字节</td></tr>
+          <tr><td><code>ndim</code></td><td>数组维度数量</td><td>一维数组为 1，二维矩阵为 2，彩色图常见为 3</td></tr>
+          <tr><td><code>shape</code></td><td>数组在每个维度上的长度</td><td><code>(3,)</code>、<code>(2, 3)</code>、<code>(height, width, channels)</code></td></tr>
+          <tr><td><code>size</code></td><td>数组元素总数</td><td>等于 <code>shape</code> 中各维度长度相乘</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">3-3</span>
+        <h2>创建一维或多维数组</h2>
+      </div>
+
+      <h3>3-3-1 使用 array() 创建数组</h3>
+      <p class="content-text">
+        <code>numpy.array()</code> 可以把列表、元组等对象转换成 NumPy 数组。原书给出的语法重点如下：
+      </p>
+      <div class="code-syntax">numpy.array(object, dtype=None, copy=True, order='K', subok=False, ndmin=0)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>object</code></td><td>要转换成数组的对象，例如列表、元组或嵌套列表。</td></tr>
+          <tr><td><code>dtype</code></td><td>指定数组元素类型；省略时由 NumPy 自动推断。</td></tr>
+          <tr><td><code>copy</code></td><td>是否复制原始对象。默认 <code>True</code>。</td></tr>
+          <tr><td><code>order</code></td><td>指定内存排列方式，常见值有 <code>K</code>、<code>A</code>、<code>C</code>、<code>F</code>。</td></tr>
+          <tr><td><code>subok</code></td><td>是否允许返回子类数组。默认 <code>False</code>。</td></tr>
+          <tr><td><code>ndmin</code></td><td>指定返回数组至少具有的维度数。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">创建一维数组，并查看类型</p>
+      <div class="code-block">import numpy as np
+
+x = np.array([1, 2, 3])
+print(type(x))
+print(x)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">&lt;class 'numpy.ndarray'&gt;
+[1 2 3]</div>
+      </div>
+
+      <h3>3-3-2 存取一维数组元素</h3>
+      <p class="content-text">
+        一维数组的元素可以用索引读取或修改。索引从 <code>0</code> 开始，因此 <code>x[0]</code> 是第一个元素，<code>x[1]</code> 是第二个元素。
+      </p>
+      <div class="code-block">import numpy as np
+
+x = np.array([1, 2, 3])
+print(x[0])
+print(x[1])
+print(x[2])
+
+x[1] = 10
+print(x)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">1
+2
+3
+[ 1 10  3]</div>
+      </div>
+
+      <p class="code-title">查看数组属性</p>
+      <div class="code-block">import numpy as np
+
+x = np.array([1, 2, 3])
+print("dtype =", x.dtype)
+print("itemsize =", x.itemsize)
+print("ndim =", x.ndim)
+print("shape =", x.shape)
+print("size =", x.size)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">dtype = int32
+itemsize = 4
+ndim = 1
+shape = (3,)
+size = 3</div>
+      </div>
+
+      <p class="content-text">
+        如果创建数组时指定 <code>dtype=np.int8</code>，每个元素只占 1 字节，<code>itemsize</code> 会变成 <code>1</code>。
+        如果使用小数创建数组，默认通常会推断为 <code>float64</code>。
+      </p>
+
+      <h3>3-3-3 使用 ndmin 创建二维数组</h3>
+      <p class="content-text">
+        <code>ndmin</code> 可以要求 <code>array()</code> 返回至少几维的数组。下面示例先把一维列表强制转换成二维，再把两列数据组成 2×3 数组。
+      </p>
+      <p class="code-title">程序实例 ch3_1.py：创建二维数组</p>
+      <div class="code-block"># ch3_1.py
+import numpy as np
+
+row1 = [1, 2, 3]
+arr1 = np.array(row1, ndmin=2)
+print("数组 1 维度 =", arr1.ndim)
+print("数组 1 形状 =", arr1.shape)
+print("数组 1 元素总数 =", arr1.size)
+print(arr1)
+
+row2 = [4, 5, 6]
+arr2 = np.array([row1, row2], ndmin=2)
+print("数组 2 维度 =", arr2.ndim)
+print("数组 2 形状 =", arr2.shape)
+print("数组 2 元素总数 =", arr2.size)
+print(arr2)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">数组 1 维度 = 2
+数组 1 形状 = (1, 3)
+数组 1 元素总数 = 3
+[[1 2 3]]
+数组 2 维度 = 2
+数组 2 形状 = (2, 3)
+数组 2 元素总数 = 6
+[[1 2 3]
+ [4 5 6]]</div>
+        <div class="result-box-image">
+          <img src="images/ch03/ch3_1_result.png" alt="ch3_1.py 执行结果">
+          <div class="caption">原书第 3-6 页：<code>ndmin=2</code> 创建二维数组的输出。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_2.py：直接使用嵌套列表创建二维数组</p>
+      <div class="code-block"># ch3_2.py
+import numpy as np
+
+x = np.array([[1, 2, 3], [4, 5, 6]])
+print("维度 =", x.ndim)
+print("形状 =", x.shape)
+print("元素总数 =", x.size)
+print(x)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">维度 = 2
+形状 = (2, 3)
+元素总数 = 6
+[[1 2 3]
+ [4 5 6]]</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_3.py：读取二维数组元素</p>
+      <div class="code-block"># ch3_3.py
+import numpy as np
+
+x = np.array([[1, 2, 3], [4, 5, 6]])
+print(x[0][2])
+print(x[1][2])
+print(x[0, 2])
+print(x[1, 2])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">3
+6
+3
+6</div>
+      </div>
+
+      <div class="note-box">
+        <span class="note-icon">写法</span>
+        <span><code>x[0][2]</code> 与 <code>x[0, 2]</code> 都能读取第 0 行第 2 列，但 NumPy 中更常用逗号写法 <code>x[0, 2]</code>。</span>
+      </div>
+
+      <h3>3-3-4 使用 zeros() 创建全 0 数组</h3>
+      <div class="code-syntax">np.zeros(shape, dtype=float)</div>
+      <p class="content-text">
+        <code>shape</code> 指定数组形状，<code>dtype</code> 指定元素类型。省略 <code>dtype</code> 时，默认会生成浮点数数组。
+        图像处理中，全 0 的 <code>uint8</code> 数组可表示黑色图像。
+      </p>
+      <p class="code-title">程序实例 ch3_4.py：zeros()</p>
+      <div class="code-block"># ch3_4.py
+import numpy as np
+
+x1 = np.zeros(3)
+x2 = np.zeros((2, 3), dtype=np.uint8)
+print(x1)
+print(x2)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[0. 0. 0.]
+[[0 0 0]
+ [0 0 0]]</div>
+      </div>
+
+      <h3>3-3-5 使用 ones() 创建全 1 数组</h3>
+      <div class="code-syntax">np.ones(shape, dtype=None)</div>
+      <p class="content-text">
+        <code>ones()</code> 会创建内容全为 1 的数组。如果要创建白色图像，常见做法是创建全 1 数组后乘以 <code>255</code>，并使用 <code>uint8</code> 类型。
+      </p>
+      <p class="code-title">程序实例 ch3_5.py：ones()</p>
+      <div class="code-block"># ch3_5.py
+import numpy as np
+
+x1 = np.ones(3)
+x2 = np.ones((2, 3), dtype=np.uint8)
+print(x1)
+print(x2)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[1. 1. 1.]
+[[1 1 1]
+ [1 1 1]]</div>
+      </div>
+
+      <h3>3-3-6 使用 empty() 创建未初始化数组</h3>
+      <div class="code-syntax">np.empty(shape, dtype=float)</div>
+      <p class="content-text">
+        <code>empty()</code> 只分配数组空间，不负责把内容初始化为 0 或 1，所以数组中看到的值没有固定意义。
+        它适合马上会被完全覆盖的数据，不适合直接拿初始值做计算。
+      </p>
+      <p class="code-title">程序实例 ch3_6.py：empty()</p>
+      <div class="code-block"># ch3_6.py
+import numpy as np
+
+x1 = np.empty(3)
+x2 = np.empty((2, 3), dtype=np.uint8)
+print(x1)
+print(x2)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">输出值不固定。它显示的是当时内存里的残留内容，因此每次运行都可能不同。</div>
+      </div>
+
+      <h3>3-3-7 使用 random.randint() 创建随机整数数组</h3>
+      <div class="code-syntax">np.random.randint(low, high=None, size=None, dtype=int)</div>
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>low</code></td><td>随机整数范围的下限。如果省略 <code>high</code>，范围为 <code>0</code> 到 <code>low</code>，不包含 <code>low</code>。</td></tr>
+          <tr><td><code>high</code></td><td>随机整数范围的上限，不包含该值。</td></tr>
+          <tr><td><code>size</code></td><td>输出数组形状。省略时返回单个随机整数。</td></tr>
+          <tr><td><code>dtype</code></td><td>输出整数的数据类型。</td></tr>
+        </tbody>
+      </table>
+      <p class="code-title">程序实例 ch3_7.py：random.randint()</p>
+      <div class="code-block"># ch3_7.py
+import numpy as np
+
+x1 = np.random.randint(10, 20)
+x2 = np.random.randint(1, 5, 10)
+x3 = np.random.randint(10, size=(3, 5))
+print(x1)
+print(x2)
+print(x3)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">每次执行都会变化。第一行是 10 到 19 的单个整数，第二行是长度为 10 的一维数组，第三行是 3×5 的二维随机数组。</div>
+      </div>
+
+      <h3>3-3-8 使用 arange() 创建连续数组</h3>
+      <div class="code-syntax">np.arange(start, stop, step)</div>
+      <p class="content-text">
+        <code>arange()</code> 会产生等差序列。<code>start</code> 是起始值，<code>stop</code> 是结束上限但不包含该值，<code>step</code> 是间隔。
+        只写一个参数时，该参数会被视为 <code>stop</code>。
+      </p>
+      <p class="code-title">程序实例 ch3_7_1.py：arange()</p>
+      <div class="code-block"># ch3_7_1.py
+import numpy as np
+
+x = np.arange(16)
+print(x)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]</div>
+      </div>
+
+      <h3>3-3-9 使用 reshape() 改变数组形状</h3>
+      <div class="code-syntax">np.reshape(a, newshape)</div>
+      <p class="content-text">
+        <code>reshape()</code> 不改变元素值，只改变排列形状。新形状的元素总数必须与原数组相同。
+        <code>newshape</code> 中可以有一个维度写成 <code>-1</code>，由 NumPy 自动推算该维度大小。
+      </p>
+      <p class="code-title">程序实例 ch3_7_2.py：reshape(2, 8)</p>
+      <div class="code-block"># ch3_7_2.py
+import numpy as np
+
+x = np.arange(16)
+y = np.reshape(x, (2, 8))
+print(y)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[[ 0  1  2  3  4  5  6  7]
+ [ 8  9 10 11 12 13 14 15]]</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_7_3.py：reshape(4, -1)</p>
+      <div class="code-block"># ch3_7_3.py
+import numpy as np
+
+x = np.arange(16)
+y = np.reshape(x, (4, -1))
+print(y)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[[ 0  1  2  3]
+ [ 4  5  6  7]
+ [ 8  9 10 11]
+ [12 13 14 15]]</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_7_4.py：reshape(-1, 8)</p>
+      <div class="code-block"># ch3_7_4.py
+import numpy as np
+
+x = np.arange(16)
+y = np.reshape(x, (-1, 8))
+print(y)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[[ 0  1  2  3  4  5  6  7]
+ [ 8  9 10 11 12 13 14 15]]</div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">3-4</span>
+        <h2>一维数组的运算与切片</h2>
+      </div>
+
+      <h3>3-4-1 算术运算</h3>
+      <p class="content-text">
+        NumPy 数组可以直接和数字做批量运算，也可以和形状相同的数组逐元素运算。常见算术符号包括
+        <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>、<code>//</code>、<code>%</code>、<code>**</code>。
+      </p>
+      <div class="code-block">import numpy as np
+
+x = np.array([1, 2, 3])
+y = np.array([10, 20, 30])
+print(x + 1)
+print(x + y)
+print(x * 2)
+print(y / x)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[2 3 4]
+[11 22 33]
+[2 4 6]
+[10. 10. 10.]</div>
+      </div>
+
+      <h3>3-4-2 关系运算</h3>
+      <p class="content-text">
+        关系运算会返回布尔数组。后续图像遮罩、阈值处理、区域筛选都会用到这种结果。
+      </p>
+      <table class="content-table">
+        <thead>
+          <tr><th>运算符</th><th>含义</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>&gt;</code></td><td>大于</td></tr>
+          <tr><td><code>&gt;=</code></td><td>大于或等于</td></tr>
+          <tr><td><code>&lt;</code></td><td>小于</td></tr>
+          <tr><td><code>&lt;=</code></td><td>小于或等于</td></tr>
+          <tr><td><code>==</code></td><td>等于</td></tr>
+          <tr><td><code>!=</code></td><td>不等于</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">import numpy as np
+
+x = np.array([1, 2, 3])
+y = np.array([2, 2, 2])
+print(x > y)
+print(x == y)
+print(x != y)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[False False  True]
+[False  True False]
+[ True False  True]</div>
+      </div>
+
+      <h3>3-4-3 一维数组切片</h3>
+      <div class="code-syntax">arr[start:end:step]</div>
+      <p class="content-text">
+        切片用于一次取出数组的一段内容。<code>start</code> 是起始索引，<code>end</code> 是结束索引但不包含该位置，
+        <code>step</code> 是步长。索引可以为负数，<code>-1</code> 表示最后一个元素。
+      </p>
+      <table class="content-table">
+        <thead>
+          <tr><th>写法</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>arr[start:end]</code></td><td>从 <code>start</code> 取到 <code>end - 1</code>。</td></tr>
+          <tr><td><code>arr[:n]</code></td><td>从开头取到索引 <code>n - 1</code>。</td></tr>
+          <tr><td><code>arr[:-n]</code></td><td>从开头取到倒数第 <code>n</code> 个元素之前。</td></tr>
+          <tr><td><code>arr[n:]</code></td><td>从索引 <code>n</code> 取到结尾。</td></tr>
+          <tr><td><code>arr[-n:]</code></td><td>取最后 <code>n</code> 个元素。</td></tr>
+          <tr><td><code>arr[:]</code></td><td>取整个数组。</td></tr>
+          <tr><td><code>arr[::step]</code></td><td>按步长取元素。</td></tr>
+          <tr><td><code>arr[::-1]</code></td><td>反向排列数组。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch3_8.py：一维数组切片</p>
+      <div class="code-block"># ch3_8.py
+import numpy as np
+
+x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+print("x[2:] =", x[2:])
+print("x[:2] =", x[:2])
+print("x[0:3] =", x[0:3])
+print("x[1:4] =", x[1:4])
+print("x[0:9:2] =", x[0:9:2])
+print("x[-1] =", x[-1])
+print("x[::2] =", x[::2])
+print("x[2::3] =", x[2::3])
+print("x[:] =", x[:])
+print("x[::-1] =", x[::-1])
+print("x[-3:-7:-1] =", x[-3:-7:-1])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">x[2:] = [2 3 4 5 6 7 8 9]
+x[:2] = [0 1]
+x[0:3] = [0 1 2]
+x[1:4] = [1 2 3]
+x[0:9:2] = [0 2 4 6 8]
+x[-1] = 9
+x[::2] = [0 2 4 6 8]
+x[2::3] = [2 5 8]
+x[:] = [0 1 2 3 4 5 6 7 8 9]
+x[::-1] = [9 8 7 6 5 4 3 2 1 0]
+x[-3:-7:-1] = [7 6 5 4]</div>
+      </div>
+
+      <h3>3-4-4 array(copy=True)</h3>
+      <p class="content-text">
+        如果希望新数组和原数组互不影响，可以在创建数组时使用 <code>copy=True</code>。这样修改新数组不会改变原数组。
+      </p>
+      <p class="code-title">程序实例 ch3_9.py：copy=True</p>
+      <div class="code-block"># ch3_9.py
+import numpy as np
+
+x1 = np.array([0, 1, 2, 3, 4, 5])
+x2 = np.array(x1, copy=True)
+print("修改前 x1 =", x1)
+print("修改前 x2 =", x2)
+
+x2[0] = 9
+print("修改后 x1 =", x1)
+print("修改后 x2 =", x2)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">修改前 x1 = [0 1 2 3 4 5]
+修改前 x2 = [0 1 2 3 4 5]
+修改后 x1 = [0 1 2 3 4 5]
+修改后 x2 = [9 1 2 3 4 5]</div>
+      </div>
+
+      <h3>3-4-5 copy()</h3>
+      <p class="content-text">
+        <code>copy()</code> 是更直接的复制写法。在图像处理中经常先复制原图，再对副本做绘制、裁切、遮罩或合成，以保留原始图像。
+      </p>
+      <p class="code-title">程序实例 ch3_10.py：copy()</p>
+      <div class="code-block"># ch3_10.py
+import numpy as np
+
+x1 = np.array([0, 1, 2, 3, 4, 5])
+x2 = x1.copy()
+print("修改前 x1 =", x1)
+print("修改前 x2 =", x2)
+
+x2[0] = 9
+print("修改后 x1 =", x1)
+print("修改后 x2 =", x2)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">修改前 x1 = [0 1 2 3 4 5]
+修改前 x2 = [0 1 2 3 4 5]
+修改后 x1 = [0 1 2 3 4 5]
+修改后 x2 = [9 1 2 3 4 5]</div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">3-5</span>
+        <h2>多维数组的索引与切片</h2>
+      </div>
+
+      <h3>3-5-1 轴 axis 的定义</h3>
+      <p class="content-text">
+        多维数组要先理解轴的方向。以 3×5 的二维数组为例，纵向外层是 <code>axis=0</code>，横向内层是 <code>axis=1</code>。
+        维度越外层，轴编号越小；越内层，轴编号越大。
+      </p>
+      <p class="code-title">程序实例 ch3_11.py：建立二维数组观察轴</p>
+      <div class="code-block"># ch3_11.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x4 = np.array([x1, x2, x3])
+print(x4)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[[ 0  1  2  3  4]
+ [ 5  6  7  8  9]
+ [10 11 12 13 14]]</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_12.py：建立三维数组观察轴</p>
+      <div class="code-block"># ch3_12.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x4 = np.array([x1, x2, x3])
+x5 = np.array([x4, x4])
+print(x5)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">[[[ 0  1  2  3  4]
+  [ 5  6  7  8  9]
+  [10 11 12 13 14]]
+
+ [[ 0  1  2  3  4]
+  [ 5  6  7  8  9]
+  [10 11 12 13 14]]]</div>
+      </div>
+
+      <h3>3-5-2 多维数组索引</h3>
+      <p class="content-text">
+        二维数组需要两个索引：第一个索引选择 <code>axis=0</code> 上的行，第二个索引选择 <code>axis=1</code> 上的列。
+        三维数组需要三个索引，依次从外层到内层定位。
+      </p>
+      <p class="code-title">程序实例 ch3_13.py：二维数组索引</p>
+      <div class="code-block"># ch3_13.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x4 = np.array([x1, x2, x3])
+
+print(x4[2][1])
+print(x4[1][3])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">11
+8</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_13_1.py：二维数组逗号索引</p>
+      <div class="code-block"># ch3_13_1.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x4 = np.array([x1, x2, x3])
+
+print(x4[2, 1])
+print(x4[1, 3])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">11
+8</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_14.py：三维数组索引</p>
+      <div class="code-block"># ch3_14.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x4 = np.array([x1, x2, x3])
+x5 = np.array([x4, x4])
+
+print(x5[0][2][1])
+print(x5[0][1][3])
+print(x5[1][0][1])
+print(x5[1][1][4])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">11
+8
+1
+9</div>
+      </div>
+
+      <p class="code-title">程序实例 ch3_14_1.py：三维数组逗号索引</p>
+      <div class="code-block"># ch3_14_1.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x4 = np.array([x1, x2, x3])
+x5 = np.array([x4, x4])
+
+print(x5[0, 2, 1])
+print(x5[0, 1, 3])
+print(x5[1, 0, 1])
+print(x5[1, 1, 4])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">11
+8
+1
+9</div>
+      </div>
+
+      <h3>3-5-3 多维数组切片</h3>
+      <p class="content-text">
+        多维数组切片通常写成 <code>x[axis0范围, axis1范围]</code>。如果某一维使用单个索引，结果会少一维；
+        如果使用切片形式，即使只取一列，也会保留该维度。
+      </p>
+      <p class="code-title">程序实例 ch3_15.py：二维数组切片</p>
+      <div class="code-block"># ch3_15.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x = np.array([x1, x2, x3])
+
+print("x[:2, :] =")
+print(x[:2, :])
+print("x[2, :4] =")
+print(x[2, :4])
+print("x[:2, :1] =")
+print(x[:2, :1])
+print("x[:, 4:] =")
+print(x[:, 4:])
+print("x[:, 4] =")
+print(x[:, 4])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">x[:2, :] =
+[[0 1 2 3 4]
+ [5 6 7 8 9]]
+x[2, :4] =
+[10 11 12 13]
+x[:2, :1] =
+[[0]
+ [5]]
+x[:, 4:] =
+[[ 4]
+ [ 9]
+ [14]]
+x[:, 4] =
+[ 4  9 14]</div>
+      </div>
+
+      <div class="note-box">
+        <span class="note-icon">差异</span>
+        <span><code>x[:, 4:]</code> 输出形状为 <code>(3, 1)</code>，<code>x[:, 4]</code> 输出形状为 <code>(3,)</code>。两者显示的数值接近，但维度不同。</span>
+      </div>
+
+      <p class="code-title">程序实例 ch3_16.py：连续使用 [][] 切片造成错误</p>
+      <div class="code-block"># ch3_16.py
+import numpy as np
+
+x1 = [0, 1, 2, 3, 4]
+x2 = [5, 6, 7, 8, 9]
+x3 = [10, 11, 12, 13, 14]
+x = np.array([x1, x2, x3])
+
+print("x[:2,4] = 结果是一维数组")
+print(x[:2, 4])
+print("-" * 70)
+print("x[:2][4] = 结果是错误")
+print(x[:2][4])</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">x[:2,4] = 结果是一维数组
+[4 9]
+----------------------------------------------------------------------
+x[:2][4] = 结果是错误
+Traceback (most recent call last):
+  File "D:/OpenCV_Python/ch3/ch3_16.py", line 12, in &lt;module&gt;
+    print(x[:2][4])
+IndexError: index 4 is out of bounds for axis 0 with size 2</div>
+      </div>
+
+      <p class="content-text">
+        <code>x[:2, 4]</code> 是在同一次索引中先取前两行、再取第 4 列，所以能得到 <code>[4 9]</code>。
+        <code>x[:2][4]</code> 则是先得到只有两行的临时数组，再访问第 4 行，因此会越界。原书也建议多维数组优先使用逗号切片写法。
+      </p>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">3-6</span>
+        <h2>数组水平与垂直合并</h2>
+      </div>
+
+      <p class="content-text">
+        图像本质上也是数组，所以合并图像可以先从合并数组理解。垂直合并会把数组上下接起来，水平合并会把数组左右接起来。
+      </p>
+
+      <h3>3-6-1 数组垂直合并 vstack()</h3>
+      <div class="code-syntax">x = np.vstack(tup)</div>
+      <p class="content-text">
+        <code>tup</code> 是要垂直合并的数组元组。参与合并的数组在列数等非合并方向上必须兼容。
+      </p>
+      <p class="code-title">程序实例 ch3_17.py：垂直合并数组</p>
+      <div class="code-block"># ch3_17.py
+import numpy as np
+
+x1 = np.arange(4).reshape(2, 2)
+print(f"阵列 1 \n{x1}")
+x2 = np.arange(4, 8).reshape(2, 2)
+print(f"阵列 2 \n{x2}")
+x = np.vstack((x1, x2))
+print(f"合并结果 \n{x}")</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">阵列 1
+[[0 1]
+ [2 3]]
+阵列 2
+[[4 5]
+ [6 7]]
+合并结果
+[[0 1]
+ [2 3]
+ [4 5]
+ [6 7]]</div>
+        <div class="result-box-image">
+          <img src="images/ch03/ch3_17_result.png" alt="ch3_17.py 垂直合并数组执行结果">
+          <div class="caption">原书第 3-23 页：<code>vstack()</code> 将两个 2×2 数组上下合并。</div>
+        </div>
+      </div>
+
+      <h3>3-6-2 数组水平合并 hstack()</h3>
+      <div class="code-syntax">x = np.hstack(tup)</div>
+      <p class="content-text">
+        <code>hstack()</code> 会把数组沿水平方向连接。对于二维数组，可以理解为把第二个数组接到第一个数组右侧。
+      </p>
+      <p class="code-title">程序实例 ch3_18.py：水平合并数组</p>
+      <div class="code-block"># ch3_18.py
+import numpy as np
+
+x1 = np.arange(4).reshape(2, 2)
+print(f"阵列 1 \n{x1}")
+x2 = np.arange(4, 8).reshape(2, 2)
+print(f"阵列 2 \n{x2}")
+x = np.hstack((x1, x2))
+print(f"合并结果 \n{x}")</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">阵列 1
+[[0 1]
+ [2 3]]
+阵列 2
+[[4 5]
+ [6 7]]
+合并结果
+[[0 1 4 5]
+ [2 3 6 7]]</div>
+        <div class="result-box-image">
+          <img src="images/ch03/ch3_18_result.png" alt="ch3_18.py 水平合并数组执行结果">
+          <div class="caption">原书第 3-23 页：<code>hstack()</code> 将两个 2×2 数组左右合并。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        如果把读取到的图像当成数组，<code>vstack()</code> 可以把两张同宽图像上下合并，<code>hstack()</code> 可以把两张同高图像左右合并。
+        参与合并的图像尺寸和通道数必须匹配，否则 NumPy 会报维度不一致的错误。
+      </p>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：使用 <code>huang.jpg</code> 图像，将影像水平合并，最后列出合并结果。</p>
+          <div class="code-block">import cv2
+import numpy as np
+
+img = cv2.imread("huang.jpg")
+dst = np.hstack((img, img))
+cv2.imshow("Dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch03/exercise_ref_1.png" alt="练习 1 参考效果">
+            <div class="caption">原书第 3-24 页：同一张图像左右并排的参考效果。</div>
+          </div>
+
+          <p style="margin-top:18px;">2：使用 <code>flower1.jpg</code> 图像，将影像合成为 4 张结果。</p>
+          <div class="code-block">import cv2
+import numpy as np
+
+img = cv2.imread("flower1.jpg")
+row = np.hstack((img, img))
+dst = np.vstack((row, row))
+cv2.imshow("Dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch03/exercise_ref_2.png" alt="练习 2 参考效果">
+            <div class="caption">原书第 3-24 页：把同一张图像拼成 2×2 网格的参考效果。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch02.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 2 章 认识图像表示方法</div>
+          </div>
+        </a>
+        <a href="ch04.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 4 章 认识色彩空间到艺术创作</div>
+          </div>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch03");</script>
+</body>
+</html>

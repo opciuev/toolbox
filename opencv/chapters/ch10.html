@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 10 章 图像的几何变换 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 10 章</span>
+      <h1 class="chapter-title">图像的几何变换</h1>
+      <div class="chapter-meta">本章共 5 个小节 · 缩放、翻转、仿射、透视、重映射</div>
+
+      <div class="chapter-intro">
+        图像的几何变换会改变图像的大小、方向、外形或像素对应关系。相关数学并不简单，
+        但 OpenCV 已经把矩阵计算与插值流程封装到函数中；掌握函数参数、坐标顺序和输出尺寸，
+        就能完成缩放、翻转、仿射、透视和自定义重映射等效果。参考原书第 <strong>10-2</strong> 页。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">10-1</span>
+        <h2>图像缩放效果</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.resize()</code> 用来重新设定图像尺寸。可以直接给出目标尺寸 <code>dsize</code>，
+        也可以把 <code>dsize</code> 设为 <code>None</code>，再用 <code>fx</code> 与 <code>fy</code>
+        指定水平和垂直方向的缩放比例。
+      </p>
+
+      <div class="code-syntax">dst = cv2.resize(src, dsize, fx, fy, interpolation)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src</code></td><td>原始图像。</td></tr>
+          <tr><td><code>dsize</code></td><td>目标尺寸，格式是 <code>(width, height)</code>，不是 <code>(height, width)</code>。</td></tr>
+          <tr><td><code>fx</code> / <code>fy</code></td><td>水平方向与垂直方向的缩放比例。</td></tr>
+          <tr><td><code>interpolation</code></td><td>缩放时的插值方法，影响边缘平滑度与速度。</td></tr>
+        </tbody>
+      </table>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>插值常量</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cv2.INTER_NEAREST</code></td><td>最近邻插值，速度快，但放大时容易有块状边缘。</td></tr>
+          <tr><td><code>cv2.INTER_LINEAR</code></td><td>双线性插值，默认方法，通常适合一般缩放。</td></tr>
+          <tr><td><code>cv2.INTER_CUBIC</code></td><td>双三次插值，放大时边缘更平滑，但计算较慢。</td></tr>
+          <tr><td><code>cv2.INTER_AREA</code></td><td>缩小时常用，能得到较稳定的重采样效果。</td></tr>
+          <tr><td><code>cv2.INTER_LANCZOS4</code></td><td>Lanczos 插值，会在 x、y 方向参考更多邻近点。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch10_1.py：使用 dsize 指定新尺寸</p>
+      <div class="code-block">src = cv2.imread("southpole.jpg")
+width = 300
+height = 200
+dsize = (width, height)
+dst = cv2.resize(src, dsize)</div>
+
+      <p class="code-title">程序实例 ch10_2.py：使用 fx 与 fy 指定缩放比例</p>
+      <div class="code-block">src = cv2.imread("southpole.jpg")
+dst = cv2.resize(src, None, fx=0.5, fy=1.1)
+
+print(f"src.shape = {src.shape}")
+print(f"dst.shape = {dst.shape}")</div>
+
+      <div class="note-box">
+        <span class="note-icon">重点</span>
+        <span><code>shape</code> 输出顺序是 <code>(height, width, channels)</code>，而 <code>dsize</code> 输入顺序是 <code>(width, height)</code>。</span>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">缩放执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_resize_dsize_result.png" alt="ch10_1.py 图像缩放结果">
+          <div class="caption">使用 <code>dsize=(300, 200)</code> 缩放图像，参考原书第 <strong>10-3</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">10-2</span>
+        <h2>图像翻转</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.flip()</code> 根据 <code>flipCode</code> 翻转图像。垂直翻转可理解为沿 x 轴上下翻转，
+        水平翻转可理解为沿 y 轴左右翻转；如果 <code>flipCode</code> 为负数，则两个方向同时翻转。
+        参考原书第 <strong>10-4</strong> 至 <strong>10-6</strong> 页。
+      </p>
+
+      <div class="code-syntax">dst = cv2.flip(src, flipCode)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>flipCode</th><th>效果</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>0</code></td><td>垂直翻转，上下颠倒。</td></tr>
+          <tr><td>正值，例如 <code>1</code></td><td>水平翻转，左右颠倒。</td></tr>
+          <tr><td>负值，例如 <code>-1</code></td><td>同时水平与垂直翻转。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch10_3.py：一次比较三种翻转</p>
+      <div class="code-block">src = cv2.imread("python.jpg")
+
+dst1 = cv2.flip(src, 0)
+dst2 = cv2.flip(src, 1)
+dst3 = cv2.flip(src, -1)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">翻转执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_flip_modes_result.png" alt="ch10_3.py 垂直、水平和双向翻转结果">
+          <div class="caption">从左到右为原始图像、垂直翻转、水平翻转、水平与垂直翻转，参考原书第 <strong>10-6</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">10-3</span>
+        <h2>图像仿射</h2>
+      </div>
+
+      <p class="content-text">
+        仿射变换是在二维平面上移动图像坐标。变换之后，直线仍是直线，平行线仍保持平行。
+        常见仿射效果包括平移、旋转和倾斜。OpenCV 使用 2 行 3 列的矩阵 <code>M</code>
+        描述仿射关系，再交给 <code>cv2.warpAffine()</code> 生成新图像。参考原书第 <strong>10-7</strong> 至 <strong>10-14</strong> 页。
+      </p>
+
+      <div class="code-syntax">dst = cv2.warpAffine(src, M, dsize, flags, borderMode, borderValue)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>M</code></td><td>2x3 仿射矩阵，不同矩阵会得到不同的平移、旋转或倾斜结果。</td></tr>
+          <tr><td><code>dsize</code></td><td>输出图像尺寸，格式仍是 <code>(width, height)</code>。</td></tr>
+          <tr><td><code>flags</code></td><td>插值方法。若包含 <code>cv2.WARP_INVERSE_MAP</code>，表示 <code>M</code> 是逆变换矩阵。</td></tr>
+          <tr><td><code>borderMode</code></td><td>边界像素处理方式，默认是常量填充。</td></tr>
+          <tr><td><code>borderValue</code></td><td>边界填充值，默认是 0，所以空白区域通常显示为黑色。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="subsection-heading">10-3-3 图像平移</p>
+      <p class="content-text">
+        平移就是把图像内容平行移动。书中示例把图像向右移动 <code>x=50</code>、向下移动 <code>y=100</code>，
+        因此矩阵的第三列就是水平和垂直位移量。
+      </p>
+
+      <p class="code-title">程序实例 ch10_4.py：平移 x=50、y=100</p>
+      <div class="code-block">height, width = src.shape[0:2]
+M = np.float32([[1, 0, 50],
+                [0, 1, 100]])
+dsize = (width, height)
+dst = cv2.warpAffine(src, M, dsize)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">平移执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_affine_translation_result.png" alt="ch10_4.py 图像平移结果">
+          <div class="caption">右移 50 像素、下移 100 像素后，空出的区域以黑色填充，参考原书第 <strong>10-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="subsection-heading">10-3-4 图像旋转</p>
+      <p class="content-text">
+        旋转同样通过仿射矩阵完成。<code>cv2.getRotationMatrix2D()</code> 可根据旋转中心、角度和缩放比生成矩阵。
+        角度为正值时逆时针旋转，负值时顺时针旋转。
+      </p>
+
+      <div class="code-syntax">M = cv2.getRotationMatrix2D(center, angle, scale)</div>
+
+      <p class="code-title">程序实例 ch10_5.py：逆时针与顺时针旋转 30 度</p>
+      <div class="code-block">height, width = src.shape[0:2]
+dsize = (width, height)
+
+M = cv2.getRotationMatrix2D((width / 2, height / 2), 30, 1)
+dst1 = cv2.warpAffine(src, M, dsize)
+
+M = cv2.getRotationMatrix2D((width / 2, height / 2), -30, 1)
+dst2 = cv2.warpAffine(src, M, dsize)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">旋转执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_affine_rotation_result.png" alt="ch10_5.py 图像旋转结果">
+          <div class="caption">原始图像、逆时针 30 度、顺时针 30 度的比较，参考原书第 <strong>10-10</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="subsection-heading">10-3-5 图像倾斜</p>
+      <p class="content-text">
+        倾斜可以看成把矩形映射成平行四边形。因为仿射会保持平行性，所以只要指定来源图像的 3 个点，
+        以及目标图像中对应的 3 个点，就能计算矩阵。OpenCV 使用 <code>cv2.getAffineTransform()</code>
+        根据这两组三点坐标产生 <code>M</code>。
+      </p>
+
+      <div class="code-syntax">M = cv2.getAffineTransform(src_points, dst_points)</div>
+
+      <p class="code-title">程序实例 ch10_6.py：目标图像向右上方倾斜</p>
+      <div class="code-block">srcp = np.float32([[0, 0], [width - 1, 0], [0, height - 1]])
+dstp = np.float32([[30, 0], [width - 1, 0], [0, height - 1]])
+
+M = cv2.getAffineTransform(srcp, dstp)
+dst = cv2.warpAffine(src, M, (width, height))</div>
+
+      <p class="code-title">程序实例 ch10_7.py：目标图像向左上方倾斜</p>
+      <div class="code-block">srcp = np.float32([[0, 0], [width - 1, 0], [0, height - 1]])
+dstp = np.float32([[0, 0], [width - 30, 30], [30, height - 1]])
+
+M = cv2.getAffineTransform(srcp, dstp)
+dst = cv2.warpAffine(src, M, (width, height))</div>
+
+      <p class="code-title">程序实例 ch10_8.py：倾斜时更改输出宽度</p>
+      <div class="code-block">srcp = np.float32([[0, 0], [width - 1, 0], [0, height - 1]])
+dstp = np.float32([[80, 0], [width - 1, 0], [0, height - 1]])
+
+M = cv2.getAffineTransform(srcp, dstp)
+dst = cv2.warpAffine(src, M, (width + 80, height))</div>
+
+      <p class="code-title">程序实例 ch10_9.py：使用 AB 点倾斜线重新设计 ch10_8.py</p>
+      <div class="code-block">srcp = np.float32([[0, 0], [width - 1, 0], [0, height - 1]])
+dstp = np.float32([[80, 0], [width - 1, 80], [0, height - 1]])
+
+M = cv2.getAffineTransform(srcp, dstp)
+dst = cv2.warpAffine(src, M, (width + 80, height + 80))</div>
+
+      <div class="result-box">
+        <span class="result-box-header">倾斜执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_affine_shear_result.png" alt="ch10_9.py 图像倾斜结果">
+          <div class="caption">改变目标图像的 A、B、C 三个对应点即可得到不同倾斜效果，参考原书第 <strong>10-14</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">10-4</span>
+        <h2>图像透视</h2>
+      </div>
+
+      <p class="content-text">
+        透视变换可以把一个矩形映射成任意四边形，因此适合处理由拍摄角度造成的远近变化。
+        它不像仿射那样只需要 3 个对应点，而是需要来源图像和目标图像各 4 个点。
+        先用 <code>cv2.getPerspectiveTransform()</code> 取得透视矩阵，再用
+        <code>cv2.warpPerspective()</code> 产生目标图像。参考原书第 <strong>10-14</strong> 至 <strong>10-16</strong> 页。
+      </p>
+
+      <div class="code-syntax">M = cv2.getPerspectiveTransform(src_points, dst_points)</div>
+      <div class="code-syntax">dst = cv2.warpPerspective(src, M, dsize, flags, borderMode, borderValue)</div>
+
+      <p class="code-title">程序实例 ch10_10.py：四点透视变换</p>
+      <div class="code-block">srcp = np.float32([[0, 0], [width - 1, 0],
+                   [0, height - 1], [width - 1, height - 1]])
+dstp = np.float32([[150, 0], [width - 150, 0],
+                   [0, height - 1], [width - 1, height - 1]])
+
+M = cv2.getPerspectiveTransform(srcp, dstp)
+dst = cv2.warpPerspective(src, M, (width, height))</div>
+
+      <div class="note-box">
+        <span class="note-icon">比较</span>
+        <span>仿射用 3 个点，保持平行线；透视用 4 个点，可以让平行线在视觉上收敛，形成近大远小的效果。</span>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">透视执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_perspective_result.png" alt="ch10_10.py 透视变换结果">
+          <div class="caption">把目标图像上方收窄，得到由下方向前观察的透视效果，参考原书第 <strong>10-16</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">10-5</span>
+        <h2>重映射</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.remap()</code> 是自定义映射函数。前面的仿射和透视主要由矩阵定义坐标关系；
+        重映射则直接给出每一个目标像素应该到来源图像的哪个坐标取值，因此可用于复制、翻转、扭曲、
+        局部变形和特殊缩放。参考原书第 <strong>10-17</strong> 页。
+      </p>
+
+      <div class="code-syntax">dst = cv2.remap(src, map1, map2, interpolation, borderMode, borderValue)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>map1</code> / <code>mapx</code></td><td>目标图像每个像素对应的来源 x 坐标，也就是 column 坐标。</td></tr>
+          <tr><td><code>map2</code> / <code>mapy</code></td><td>目标图像每个像素对应的来源 y 坐标，也就是 row 坐标。</td></tr>
+          <tr><td><code>interpolation</code></td><td>插值方法，默认常用 <code>cv2.INTER_LINEAR</code>；重映射不支持 <code>INTER_AREA</code>。</td></tr>
+          <tr><td><code>borderMode</code></td><td>来源坐标超出边界时的像素处理方式。</td></tr>
+          <tr><td><code>borderValue</code></td><td>边界填充值。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="subsection-heading">10-5-1 map1 与 map2</p>
+      <p class="content-text">
+        映射的核心是从目标图像回查来源图像：对目标图像的每个位置 <code>(r, c)</code>，
+        <code>mapx[r, c]</code> 保存来源图像的 x 坐标，<code>mapy[r, c]</code> 保存来源图像的 y 坐标。
+        如果所有目标像素都取来源图像的同一个坐标，就会得到一张填满同一像素值的图像。
+        参考原书第 <strong>10-18</strong> 页。
+      </p>
+
+      <p class="code-title">程序实例 ch10_10_1.py：所有目标像素都映射到同一来源坐标</p>
+      <div class="code-block">mapx = np.ones(src.shape, np.float32) * 3
+mapy = np.ones(src.shape, np.float32) * 2
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+
+      <p class="subsection-heading">10-5-2 图像复制</p>
+      <p class="content-text">
+        复制图像时，目标图像每个像素都取来源图像同一位置：<code>mapx[r, c] = c</code>，
+        <code>mapy[r, c] = r</code>。矩阵示例和图像示例分别对应原书第 <strong>10-19</strong> 与 <strong>10-20</strong> 页。
+      </p>
+
+      <p class="code-title">程序实例 ch10_11.py：使用 remap() 执行矩阵复制</p>
+      <div class="code-block">mapx = np.zeros(src.shape[:2], np.float32)
+mapy = np.zeros(src.shape[:2], np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), c)
+        mapy.itemset((r, c), r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+
+      <p class="code-title">程序实例 ch10_12.py：使用 remap() 执行图像复制</p>
+      <div class="code-block">src = cv2.imread("southpole.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros((rows, cols), np.float32)
+mapy = np.zeros((rows, cols), np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), c)
+        mapy.itemset((r, c), r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">重映射复制结果</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_remap_identity_result.png" alt="ch10_12.py remap 图像复制结果">
+          <div class="caption">目标图像逐点回查来源图像相同坐标，结果就是完整复制，参考原书第 <strong>10-20</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="subsection-heading">10-5-3 与 10-5-4 翻转</p>
+      <p class="content-text">
+        用重映射做垂直翻转时，x 坐标不变，y 坐标改为 <code>rows - 1 - r</code>；
+        做水平翻转时，y 坐标不变，x 坐标改为 <code>cols - 1 - c</code>。
+        这与 <code>cv2.flip()</code> 的效果类似，但 <code>remap()</code> 显示了像素坐标如何被重新指定。
+      </p>
+
+      <p class="code-title">程序实例 ch10_13.py：使用 remap() 执行垂直翻转的矩阵实例</p>
+      <div class="code-block"># 垂直翻转矩阵
+mapx.itemset((r, c), c)
+mapy.itemset((r, c), rows - 1 - r)</div>
+
+      <p class="code-title">程序实例 ch10_14.py：使用 remap() 执行图像垂直翻转</p>
+      <div class="code-block">src = cv2.imread("southpole.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros((rows, cols), np.float32)
+mapy = np.zeros((rows, cols), np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), c)
+        mapy.itemset((r, c), rows - 1 - r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+
+      <p class="code-title">程序实例 ch10_15.py：使用 remap() 执行水平翻转的矩阵实例</p>
+      <div class="code-block"># 水平翻转矩阵
+mapx.itemset((r, c), cols - 1 - c)
+mapy.itemset((r, c), r)</div>
+
+      <p class="code-title">程序实例 ch10_16.py：使用 remap() 执行图像水平翻转</p>
+      <div class="code-block">src = cv2.imread("southpole.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros((rows, cols), np.float32)
+mapy = np.zeros((rows, cols), np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), cols - 1 - c)
+        mapy.itemset((r, c), r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">垂直翻转</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_remap_vertical_flip_result.png" alt="ch10_14.py remap 垂直翻转结果">
+          <div class="caption">使用 <code>mapy = rows - 1 - r</code> 实现上下翻转，参考原书第 <strong>10-22</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">水平翻转</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_remap_horizontal_flip_result.png" alt="ch10_16.py remap 水平翻转结果">
+          <div class="caption">使用 <code>mapx = cols - 1 - c</code> 实现左右翻转，参考原书第 <strong>10-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="subsection-heading">10-5-5 与 10-5-6 缩放和压缩</p>
+      <p class="content-text">
+        重映射也能完成缩放。书中先把目标图像中间区域映射到来源图像完整区域，
+        外围像素则统一映射到来源图像 <code>(0, 0)</code>，因此外围显示为来源左上角像素的颜色。
+        垂直压缩则把 <code>mapy</code> 的来源 y 坐标放大，例如 <code>mapy[r, c] = 2 * r</code>，
+        让目标图像只采样来源图像的上半部分。
+      </p>
+
+      <p class="code-title">程序实例 ch10_17.py：把图像缩小到目标中央</p>
+      <div class="code-block">if 0.25 * rows &lt; r &lt; 0.75 * rows and 0.25 * cols &lt; c &lt; 0.75 * cols:
+    mapx.itemset((r, c), 2 * (c - cols * 0.25))
+    mapy.itemset((r, c), 2 * (r - rows * 0.25))
+else:
+    mapx.itemset((r, c), 0)
+    mapy.itemset((r, c), 0)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">重映射缩小</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_remap_shrink_result.png" alt="ch10_17.py remap 缩小结果">
+          <div class="caption">中间区域显示缩小图像，外围取来源图像左上角像素，参考原书第 <strong>10-25</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch10_18.py：垂直压缩一半</p>
+      <div class="code-block">mapx.itemset((r, c), c)
+mapy.itemset((r, c), 2 * r)
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">垂直压缩</span>
+        <div class="result-box-image">
+          <img src="images/ch10/ch10_remap_vertical_compress_result.png" alt="ch10_18.py remap 垂直压缩结果">
+          <div class="caption">把来源 y 坐标加倍后，目标图像呈现垂直方向压缩，参考原书第 <strong>10-26</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 参考 ch10_4.py，把图像改为向上移动 100 像素、向左移动 50 像素。</p>
+          <p>2. 使用 <code>remap()</code> 执行水平与垂直同时翻转。</p>
+          <p>3. 使用 <code>remap()</code> 将 <code>hung_square.jpg</code> 逆时针旋转 90 度。</p>
+          <p>习题说明参考原书第 <strong>10-26</strong> 至 <strong>10-27</strong> 页。</p>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch09.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 9 章 阈值处理迈向数字情报</div>
+          </div>
+        </a>
+        <a href="ch11.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 11 章 删除图像噪声</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch10");</script>
+</body>
+</html>

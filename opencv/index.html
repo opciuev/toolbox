@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV 图像创意 - 迈向 AI 视觉王者归来</title>
+  <link rel="stylesheet" href="css/style.css?v=20260422">
+  <style>
+    .home-hero {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-radius: 12px;
+      padding: 48px 40px;
+      margin-bottom: 36px;
+      text-align: center;
+    }
+    .home-hero h1 {
+      font-size: 32px;
+      color: #1b5e20;
+      margin-bottom: 12px;
+    }
+    .home-hero p {
+      font-size: 16px;
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .chapter-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.2s;
+      display: block;
+      color: #333;
+    }
+    .chapter-card:hover {
+      border-color: #43a047;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      text-decoration: none;
+      transform: translateY(-2px);
+    }
+    .chapter-card .card-num {
+      display: inline-block;
+      background: #2e7d32;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 3px;
+      margin-bottom: 8px;
+    }
+    .chapter-card .card-num.appendix {
+      background: #78909c;
+    }
+    .chapter-card h3 {
+      font-size: 15px;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .chapter-card .card-sections {
+      font-size: 12px;
+      color: #999;
+    }
+    .card-status {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+    .card-status.ready {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .card-status.todo {
+      background: #f5f5f5;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="chapters/ch01.html">开始学习 &rarr;</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Layout -->
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+      <div class="home-hero">
+        <h1>OpenCV 图像创意</h1>
+        <p>迈向 AI 视觉王者归来 — 使用 Python 搭配 OpenCV 模块，从图像基础到人脸识别、车牌识别的完整学习路径。</p>
+      </div>
+
+      <h2 style="font-size:20px; margin-bottom:20px; color:#333;">全部章节</h2>
+
+      <div class="chapter-grid" id="chapter-grid"></div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    OpenCV 图像创意迈向 AI 视觉王者归来 — 个人学习笔记
+  </footer>
+
+  <script src="js/sidebar.js"></script>
+  <script>
+    buildSidebar(null);
+
+    // Build chapter cards
+    const grid = document.getElementById("chapter-grid");
+    chapters.forEach((ch) => {
+      const isAppendix = ch.id.startsWith("appendix");
+      const isReady = ["ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14"].includes(ch.id);
+      const statusHtml = isReady
+        ? '<span class="card-status ready">已完成</span>'
+        : '<span class="card-status todo">待建置</span>';
+      const href = isReady ? `chapters/${ch.file}` : "#";
+      const numClass = isAppendix ? "card-num appendix" : "card-num";
+
+      grid.innerHTML += `
+        <a class="chapter-card" href="${href}" ${!isReady ? 'style="opacity:0.6;pointer-events:none"' : ''}>
+          <span class="${numClass}">${isAppendix ? '附录' : '第' + ch.id.replace('ch','') + '章'}</span>
+          ${statusHtml}
+          <h3>${ch.title.replace(/^第 \d+ 章\s*|^附录 [AB]\s*/,'')}</h3>
+          <div class="card-sections">${ch.sections.length} 个小节</div>
+        </a>
+      `;
+    });
+  </script>
+</body>
+</html>

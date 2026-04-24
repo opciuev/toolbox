@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 4 章 认识色彩空间到艺术创作 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+
+      <span class="chapter-badge">第 4 章</span>
+      <h1 class="chapter-title">认识色彩空间到艺术创作</h1>
+      <div class="chapter-meta">本章共 7 个小节 · cvtColor、HSV、通道拆分合并、alpha 透明度</div>
+
+      <div class="chapter-intro">
+        OpenCV 读取彩色图像时默认使用 <strong>BGR</strong> 顺序，而许多显示或绘图环境习惯使用
+        <strong>RGB</strong>。本章围绕 <code>cv2.cvtColor()</code>、<code>cv2.split()</code> 与
+        <code>cv2.merge()</code>，说明 BGR、RGB、GRAY、HSV、BGRA 等色彩空间之间的转换方式，并用
+        Hue、Saturation、Value 和 alpha 通道做出可观察的图像效果。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">4-1</span>
+        <h2>BGR 与 RGB 色彩空间的转换</h2>
+      </div>
+
+      <p class="content-text">
+        OpenCV 的彩色图像通常以 <strong class="highlight">BGR</strong> 顺序储存，也就是每个像素依次记录
+        Blue、Green、Red 三个通道。RGB 与 BGR 的转换本质上是交换红色与蓝色通道，常用函数是
+        <code>cv2.cvtColor(src, code)</code>。
+      </p>
+
+      <div class="code-syntax">dst = cv2.cvtColor(src, code)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>转换方向</th><th>转换码</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>BGR 转 BGRA</td><td><code>cv2.COLOR_BGR2BGRA</code></td><td>在 BGR 三通道基础上加入 alpha 透明通道。</td></tr>
+          <tr><td>BGRA 转 BGR</td><td><code>cv2.COLOR_BGRA2BGR</code></td><td>移除 alpha 通道，回到 BGR 三通道。</td></tr>
+          <tr><td>BGR 转 RGBA</td><td><code>cv2.COLOR_BGR2RGBA</code></td><td>交换红蓝通道，并加入 alpha 通道。</td></tr>
+          <tr><td>RGBA 转 BGR</td><td><code>cv2.COLOR_RGBA2BGR</code></td><td>移除 alpha 通道，并转换回 OpenCV 常用的 BGR 顺序。</td></tr>
+          <tr><td>BGR 转 RGB</td><td><code>cv2.COLOR_BGR2RGB</code></td><td>把 OpenCV 默认通道顺序改成常见 RGB 顺序。</td></tr>
+          <tr><td>RGB 转 BGR</td><td><code>cv2.COLOR_RGB2BGR</code></td><td>把 RGB 图像恢复成 OpenCV 常用 BGR 顺序。</td></tr>
+          <tr><td>BGR 与 RGB 互换</td><td><code>cv2.COLOR_BGR2RGB</code> 或 <code>cv2.COLOR_RGB2BGR</code></td><td>两者都是交换第 1 和第 3 个通道，因此效果相同。</td></tr>
+          <tr><td>BGR 转 GRAY</td><td><code>cv2.COLOR_BGR2GRAY</code></td><td>彩色图像转成单通道灰阶图像。</td></tr>
+          <tr><td>GRAY 转 BGR</td><td><code>cv2.COLOR_GRAY2BGR</code></td><td>灰阶图像转成三通道 BGR；三个通道数值相同。</td></tr>
+          <tr><td>BGR 转 HSV</td><td><code>cv2.COLOR_BGR2HSV</code></td><td>把 BGR 图像转成 Hue、Saturation、Value 三通道。</td></tr>
+          <tr><td>HSV 转 BGR</td><td><code>cv2.COLOR_HSV2BGR</code></td><td>把 HSV 图像转回 BGR，方便用 OpenCV 正常显示。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch4_1.py：读取 view.jpg，并将 BGR 图像转为 RGB 图像</p>
+      <div class="code-block"># ch4_1.py
+import cv2
+
+img = cv2.imread("view.jpg")                         # BGR 读取
+cv2.imshow("view.jpg", img)
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)       # BGR 转 RGB
+cv2.imshow("RGB Color Space", img_rgb)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">
+          左侧是 OpenCV 直接显示的 BGR 图像，右侧是交换红蓝通道后的 RGB 图像。颜色偏蓝说明通道解释方式已经改变。
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_1_rgb_result.png" alt="ch4_1.py BGR 转 RGB 执行结果">
+          <div class="caption">BGR 与 RGB 通道顺序转换结果，参考原书第 <strong>4-3</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        书中接着用 <code>ch4_2.py</code> 将 RGB 图像再转回 BGR，使用
+        <code>cv2.COLOR_RGB2BGR</code>。<code>ch4_3.py</code> 进一步说明：
+        <code>COLOR_BGR2RGB</code> 与 <code>COLOR_RGB2BGR</code> 都是交换 B 与 R，因此在三通道影像上可视为同一种通道互换操作。
+      </p>
+
+      <p class="code-title">程序实例 ch4_2.py：将 RGB 图像转回 BGR 图像</p>
+      <div class="code-block"># ch4_2.py
+import cv2
+
+img = cv2.imread("view.jpg")                         # BGR 读取
+cv2.imshow("view.jpg", img)
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)       # BGR 转 RGB
+cv2.imshow("RGB Color Space", img_rgb)
+
+img_bgr = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)   # RGB 转 BGR
+cv2.imshow("BGR Color Space", img_bgr)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch4_3.py：用 COLOR_BGR2RGB 执行同样的红蓝通道互换</p>
+      <div class="code-block"># ch4_3.py
+import cv2
+
+img = cv2.imread("view.jpg")                         # BGR 读取
+cv2.imshow("view.jpg", img)
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)       # BGR 转 RGB
+cv2.imshow("RGB Color Space", img_rgb)
+
+img_bgr = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2RGB)   # 再次交换 B/R，效果等同转回 BGR
+cv2.imshow("BGR Color Space", img_bgr)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="note-box">
+        <span class="note-icon">重点</span>
+        <span>如果用 Matplotlib 显示 OpenCV 读取的彩色图像，通常要先做 BGR 转 RGB，否则颜色会明显偏差。</span>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">4-2</span>
+        <h2>BGR 色彩空间转换至 GRAY 色彩空间</h2>
+      </div>
+
+      <p class="content-text">
+        GRAY 是单通道灰阶图像，没有 B、G、R 三个颜色比例。BGR 转 GRAY 时，OpenCV 会根据人眼对不同颜色的敏感度加权，
+        不是简单平均三个通道。
+      </p>
+
+      <div class="code-syntax">img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)</div>
+
+      <p class="code-title">程序实例 ch4_4.py：读取 jk.jpg，并将彩色图像转为灰阶图像</p>
+      <div class="code-block"># ch4_4.py
+import cv2
+
+img = cv2.imread("jk.jpg")                           # BGR 读取
+cv2.imshow("BGR Color Space", img)
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)     # BGR 转 GRAY
+cv2.imshow("GRAY Color Space", img_gray)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_4_gray_result.png" alt="ch4_4.py BGR 转 GRAY 执行结果">
+          <div class="caption">彩色图像转灰阶图像，参考原书第 <strong>4-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        <code>ch4_5.py</code> 通过读取指定像素验证转换结果。书中使用的灰阶计算概念可写成：
+      </p>
+
+      <div class="code-syntax">Gray = 0.2989 * R + 0.5870 * G + 0.1140 * B</div>
+
+      <p class="content-text">
+        GRAY 转回 BGR 时可使用 <code>cv2.COLOR_GRAY2BGR</code>。转换后的图像虽然重新拥有三通道，
+        但三个通道数值相同，因此视觉上仍是灰阶。
+      </p>
+
+      <p class="code-title">程序实例 ch4_5.py：读取指定像素，比较 GRAY 与 BGR 通道值</p>
+      <div class="code-block"># ch4_5.py
+import cv2
+
+pt_x = 169
+pt_y = 118
+img = cv2.imread("jk.jpg")
+
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+cv2.imshow("GRAY Color Space", img_gray)
+px = img_gray[pt_x, pt_y]
+print(f"Gray Color 通道值 = {px}")
+
+img_color = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)
+cv2.imshow("BGR Color Space", img_color)
+px = img_color[pt_x, pt_y]
+print(f"BGR Color 通道值 = {px}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">GRAY 图像读取单个像素时得到一个数值；GRAY 转回 BGR 后，读取同一像素会得到 3 个相同或近似相同的通道值，例如 <code>[128 128 128]</code>。</div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">4-3</span>
+        <h2>HSV 色彩空间</h2>
+      </div>
+
+      <p class="content-text">
+        HSV 以人类感知颜色的方式描述图像，由 Hue、Saturation、Value 三个分量组成。它比 RGB 更适合做颜色筛选、
+        色调调整和创意效果，因为颜色、饱和度与明暗可以分开处理。
+      </p>
+
+      <p class="content-text">
+        原书补充了 HSV 的几何理解：Hue 可以看作绕圆柱旋转的角度，Saturation 是离中心轴的距离，Value 是高度。
+        黑色位于底部，白色位于顶部，因此 HSV 也常被画成圆柱或倒圆锥模型。
+      </p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>分量</th><th>意义</th><th>OpenCV 常用范围</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>H</strong> Hue</td><td>色相，表示颜色所在角度，例如红、绿、蓝。</td><td><code>0 ~ 180</code></td></tr>
+          <tr><td><strong>S</strong> Saturation</td><td>饱和度，值越高颜色越鲜艳，值越低越接近灰。</td><td><code>0 ~ 255</code></td></tr>
+          <tr><td><strong>V</strong> Value</td><td>明度或亮度，值越高越亮，值为 0 时接近黑色。</td><td><code>0 ~ 255</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="note-box">
+        <span class="note-icon">范围</span>
+        <span>HSV 理论上 Hue 常以 0 到 360 度表示；OpenCV 为了配合 8-bit 图像，把 Hue 压缩为 0 到 180。</span>
+      </div>
+
+      <h3>4-3-3 RGB 转 HSV 的计算关系</h3>
+      <p class="content-text">
+        原书列出 RGB 转 HSV 的公式作为参考。实际开发中通常直接使用 <code>cv2.cvtColor()</code>，但理解公式有助于解释
+        Hue、Saturation、Value 分别改变了图像的哪一部分。
+      </p>
+      <table class="content-table">
+        <thead>
+          <tr><th>符号</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>MAX</code></td><td><code>R</code>、<code>G</code>、<code>B</code> 三个值中的最大值。</td></tr>
+          <tr><td><code>MIN</code></td><td><code>R</code>、<code>G</code>、<code>B</code> 三个值中的最小值。</td></tr>
+          <tr><td><code>V</code></td><td>亮度取 <code>MAX</code>。</td></tr>
+          <tr><td><code>S</code></td><td>如果 <code>MAX = 0</code>，饱和度为 0；否则可由 <code>(MAX - MIN) / MAX</code> 得到。</td></tr>
+          <tr><td><code>H</code></td><td>由最大通道是哪一个决定分段公式；当 <code>MAX = MIN</code> 时色相无定义。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch4_6.py：将 mountain.jpg 由 BGR 色彩空间转为 HSV 色彩空间</p>
+      <div class="code-block"># ch4_6.py
+import cv2
+
+img = cv2.imread("mountain.jpg")                     # BGR 读取
+cv2.imshow("BGR Color Space", img)
+img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)       # BGR 转 HSV
+cv2.imshow("HSV Color Space", img_hsv)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_6_hsv_result.png" alt="ch4_6.py BGR 转 HSV 执行结果">
+          <div class="caption">HSV 图像直接显示时会呈现特殊的伪彩色效果，参考原书第 <strong>4-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">4-4</span>
+        <h2>拆分色彩通道</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.split()</code> 可以把多通道图像拆成多个单通道影像物件。BGR 图像拆分后会得到
+        blue、green、red 三个通道；HSV 图像拆分后会得到 hue、saturation、value 三个通道。
+      </p>
+
+      <div class="code-syntax">blue, green, red = cv2.split(image)</div>
+
+      <p class="code-title">程序实例 ch4_7.py：拆分 colorbar.jpg 的 B、G、R 通道</p>
+      <div class="code-block"># ch4_7.py
+import cv2
+
+image = cv2.imread("colorbar.jpg")
+cv2.imshow("bgr", image)
+blue, green, red = cv2.split(image)
+cv2.imshow("blue", blue)
+cv2.imshow("green", green)
+cv2.imshow("red", red)
+
+print(f"B通道影像属性 shape = {blue.shape}")
+print("列印B通道内容")
+print(blue)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">
+          拆分后的通道是单通道灰阶图像。哪一个区域变白，表示该通道在该区域的数值较高。
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_7_colorbar_split_result.png" alt="ch4_7.py 色条通道拆分结果">
+          <div class="caption">colorbar 的 B、G、R 通道拆分结果，参考原书第 <strong>4-11</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch4_8.py：拆分 mountain.jpg 并观察图像形状</p>
+      <div class="code-block"># ch4_8.py
+import cv2
+
+image = cv2.imread("mountain.jpg")
+cv2.imshow("bgr", image)
+blue, green, red = cv2.split(image)
+cv2.imshow("blue", blue)
+cv2.imshow("green", green)
+cv2.imshow("red", red)
+
+print(f"BGR 影像：{image.shape}")
+print(f"B通道影像：{blue.shape}")
+print(f"G通道影像：{green.shape}")
+print(f"R通道影像：{red.shape}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">
+          彩色图像的 shape 是 <code>(height, width, 3)</code>，拆分后的单通道图像则是 <code>(height, width)</code>。
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_8_mountain_split_result.png" alt="ch4_8.py mountain 通道拆分结果">
+          <div class="caption">mountain.jpg 的 B、G、R 通道拆分结果，参考原书第 <strong>4-12</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        <code>ch4_8.1.py</code> 继续列印 B、G、R 三个通道的矩阵内容，用来确认通道本身就是 Numpy 数组。
+        <code>ch4_9.py</code> 则把图像先转为 HSV，再拆分出 Hue、Saturation、Value 三个分量。
+      </p>
+
+      <p class="code-title">程序实例 ch4_8_1.py：列印 B、G、R 三个通道内容</p>
+      <div class="code-block"># ch4_8_1.py
+import cv2
+
+image = cv2.imread("mountain.jpg")
+cv2.imshow("bgr", image)
+blue, green, red = cv2.split(image)
+cv2.imshow("blue", blue)
+cv2.imshow("green", green)
+cv2.imshow("red", red)
+
+print(f"BGR 影像：{image.shape}")
+print("B通道内容：")
+print(blue)
+print("G通道内容：")
+print(green)
+print("R通道内容：")
+print(red)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch4_9.py：拆分 HSV 图像的 H、S、V 通道</p>
+      <div class="code-block"># ch4_9.py
+import cv2
+
+image = cv2.imread("mountain.jpg")
+cv2.imshow("bgr", image)
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hue, saturation, value = cv2.split(hsv_image)
+
+cv2.imshow("hsv", hue)
+cv2.imshow("saturation", saturation)
+cv2.imshow("value", value)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">4-5</span>
+        <h2>合并色彩通道</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.merge()</code> 可以把多个单通道图像重新合成为多通道图像。合并顺序会直接影响结果：
+        对 BGR 图像而言，正确顺序是 blue、green、red；如果改成 red、green、blue，红蓝通道会互换。
+      </p>
+
+      <div class="code-syntax">bgr_image = cv2.merge([blue, green, red])</div>
+
+      <p class="code-title">程序实例 ch4_10.py：用不同顺序合并 B、G、R 通道</p>
+      <div class="code-block"># ch4_10.py
+import cv2
+
+image = cv2.imread("street.jpg")
+blue, green, red = cv2.split(image)
+
+bgr_image = cv2.merge([blue, green, red])     # 依 B G R 顺序合并
+cv2.imshow("B -> G -> R", bgr_image)
+
+rgb_image = cv2.merge([red, green, blue])     # 依 R G B 顺序合并
+cv2.imshow("R -> G -> B", rgb_image)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_10_merge_result.png" alt="ch4_10.py BGR 与 RGB 合并顺序结果">
+          <div class="caption">合并顺序不同，显示颜色也不同，参考原书第 <strong>4-15</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        HSV 通道也可以合并。<code>ch4_11.py</code> 先把 BGR 转 HSV，拆分出 H、S、V 后再以原顺序合并；
+        因为 HSV 直接用 BGR 显示窗口解释，合并后的 HSV 图像会呈现特殊色彩。
+      </p>
+
+      <p class="code-title">程序实例 ch4_11.py：以 H、S、V 顺序重新合并 HSV 通道</p>
+      <div class="code-block"># ch4_11.py
+import cv2
+
+image = cv2.imread("street.jpg")
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hue, saturation, value = cv2.split(hsv_image)
+
+hsv_image = cv2.merge([hue, saturation, value])
+cv2.imshow("The Image", image)
+cv2.imshow("The Merge Image", hsv_image)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_11_hsv_merge_result.png" alt="ch4_11.py HSV 通道合并结果">
+          <div class="caption">HSV 通道合并后直接显示的效果，参考原书第 <strong>4-17</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">4-6</span>
+        <h2>拆分与合并色彩通道的应用</h2>
+      </div>
+
+      <p class="content-text">
+        通道拆分后可以直接修改某个分量，再合并回去。书中依次调整 Hue、Saturation、Value，用同一张
+        <code>street.jpg</code> 观察颜色、饱和度与明度对图像的影响。
+      </p>
+
+      <h3 class="subsection-heading">4-6-1 色调 Hue 调整</h3>
+
+      <p class="code-title">程序实例 ch4_12.py：将 Hue 通道改为 200</p>
+      <div class="code-block"># ch4_12.py
+import cv2
+
+image = cv2.imread("street.jpg")
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hsv, saturation, value = cv2.split(hsv_image)
+
+hsv[:, :] = 200
+hsv_image = cv2.merge([hsv, saturation, value])
+new_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+
+cv2.imshow("The Image", image)
+cv2.imshow("The New Image", new_image)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_12_hue_result.png" alt="ch4_12.py Hue 调整结果">
+          <div class="caption">固定 Hue 后的色调变化，参考原书第 <strong>4-18</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        书中还提供 <code>ch4_12_1.py</code>，用 <code>hsv.fill(200)</code> 代替切片赋值，可得到相同效果。
+        这里的 <code>200</code> 是为了演示明显色调变化；正式做颜色筛选时，仍应按 OpenCV HSV 的 Hue 有效范围设计阈值。
+      </p>
+
+      <p class="code-title">程序实例 ch4_12_1.py：用 fill() 修改 Hue 通道</p>
+      <div class="code-block"># ch4_12_1.py 的关键差异
+hsv.fill(200)        # 等同于 hsv[:, :] = 200</div>
+
+      <h3 class="subsection-heading">4-6-2 饱和度 Saturation 调整</h3>
+
+      <p class="code-title">程序实例 ch4_13.py：将 Saturation 通道设为 255</p>
+      <div class="code-block"># ch4_13.py
+import cv2
+
+image = cv2.imread("street.jpg")
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hsv, saturation, value = cv2.split(hsv_image)
+
+saturation.fill(255)
+hsv_image = cv2.merge([hsv, saturation, value])
+new_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+
+cv2.imshow("The Image", image)
+cv2.imshow("The New Image", new_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_13_saturation_result.png" alt="ch4_13.py Saturation 调整结果">
+          <div class="caption">提高饱和度后颜色更强烈，参考原书第 <strong>4-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading">4-6-3 明度 Value 调整</h3>
+
+      <p class="code-title">程序实例 ch4_14.py：将 Value 通道设为 255</p>
+      <div class="code-block"># ch4_14.py
+import cv2
+
+image = cv2.imread("street.jpg")
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hsv, saturation, value = cv2.split(hsv_image)
+
+value.fill(255)
+hsv_image = cv2.merge([hsv, saturation, value])
+new_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+
+cv2.imshow("The Image", image)
+cv2.imshow("The New Image", new_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_14_value_result.png" alt="ch4_14.py Value 调整结果">
+          <div class="caption">提高明度后的整体效果，参考原书第 <strong>4-20</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">4-7</span>
+        <h2>alpha 通道</h2>
+      </div>
+
+      <p class="content-text">
+        除了 B、G、R 三个通道外，图像也可以拥有 <strong class="highlight">A 通道</strong>，也就是 alpha 透明度。
+        alpha 的范围通常是 0 到 255：0 表示完全透明，255 表示完全不透明。带 alpha 的 BGR 图像可称为 BGRA 图像。
+      </p>
+
+      <div class="code-syntax">bgra_image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)</div>
+
+      <p class="code-title">程序实例 ch4_15.py：将 BGR 转为 BGRA，并修改 alpha 通道</p>
+      <div class="code-block"># ch4_15.py
+import cv2
+
+image = cv2.imread("street.jpg")
+cv2.imshow("The Image", image)
+
+bgra_image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
+b, g, r, a = cv2.split(bgra_image)
+print("列出转成含A通道影像物件后的alpha值")
+print(a)
+
+a[:, :] = 32
+a32_image = cv2.merge([b, g, r, a])
+cv2.imshow("The a32 Image", a32_image)
+
+a.fill(128)
+a128_image = cv2.merge([b, g, r, a])
+cv2.imshow("The a128 Image", a128_image)
+
+cv2.imwrite("a32.png", a32_image)
+cv2.imwrite("a128.png", a128_image)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">
+          在普通 OpenCV 显示窗口中，alpha 差异不一定明显；把图像保存为 PNG 后，透明度差异更容易观察。
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_15_alpha_result.png" alt="ch4_15.py alpha 通道显示结果">
+          <div class="caption">原图、alpha=32 与 alpha=128 的窗口显示结果，参考原书第 <strong>4-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">PNG 透明度效果</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch4_15_alpha_saved_result.png" alt="a32.png 与 a128.png 透明度结果">
+          <div class="caption">将 alpha 图像保存为 PNG 后的透明度比较，参考原书第 <strong>4-22</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>
+            1. 读取 <code>coffee.jpg</code>，使用 4 种方式显示影像，其中两项分别是 BGR 与 RGB，另外两项是 HSV 的
+            Saturation 通道与 Value 通道。
+          </p>
+
+          <div class="code-block">import cv2
+
+image = cv2.imread("coffee.jpg")
+cv2.imshow("BGR", image)
+
+rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+cv2.imshow("RGB", rgb_image)
+
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hue, saturation, value = cv2.split(hsv_image)
+cv2.imshow("saturation", saturation)
+cv2.imshow("value", value)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch04/exercise_1_bgr_rgb.png" alt="习题 1 BGR 与 RGB 参考结果">
+            <div class="caption">习题 1 的 BGR 与 RGB 参考结果，参考原书第 <strong>4-22</strong> 页。</div>
+          </div>
+
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch04/exercise_1_sv.png" alt="习题 1 Saturation 与 Value 参考结果">
+            <div class="caption">习题 1 的 Saturation 与 Value 参考结果，参考原书第 <strong>4-23</strong> 页。</div>
+          </div>
+
+          <p style="margin-top:18px;">
+            2. 重新设计 <code>ch4_11.py</code>，将 HSV 通道分别依 <code>S、V、H</code> 与 <code>V、H、S</code> 顺序合并，
+            并列出执行结果。
+          </p>
+
+          <div class="code-block">import cv2
+
+image = cv2.imread("street.jpg")
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hue, saturation, value = cv2.split(hsv_image)
+
+svh_image = cv2.merge([saturation, value, hue])
+vhs_image = cv2.merge([value, hue, saturation])
+
+cv2.imshow("S-V-H", svh_image)
+cv2.imshow("V-H-S", vhs_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch04/exercise_2_hsv_order.png" alt="习题 2 HSV 通道顺序合并参考结果">
+            <div class="caption">习题 2 的 HSV 通道重排参考结果，参考原书第 <strong>4-23</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch03.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 3 章 学习 OpenCV 需要的 Numpy 知识</div>
+          </div>
+        </a>
+        <a href="ch05.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 5 章 如何从零开始创建图像</div>
+          </div>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch04");</script>
+</body>
+</html>

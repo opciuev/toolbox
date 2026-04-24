@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 7 章 从静态到动态的绘图功能 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 7 章</span>
+      <h1 class="chapter-title">从静态到动态的绘图功能</h1>
+      <div class="chapter-meta">本章共 12 个小节 · 画布、线、矩形、圆、椭圆、多边形、文字、动画、鼠标、trackbar</div>
+
+      <div class="chapter-intro">
+        OpenCV 不只可以读取与处理图像，也能直接绘图。本章从 NumPy 画布开始，依次使用
+        <code>line()</code>、<code>rectangle()</code>、<code>circle()</code>、<code>ellipse()</code>、<code>polylines()</code>、
+        <code>putText()</code>，再扩展到动画、鼠标事件和滚动条互动。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">7-1</span>
+        <h2>创建画布</h2>
+      </div>
+
+      <p class="content-text">
+        画布可以是 NumPy 创建的空白数组，也可以是 <code>cv2.imread()</code> 读取的图像。彩色画布使用三维数组，
+        形状通常为 <code>(height, width, 3)</code>，第三维仍然是 B、G、R 通道。
+      </p>
+
+      <div class="code-block">import cv2
+import numpy as np
+
+black = np.zeros((200, 300, 3), np.uint8)
+white = np.ones((200, 300, 3), np.uint8) * 255</div>
+
+      <p class="content-text">
+        原书提醒绘图坐标采用 <code>(x, y)</code>，左上角是 <code>(0, 0)</code>，右下角接近 <code>(width - 1, height - 1)</code>。
+        这和数组索引 <code>img[y, x]</code> 的顺序不同，后续绘图函数都使用坐标点 <code>(x, y)</code>。
+      </p>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">7-2</span>
+        <h2>绘制直线</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.line()</code> 从 <code>pt1</code> 绘制到 <code>pt2</code>。颜色参数使用 BGR 顺序，<code>thickness</code> 控制线宽，
+        <code>lineType</code> 可选 <code>cv2.LINE_4</code>、<code>cv2.LINE_8</code> 或 <code>cv2.LINE_AA</code>。
+      </p>
+      <div class="code-syntax">cv2.line(img, pt1, pt2, color, thickness=1, lineType=cv2.LINE_8)</div>
+
+      <p class="code-title">程序实例 ch7_1.py：用直线绘制矩形边框</p>
+      <div class="code-block"># ch7_1.py
+import cv2
+import numpy as np
+
+img = np.ones((350, 500, 3), np.uint8) * 255
+cv2.line(img, (1, 1), (300, 1), (255, 0, 0))
+cv2.line(img, (300, 1), (300, 300), (255, 0, 0))
+cv2.line(img, (300, 300), (1, 300), (255, 0, 0))
+cv2.line(img, (1, 300), (1, 1), (255, 0, 0))
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch7_2.py：在矩形内加入斜线</p>
+      <div class="code-block"># ch7_2.py
+import cv2
+import numpy as np
+
+img = np.ones((350, 500, 3), np.uint8) * 255
+cv2.line(img, (1, 1), (300, 1), (255, 0, 0))
+cv2.line(img, (300, 1), (300, 300), (255, 0, 0))
+cv2.line(img, (300, 300), (1, 300), (255, 0, 0))
+cv2.line(img, (1, 300), (1, 1), (255, 0, 0))
+
+for x in range(150, 300, 10):
+    cv2.line(img, (x, 1), (300, x - 150), (255, 0, 0))
+for y in range(150, 300, 10):
+    cv2.line(img, (1, y), (y - 150, 300), (255, 0, 0))
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_1_2_line_results.png" alt="ch7_1 与 ch7_2 直线绘图结果">
+          <div class="caption">直线绘制矩形边框与斜线效果，参考原书第 <strong>7-3</strong> 到 <strong>7-4</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">7-3</span>
+        <h2>画布背景色彩</h2>
+      </div>
+
+      <p class="content-text">
+        背景色可以用数组切片设置。因为 OpenCV 使用 BGR，黄色要写成 <code>(0, 255, 255)</code>。
+      </p>
+
+      <p class="code-title">程序实例 ch7_3.py：把矩形区域设置为黄色底</p>
+      <div class="code-block"># ch7_3.py
+import cv2
+import numpy as np
+
+img = np.ones((350, 500, 3), np.uint8) * 255
+img[1:300, 1:300] = (0, 255, 255)
+
+cv2.line(img, (1, 1), (300, 1), (255, 0, 0))
+cv2.line(img, (300, 1), (300, 300), (255, 0, 0))
+cv2.line(img, (300, 300), (1, 300), (255, 0, 0))
+cv2.line(img, (1, 300), (1, 1), (255, 0, 0))
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">黄色画布</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_3_yellow_canvas.png" alt="ch7_3.py 黄色画布">
+          <div class="caption">用数组切片建立黄色背景，参考原书第 <strong>7-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_4.py：使用图像作为画布</p>
+      <div class="code-block"># ch7_4.py
+import cv2
+
+img = cv2.imread("antarctic.jpg")
+cv2.line(img, (1, 1), (300, 1), (255, 0, 0), 3)
+cv2.line(img, (300, 1), (300, 300), (255, 0, 0), 3)
+cv2.line(img, (300, 300), (1, 300), (255, 0, 0), 3)
+cv2.line(img, (1, 300), (1, 1), (255, 0, 0), 3)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图像作为画布</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_4_image_canvas.png" alt="ch7_4.py 图像画布">
+          <div class="caption">把 antarctic.jpg 当成绘图画布，参考原书第 <strong>7-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">7-4</span>
+        <h2>绘制矩形</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.rectangle()</code> 用左上角和右下角两个点绘制矩形。<code>thickness=-1</code> 时会填满矩形内部。
+      </p>
+      <div class="code-syntax">cv2.rectangle(img, pt1, pt2, color, thickness)</div>
+
+      <p class="code-title">程序实例 ch7_5.py：用 rectangle() 重写 ch7_2.py</p>
+      <div class="code-block"># ch7_5.py
+import cv2
+import numpy as np
+
+img = np.ones((350, 500, 3), np.uint8) * 255
+cv2.rectangle(img, (1, 1), (300, 300), (255, 0, 0), 1)
+
+for x in range(150, 300, 10):
+    cv2.line(img, (x, 1), (300, x - 150), (255, 0, 0))
+for y in range(150, 300, 10):
+    cv2.line(img, (1, y), (y - 150, 300), (255, 0, 0))
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch7_6.py：用 rectangle() 重写黄色底矩形</p>
+      <div class="code-block"># ch7_6.py
+import cv2
+import numpy as np
+
+img = np.ones((350, 500, 3), np.uint8) * 255
+cv2.rectangle(img, (1, 1), (300, 300), (0, 255, 255), -1)
+cv2.rectangle(img, (1, 1), (300, 300), (255, 0, 0), 1)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">习题参考</span>
+        <div class="result-box-image">
+          <img src="images/ch07/exercise_1_center_rectangle.png" alt="居中矩形练习结果">
+          <div class="caption">在图像中央绘制矩形，参考原书第 <strong>7-28</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">7-5</span>
+        <h2>绘制圆</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.circle()</code> 使用圆心、半径、颜色和线宽绘制圆。<code>thickness=-1</code> 可绘制实心圆。
+      </p>
+      <div class="code-syntax">cv2.circle(img, center, radius, color, thickness)</div>
+
+      <p class="code-title">程序实例 ch7_7.py：绘制同心圆</p>
+      <div class="code-block"># ch7_7.py
+import cv2
+import numpy as np
+
+img = np.zeros((600, 600, 3), np.uint8)
+center = (300, 300)
+for radius in range(50, 300, 50):
+    cv2.circle(img, center, radius, (0, 255, 255), 3)
+cv2.circle(img, center, 20, (0, 0, 255), -1)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">同心圆</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_7_concentric_circles.png" alt="ch7_7.py 同心圆">
+          <div class="caption">在图像画布上绘制同心圆，参考原书第 <strong>7-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_8.py：建立 3 个元素的数组</p>
+      <div class="code-block"># ch7_8.py
+import numpy as np
+
+color = np.random.randint(0, 256, size=3)
+print(color)</div>
+
+      <p class="code-title">程序实例 ch7_9.py：将数组转换为 list 作为颜色值</p>
+      <div class="code-block"># ch7_9.py
+import numpy as np
+
+color = np.random.randint(0, 256, size=3).tolist()
+print(color)</div>
+
+      <p class="code-title">程序实例 ch7_10.py：随机绘制 50 个实心圆</p>
+      <div class="code-block"># ch7_10.py
+import cv2
+import numpy as np
+
+width = 600
+height = 480
+img = np.zeros((height, width, 3), np.uint8)
+
+for _ in range(50):
+    center = tuple(np.random.randint(0, [width, height], size=2).tolist())
+    radius = int(np.random.randint(10, 80))
+    color = np.random.randint(0, 256, size=3).tolist()
+    cv2.circle(img, center, radius, color, -1)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">随机圆</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_10_random_circles.png" alt="ch7_10.py 随机圆">
+          <div class="caption">随机圆形图案，参考原书第 <strong>7-11</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">7-6</span>
+        <h2>绘制椭圆</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.ellipse()</code> 使用中心点、长短轴、旋转角度、起始角度和结束角度，可以绘制完整椭圆或椭圆弧。
+      </p>
+      <div class="code-syntax">cv2.ellipse(img, center, axes, angle, startAngle, endAngle, color, thickness)</div>
+
+      <p class="code-title">程序实例 ch7_11.py：绘制不同角度的椭圆</p>
+      <div class="code-block"># ch7_11.py
+import cv2
+import numpy as np
+
+img = np.ones((480, 600, 3), np.uint8) * 255
+center = (300, 240)
+cv2.ellipse(img, center, (200, 80), 0, 0, 360, (255, 0, 0), 3)
+cv2.ellipse(img, center, (200, 80), 45, 0, 360, (0, 255, 0), 3)
+cv2.ellipse(img, center, (200, 80), 90, 0, 360, (0, 0, 255), 3)
+cv2.ellipse(img, center, (200, 80), 0, 0, 180, (0, 0, 0), 6)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">椭圆结果</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_11_ellipse_result.png" alt="ch7_11.py 椭圆绘制">
+          <div class="caption">不同角度与线宽的椭圆，参考原书第 <strong>7-12</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_12.py：随机绘制椭圆</p>
+      <div class="code-block"># ch7_12.py
+import cv2
+import numpy as np
+
+width = 600
+height = 480
+img = np.ones((height, width, 3), np.uint8) * 255
+
+for _ in range(20):
+    center = tuple(np.random.randint(0, [width, height], size=2).tolist())
+    axes = tuple(np.random.randint(20, 160, size=2).tolist())
+    angle = int(np.random.randint(0, 360))
+    color = np.random.randint(0, 256, size=3).tolist()
+    cv2.ellipse(img, center, axes, angle, 0, 360, color, 3)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">随机椭圆</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_12_random_ellipses.png" alt="ch7_12.py 随机椭圆">
+          <div class="caption">随机椭圆组成的图案，参考原书第 <strong>7-13</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">7-7</span>
+        <h2>绘制多边形</h2>
+      </div>
+
+      <p class="content-text">
+        多边形需要先建立顶点数组，再传给 <code>cv2.polylines()</code>。<code>isClosed</code> 决定首尾是否闭合。
+      </p>
+      <div class="code-syntax">cv2.polylines(img, pts, isClosed, color, thickness)</div>
+
+      <p class="code-title">程序实例 ch7_13.py：绘制闭合与开放多边形</p>
+      <div class="code-block"># ch7_13.py
+import cv2
+import numpy as np
+
+img = np.ones((320, 360, 3), np.uint8) * 255
+pts = np.array([[100, 50], [200, 150], [100, 250], [20, 150]], np.int32)
+pts = pts.reshape((-1, 1, 2))
+
+cv2.polylines(img, [pts], True, (255, 0, 0), 5)
+cv2.polylines(img, [pts + [120, 0]], False, (0, 0, 255), 5)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_13_polylines.png" alt="ch7_13.py 多边形">
+          <div class="caption">闭合与不闭合多边形，参考原书第 <strong>7-14</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-7">
+        <span class="section-number">7-8</span>
+        <h2>输出文本</h2>
+      </div>
+
+      <p class="content-text">
+        英文文字可用 <code>cv2.putText()</code> 直接输出。若要显示中文，通常需要通过 PIL 加载中文字体后再转回 OpenCV 图像。
+      </p>
+      <div class="code-syntax">cv2.putText(img, text, org, fontFace, fontScale, color, thickness)</div>
+
+      <p class="code-title">程序实例 ch7_14.py：输出蓝色 Python 文字</p>
+      <div class="code-block"># ch7_14.py
+import cv2
+import numpy as np
+
+img = np.ones((220, 500, 3), np.uint8) * 255
+cv2.putText(img, "Python", (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 12)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch7_15.py：在同一位置输出描边文字</p>
+      <div class="code-block"># ch7_15.py
+import cv2
+import numpy as np
+
+img = np.ones((220, 500, 3), np.uint8) * 255
+cv2.putText(img, "Python", (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 12)
+cv2.putText(img, "Python", (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 255), 3)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">英文文字</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_14_15_text_outline.png" alt="ch7_14 与 ch7_15 英文文字">
+          <div class="caption">普通文字与描边文字，参考原书第 <strong>7-16</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_16.py：设计含倒影的文字</p>
+      <div class="code-block"># ch7_16.py
+import cv2
+import numpy as np
+
+img = np.ones((360, 600, 3), np.uint8) * 255
+cv2.putText(img, "Python", (40, 150), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 12)
+cv2.putText(img, "Python", (40, 150), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 255), 3)
+
+mirror = cv2.flip(img[0:180, :], 0)
+img[180:360, :] = cv2.addWeighted(img[180:360, :], 0.35, mirror, 0.65, 0)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">文字倒影</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_16_text_reflection.png" alt="ch7_16.py 文字倒影">
+          <div class="caption">文字倒影效果，参考原书第 <strong>7-17</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_17.py：在图像画布上输出英文文字</p>
+      <div class="code-block"># ch7_17.py
+import cv2
+
+img = cv2.imread("antarctic.jpg")
+cv2.putText(img, "OpenCV", (40, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 5)
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图像文字</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_17_english_on_image.png" alt="ch7_17.py 图像英文文字">
+          <div class="caption">在图像上绘制英文文字，参考原书第 <strong>7-18</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_17_1.py：在图像画布上输出中文文字</p>
+      <div class="code-block"># ch7_17_1.py
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+img = cv2.imread("antarctic.jpg")
+rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+pil_img = Image.fromarray(rgb)
+draw = ImageDraw.Draw(pil_img)
+font = ImageFont.truetype("msjh.ttc", 48)
+draw.text((40, 80), "南极企鹅", font=font, fill=(255, 0, 0))
+img = cv2.cvtColor(np.asarray(pil_img), cv2.COLOR_RGB2BGR)
+
+cv2.imshow("My Draw", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">中文文字</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_17_1_chinese_text.png" alt="ch7_17_1.py 中文文字">
+          <div class="caption">在图像上绘制中文文字，参考原书第 <strong>7-18</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-8">
+        <span class="section-number">7-9</span>
+        <h2>反弹球设计</h2>
+      </div>
+
+      <p class="content-text">
+        动画的基本做法是循环清空画布、更新位置、绘制物件、显示画面。碰到边界时改变速度方向即可产生反弹。
+      </p>
+
+      <p class="code-title">程序实例 ch7_18.py：上下反弹球</p>
+      <div class="code-block"># ch7_18.py
+import cv2
+import numpy as np
+
+width, height = 600, 480
+x, y = 300, 50
+dy = 6
+radius = 30
+
+while True:
+    img = np.zeros((height, width, 3), np.uint8)
+    cv2.circle(img, (x, y), radius, (0, 255, 255), -1)
+    cv2.imshow("Bouncing Ball", img)
+    y += dy
+    if y + radius >= height or y - radius <= 0:
+        dy = -dy
+    if cv2.waitKey(20) == 27:
+        break
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">反弹球</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_18_bouncing_vertical.png" alt="ch7_18.py 反弹球">
+          <div class="caption">球体上下反弹示例，参考原书第 <strong>7-20</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_19.py：加入左右移动</p>
+      <div class="code-block"># ch7_19.py 的关键差异
+x, y = 50, 50
+dx, dy = 4, 6
+
+x += dx
+y += dy
+if x + radius >= width or x - radius <= 0:
+    dx = -dx
+if y + radius >= height or y - radius <= 0:
+    dy = -dy</div>
+
+      <p class="code-title">程序实例 ch7_20.py：让 x 方向步长随机</p>
+      <div class="code-block"># ch7_20.py 的关键差异
+import random
+
+dx = random.choice([-8, -6, -4, 4, 6, 8])
+dy = 6</div>
+
+      <div class="result-box">
+        <span class="result-box-header">随机步长</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_20_bouncing_random_step.png" alt="ch7_20.py 随机反弹球">
+          <div class="caption">加入随机步长后的反弹效果，参考原书第 <strong>7-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-9">
+        <span class="section-number">7-10</span>
+        <h2>鼠标事件</h2>
+      </div>
+
+      <p class="content-text">
+        <code>cv2.setMouseCallback()</code> 可以把窗口中的鼠标动作交给回调函数处理。回调函数通常接收
+        <code>event</code>、<code>x</code>、<code>y</code>、<code>flags</code>、<code>param</code>。
+      </p>
+      <div class="code-syntax">cv2.setMouseCallback(windowName, callback)</div>
+
+      <p class="code-title">程序实例 ch7_21.py：列出 OpenCV 鼠标事件名称</p>
+      <div class="code-block"># ch7_21.py
+import cv2
+
+events = [name for name in dir(cv2) if name.startswith("EVENT_")]
+for event in events:
+    print(event)</div>
+
+      <p class="code-title">程序实例 ch7_22.py：显示鼠标事件名称和坐标</p>
+      <div class="code-block"># ch7_22.py
+import cv2
+import numpy as np
+
+def mouse_event(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print(f"左键按下: ({x}, {y})")
+    elif event == cv2.EVENT_MOUSEMOVE:
+        print(f"鼠标移动: ({x}, {y})")
+
+img = np.zeros((300, 500, 3), np.uint8)
+cv2.namedWindow("image")
+cv2.setMouseCallback("image", mouse_event)
+
+while True:
+    cv2.imshow("image", img)
+    if cv2.waitKey(20) == 27:
+        break
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch7_23.py：鼠标左键生成随机实心圆</p>
+      <div class="code-block"># ch7_23.py
+import cv2
+import numpy as np
+
+img = np.zeros((480, 600, 3), np.uint8)
+
+def draw_circle(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        radius = int(np.random.randint(10, 60))
+        color = np.random.randint(0, 256, size=3).tolist()
+        cv2.circle(img, (x, y), radius, color, -1)
+
+cv2.namedWindow("image")
+cv2.setMouseCallback("image", draw_circle)
+
+while True:
+    cv2.imshow("image", img)
+    if cv2.waitKey(20) == 27:
+        break
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">鼠标绘制圆</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_23_mouse_random_circles.png" alt="ch7_23.py 鼠标随机圆">
+          <div class="caption">鼠标点击生成随机圆，参考原书第 <strong>7-24</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch7_24.py：鼠标与键盘组合绘制不同图形</p>
+      <div class="code-block"># ch7_24.py
+import cv2
+import numpy as np
+
+img = np.zeros((480, 600, 3), np.uint8)
+mode = "circle"
+
+def draw_shape(event, x, y, flags, param):
+    global mode
+    if event == cv2.EVENT_LBUTTONDOWN:
+        color = np.random.randint(0, 256, size=3).tolist()
+        if mode == "circle":
+            cv2.circle(img, (x, y), 35, color, -1)
+        else:
+            cv2.rectangle(img, (x - 35, y - 35), (x + 35, y + 35), color, -1)
+
+cv2.namedWindow("image")
+cv2.setMouseCallback("image", draw_shape)
+
+while True:
+    cv2.imshow("image", img)
+    key = cv2.waitKey(20)
+    if key == ord("m"):
+        mode = "rect" if mode == "circle" else "circle"
+    if key == 27:
+        break
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">鼠标与键盘组合</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_24_mouse_keyboard_shapes.png" alt="ch7_24.py 鼠标键盘绘图">
+          <div class="caption">鼠标与键盘组合绘制不同图形，参考原书第 <strong>7-25</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-10">
+        <span class="section-number">7-11</span>
+        <h2>滚动条设计</h2>
+      </div>
+
+      <p class="content-text">
+        Trackbar 可以让用户在窗口中调整数值。原书示例用 3 个滚动条控制 B、G、R，从而实时改变画布背景色。
+      </p>
+      <div class="code-syntax">cv2.createTrackbar(trackbarName, windowName, value, count, onChange)</div>
+
+      <p class="code-title">程序实例 ch7_25.py：使用 3 个滚动条设计背景颜色</p>
+      <div class="code-block"># ch7_25.py
+import cv2
+import numpy as np
+
+def nothing(x):
+    pass
+
+img = np.zeros((300, 500, 3), np.uint8)
+cv2.namedWindow("image")
+cv2.createTrackbar("B", "image", 0, 255, nothing)
+cv2.createTrackbar("G", "image", 0, 255, nothing)
+cv2.createTrackbar("R", "image", 0, 255, nothing)
+
+while True:
+    b = cv2.getTrackbarPos("B", "image")
+    g = cv2.getTrackbarPos("G", "image")
+    r = cv2.getTrackbarPos("R", "image")
+    img[:] = [b, g, r]
+    cv2.imshow("image", img)
+    if cv2.waitKey(20) == 27:
+        break
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_25_trackbar_color.png" alt="ch7_25.py trackbar 调色">
+          <div class="caption">用 trackbar 调整颜色，参考原书第 <strong>7-26</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-11">
+        <span class="section-number">7-12</span>
+        <h2>滚动条开关应用</h2>
+      </div>
+
+      <p class="content-text">
+        Trackbar 也可以当开关使用。原书示例用一个开关决定是否绘制圆，并用另一个滚动条控制线宽。
+      </p>
+
+      <p class="code-title">程序实例 ch7_26.py：滚动条开关控制绘图</p>
+      <div class="code-block"># ch7_26.py
+import cv2
+import numpy as np
+
+def nothing(x):
+    pass
+
+img = np.zeros((360, 600, 3), np.uint8)
+cv2.namedWindow("image")
+cv2.createTrackbar("switch", "image", 0, 1, nothing)
+cv2.createTrackbar("thickness", "image", 1, 20, nothing)
+
+while True:
+    canvas = img.copy()
+    sw = cv2.getTrackbarPos("switch", "image")
+    thickness = cv2.getTrackbarPos("thickness", "image")
+    if sw == 1:
+        cv2.circle(canvas, (300, 180), 100, (0, 255, 255), max(thickness, 1))
+    cv2.imshow("image", canvas)
+    if cv2.waitKey(20) == 27:
+        break
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch07/ch7_26_trackbar_switch.png" alt="ch7_26.py trackbar 开关">
+          <div class="caption">滚动条控制绘图开关与粗细，参考原书第 <strong>7-27</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：修订 <code>ch7_4.py</code>，将所绘制的矩形置中。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch07/exercise_1_center_rectangle.png" alt="习题 1 居中矩形">
+            <div class="caption">居中矩形参考效果，参考原书第 <strong>7-28</strong> 页。</div>
+          </div>
+          <p style="margin-top:18px;">2：修订 <code>ch7_12.py</code>，在 <code>width=600</code>、<code>height=480</code> 的白色画布中绘制 20 条不同线条宽度的随机椭圆。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch07/exercise_2_random_ellipses.png" alt="习题 2 随机椭圆">
+            <div class="caption">随机椭圆参考效果，参考原书第 <strong>7-29</strong> 页。</div>
+          </div>
+          <p style="margin-top:18px;">3：修订 <code>ch7_23.py</code>，产生矩形，宽度与高度也随机产生。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch07/exercise_3_random_rectangles.png" alt="习题 3 随机矩形">
+            <div class="caption">随机矩形参考效果，参考原书第 <strong>7-29</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch06.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 6 章 图像处理的基础知识</div>
+          </div>
+        </a>
+        <a href="ch08.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 8 章 图像计算迈向图像创作</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch07");</script>
+</body>
+</html>

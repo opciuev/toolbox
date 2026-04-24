@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 11 章 删除影像杂讯 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 11 章</span>
+      <h1 class="chapter-title">删除影像杂讯</h1>
+      <div class="chapter-meta">本章共 7 个小节 · 平滑影像 · 均值/方框/中值/高斯/双边滤波 · 2D 滤波核</div>
+
+      <div class="chapter-intro">
+        建立平滑影像的目的，是降低影像中的杂讯或噪声；副作用是细节和边缘可能变得模糊。OpenCV 中常见的平滑处理可以分成线性滤波器和非线性滤波器：
+        <code>blur()</code>、<code>boxFilter()</code>、<code>GaussianBlur()</code> 属于线性滤波；
+        <code>medianBlur()</code> 和 <code>bilateralFilter()</code> 属于非线性滤波。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">11-1</span>
+        <h2>建立平滑影像需认识的名词</h2>
+      </div>
+
+      <p class="content-text">
+        滤波核是以某个像素为中心，连同周围像素组成的矩阵。常见核大小有 <code>3x3</code>、<code>5x5</code>、<code>7x7</code>。
+        核越大，参与计算的邻近像素越多，降噪或模糊效果越明显，但影像细节也越容易被抹平。
+      </p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>名词</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>滤波核</td><td>参与计算的邻域矩阵，例如 <code>3x3</code> 表示中心点周围 9 个位置。</td></tr>
+          <tr><td>锚点 anchor</td><td>核中对齐当前像素的位置，默认 <code>(-1, -1)</code> 表示核中心。</td></tr>
+          <tr><td>线性滤波</td><td>使用加权求和得到新像素，典型代表是均值、方框和高斯滤波。</td></tr>
+          <tr><td>非线性滤波</td><td>不直接做线性加权，典型代表是中值滤波和双边滤波。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">11-2</span>
+        <h2>均值滤波器</h2>
+      </div>
+
+      <p class="content-text">
+        均值滤波器使用滤波核覆盖邻域，把邻域像素值相加后取平均值，再把平均值作为中心像素的新值。
+        在 OpenCV 中使用 <code>cv2.blur()</code> 完成，核大小由 <code>ksize</code> 指定。
+      </p>
+
+      <div class="code-syntax">dst = cv2.blur(src, ksize, anchor, borderType)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src</code></td><td>来源影像。</td></tr>
+          <tr><td><code>ksize</code></td><td>滤波核大小，例如 <code>(3, 3)</code>、<code>(5, 5)</code>、<code>(7, 7)</code>。</td></tr>
+          <tr><td><code>anchor</code></td><td>核的锚点，默认 <code>(-1, -1)</code>。</td></tr>
+          <tr><td><code>borderType</code></td><td>边界补值方式，通常可使用默认值。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch11_1.py：使用 3x3、5x5、7x7 均值滤波核</p>
+      <div class="code-block"># ch11_1.py
+import cv2
+
+src = cv2.imread("hung.jpg")
+dst1 = cv2.blur(src, (3, 3))
+dst2 = cv2.blur(src, (5, 5))
+dst3 = cv2.blur(src, (7, 7))
+
+cv2.imshow("src", src)
+cv2.imshow("dst 3 x 3", dst1)
+cv2.imshow("dst 5 x 5", dst2)
+cv2.imshow("dst 7 x 7", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_blur_hung_compare_01.png" alt="ch11_1.py 3x3 均值滤波结果">
+          <div class="caption">原始影像与 <code>3x3</code> 均值滤波结果，参考原书第 <strong>11-8</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch11_2.py：使用 29x29 均值滤波核观察强模糊</p>
+      <div class="code-block"># ch11_2.py
+import cv2
+
+src = cv2.imread("hung.jpg")
+dst = cv2.blur(src, (29, 29))
+
+cv2.imshow("src", src)
+cv2.imshow("dst 29 x 29", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">大核均值滤波</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_blur_hung_compare_02.png" alt="ch11_2.py 29x29 均值滤波结果">
+          <div class="caption">核越大，平滑效果越强，同时脸部和背景细节也越模糊，参考原书第 <strong>11-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">11-3</span>
+        <h2>方框滤波器</h2>
+      </div>
+
+      <p class="content-text">
+        方框滤波器使用 <code>cv2.boxFilter()</code>。当 <code>normalize=True</code> 时，计算结果会除以核中元素总数，效果接近均值滤波；
+        当 <code>normalize=False</code> 时，邻域像素直接相加，容易因为数值超过 <code>255</code> 而产生过曝或大片白色。
+      </p>
+
+      <div class="code-syntax">dst = cv2.boxFilter(src, ddepth, ksize, anchor, normalize, borderType)</div>
+
+      <p class="code-title">程序实例 ch11_2_1.py：方框滤波器与 normalize 参数</p>
+      <div class="code-block"># ch11_2_1.py
+import cv2
+
+src = cv2.imread("hung.jpg")
+dst1 = cv2.boxFilter(src, -1, (2, 2), normalize=False)
+dst2 = cv2.boxFilter(src, -1, (3, 3), normalize=False)
+dst3 = cv2.boxFilter(src, -1, (5, 5), normalize=False)
+
+cv2.imshow("src", src)
+cv2.imshow("dst 2 x 2", dst1)
+cv2.imshow("dst 3 x 3", dst2)
+cv2.imshow("dst 5 x 5", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">方框滤波效果</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_mean_gaussian_compare.png" alt="ch11_2_1.py boxFilter 结果">
+          <div class="caption">未正规化的方框滤波会把邻域值累加，核变大后影像更容易变亮甚至接近全白，参考原书第 <strong>11-12</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">11-4</span>
+        <h2>中值滤波器</h2>
+      </div>
+
+      <p class="content-text">
+        中值滤波器不取平均，而是把滤波核内的像素排序后取中间值，因此对椒盐噪声特别有效。
+        OpenCV 使用 <code>cv2.medianBlur()</code>，核大小 <code>ksize</code> 必须是大于 1 的奇数。
+      </p>
+
+      <div class="code-syntax">dst = cv2.medianBlur(src, ksize)</div>
+
+      <p class="code-title">程序实例 ch11_3.py：用数组说明中值滤波</p>
+      <div class="code-block"># ch11_3.py
+import numpy as np
+
+x = np.array([149, 150, 151, 149, 255, 151, 149, 150, 151])
+x.sort()
+print(x)
+print("median =", x[4])</div>
+
+      <div class="result-box">
+        <span class="result-box-header">中值计算示意</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_median_array_example.png" alt="中值滤波排序取中间值示意">
+          <div class="caption">将滤波核内的像素排序后取中间值，参考原书第 <strong>11-14</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch11_4.py：medianBlur() 对杂讯影像降噪</p>
+      <div class="code-block"># ch11_4.py
+import cv2
+
+src = cv2.imread("hung.jpg")
+dst1 = cv2.medianBlur(src, 3)
+dst2 = cv2.medianBlur(src, 5)
+dst3 = cv2.medianBlur(src, 7)
+
+cv2.imshow("src", src)
+cv2.imshow("dst 3 x 3", dst1)
+cv2.imshow("dst 5 x 5", dst2)
+cv2.imshow("dst 7 x 7", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">medianBlur() 结果</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_median_hung_compare.png" alt="ch11_4.py medianBlur 执行结果">
+          <div class="caption">中值滤波可以有效消除黑白噪点，但核越大，影像越模糊，参考原书第 <strong>11-15</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">11-5</span>
+        <h2>高斯滤波器</h2>
+      </div>
+
+      <p class="content-text">
+        高斯滤波器使用高斯函数建立权重，靠近中心的像素权重较大，距离中心越远权重越小。
+        和均值滤波相比，高斯滤波通常能得到较自然的平滑效果。OpenCV 使用 <code>cv2.GaussianBlur()</code>。
+      </p>
+
+      <div class="code-syntax">dst = cv2.GaussianBlur(src, ksize, sigmaX, sigmaY, borderType)</div>
+
+      <p class="code-title">程序实例 ch11_5.py：GaussianBlur() 对比不同核大小</p>
+      <div class="code-block"># ch11_5.py
+import cv2
+
+src = cv2.imread("hung.jpg")
+dst1 = cv2.GaussianBlur(src, (3, 3), 0)
+dst2 = cv2.GaussianBlur(src, (5, 5), 0)
+dst3 = cv2.GaussianBlur(src, (29, 29), 0)
+
+cv2.imshow("src", src)
+cv2.imshow("Gaussian 3 x 3", dst1)
+cv2.imshow("Gaussian 5 x 5", dst2)
+cv2.imshow("Gaussian 29 x 29", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">GaussianBlur() 结果</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_gaussian_hung_compare.png" alt="ch11_5.py GaussianBlur 执行结果">
+          <div class="caption">高斯滤波会平滑噪声，核越大模糊越明显，参考原书第 <strong>11-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        书中还将均值滤波和高斯滤波放在同一张黑白边缘图上比较。均值滤波对所有邻域像素给相同权重；
+        高斯滤波让中心附近权重更高，因此边界过渡通常更自然。
+      </p>
+
+      <p class="code-title">程序实例 ch11_6.py：均值滤波与高斯滤波的边缘比较</p>
+      <div class="code-block"># ch11_6.py
+import cv2
+
+src = cv2.imread("edge.jpg")
+dst1 = cv2.blur(src, (3, 3))
+dst2 = cv2.blur(src, (7, 7))
+dst3 = cv2.GaussianBlur(src, (3, 3), 0)
+dst4 = cv2.GaussianBlur(src, (7, 7), 0)
+
+cv2.imshow("mean 3 x 3", dst1)
+cv2.imshow("mean 7 x 7", dst2)
+cv2.imshow("Gauss 3 x 3", dst3)
+cv2.imshow("Gauss 7 x 7", dst4)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">均值与高斯滤波比较</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_2d_kernel_compare.png" alt="ch11_6.py 均值滤波与高斯滤波边缘比较">
+          <div class="caption">高斯滤波在边缘过渡上会呈现和均值滤波不同的权重效果，参考原书第 <strong>11-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">11-6</span>
+        <h2>双边滤波器</h2>
+      </div>
+
+      <p class="content-text">
+        双边滤波器除了考虑空间距离，也会考虑像素值差异。它可以在降低噪声的同时尽量保留边缘，
+        常用于需要保边平滑的影像处理。OpenCV 使用 <code>cv2.bilateralFilter()</code>。
+      </p>
+
+      <div class="code-syntax">dst = cv2.bilateralFilter(src, d, sigmaColor, sigmaSpace)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>d</code></td><td>滤波时使用的像素邻域直径。</td></tr>
+          <tr><td><code>sigmaColor</code></td><td>颜色空间标准差，值越大，差异较大的颜色也会互相影响。</td></tr>
+          <tr><td><code>sigmaSpace</code></td><td>坐标空间标准差，值越大，距离更远的像素也会参与计算。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch11_7.py：均值、高斯、双边滤波比较</p>
+      <div class="code-block"># ch11_7.py
+import cv2
+
+src = cv2.imread("hung.jpg")
+dst_blur = cv2.blur(src, (9, 9))
+dst_gaussian = cv2.GaussianBlur(src, (9, 9), 0)
+dst_bilateral = cv2.bilateralFilter(src, 9, 75, 75)
+
+cv2.imshow("src", src)
+cv2.imshow("blur", dst_blur)
+cv2.imshow("GaussianBlur", dst_gaussian)
+cv2.imshow("bilateralFilter", dst_bilateral)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">双边滤波比较</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_bilateral_compare.png" alt="ch11_7.py bilateralFilter 执行结果">
+          <div class="caption">双边滤波的平滑结果较能保留脸部轮廓和边缘，参考原书第 <strong>11-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">11-7</span>
+        <h2>2D 滤波核</h2>
+      </div>
+
+      <p class="content-text">
+        <code>filter2D()</code> 允许自定义二维滤波核。只要把核写成 Numpy 阵列，就可以实现平滑、锐化、边缘强调等效果。
+        本节示例先用平均核做平滑，再展示自定义核对影像的影响。
+      </p>
+
+      <div class="code-syntax">dst = cv2.filter2D(src, ddepth, kernel, anchor, delta, borderType)</div>
+
+      <p class="code-title">程序实例 ch11_8.py：自定义滤波核</p>
+      <div class="code-block"># ch11_8.py
+import cv2
+import numpy as np
+
+src = cv2.imread("hung.jpg")
+kernel = np.ones((5, 5), np.float32) / 25
+dst = cv2.filter2D(src, -1, kernel)
+
+cv2.imshow("src", src)
+cv2.imshow("filter2D", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">filter2D() 结果</span>
+        <div class="result-box-image">
+          <img src="images/ch11/ch11_custom_kernel_compare.png" alt="ch11_8.py filter2D 自定义平均核结果">
+          <div class="caption">使用自定义平均核得到的平滑效果，参考原书第 <strong>11-25</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 修改 <code>ch11_1.py</code>，比较 <code>9x9</code>、<code>15x15</code> 与 <code>21x21</code> 均值滤波核的效果。</p>
+          <p>2. 使用 <code>blur()</code>、<code>GaussianBlur()</code>、<code>medianBlur()</code> 处理同一张含噪声影像，并比较边缘与细节保留情况。</p>
+          <p>3. 设计一个 <code>filter2D()</code> 自定义核，观察它对影像亮度、边缘或平滑程度的影响。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch11/ch11_exercise_compare_01.png" alt="第 11 章习题参考结果">
+            <div class="caption">习题参考图，参考原书第 <strong>11-26</strong> 至 <strong>11-27</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch10.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 10 章 图像的几何变换</div>
+          </div>
+        </a>
+        <a href="ch12.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 12 章 数学形态学</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch11");</script>
+</body>
+</html>

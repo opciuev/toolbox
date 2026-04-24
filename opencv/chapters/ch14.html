@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 14 章 影像金字塔 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 14 章</span>
+      <h1 class="chapter-title">影像金字塔</h1>
+      <div class="chapter-meta">本章共 5 个小节 · 影像金字塔原理 · pyrDown · pyrUp · 采样逆运算 · 拉普拉斯金字塔</div>
+
+      <div class="chapter-intro">
+        影像金字塔是同一张影像在不同解析度下形成的层级结构。越往上层，影像尺寸越小、解析度越低；
+        越往底层，影像越接近原始尺寸。OpenCV 将常用的向下采样与向上采样封装为 <code>pyrDown()</code>
+        和 <code>pyrUp()</code>，并可进一步建立高斯金字塔与拉普拉斯金字塔。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">14-1</span>
+        <h2>影像金字塔的原理</h2>
+      </div>
+
+      <p class="content-text">
+        影像金字塔可以视为同一影像经过多次采样后得到的一组影像。最底层通常是原始影像，称为第 0 层；
+        第 1 层是对第 0 层向下采样后的结果，第 2 层再由第 1 层向下采样得到。若每次列数与行数都约减半，
+        影像面积约为上一层的四分之一。
+      </p>
+
+      <p class="content-text">
+        直接删除偶数列与偶数行虽然可以缩小影像，但容易造成细节遗失与失真。实际建立金字塔时通常会先用滤波器平滑影像，
+        再取样保留部分像素。常见滤波器包括均值滤波器和高斯滤波器，其中高斯滤波器是建立影像金字塔最常用的方法。
+      </p>
+
+      <div class="note-box">
+        <span class="note-icon">观念</span>
+        <span>向下采样会丢失高频细节；向上采样虽然能放大尺寸，但不能把已经丢失的细节完整找回。</span>
+      </div>
+
+      <p class="content-text">
+        高斯金字塔的向下采样流程通常分成两步：先用高斯滤波器平滑影像，再删除偶数列与偶数行。OpenCV 使用的 5x5
+        高斯核可写成下列形式：
+      </p>
+
+      <div class="code-syntax">1 / 256 *
+[[ 1,  4,  6,  4, 1],
+ [ 4, 16, 24, 16, 4],
+ [ 6, 24, 36, 24, 6],
+ [ 4, 16, 24, 16, 4],
+ [ 1,  4,  6,  4, 1]]</div>
+
+      <p class="content-text">
+        向上采样则反过来处理。它会先在原影像像素之间插入新的列与行，再用滤波器进行插值和平滑，因此放大后的影像通常会比原始高解析度影像模糊。
+      </p>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">14-2</span>
+        <h2>OpenCV 的 pyrDown() 函数</h2>
+      </div>
+
+      <p class="content-text">
+        <code>pyrDown()</code> 会先对来源影像进行高斯滤波，再向下采样。默认输出尺寸约为来源影像宽高的一半。
+      </p>
+
+      <div class="code-syntax">dst = cv2.pyrDown(src, dstsize, borderType)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>dst</code></td><td>返回结果影像，也称目标影像。</td></tr>
+          <tr><td><code>src</code></td><td>来源影像，也称原始影像。</td></tr>
+          <tr><td><code>dstsize</code></td><td>可选参数，目标影像大小。默认大小为 <code>((src.cols+1)/2, (src.rows+1)/2)</code>。</td></tr>
+          <tr><td><code>borderType</code></td><td>可选参数，边界值处理方式，通常使用默认值 <code>BORDER_DEFAULT</code>。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch14_1.py：使用 macau.jpg 连续执行 3 次向下采样</p>
+      <div class="code-block"># ch14_1.py
+import cv2
+
+src = cv2.imread("macau.jpg")
+dst1 = cv2.pyrDown(src)
+dst2 = cv2.pyrDown(dst1)
+dst3 = cv2.pyrDown(dst2)
+
+print(f"src.shape = {src.shape}")
+print(f"dst1.shape = {dst1.shape}")
+print(f"dst2.shape = {dst2.shape}")
+print(f"dst3.shape = {dst3.shape}")
+
+cv2.imshow("src", src)
+cv2.imshow("dst1", dst1)
+cv2.imshow("dst2", dst2)
+cv2.imshow("dst3", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">src.shape = (487, 339, 3)
+dst1.shape = (244, 170, 3)
+dst2.shape = (122, 85, 3)
+dst3.shape = (61, 43, 3)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">向下采样结果</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_1_pyrdown_result.png" alt="ch14_1.py 连续 pyrDown 执行结果">
+          <div class="caption">连续 3 次向下采样后，影像宽高逐层缩小，参考原书第 <strong>14-6</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">14-3</span>
+        <h2>OpenCV 的 pyrUp() 函数</h2>
+      </div>
+
+      <p class="content-text">
+        <code>pyrUp()</code> 是向上采样函数。它会将影像放大，默认输出大小为来源影像宽高的 2 倍。
+        向上采样不是简单复制像素，而是通过插值和平滑得到新影像。
+      </p>
+
+      <div class="code-syntax">dst = cv2.pyrUp(src, dstsize, borderType)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>dst</code></td><td>返回结果影像，也称目标影像。</td></tr>
+          <tr><td><code>src</code></td><td>来源影像，也称原始影像。</td></tr>
+          <tr><td><code>dstsize</code></td><td>可选参数，目标影像大小。默认大小为 <code>(src.cols*2, src.rows*2)</code>。</td></tr>
+          <tr><td><code>borderType</code></td><td>可选参数，边界值处理方式，通常使用默认值 <code>BORDER_DEFAULT</code>。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch14_2.py：使用 macau_small.jpg 连续执行 3 次向上采样</p>
+      <div class="code-block"># ch14_2.py
+import cv2
+
+src = cv2.imread("macau_small.jpg")
+dst1 = cv2.pyrUp(src)
+dst2 = cv2.pyrUp(dst1)
+dst3 = cv2.pyrUp(dst2)
+
+print(f"src.shape = {src.shape}")
+print(f"dst1.shape = {dst1.shape}")
+print(f"dst2.shape = {dst2.shape}")
+print(f"dst3.shape = {dst3.shape}")
+
+cv2.imshow("src", src)
+cv2.imshow("dst1", dst1)
+cv2.imshow("dst2", dst2)
+cv2.imshow("dst3", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">src.shape = (61, 43, 3)
+dst1.shape = (122, 86, 3)
+dst2.shape = (244, 172, 3)
+dst3.shape = (488, 344, 3)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">向上采样结果</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_2_pyrup_result.png" alt="ch14_2.py 连续 pyrUp 执行结果">
+          <div class="caption">由小图连续放大后，尺寸变大但细节不会恢复成原来的高解析度影像，参考原书第 <strong>14-7</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">14-4</span>
+        <h2>采样逆运算的实验</h2>
+      </div>
+
+      <p class="content-text">
+        为了观察向下采样与向上采样是否能互相还原，本节先说明影像相加与相减，再用同一张影像进行「先缩小再放大」、
+        「先放大再缩小」两组实验。
+      </p>
+
+      <h3>14-4-1 影像相加与相减</h3>
+
+      <p class="content-text">
+        影像本质上是矩阵，矩阵中每个像素值可进行数值运算。若使用 <code>uint8</code> 数组直接相加，超过 255 的结果会按 256 取余；
+        例如 <code>216 + 59 = 275</code>，在 <code>uint8</code> 中会得到 <code>19</code>。
+      </p>
+
+      <p class="code-title">程序实例 ch14_3.py：随机矩阵相加</p>
+      <div class="code-block"># ch14_3.py
+import numpy as np
+
+src1 = np.random.randint(256, size=(2, 3), dtype=np.uint8)
+src2 = np.random.randint(256, size=(2, 3), dtype=np.uint8)
+dst = src1 + src2
+
+print(f"src1 =\n{src1}")
+print(f"src2 =\n{src2}")
+print(f"dst =\n{dst}")</div>
+
+      <div class="note-box">
+        <span class="note-icon">说明</span>
+        <span><code>ch14_3.py</code> 使用随机数，每次执行得到的矩阵不同。重点是观察 <code>uint8</code> 数值范围与溢出后的结果。</span>
+      </div>
+
+      <p class="code-title">程序实例 ch14_4.py：影像相加与相减</p>
+      <div class="code-block"># ch14_4.py
+import cv2
+
+src = cv2.imread("pengiun.jpg")
+dst1 = src + src
+dst2 = src - src
+
+cv2.imshow("src", src)
+cv2.imshow("dst1 - add", dst1)
+cv2.imshow("dst2 - subtraction", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">影像相加与相减</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_4_penguin_add_sub.png" alt="ch14_4.py 影像相加与相减执行结果">
+          <div class="caption">左边是原影像，中间是相加结果，右边是相减结果；自己相减会得到全黑影像，参考原书第 <strong>14-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>14-4-2 反向运算的结果观察</h3>
+
+      <p class="content-text">
+        若影像先经过向下采样再向上采样，尺寸可以回到原大小，但中间已经丢失细节，因此恢复影像与原影像不会完全相同。
+      </p>
+
+      <p class="code-title">程序实例 ch14_5.py：先向下采样再向上采样</p>
+      <div class="code-block"># ch14_5.py
+import cv2
+
+src = cv2.imread("pengiun.jpg")
+print(f"原始影像大小 = \n{src.shape}")
+
+dst_down = cv2.pyrDown(src)
+print(f"向下采样大小 = \n{dst_down.shape}")
+
+dst_up = cv2.pyrUp(dst_down)
+print(f"向上采样大小 = \n{dst_up.shape}")
+
+dst = dst_up - src
+print(f"结果影像大小 = \n{dst.shape}")
+
+cv2.imshow("src", src)
+cv2.imshow("dst1 - recovery", dst_up)
+cv2.imshow("dst2 - dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">原始影像大小 =
+(276, 256, 3)
+向下采样大小 =
+(138, 128, 3)
+向上采样大小 =
+(276, 256, 3)
+结果影像大小 =
+(276, 256, 3)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">先向下再向上</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_5_down_up_compare.png" alt="ch14_5.py 先 pyrDown 再 pyrUp 执行结果">
+          <div class="caption">恢复影像比原影像模糊，差值影像显示两者不相同，参考原书第 <strong>14-10</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        另一组实验是先向上采样再向下采样。虽然最后尺寸与原影像相同，但因为放大与缩小过程中经过滤波处理，结果仍会与原影像有差异。
+      </p>
+
+      <p class="code-title">程序实例 ch14_6.py：先向上采样再向下采样</p>
+      <div class="code-block"># ch14_6.py
+import cv2
+
+src = cv2.imread("pengiun.jpg")
+print(f"原始影像大小 = \n{src.shape}")
+
+dst_up = cv2.pyrUp(src)
+print(f"向上采样大小 = \n{dst_up.shape}")
+
+dst_down = cv2.pyrDown(dst_up)
+print(f"向下采样大小 = \n{dst_down.shape}")
+
+dst = dst_down - src
+print(f"结果影像大小 = \n{dst.shape}")
+
+cv2.imshow("src", src)
+cv2.imshow("dst1 - recovery", dst_down)
+cv2.imshow("dst2 - dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">原始影像大小 =
+(276, 256, 3)
+向上采样大小 =
+(552, 512, 3)
+向下采样大小 =
+(276, 256, 3)
+结果影像大小 =
+(276, 256, 3)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">先向上再向下</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_6_up_down_compare.png" alt="ch14_6.py 先 pyrUp 再 pyrDown 执行结果">
+          <div class="caption">尺寸恢复后仍存在差值，说明采样逆运算不是完整复原，参考原书第 <strong>14-11</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">14-5</span>
+        <h2>拉普拉斯金字塔（Laplacian Pyramid, LP）</h2>
+      </div>
+
+      <p class="content-text">
+        影像经过向下采样时会丢失部分细节。拉普拉斯金字塔的目的，是记录高斯金字塔相邻层之间丢失的细节。
+        假设 <code>G<sub>i</sub></code> 是高斯金字塔第 i 层，拉普拉斯金字塔第 i 层可写成：
+      </p>
+
+      <div class="code-syntax">L<sub>i</sub> = G<sub>i</sub> - pyrUp(G<sub>i+1</sub>)</div>
+
+      <p class="content-text">
+        例如建立三层高斯金字塔时，可先计算：
+      </p>
+
+      <div class="code-syntax">G1 = cv2.pyrDown(G0)
+G2 = cv2.pyrDown(G1)
+G3 = cv2.pyrDown(G2)</div>
+
+      <p class="content-text">
+        再用相邻层相减建立拉普拉斯金字塔：
+      </p>
+
+      <div class="code-syntax">L0 = G0 - cv2.pyrUp(G1)
+L1 = G1 - cv2.pyrUp(G2)
+L2 = G2 - cv2.pyrUp(G3)</div>
+
+      <p class="content-text">
+        若要从拉普拉斯金字塔恢复高斯金字塔影像，则把保留的细节加回放大的下一层影像：
+      </p>
+
+      <div class="code-syntax">G0 = L0 + cv2.pyrUp(G1)
+G1 = L1 + cv2.pyrUp(G2)
+G2 = L2 + cv2.pyrUp(G3)</div>
+
+      <p class="code-title">程序实例 ch14_7.py：建立 2 层拉普拉斯金字塔</p>
+      <div class="code-block"># ch14_7.py
+import cv2
+
+src = cv2.imread("pengiun.jpg")
+G0 = src
+G1 = cv2.pyrDown(G0)
+G2 = cv2.pyrDown(G1)
+
+L0 = G0 - cv2.pyrUp(G1)
+L1 = G1 - cv2.pyrUp(G2)
+
+print(f"L0.shape = \n{L0.shape}")
+print(f"L1.shape = \n{L1.shape}")
+
+cv2.imshow("Laplacian L0", L0)
+cv2.imshow("Laplacian L1", L1)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">L0.shape =
+(276, 256, 3)
+L1.shape =
+(138, 128, 3)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">拉普拉斯金字塔</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_7_laplacian_diagram.png" alt="ch14_7.py 拉普拉斯金字塔结构与执行结果">
+          <div class="caption">拉普拉斯层记录相邻高斯层之间的差异，参考原书第 <strong>14-12</strong> 至 <strong>14-13</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch14_8.py：使用拉普拉斯影像恢复原始影像</p>
+      <div class="code-block"># ch14_8.py
+import cv2
+
+src = cv2.imread("pengiun.jpg")
+G0 = src
+G1 = cv2.pyrDown(G0)
+L0 = src - cv2.pyrUp(G1)
+dst = L0 + cv2.pyrUp(G1)
+
+print(f"src.shape = \n{src.shape}")
+print(f"dst.shape = \n{dst.shape}")
+
+cv2.imshow("Src", src)
+cv2.imshow("Dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">src.shape =
+(276, 256, 3)
+dst.shape =
+(276, 256, 3)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">影像恢复结果</span>
+        <div class="result-box-image">
+          <img src="images/ch14/ch14_8_recover_result.png" alt="ch14_8.py 使用拉普拉斯金字塔恢复影像">
+          <div class="caption">把拉普拉斯层加回向上采样后的高斯层，可恢复原始尺寸影像，参考原书第 <strong>14-14</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 请修改 <code>ch14_7.py</code>，到第 3 次向下采样，同时建立第 2 层的拉普拉斯金字塔影像。若影像尺寸无法匹配，会出现广播形状不一致的错误。</p>
+          <p>2. 请重新设计前一题程序，只更改读取的影像档案 <code>old_building.jpg</code>，列出下列拉普拉斯金字塔的结果。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch14/ch14_ex1_error_and_result.png" alt="第 14 章习题执行错误与 old_building 参考结果">
+            <div class="caption">第 1 题错误信息与第 2 题参考结果，参考原书第 <strong>14-15</strong> 至 <strong>14-16</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch13.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 13 章 影像梯度与边缘侦测</div>
+          </div>
+        </a>
+        <a href="#" style="opacity:0.6;pointer-events:none">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 15 章 轮廓的检测与匹配（待制作）</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch14");</script>
+</body>
+</html>

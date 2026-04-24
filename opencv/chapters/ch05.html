@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 5 章 妙手空空创建图像 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 5 章</span>
+      <h1 class="chapter-title">妙手空空创建图像</h1>
+      <div class="chapter-meta">本章共 3 个小节 · 图像坐标、灰度图像、彩色图像</div>
+
+      <div class="chapter-intro">
+        图像本质上是数组。灰度图像可以用二维 <code>ndarray</code> 表示，彩色图像则是带 B、G、R 三个通道的三维数组。
+        本章从坐标系统开始，使用 <code>np.zeros()</code>、<code>np.ones()</code>、切片赋值和随机数，直接从空数组创建可显示的图像。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">5-1</span>
+        <h2>图像坐标</h2>
+      </div>
+
+      <p class="content-text">
+        OpenCV 图像坐标以左上角为原点 <code>(0, 0)</code>。向右是横坐标 <code>x</code> 或 width，向下是纵坐标
+        <code>y</code> 或 height。对应到 Numpy 数组时，访问顺序是 <code>image[y, x]</code>，也就是先写行索引（高度、y），再写列索引（宽度、x）。
+      </p>
+
+      <div class="result-box">
+        <span class="result-box-header">坐标关系</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_coordinate_system.png" alt="OpenCV 图像坐标系统示意">
+          <div class="caption">图像坐标与数组索引的对应关系，参考原书第 <strong>5-2</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <span class="note-icon">重点</span>
+        <span>写 OpenCV 图像处理代码时，数组索引用 <code>image[y, x]</code>；但许多绘图函数的点坐标写成 <code>(x, y)</code>。这两个顺序不要混淆。</span>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">5-2</span>
+        <h2>创建与编辑灰度图像</h2>
+      </div>
+
+      <p class="content-text">
+        灰度图像是二维数组，元素值范围通常是 <code>0 ~ 255</code>。<code>0</code> 是黑色，
+        <code>255</code> 是白色，中间值表示不同深浅的灰。
+      </p>
+
+      <p class="code-title">程序实例 ch5_1.py：创建黑色灰度图像</p>
+      <div class="code-block">import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width), np.uint8)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_1_black_result.png" alt="ch5_1.py 黑色灰度图像">
+          <div class="caption">用零数组创建黑色图像，参考原书第 <strong>5-3</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_2.py：使用 fill(255) 创建白色灰度图像</p>
+      <div class="code-block"># ch5_2.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width), np.uint8)
+image.fill(255)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_2_white_result.png" alt="ch5_2.py 白色灰度图像">
+          <div class="caption">白色灰度图像，参考原书第 <strong>5-3</strong> 到 <strong>5-4</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_3.py：使用 ones() 创建白色灰度图像</p>
+      <div class="code-block"># ch5_3.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.ones((height, width), np.uint8) * 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="note-box">
+        <span class="note-icon">等价</span>
+        <span><code>np.zeros()</code> 后填入 255，与 <code>np.ones()</code> 后乘以 255，都能得到白色图像。</span>
+      </div>
+
+      <p class="content-text">
+        修改灰度图像其实就是修改二维数组。可以指定矩形范围，也可以用循环生成条纹或随机噪声。
+      </p>
+
+      <p class="code-title">程序实例 ch5_4.py：在黑色图像中建立白色矩形</p>
+      <div class="code-block"># ch5_4.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width), np.uint8)
+image[40:120, 70:210] = 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_4_white_rectangle_result.png" alt="ch5_4.py 白色矩形">
+          <div class="caption">用切片建立白色矩形区域，参考原书第 <strong>5-4</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_5.py：建立黑白水平条纹</p>
+      <div class="code-block"># ch5_5.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width), np.uint8)
+for y in range(0, height, 20):
+    image[y:y + 10, :] = 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_5_horizontal_stripes_result.png" alt="ch5_5.py 水平条纹">
+          <div class="caption">黑白相间的水平条纹，参考原书第 <strong>5-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_6.py：使用随机数建立灰度图像</p>
+      <div class="code-block"># ch5_6.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.random.randint(256, size=(height, width), dtype=np.uint8)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_6_random_gray_result.png" alt="ch5_6.py 随机灰度图像">
+          <div class="caption">随机灰度值形成噪声图像，参考原书第 <strong>5-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">5-3</span>
+        <h2>创建彩色图像</h2>
+      </div>
+
+      <p class="content-text">
+        彩色图像是三维数组，常见形状为 <code>(height, width, 3)</code>。OpenCV 的第三维顺序是 B、G、R。
+        因此 <code>image[:, :, 0]</code> 是蓝色通道，<code>image[:, :, 1]</code> 是绿色通道，
+        <code>image[:, :, 2]</code> 是红色通道。
+      </p>
+
+      <p class="code-title">程序实例 ch5_7.py：建立蓝色图像</p>
+      <div class="code-block"># ch5_7.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width, 3), np.uint8)
+image[:, :, 0] = 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_7_blue_result.png" alt="ch5_7.py 蓝色图像">
+          <div class="caption">第三维索引 0 是 B 通道，将它设为 255 得到蓝色图像，参考原书第 <strong>5-6</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_8.py：分别建立蓝色、绿色与红色图像</p>
+      <div class="code-block"># ch5_8.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width, 3), np.uint8)
+
+blue_image = image.copy()
+blue_image[:, :, 0] = 255
+cv2.imshow("blue image", blue_image)
+
+green_image = image.copy()
+green_image[:, :, 1] = 255
+cv2.imshow("green image", green_image)
+
+red_image = image.copy()
+red_image[:, :, 2] = 255
+cv2.imshow("red image", red_image)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_8_bgr_images_result.png" alt="ch5_8.py BGR 三种单色图像">
+          <div class="caption">蓝、绿、红三个通道分别设为 255，参考原书第 <strong>5-7</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_9.py：建立随机彩色图像</p>
+      <div class="code-block"># ch5_9.py
+import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.random.randint(256, size=(height, width, 3), dtype=np.uint8)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_9_random_color_result.png" alt="ch5_9.py 随机彩色图像">
+          <div class="caption">每个像素都有随机 B、G、R 值，参考原书第 <strong>5-8</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch5_10.py：建立彩色条纹</p>
+      <div class="code-block"># ch5_10.py
+import cv2
+import numpy as np
+
+height = 150
+width = 300
+image = np.zeros((height, width, 3), np.uint8)
+image[0:50, :, 0] = 255
+image[50:100, :, 1] = 255
+image[100:150, :, 2] = 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch05/ch5_10_color_bars_result.png" alt="ch5_10.py 彩色横条">
+          <div class="caption">用不同通道建立蓝、绿、红色块，参考原书第 <strong>5-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 将水平黑白条纹改成垂直黑白条纹。</p>
+          <div class="code-block">import cv2
+import numpy as np
+
+height = 160
+width = 280
+image = np.zeros((height, width), np.uint8)
+for x in range(0, width, 20):
+    image[:, x:x + 10] = 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch05/exercise_1_vertical_stripes.png" alt="习题 1 垂直黑白条纹">
+            <div class="caption">习题 1 参考效果，参考原书第 <strong>5-10</strong> 页。</div>
+          </div>
+          <p style="margin-top:18px;">2. 将彩色横条改成垂直彩色条。</p>
+          <div class="code-block">import cv2
+import numpy as np
+
+height = 150
+width = 300
+image = np.zeros((height, width, 3), np.uint8)
+image[:, 0:100, 0] = 255
+image[:, 100:200, 1] = 255
+image[:, 200:300, 2] = 255
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch05/exercise_2_vertical_color_bars.png" alt="习题 2 垂直彩色条">
+            <div class="caption">习题 2 参考效果，参考原书第 <strong>5-10</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch04.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 4 章 认识色彩空间到艺术创作</div>
+          </div>
+        </a>
+        <a href="ch06.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 6 章 图像处理的基础知识</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch05");</script>
+</body>
+</html>

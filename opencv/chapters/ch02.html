@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 2 章 认识图像表示方法 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Layout -->
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+
+      <span class="chapter-badge">第 2 章</span>
+      <h1 class="chapter-title">认识图像表示方法</h1>
+      <div class="chapter-meta">本章共 6 个小节 &middot; 图像数据的底层表达</div>
+
+      <div class="chapter-intro">
+        在进入 OpenCV 的函数操作之前，先理解计算机内部是怎么"存"一张图像的。本章从最简单的位图像（每个像素只有 0/1）开始，逐步认识灰度、RGB、BGR 色彩空间，最后学会用 <code>shape</code>/<code>size</code>/<code>dtype</code> 查看图像属性，以及读写单个像素的 BGR 值。
+      </div>
+
+      <!-- ===== 2-1 ===== -->
+      <div class="section-heading" id="section-0">
+        <span class="section-number">2-1</span>
+        <h2>位图像表示法</h2>
+      </div>
+
+      <p class="content-text">
+        想象一张 12×12 的位图，代表英文字母 <strong>H</strong>。每一个格子称为一个<strong class="highlight">像素</strong>，像素的值只能是 <code>0</code> 或 <code>1</code>：
+      </p>
+      <ul class="content-list">
+        <li><code>0</code> 表示黑色</li>
+        <li><code>1</code> 表示白色</li>
+      </ul>
+      <p class="content-text">
+        于是整张图就可以用一个 12×12 的 0/1 矩阵来表示。因为每个像素只由 1 个 bit 组成，这种表示法就叫做<strong class="highlight">位图像表示法</strong>。
+      </p>
+
+      <div class="note-box">
+        <span class="note-icon">图示</span>
+        <span>字母 H 的位图和对应的 0/1 矩阵见原书第 <strong>2-2</strong> 页。</span>
+      </div>
+
+      <!-- ===== 2-2 ===== -->
+      <div class="section-heading" id="section-1">
+        <span class="section-number">2-2</span>
+        <h2>GRAY 色彩空间</h2>
+      </div>
+
+      <p class="content-text">
+        单纯用 0/1 表示像素，精度太低。把表达范围扩展到 <strong>0 ~ 255</strong>（256 级），就能得到更细腻的灰度图像，这就是 <strong class="highlight">GRAY 色彩空间</strong>：
+      </p>
+      <ul class="content-list">
+        <li><code>0</code> 代表纯黑色</li>
+        <li><code>255</code> 代表纯白色</li>
+        <li>中间值代表深浅不同的灰</li>
+      </ul>
+      <p class="content-text">
+        256 级刚好用 <strong>8 个 bit（1 个 Byte）</strong> 就能表示。下表是几个代表性灰度值的视觉对照：
+      </p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>10 进制值</th><th>灰度色彩</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td style="background:#000;">&nbsp;</td></tr>
+          <tr><td>32</td><td style="background:#202020;">&nbsp;</td></tr>
+          <tr><td>64</td><td style="background:#404040;">&nbsp;</td></tr>
+          <tr><td>96</td><td style="background:#606060;">&nbsp;</td></tr>
+          <tr><td>128</td><td style="background:#808080;">&nbsp;</td></tr>
+          <tr><td>160</td><td style="background:#a0a0a0;">&nbsp;</td></tr>
+          <tr><td>192</td><td style="background:#c0c0c0;">&nbsp;</td></tr>
+          <tr><td>224</td><td style="background:#e0e0e0;">&nbsp;</td></tr>
+          <tr><td>255</td><td style="background:#fff; border:1px solid #ccc;">&nbsp;</td></tr>
+        </tbody>
+      </table>
+
+      <p class="content-text">
+        灰度图像在程序里可以用一个<strong class="highlight">二维数组</strong>来表达：行数 × 列数，每个元素是 0~255 的整数。
+      </p>
+
+      <!-- ===== 2-3 ===== -->
+      <div class="section-heading" id="section-2">
+        <span class="section-number">2-3</span>
+        <h2>RGB 色彩空间</h2>
+      </div>
+
+      <p class="content-text">
+        彩色图像最常见的表达方式是 <strong class="highlight">RGB 色彩空间</strong>：任何颜色都由 <strong>R（Red 红）</strong>、<strong>G（Green 绿）</strong>、<strong>B（Blue 蓝）</strong> 三原色按不同比例组成，每个分量称为一个<strong class="highlight">通道（channel）</strong>，取值范围都是 <code>0 ~ 255</code>。
+      </p>
+
+      <div class="note-box">
+        <span class="note-icon">注</span>
+        <span>原书将 Channels 翻译为「通道」，也有文献翻译为「色版」。</span>
+      </div>
+
+      <h3 class="subsection-heading">2-3-1 由色彩得知 RGB 通道值</h3>
+
+      <p class="content-text">
+        可以用配色网站 <a href="https://materialui.co/colors" target="_blank">materialui.co/colors</a> 查看颜色对应的 R / G / B 值：点任意色块，右上角会显示 <code>rgb(R, G, B)</code>。
+      </p>
+
+      <h3 class="subsection-heading">2-3-2 使用 RGB 通道值获得色彩区块</h3>
+
+      <p class="content-text">
+        Excel 的「设置单元格格式 → 填充 → 其他颜色 → 自定义」里可以直接输入 R / G / B 数值，立刻看到对应的颜色区块。例如 <code>(255, 255, 0)</code> 就是黄色。
+      </p>
+
+      <p class="content-text">
+        RGB 每个通道 256 个值，三个通道组合起来共可表示：
+      </p>
+      <div class="code-syntax">256 * 256 * 256 = 16,777,216 种颜色</div>
+
+      <h3 class="subsection-heading">2-3-3 RGB 彩色像素的表示法</h3>
+
+      <p class="content-text">
+        一张 RGB 彩色图像可以用一个<strong class="highlight">三维数组</strong>来表达，形状是 <code>(高, 宽, 3)</code>，也就是三个二维数组（B 层、G 层、R 层）叠在一起。
+      </p>
+
+      <div class="note-box">
+        <span class="note-icon">图示</span>
+        <span>RGB 三通道叠加示意图见原书第 <strong>2-6</strong> 页。</span>
+      </div>
+
+      <!-- ===== 2-4 ===== -->
+      <div class="section-heading" id="section-3">
+        <span class="section-number">2-4</span>
+        <h2>BGR 色彩空间</h2>
+      </div>
+
+      <p class="content-text">
+        传统 RGB 顺序是 <code>R → G → B</code>，但 <strong class="highlight">OpenCV 使用的是 BGR 顺序</strong>，即：
+      </p>
+      <ul class="content-list">
+        <li>第 1 个通道数据是 <strong>B</strong>（蓝）</li>
+        <li>第 2 个通道数据是 <strong>G</strong>（绿）</li>
+        <li>第 3 个通道数据是 <strong>R</strong>（红）</li>
+      </ul>
+      <p class="content-text">
+        这是 OpenCV 的默认色彩空间，后续所有像素读写、通道拆分都要记住这个顺序。
+      </p>
+
+      <!-- ===== 2-5 ===== -->
+      <div class="section-heading" id="section-4">
+        <span class="section-number">2-5</span>
+        <h2>获得图像的属性</h2>
+      </div>
+
+      <p class="content-text">
+        <code>imread()</code> 读进来的图像本质上是一个 Numpy 数组，有三个常用属性：
+      </p>
+
+      <ul class="param-list">
+        <li><strong>shape</strong>：形状
+          <ul style="margin-top:4px;">
+            <li>灰度图：<code>(rows, columns)</code></li>
+            <li>彩色图：<code>(rows, columns, channels)</code></li>
+          </ul>
+        </li>
+        <li><strong>size</strong>：元素总数 = <code>rows × columns × channels</code>（灰度图 channels=1，省略）</li>
+        <li><strong>dtype</strong>：数据类型，通常是 <code>uint8</code>（8 位无符号整数，值在 0 ~ 255 之间）</li>
+      </ul>
+
+      <p class="code-title">程序示例 ch2_1.py：打印灰度图像的属性值</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch2_1.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>, cv2.IMREAD_GRAYSCALE)  <span class="comment"># 灰度读取</span>
+<span class="line-num">5</span><span class="builtin">print</span>(<span class="string">"打印灰度图像的属性"</span>)
+<span class="line-num">6</span><span class="builtin">print</span>(<span class="string">f"shape = {img.shape}"</span>)
+<span class="line-num">7</span><span class="builtin">print</span>(<span class="string">f"size  = {img.size}"</span>)
+<span class="line-num">8</span><span class="builtin">print</span>(<span class="string">f"dtype = {img.dtype}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">打印灰度图像的属性<br>shape = (345, 342)<br>size  = 117990<br>dtype = uint8</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">图示</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch2_5_paint_coords.png" alt="Windows 画图软件显示 jk.jpg 尺寸与坐标">
+          <div class="caption">Windows 画图软件打开 jk.jpg，状态栏显示 <code>342 × 345</code> 像素（x × y 顺序）。</div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <span class="note-icon">重点</span>
+        <span>画图软件显示 <code>342 × 345</code>（x × y），但 OpenCV 的 <code>shape</code> 是 <code>(345, 342)</code>，也就是 <strong>(y, x)</strong> 即 <strong>(行数, 列数)</strong>。坐标轴习惯和 Numpy 索引顺序相反，务必注意。</span>
+      </div>
+
+      <p class="content-text">
+        <code>size</code> 返回 <code>117990 = 345 × 342</code>；<code>dtype</code> 返回 <code>uint8</code>，表示 8 位无符号整数。
+      </p>
+
+      <p class="code-title">程序示例 ch2_2.py：打印彩色图像的属性值</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch2_2.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                <span class="comment"># 彩色读取</span>
+<span class="line-num">5</span><span class="builtin">print</span>(<span class="string">"打印彩色图像的属性"</span>)
+<span class="line-num">6</span><span class="builtin">print</span>(<span class="string">f"shape = {img.shape}"</span>)
+<span class="line-num">7</span><span class="builtin">print</span>(<span class="string">f"size  = {img.size}"</span>)
+<span class="line-num">8</span><span class="builtin">print</span>(<span class="string">f"dtype = {img.dtype}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">打印彩色图像的属性<br>shape = (345, 342, 3)<br>size  = 353970<br>dtype = uint8</div>
+      </div>
+
+      <p class="content-text">
+        <code>size</code> 为 <code>353970 = 345 × 342 × 3</code>，多了一个通道维度。
+      </p>
+
+      <!-- ===== 2-6 ===== -->
+      <div class="section-heading" id="section-5">
+        <span class="section-number">2-6</span>
+        <h2>像素的 BGR 值</h2>
+      </div>
+
+      <p class="content-text">
+        <code>jk.jpg</code> 大小是 <code>342 × 345</code>，OpenCV 的坐标约定：
+      </p>
+      <ul class="content-list">
+        <li>x 轴范围 <code>0 ~ 341</code>（宽度 342）</li>
+        <li>y 轴范围 <code>0 ~ 344</code>（高度 345）</li>
+      </ul>
+
+      <div class="result-box">
+        <span class="result-box-header">图示</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch2_6_cursor.png" alt="鼠标指向像素坐标 (118, 169)">
+          <div class="caption">鼠标移到脸颊附近，画图软件左下角显示坐标 <code>118, 169</code>（x, y）。下面的示例将读取这一点的 BGR 值。</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading">2-6-1 读取特定灰度图像像素坐标的 BGR 值</h3>
+
+      <p class="content-text">
+        访问像素的语法是 <code>img[y, x]</code>（先 y 后 x）。对灰度图，返回一个 <code>uint8</code> 标量：
+      </p>
+
+      <div class="code-syntax">img = cv2.imread("jk.jpg", cv2.IMREAD_GRAYSCALE)
+px = img[169, 118]  # 获取坐标 (x=118, y=169) 的灰度值</div>
+
+      <p class="code-title">程序示例 ch2_3.py：读取灰度图像 (169, 118) 的值</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch2_3.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>pt_y = <span class="builtin">169</span>
+<span class="line-num">5</span>pt_x = <span class="builtin">118</span>
+<span class="line-num">6</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>, cv2.IMREAD_GRAYSCALE)  <span class="comment"># 灰度读取</span>
+<span class="line-num">7</span>px = img[pt_y, pt_x]                                <span class="comment"># 读 px 点</span>
+<span class="line-num">8</span><span class="builtin">print</span>(<span class="builtin">type</span>(px))
+<span class="line-num">9</span><span class="builtin">print</span>(<span class="string">f"BGR = {px}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">&lt;class 'numpy.uint8'&gt;<br>BGR = 128</div>
+      </div>
+
+      <h3 class="subsection-heading">2-6-2 读取特定彩色图像像素坐标的 BGR 值</h3>
+
+      <p class="content-text">
+        对彩色图，<code>img[y, x]</code> 返回一个长度为 3 的 <code>ndarray</code>，依序是 <code>[B, G, R]</code>：
+      </p>
+
+      <p class="code-title">程序示例 ch2_4.py：读取彩色图像 (169, 118) 的 BGR 值</p>
+      <div class="code-block"><span class="line-num">1</span><span class="comment"># ch2_4.py</span>
+<span class="line-num">2</span><span class="keyword">import</span> cv2
+<span class="line-num">3</span>
+<span class="line-num">4</span>pt_y = <span class="builtin">169</span>
+<span class="line-num">5</span>pt_x = <span class="builtin">118</span>
+<span class="line-num">6</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)    <span class="comment"># 彩色读取</span>
+<span class="line-num">7</span>px = img[pt_y, pt_x]              <span class="comment"># 读 px 点</span>
+<span class="line-num">8</span><span class="builtin">print</span>(<span class="builtin">type</span>(px))
+<span class="line-num">9</span><span class="builtin">print</span>(<span class="string">f"BGR = {px}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">&lt;class 'numpy.ndarray'&gt;<br>BGR = [ 45 112 191]</div>
+      </div>
+
+      <p class="content-text">也可以一次只取一个通道，加第三个索引即可：</p>
+
+      <div class="code-syntax">blue  = img[pt_y, pt_x, 0]   # B 通道值
+green = img[pt_y, pt_x, 1]   # G 通道值
+red   = img[pt_y, pt_x, 2]   # R 通道值</div>
+
+      <p class="code-title">程序示例 ch2_5.py：分别列出三个通道的值</p>
+      <div class="code-block"><span class="line-num"> 1</span><span class="comment"># ch2_5.py</span>
+<span class="line-num"> 2</span><span class="keyword">import</span> cv2
+<span class="line-num"> 3</span>
+<span class="line-num"> 4</span>pt_y = <span class="builtin">169</span>
+<span class="line-num"> 5</span>pt_x = <span class="builtin">118</span>
+<span class="line-num"> 6</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)           <span class="comment"># 彩色读取</span>
+<span class="line-num"> 7</span>blue  = img[pt_y, pt_x, <span class="builtin">0</span>]           <span class="comment"># 读 B 通道值</span>
+<span class="line-num"> 8</span>green = img[pt_y, pt_x, <span class="builtin">1</span>]           <span class="comment"># 读 G 通道值</span>
+<span class="line-num"> 9</span>red   = img[pt_y, pt_x, <span class="builtin">2</span>]           <span class="comment"># 读 R 通道值</span>
+<span class="line-num">10</span><span class="builtin">print</span>(<span class="string">f"BGR = {blue}, {green}, {red}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">BGR = 45, 112, 191</div>
+      </div>
+
+      <h3 class="subsection-heading">2-6-3 修改特定图像像素坐标的 BGR 值</h3>
+
+      <p class="content-text">
+        改一个像素的值，直接赋一个长度为 3 的列表就行：
+      </p>
+
+      <div class="code-syntax">px = [blue, green, red]   # 注意顺序是 B, G, R</div>
+
+      <p class="code-title">程序示例 ch2_6.py：把 (169, 118) 改成白色 [255, 255, 255]</p>
+      <div class="code-block"><span class="line-num"> 1</span><span class="comment"># ch2_6.py</span>
+<span class="line-num"> 2</span><span class="keyword">import</span> cv2
+<span class="line-num"> 3</span>
+<span class="line-num"> 4</span>pt_y = <span class="builtin">169</span>
+<span class="line-num"> 5</span>pt_x = <span class="builtin">118</span>
+<span class="line-num"> 6</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)            <span class="comment"># 彩色读取</span>
+<span class="line-num"> 7</span>px = img[pt_y, pt_x]                      <span class="comment"># 读 px 点</span>
+<span class="line-num"> 8</span><span class="builtin">print</span>(<span class="string">f"更改前 BGR = {px}"</span>)
+<span class="line-num"> 9</span>px = [<span class="builtin">255</span>, <span class="builtin">255</span>, <span class="builtin">255</span>]                <span class="comment"># 修改 px 点</span>
+<span class="line-num">10</span><span class="builtin">print</span>(<span class="string">f"更改后 BGR = {px}"</span>)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content">更改前 BGR = [ 45 112 191]<br>更改后 BGR = [255, 255, 255]</div>
+      </div>
+
+      <p class="content-text">
+        改单个像素肉眼几乎看不出来，下面改一整块区域就明显了 —— 把图像右下角 50×50 的区域全涂成白色：
+      </p>
+
+      <p class="code-title">程序示例 ch2_7.py：右下角 50×50 像素改为白色</p>
+      <div class="code-block"><span class="line-num"> 1</span><span class="comment"># ch2_7.py</span>
+<span class="line-num"> 2</span><span class="keyword">import</span> cv2
+<span class="line-num"> 3</span>
+<span class="line-num"> 4</span>img = cv2.<span class="function">imread</span>(<span class="string">"jk.jpg"</span>)                    <span class="comment"># 彩色读取</span>
+<span class="line-num"> 5</span>cv2.<span class="function">imshow</span>(<span class="string">"Before the change"</span>, img)
+<span class="line-num"> 6</span><span class="keyword">for</span> y <span class="keyword">in</span> <span class="builtin">range</span>(img.shape[<span class="builtin">0</span>]-<span class="builtin">50</span>, img.shape[<span class="builtin">0</span>]):
+<span class="line-num"> 7</span>    <span class="keyword">for</span> x <span class="keyword">in</span> <span class="builtin">range</span>(img.shape[<span class="builtin">1</span>]-<span class="builtin">50</span>, img.shape[<span class="builtin">1</span>]):
+<span class="line-num"> 8</span>        img[y, x] = [<span class="builtin">255</span>, <span class="builtin">255</span>, <span class="builtin">255</span>]
+<span class="line-num"> 9</span>cv2.<span class="function">imshow</span>(<span class="string">"After the change"</span>, img)
+<span class="line-num">10</span>cv2.<span class="function">waitKey</span>(<span class="builtin">0</span>)
+<span class="line-num">11</span>cv2.<span class="function">destroyAllWindows</span>()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch2_7_result.png" alt="ch2_7.py 执行结果 Before/After 对比">
+          <div class="caption">左侧 Before the change 是原图；右侧 After the change 图像右下角出现一个白色方块（50×50 像素区域被改成白色）。</div>
+        </div>
+      </div>
+
+      <!-- Exercise -->
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：调整 <code>ch2_7.py</code>，改为在图像下方显示一条<strong>黄色横条</strong>。</p>
+          <p style="font-size:13px; color:#888; margin-top:6px;">提示：横条跨越整个宽度，高度可选 50 像素；黄色 BGR = <code>[0, 255, 255]</code>。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch02/exercise_ref.png" alt="习题参考效果">
+            <div class="caption">参考效果：右侧 After 图底部多了一条黄色横条。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Navigation -->
+      <div class="page-nav">
+        <a href="ch01.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 1 章 图像的读取、显示与保存</div>
+          </div>
+        </a>
+        <a href="ch03.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 3 章 Numpy 知识</div>
+          </div>
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 图像创意迈向 AI 视觉王者归来 — 个人学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch02");</script>
+</body>
+</html>

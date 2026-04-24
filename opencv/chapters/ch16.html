@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 16 章 轮廓拟合与凸包的相关应用 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 16 章</span>
+      <h1 class="chapter-title">轮廓拟合与凸包的相关应用</h1>
+      <div class="chapter-meta">本章共 3 个小节 · 轮廓拟合 · 凸包 · 凸缺陷 · 几何测试</div>
+
+      <div class="chapter-intro">
+        本章是轮廓知识的延伸。前一章取得轮廓后，可以进一步用矩形、圆形、椭圆、三角形、多边形或直线描述轮廓外形；
+        也可以计算凸包、凸缺陷，并测试轮廓是否为凸形或某点到轮廓的距离。
+      </div>
+
+      <div class="note-box">
+        <span class="note-icon">共用</span>
+        <span>本章多数程序都先读取影像、转灰阶、二值化，再用 <code>findContours()</code> 找轮廓，后续才进行拟合或测试。</span>
+      </div>
+
+      <div class="code-block">src = cv2.imread("image.jpg")
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)</div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">16-1</span>
+        <h2>轮廓的拟合</h2>
+      </div>
+
+      <p class="content-text">
+        轮廓拟合是将凹凸不平整的轮廓用几何图形或多边形框起来。本节依序介绍矩形包围、最小包围矩形、
+        最小包围圆形、最佳拟合椭圆、最小包围三角形、近似多边形与最佳拟合直线。
+      </p>
+
+      <h3>16-1-1 矩形包围</h3>
+
+      <p class="content-text">
+        <code>boundingRect()</code> 可取得包围轮廓的矩形。此矩形不旋转，边缘与 x、y 轴平行。
+      </p>
+
+      <div class="code-syntax">retval = cv2.boundingRect(array)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数 / 返回值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>retval</code></td><td>返回 <code>(x, y, w, h)</code>，分别是左上角 x、y 坐标，以及矩形宽度与高度。</td></tr>
+          <tr><td><code>array</code></td><td>灰阶影像或轮廓。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch16_1.py：列出包围轮廓的矩形框坐标、宽度和高度</p>
+      <div class="code-block"># ch16_1.py
+import cv2
+
+src = cv2.imread("explode1.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+rect = cv2.boundingRect(contours[0])
+print(f"矩形 rect = {rect}")
+
+x, y, w, h = cv2.boundingRect(contours[0])
+print(f"左上角 x = {x}, 左上角 y = {y}")
+print(f"矩形宽度 = {w}")
+print(f"矩形高度 = {h}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">矩形参数输出</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_01_result_rect.png" alt="ch16_1.py boundingRect 输出与原图">
+          <div class="caption">读取 <code>explode1.jpg</code> 后列出矩形包围坐标，参考原书第 <strong>16-2</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch16_2.py / ch16_3.py：用 boundingRect() 的返回值绘制矩形框</p>
+      <div class="code-block"># ch16_2.py
+x, y, w, h = cv2.boundingRect(contours[0])
+dst = cv2.rectangle(src, (x, y), (x + w, y + h), (0, 255, 255), 2)
+cv2.imshow("dst", dst)
+
+# ch16_3.py
+# 将 ch16_2.py 的来源影像改为 explode2.jpg，观察矩形面积变大的情况。
+src = cv2.imread("explode2.jpg")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">矩形包围结果</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_02_result_rect_box.png" alt="ch16_2.py 和 ch16_3.py 矩形包围结果">
+          <div class="caption">轴对齐矩形可以包住轮廓，但不一定是面积最小的包围矩形，参考原书第 <strong>16-3</strong> 至 <strong>16-4</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-1-2 最小包围矩形</h3>
+
+      <p class="content-text">
+        <code>minAreaRect()</code> 会返回可旋转的最小包围矩形。由于返回的是中心、宽高与旋转角度，
+        还需要用 <code>boxPoints()</code> 取得四个顶点坐标，再用 <code>drawContours()</code> 画出来。
+      </p>
+
+      <div class="code-syntax">retval = cv2.minAreaRect(points)
+points = cv2.boxPoints(box)</div>
+
+      <p class="code-title">程序实例 ch16_4.py：使用最小矩形框包围 explode2.jpg 的轮廓</p>
+      <div class="code-block"># ch16_4.py
+import cv2
+import numpy as np
+
+src = cv2.imread("explode2.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+box = cv2.minAreaRect(contours[0])
+print(f"转换前的矩形顶角 = \n{box}")
+
+points = cv2.boxPoints(box)
+points = np.int0(points)
+print(f"转换后的矩形顶角 = \n{points}")
+
+dst = cv2.drawContours(src, [points], 0, (0, 255, 0), 2)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">最小包围矩形</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_04_result_min_rect.png" alt="ch16_4.py minAreaRect 最小包围矩形结果">
+          <div class="caption">旋转后的矩形更贴合轮廓，参考原书第 <strong>16-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-1-3 最小包围圆形</h3>
+
+      <p class="content-text">
+        <code>minEnclosingCircle()</code> 会取得包住轮廓的最小圆形，返回圆心坐标与半径。
+      </p>
+
+      <div class="code-syntax">center, radius = cv2.minEnclosingCircle(points)</div>
+
+      <p class="code-title">程序实例 ch16_5.py / ch16_6.py：用最小圆包围轮廓</p>
+      <div class="code-block"># ch16_5.py
+import cv2
+import numpy as np
+
+src = cv2.imread("explode3.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+(x, y), radius = cv2.minEnclosingCircle(contours[0])
+center = (int(x), int(y))
+radius = int(radius)
+dst = cv2.circle(src, center, radius, (0, 255, 255), 2)
+cv2.imshow("dst", dst)
+
+# ch16_6.py
+# 将来源影像改为 explode1.jpg，观察不同轮廓的圆形包围结果。</div>
+
+      <div class="result-box">
+        <span class="result-box-header">最小包围圆形</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_05_result_circle.png" alt="ch16_5.py 和 ch16_6.py minEnclosingCircle 执行结果">
+          <div class="caption">圆心与半径取整后，可用 <code>circle()</code> 绘制包围圆，参考原书第 <strong>16-6</strong> 至 <strong>16-7</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-1-4 最佳拟合椭圆</h3>
+
+      <p class="content-text">
+        <code>fitEllipse()</code> 会以轮廓点拟合椭圆，返回值可直接传入 <code>ellipse()</code> 绘制。
+      </p>
+
+      <div class="code-syntax">retval = cv2.fitEllipse(points)</div>
+
+      <p class="code-title">程序实例 ch16_7.py：使用 fitEllipse() 包围云朵轮廓</p>
+      <div class="code-block"># ch16_7.py
+import cv2
+
+src = cv2.imread("cloud.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+ellipse = cv2.fitEllipse(contours[0])
+print(f"资料类型 = {type(ellipse)}")
+print(f"椭圆中心 = {ellipse[0]}")
+print(f"椭圆轴长 = {ellipse[1]}")
+print(f"旋转角度 = {ellipse[2]}")
+
+dst = cv2.ellipse(src, ellipse, (0, 255, 0), 2)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">最佳拟合椭圆</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_07_result_ellipse.png" alt="ch16_7.py fitEllipse 执行结果">
+          <div class="caption"><code>fitEllipse()</code> 返回的资料可直接用于绘制椭圆，参考原书第 <strong>16-8</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-1-5 最小包围三角形</h3>
+
+      <p class="content-text">
+        <code>minEnclosingTriangle()</code> 会返回三角形面积与顶点坐标。书中范例直接用三次 <code>line()</code>
+        连接三角形三个顶点，习题要求改用 <code>for</code> 循环完成。
+      </p>
+
+      <div class="code-syntax">area, triangle = cv2.minEnclosingTriangle(points)</div>
+
+      <p class="code-title">程序实例 ch16_8.py：用最小三角形包围 heart.jpg</p>
+      <div class="code-block"># ch16_8.py
+import cv2
+import numpy as np
+
+src = cv2.imread("heart.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+area, triangle = cv2.minEnclosingTriangle(contours[0])
+triangle = np.int0(triangle)
+print(f"三角形面积 = {area}")
+print(f"三角形顶点坐标资料类型 = {type(triangle)}")
+print(f"三角形顶点坐标 = \n{triangle}")
+
+dst = cv2.line(src, tuple(triangle[0][0]), tuple(triangle[1][0]), (0, 255, 0), 2)
+dst = cv2.line(src, tuple(triangle[1][0]), tuple(triangle[2][0]), (0, 255, 0), 2)
+dst = cv2.line(src, tuple(triangle[0][0]), tuple(triangle[2][0]), (0, 255, 0), 2)
+cv2.imshow("dst", dst)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">最小包围三角形</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_08_result_triangle.png" alt="ch16_8.py minEnclosingTriangle 执行结果">
+          <div class="caption">三角形三个顶点可由返回数组取得，参考原书第 <strong>16-10</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-1-6 近似多边形</h3>
+
+      <p class="content-text">
+        <code>approxPolyDP()</code> 可使用多边形近似轮廓。<code>epsilon</code> 是原始轮廓与近似多边形之间的最大距离，
+        数值越大，近似越粗略，顶点通常越少。
+      </p>
+
+      <div class="code-syntax">approx = cv2.approxPolyDP(curve, epsilon, closed)</div>
+
+      <p class="code-title">程序实例 ch16_9.py：比较 epsilon=3 与 epsilon=15</p>
+      <div class="code-block"># ch16_9.py
+import cv2
+
+src = cv2.imread("multiple.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+src1 = src.copy()
+src2 = src.copy()
+n = len(contours)
+for i in range(n):
+    approx = cv2.approxPolyDP(contours[i], 3, True)
+    dst1 = cv2.polylines(src1, [approx], True, (0, 255, 0), 2)
+    approx = cv2.approxPolyDP(contours[i], 15, True)
+    dst2 = cv2.polylines(src2, [approx], True, (0, 255, 0), 2)
+
+cv2.imshow("dst1 - epsilon=3", dst1)
+cv2.imshow("dst2 - epsilon=15", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">近似多边形</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_09_result_approx_eps3_15.png" alt="ch16_9.py approxPolyDP epsilon 3 与 15 执行结果">
+          <div class="caption">下列图分别是原始影像、<code>epsilon=3</code> 与 <code>epsilon=15</code> 的近似多边形，参考原书第 <strong>16-11</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-1-7.1 最佳拟合直线</h3>
+
+      <p class="content-text">
+        <code>fitLine()</code> 会使用轮廓点拟合直线，并返回正则化向量与直线经过的点。书中范例使用 <code>DIST_L2</code>
+        距离类型，再计算左边点与右边点来绘制直线。
+      </p>
+
+      <div class="code-syntax">line = cv2.fitLine(points, distType, param, reps, aeps)</div>
+
+      <p class="code-title">程序实例 ch16_10.py：使用 fitLine() 表达不规则轮廓</p>
+      <div class="code-block"># ch16_10.py
+import cv2
+
+src = cv2.imread("unregular.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+rows, cols = src.shape[:2]
+vx, vy, x, y = cv2.fitLine(contours[0], cv2.DIST_L2, 0, 0.01, 0.01)
+print(f"直线正规化向量 = ({vx}, {vy})")
+print(f"直线经过的点 = ({x}, {y})")
+
+lefty = int((-x * vy / vx) + y)
+righty = int(((cols - x) * vy / vx) + y)
+dst = cv2.line(src, (0, lefty), (cols - 1, righty), (0, 255, 0), 2)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">最佳拟合直线</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_10_result_fitline.png" alt="ch16_10.py fitLine 执行结果">
+          <div class="caption">用轮廓点拟合出代表直线，参考原书第 <strong>16-14</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">16-2</span>
+        <h2>凸包</h2>
+      </div>
+
+      <h3>16-2-1 获得凸包</h3>
+
+      <p class="content-text">
+        凸包是包住轮廓的最小凸多边形。<code>convexHull()</code> 可返回凸包顶点坐标，也可返回轮廓中对应点的索引；
+        后者在计算凸缺陷时会用到。
+      </p>
+
+      <div class="code-syntax">hull = cv2.convexHull(points, clockwise, returnPoints)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>points</code></td><td>输入轮廓。</td></tr>
+          <tr><td><code>clockwise</code></td><td>可选参数，决定凸包点顺时针或逆时针排列。</td></tr>
+          <tr><td><code>returnPoints</code></td><td>默认 <code>True</code>，返回凸包点坐标；设为 <code>False</code> 时返回轮廓点索引。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch16_11.py：使用 heart1.jpg 建立凸包</p>
+      <div class="code-block"># ch16_11.py
+import cv2
+
+src = cv2.imread("heart1.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+hull = cv2.convexHull(contours[0])
+dst = cv2.polylines(src, [hull], True, (0, 255, 0), 2)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">心形凸包</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_11_result_hull_heart.png" alt="ch16_11.py heart1 凸包执行结果">
+          <div class="caption">凸包连线会补齐心形上方的凹陷区域，参考原书第 <strong>16-16</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch16_12.py / ch16_12_1.py / ch16_13.py：手势凸包与面积</p>
+      <div class="code-block"># ch16_12.py
+src = cv2.imread("hand1.jpg")
+hull = cv2.convexHull(contours[0])
+dst = cv2.polylines(src, [hull], True, (0, 255, 0), 2)
+
+# ch16_12_1.py
+convex_area = cv2.contourArea(hull)
+print(f"凸包面积 = {convex_area}")
+
+# ch16_13.py
+src = cv2.imread("hand2.jpg")
+n = len(contours)
+for i in range(n):
+    hull = cv2.convexHull(contours[i])
+    dst = cv2.polylines(src, [hull], True, (0, 255, 0), 2)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">手势凸包</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_12_result_hull_hand1.png" alt="ch16_12.py hand1 凸包执行结果">
+          <div class="caption">将凸包应用在单一手势轮廓，参考原书第 <strong>16-17</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_12_1_result_hull_area_hand1.png" alt="ch16_12_1.py hand1 凸包面积执行结果">
+          <div class="caption"><code>contourArea()</code> 可计算凸包面积，参考原书第 <strong>16-18</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_13_result_hull_hand2.png" alt="ch16_13.py hand2 多个凸包执行结果">
+          <div class="caption">多轮廓影像可用循环逐一计算凸包，参考原书第 <strong>16-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-2-2 凸缺陷</h3>
+
+      <p class="content-text">
+        凸缺陷是轮廓与凸包之间的凹陷区域。使用 <code>convexityDefects()</code> 前，必须让
+        <code>convexHull()</code> 回传凸包索引，也就是设定 <code>returnPoints=False</code>。
+      </p>
+
+      <div class="code-syntax">convexityDefects = cv2.convexityDefects(contour, convexhull)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">凸缺陷概念</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_defects_diagram.png" alt="凸缺陷 start end far point 说明图">
+          <div class="caption">凸缺陷会记录起点、终点、最远点与距离，参考原书第 <strong>16-20</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch16_14.py：使用 star.jpg 建立凸包和凸缺陷最远点</p>
+      <div class="code-block"># ch16_14.py
+import cv2
+
+src = cv2.imread("star.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+contour = contours[0]
+hull = cv2.convexHull(contour, returnPoints=False)
+defects = cv2.convexityDefects(contour, hull)
+n = defects.shape[0]
+
+for i in range(n):
+    s, e, f, d = defects[i, 0]
+    start = tuple(contour[s][0])
+    end = tuple(contour[e][0])
+    far = tuple(contour[f][0])
+    dst = cv2.line(src, start, end, (0, 255, 0), 2)
+    dst = cv2.circle(src, far, 3, (0, 0, 255), -1)
+
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">星形凸缺陷</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_14_result_defects_star.png" alt="ch16_14.py convexityDefects 星形执行结果">
+          <div class="caption">红点标示凸缺陷的 far point，参考原书第 <strong>16-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">16-3</span>
+        <h2>轮廓的几何测试</h2>
+      </div>
+
+      <h3>16-3-1 测试轮廓包围线是否凸形</h3>
+
+      <p class="content-text">
+        <code>isContourConvex()</code> 可测试轮廓是否为凸形，返回 <code>True</code> 或 <code>False</code>。
+        书中范例分别测试凸包与近似多边形。
+      </p>
+
+      <div class="code-syntax">retval = cv2.isContourConvex(contour)</div>
+
+      <p class="code-title">程序实例 ch16_15.py：测试凸包与近似多边形是否凸形</p>
+      <div class="code-block"># ch16_15.py
+import cv2
+
+src = cv2.imread("heart1.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+src1 = src.copy()
+hull = cv2.convexHull(contours[0])
+dst1 = cv2.polylines(src1, [hull], True, (0, 255, 0), 2)
+cv2.imshow("dst1", dst1)
+isConvex = cv2.isContourConvex(hull)
+print(f"凸包是凸形 = {isConvex}")
+
+src2 = src.copy()
+approx = cv2.approxPolyDP(contours[0], 10, True)
+dst2 = cv2.polylines(src2, [approx], True, (0, 255, 0), 2)
+cv2.imshow("dst2 - epsilon=10", dst2)
+isConvex = cv2.isContourConvex(approx)
+print(f"近似多边形是凸形 = {isConvex}")</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">凸包是凸形 = True
+近似多边形是凸形 = False</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">凸性测试</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_15_result_isconvex_heart.png" alt="ch16_15.py isContourConvex 执行结果">
+          <div class="caption">凸包是凸形，近似多边形不一定是凸形，参考原书第 <strong>16-22</strong> 页。</div>
+        </div>
+      </div>
+
+      <h3>16-3-2 计算任意坐标点与轮廓包围线的最短距离</h3>
+
+      <p class="content-text">
+        <code>pointPolygonTest()</code> 可测试任一点与轮廓的关系。若 <code>measureDist=True</code>，
+        返回实际带正负号的距离；点在轮廓外为负，在轮廓上为 0，在轮廓内为正。
+        若 <code>measureDist=False</code>，只返回 <code>-1</code>、<code>0</code> 或 <code>1</code>。
+      </p>
+
+      <div class="code-syntax">retval = cv2.pointPolygonTest(contour, pt, measureDist)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">点测试概念</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_point_test_diagram.png" alt="pointPolygonTest 点与轮廓距离说明图">
+          <div class="caption">A 在轮廓边界，B 在轮廓内，C 在轮廓外，参考原书第 <strong>16-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch16_16.py：measureDist=True，计算点到凸包边界的距离</p>
+      <div class="code-block"># ch16_16.py
+import cv2
+
+src = cv2.imread("heart1.jpg")
+cv2.imshow("src", src)
+
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+hull = cv2.convexHull(contours[0])
+dst = cv2.polylines(src, [hull], True, (0, 255, 0), 2)
+
+point_a = (231, 85)
+dist_a = cv2.pointPolygonTest(hull, point_a, True)
+dst = cv2.circle(src, point_a, 3, (0, 0, 255), -1)
+cv2.putText(dst, "A", (236, 95), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+print(f"dist_a = {dist_a}")
+
+point_b = (150, 100)
+dist_b = cv2.pointPolygonTest(hull, point_b, True)
+dst = cv2.circle(src, point_b, 3, (0, 0, 255), -1)
+cv2.putText(dst, "B", (160, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+print(f"dist_b = {dist_b}")
+
+point_c = (80, 85)
+dist_c = cv2.pointPolygonTest(hull, point_c, True)
+dst = cv2.circle(src, point_c, 3, (0, 0, 255), -1)
+cv2.putText(dst, "C", (50, 95), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+print(f"dist_c = {dist_c}")
+
+cv2.imshow("dst", dst)</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">dist_a = 0.0
+dist_b = 35.65165808180456
+dist_c = -16.829141392230833</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">measureDist=True</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_16_result_point_polygon_test.png" alt="ch16_16.py pointPolygonTest measureDist True 执行结果">
+          <div class="caption">返回实际距离，正负号表示点在轮廓内外，参考原书第 <strong>16-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch16_17.py：measureDist=False，只判断点的位置关系</p>
+      <div class="code-block"># ch16_17.py
+# 与 ch16_16.py 相同，只将 measureDist 改为 False。
+dist_a = cv2.pointPolygonTest(hull, point_a, False)
+dist_b = cv2.pointPolygonTest(hull, point_b, False)
+dist_c = cv2.pointPolygonTest(hull, point_c, False)
+
+print(f"dist_a = {dist_a}")
+print(f"dist_b = {dist_b}")
+print(f"dist_c = {dist_c}")</div>
+
+      <div class="result-box chapter-output-pre">
+        <span class="result-box-header">Python Shell 输出</span>
+        <div class="result-box-content result-output">dist_a = 0.0
+dist_b = 1.0
+dist_c = -1.0</div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">measureDist=False</span>
+        <div class="result-box-image">
+          <img src="images/ch16/ch16_17_result_point_polygon_test_false.png" alt="ch16_17.py pointPolygonTest measureDist False 执行结果">
+          <div class="caption">影像画面与 <code>ch16_16.py</code> 相同，输出改为位置关系，参考原书第 <strong>16-24</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 更改 <code>ch16_2.py</code>，不使用 <code>rectangle()</code> 函数建立最小矩形框，改为使用 Numpy 模块自行建立影像图，然后绘制最小矩形框。</p>
+          <p>2. 使用 <code>explode4.jpg</code>，参考 <code>ch16_8.py</code> 绘制最小三角形包围，但必须使用 <code>for</code> 循环将三角形用红色线条连接。</p>
+          <p>3. 使用 <code>hand3.jpg</code>，绘制凸包，同时列出所有轮廓的缺陷数量和凸缺陷。</p>
+          <p>4. 使用 <code>mutstars.jpg</code>，绘制凸包，同时列出所有轮廓的缺陷数量和凸缺陷。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch16/ch16_ex3_result_hand3_defects.png" alt="第 16 章习题 3 hand3 凸缺陷参考结果">
+            <div class="caption">习题 3 的手势凸缺陷参考结果，参考原书第 <strong>16-24</strong> 页。</div>
+          </div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch16/ch16_ex4_result_multistars_defects.png" alt="第 16 章习题 4 mutstars 凸缺陷参考结果">
+            <div class="caption">习题 4 的多星形凸缺陷参考结果，参考原书第 <strong>16-24</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="#" style="opacity:0.6;pointer-events:none">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 15 章 轮廓的检测与匹配（待制作）</div>
+          </div>
+        </a>
+        <a href="#" style="opacity:0.6;pointer-events:none">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 17 章 轮廓的特征（待制作）</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch16");</script>
+</body>
+</html>

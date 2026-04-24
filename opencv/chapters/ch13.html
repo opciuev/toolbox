@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 13 章 影像梯度与边缘侦测 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 13 章</span>
+      <h1 class="chapter-title">影像梯度与边缘侦测</h1>
+      <div class="chapter-meta">本章共 5 个小节 · 影像梯度 · Sobel · Scharr · Laplacian · Canny</div>
+
+      <div class="chapter-intro">
+        边缘是影像中亮度或颜色变化明显的位置。影像梯度用来描述像素值变化的方向与强度，
+        OpenCV 提供 <code>Sobel()</code>、<code>Scharr()</code>、<code>Laplacian()</code> 和 <code>Canny()</code> 等函数来检测边缘。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">13-1</span>
+        <h2>影像梯度的基础观念</h2>
+      </div>
+
+      <p class="content-text">
+        如果一排像素值从暗到亮快速变化，变化最明显的位置通常就是边界。水平边界需要观察垂直方向的变化；
+        垂直边界则需要观察水平方向的变化。梯度越大，表示该位置越可能是边缘。
+      </p>
+
+      <div class="note-box">
+        <span class="note-icon">观念</span>
+        <span>边缘检测通常不会只看单一像素，而是用卷积核比较邻域中亮度变化。不同算子使用不同核，输出结果也会不同。</span>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">梯度观念图</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_gradient_examples.png" alt="影像梯度与边缘概念示意">
+          <div class="caption">机器视觉常以梯度变化寻找轮廓与边界，参考原书第 <strong>13-3</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">13-2</span>
+        <h2>OpenCV 函数 Sobel()</h2>
+      </div>
+
+      <p class="content-text">
+        Sobel 算子使用一阶导数近似，分别计算 x 方向和 y 方向的梯度。
+        x 方向梯度强调垂直边缘；y 方向梯度强调水平边缘。由于梯度可能出现负值，若输出深度使用 <code>cv2.CV_64F</code>，
+        通常会再用 <code>convertScaleAbs()</code> 转成可显示的 8 位影像。
+      </p>
+
+      <div class="code-syntax">dst = cv2.Sobel(src, ddepth, dx, dy, ksize, scale, delta, borderType)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ddepth</code></td><td>输出影像深度。若需保留负梯度，常用 <code>cv2.CV_64F</code>。</td></tr>
+          <tr><td><code>dx</code></td><td>x 方向导数阶数。设为 <code>1</code> 时检测垂直方向变化。</td></tr>
+          <tr><td><code>dy</code></td><td>y 方向导数阶数。设为 <code>1</code> 时检测水平方向变化。</td></tr>
+          <tr><td><code>ksize</code></td><td>Sobel 核大小，常用 <code>3</code>、<code>5</code>、<code>7</code>。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch13_1.py：convertScaleAbs() 处理负梯度</p>
+      <div class="code-block"># ch13_1.py
+import cv2
+import numpy as np
+
+x = np.array([-17, -65, 136, 100], dtype=np.int16)
+dst = cv2.convertScaleAbs(x)
+print(dst)</div>
+
+      <p class="code-title">程序实例 ch13_2.py：Sobel x 方向梯度</p>
+      <div class="code-block"># ch13_2.py
+import cv2
+
+src = cv2.imread("map.jpg")
+dst = cv2.Sobel(src, cv2.CV_64F, 1, 0)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">x 方向梯度</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_sobel_x_result.png" alt="ch13_2.py Sobel x 方向梯度结果">
+          <div class="caption">x 方向梯度主要显示垂直线条，参考原书第 <strong>13-7</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch13_3.py：Sobel x 方向梯度加 convertScaleAbs()</p>
+      <div class="code-block"># ch13_3.py
+import cv2
+
+src = cv2.imread("map.jpg")
+dst = cv2.Sobel(src, cv2.CV_64F, 1, 0)
+dst = cv2.convertScaleAbs(dst)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch13_4.py 与 ch13_5.py：Sobel y 方向梯度</p>
+      <div class="code-block"># ch13_5.py
+import cv2
+
+src = cv2.imread("map.jpg")
+dst = cv2.Sobel(src, cv2.CV_64F, 0, 1)
+dst = cv2.convertScaleAbs(dst)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">y 方向梯度</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_sobel_y_result.png" alt="ch13_5.py Sobel y 方向梯度结果">
+          <div class="caption">y 方向梯度主要显示水平线条，参考原书第 <strong>13-8</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch13_6.py：合成 x/y 方向梯度</p>
+      <div class="code-block"># ch13_6.py
+import cv2
+
+src = cv2.imread("map.jpg")
+dstx = cv2.Sobel(src, cv2.CV_64F, 1, 0)
+dsty = cv2.Sobel(src, cv2.CV_64F, 0, 1)
+dstx = cv2.convertScaleAbs(dstx)
+dsty = cv2.convertScaleAbs(dsty)
+dst = cv2.addWeighted(dstx, 0.5, dsty, 0.5, 0)
+
+cv2.imshow("src", src)
+cv2.imshow("dstx", dstx)
+cv2.imshow("dsty", dsty)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <p class="code-title">程序实例 ch13_7.py / ch13_8.py / ch13_8_1.py：真实影像 Sobel 比较</p>
+      <div class="code-block"># ch13_7.py
+import cv2
+
+src = cv2.imread("lena.jpg")
+dstx = cv2.Sobel(src, cv2.CV_64F, 1, 0)
+dsty = cv2.Sobel(src, cv2.CV_64F, 0, 1)
+dstx = cv2.convertScaleAbs(dstx)
+dsty = cv2.convertScaleAbs(dsty)
+dst = cv2.addWeighted(dstx, 0.5, dsty, 0.5, 0)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">真实影像 Sobel</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_sobel_lena_result.png" alt="ch13_7.py lena Sobel 结果">
+          <div class="caption">分别显示原图、x 方向、y 方向与合成梯度结果，参考原书第 <strong>13-11</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">13-3</span>
+        <h2>OpenCV 函数 Scharr()</h2>
+      </div>
+
+      <p class="content-text">
+        Scharr 算子可以看作 Sobel 的强化版本，常用于 <code>3x3</code> 核大小下的边缘检测。
+        它对梯度变化较敏感，输出的边缘通常更明显。函数参数与 Sobel 接近，但没有 <code>ksize</code> 参数。
+      </p>
+
+      <div class="code-syntax">dst = cv2.Scharr(src, ddepth, dx, dy, scale, delta, borderType)</div>
+
+      <p class="code-title">程序实例 ch13_9.py：Scharr 边缘侦测</p>
+      <div class="code-block"># ch13_9.py
+import cv2
+
+src = cv2.imread("snow.jpg")
+dstx = cv2.Scharr(src, cv2.CV_64F, 1, 0)
+dsty = cv2.Scharr(src, cv2.CV_64F, 0, 1)
+dstx = cv2.convertScaleAbs(dstx)
+dsty = cv2.convertScaleAbs(dsty)
+dst = cv2.addWeighted(dstx, 0.5, dsty, 0.5, 0)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">Scharr 结果</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_scharr_result.png" alt="ch13_9.py Scharr 执行结果">
+          <div class="caption">Scharr 对雪景图边缘的增强效果，参考原书第 <strong>13-13</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">Sobel 与 Scharr 比较</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_scharr_lena_result.png" alt="Sobel 与 Scharr 比较结果">
+          <div class="caption">同一影像上比较 Sobel 与 Scharr 的边缘强度，参考原书第 <strong>13-15</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">13-4</span>
+        <h2>OpenCV 函数 Laplacian()</h2>
+      </div>
+
+      <p class="content-text">
+        Laplacian 使用二阶导数检测边缘，会同时响应多个方向的强度变化。和 Sobel、Scharr 分别计算 x/y 方向不同，
+        Laplacian 更像是一次取得综合边缘信息，但也更容易受到噪声影响。
+      </p>
+
+      <div class="code-syntax">dst = cv2.Laplacian(src, ddepth, ksize, scale, delta, borderType)</div>
+
+      <p class="code-title">程序实例 ch13_10.py：Laplacian 边缘侦测</p>
+      <div class="code-block"># ch13_10.py
+import cv2
+
+src = cv2.imread("map.jpg")
+dst = cv2.Laplacian(src, cv2.CV_64F)
+dst = cv2.convertScaleAbs(dst)
+
+cv2.imshow("src", src)
+cv2.imshow("Laplacian", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">Laplacian 结果</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_laplacian_result.png" alt="ch13_10.py Laplacian 执行结果">
+          <div class="caption">Laplacian 在网格图上能同时显示水平与垂直边缘，参考原书第 <strong>13-18</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch13_11.py：Sobel、Scharr、Laplacian 综合比较</p>
+      <div class="code-block"># ch13_11.py
+import cv2
+
+src = cv2.imread("geneva.jpg")
+sobel = cv2.Sobel(src, cv2.CV_64F, 1, 0)
+scharr = cv2.Scharr(src, cv2.CV_64F, 1, 0)
+laplacian = cv2.Laplacian(src, cv2.CV_64F)
+
+sobel = cv2.convertScaleAbs(sobel)
+scharr = cv2.convertScaleAbs(scharr)
+laplacian = cv2.convertScaleAbs(laplacian)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">三种算子比较</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_laplacian_lena_result.png" alt="Sobel Scharr Laplacian 比较结果">
+          <div class="caption">建筑图像上比较 Sobel、Scharr 与 Laplacian 的边缘表现，参考原书第 <strong>13-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">13-5</span>
+        <h2>Canny 边缘侦测</h2>
+      </div>
+
+      <p class="content-text">
+        Canny 是多阶段边缘检测方法，通常包含去噪、计算梯度、非极大值抑制和双阈值连接等步骤。
+        它比单纯梯度算子更完整，输出常是较细且连续的二值边缘图。
+      </p>
+
+      <div class="content-list">
+        <li>Noise Reduction：先降低噪声，避免杂讯被误判为边缘。</li>
+        <li>Finding Intensity Gradient：计算梯度强度和方向。</li>
+        <li>Non-maximum Suppression：只保留局部最大梯度，压细边缘。</li>
+        <li>Hysteresis Thresholding：用高低阈值连接强边缘与弱边缘。</li>
+      </div>
+
+      <div class="code-syntax">edges = cv2.Canny(image, threshold1, threshold2, apertureSize, L2gradient)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>threshold1</code></td><td>低阈值。</td></tr>
+          <tr><td><code>threshold2</code></td><td>高阈值。</td></tr>
+          <tr><td><code>apertureSize</code></td><td>Sobel 内核大小，默认 3。</td></tr>
+          <tr><td><code>L2gradient</code></td><td>是否使用更精确的 L2 范数计算梯度。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch13_12.py：不同阈值的 Canny 结果</p>
+      <div class="code-block"># ch13_12.py
+import cv2
+
+src = cv2.imread("lena.jpg", cv2.IMREAD_GRAYSCALE)
+dst1 = cv2.Canny(src, 50, 100)
+dst2 = cv2.Canny(src, 50, 200)
+
+cv2.imshow("src", src)
+cv2.imshow("minVal=50, maxVal=100", dst1)
+cv2.imshow("minVal=50, maxVal=200", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">Canny 阈值比较</span>
+        <div class="result-box-image">
+          <img src="images/ch13/ch13_canny_lena_result.png" alt="ch13_12.py Canny 阈值比较">
+          <div class="caption">阈值不同会影响保留的边缘数量，参考原书第 <strong>13-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch13_13.py：加入 Canny 的算子比较</p>
+      <div class="code-block"># ch13_13.py
+import cv2
+
+src = cv2.imread("geneva.jpg", cv2.IMREAD_GRAYSCALE)
+sobel = cv2.convertScaleAbs(cv2.Sobel(src, cv2.CV_64F, 1, 0))
+scharr = cv2.convertScaleAbs(cv2.Scharr(src, cv2.CV_64F, 1, 0))
+laplacian = cv2.convertScaleAbs(cv2.Laplacian(src, cv2.CV_64F))
+canny = cv2.Canny(src, 50, 100)</div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 建立 300x300 黑底白圆影像，分别使用 Sobel、Scharr、Laplacian 和 Canny 取得边缘。</p>
+          <p>2. 使用 <code>eagle.jpg</code>，比较 Sobel、Scharr 与 Laplacian 的输出。</p>
+          <p>3. 使用 <code>macau.jpg</code>，调整 Canny 的 <code>threshold1</code> 与 <code>threshold2</code>，观察边缘数量变化。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch13/ch13_exercise_circle_ref.png" alt="第 13 章白圆边缘侦测习题参考图">
+            <div class="caption">白圆边缘侦测参考图，参考原书第 <strong>13-24</strong> 页。</div>
+          </div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch13/ch13_exercise_refs.png" alt="第 13 章习题综合参考图">
+            <div class="caption">鹰与澳门影像的边缘侦测参考图，参考原书第 <strong>13-26</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch12.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 12 章 数学形态学</div>
+          </div>
+        </a>
+        <a href="ch14.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 14 章 影像金字塔</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch13");</script>
+</body>
+</html>

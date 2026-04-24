@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 12 章 数学形态学 - OpenCV 教程</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教程
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 12 章</span>
+      <h1 class="chapter-title">数学形态学</h1>
+      <div class="chapter-meta">本章共 9 个小节 · 腐蚀 · 膨胀 · 开/闭运算 · 梯度 · 礼帽/黑帽 · 核函数</div>
+
+      <div class="chapter-intro">
+        数学形态学常用于二值图像和灰度图像的结构处理。它通过结构元素，也就是内核，改变白色前景区域的大小、连接关系或轮廓。
+        本章先讲腐蚀和膨胀，再用 <code>morphologyEx()</code> 组合出开运算、闭运算、形态学梯度、礼帽和黑帽等操作，最后说明建立结构元素的核函数。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">12-1</span>
+        <h2>腐蚀 Erosion</h2>
+      </div>
+
+      <p class="content-text">
+        腐蚀会让白色前景区域缩小。以二值图像为例，当结构元素覆盖在影像上时，只有内核覆盖区域都满足前景条件，中心位置才保留为白色；
+        否则会被腐蚀成黑色。因此腐蚀可以消除小白点、断开细连接线，也会让物体边界向内收缩。
+      </p>
+
+      <div class="code-syntax">dst = cv2.erode(src, kernel, anchor, iterations, borderType, borderValue)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src</code></td><td>来源影像，常见为二值图。</td></tr>
+          <tr><td><code>kernel</code></td><td>结构元素，可用 Numpy 阵列或 <code>getStructuringElement()</code> 产生。</td></tr>
+          <tr><td><code>anchor</code></td><td>锚点位置，默认 <code>(-1, -1)</code> 表示内核中心。</td></tr>
+          <tr><td><code>iterations</code></td><td>执行次数，默认 1；次数越多，腐蚀越明显。</td></tr>
+        </tbody>
+      </table>
+
+      <p class="code-title">程序实例 ch12_1.py：用 3x3 内核理解腐蚀操作</p>
+      <div class="code-block"># ch12_1.py
+import cv2
+import numpy as np
+
+src = np.zeros((7, 7), np.uint8)
+src[1:6, 1:6] = 1
+kernel = np.ones((3, 3), np.uint8)
+dst = cv2.erode(src, kernel)
+
+print(f"src =\n{src}")
+print(f"kernel =\n{kernel}")
+print(f"erosion =\n{dst}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">阵列执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_erode_array_result.png" alt="ch12_1.py 腐蚀阵列结果">
+          <div class="caption">3x3 内核必须完整落在前景内，中心点才保留为 1，参考原书第 <strong>12-4</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_2.py：使用不同大小内核腐蚀二值图</p>
+      <div class="code-block"># ch12_2.py
+import cv2
+import numpy as np
+
+src = cv2.imread("bw.jpg")
+kernel5 = np.ones((5, 5), np.uint8)
+kernel11 = np.ones((11, 11), np.uint8)
+dst1 = cv2.erode(src, kernel5)
+dst2 = cv2.erode(src, kernel11)
+
+cv2.imshow("src", src)
+cv2.imshow("after erosion 5 x 5", dst1)
+cv2.imshow("after erosion 11 x 11", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">腐蚀图像结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_erode_kernel_compare.png" alt="ch12_2.py 腐蚀不同内核结果">
+          <div class="caption">内核越大，白色前景缩得越明显；带噪声图也可用腐蚀去除小白点，参考原书第 <strong>12-5</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_3.py 与 ch12_4.py：腐蚀去噪和彩色图腐蚀</p>
+      <p class="content-text">
+        <code>ch12_3.py</code> 将腐蚀用于带噪声的二值图，观察小白点被移除；<code>ch12_4.py</code> 把同样观念用在彩色影像上，
+        可以看到暗色区域扩大、亮色区域缩小。
+      </p>
+
+      <div class="result-box">
+        <span class="result-box-header">腐蚀延伸结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_erosion_binary_results.jpg" alt="ch12_3.py 腐蚀去噪结果">
+          <div class="caption">腐蚀可去除部分小型白色噪声，参考原书第 <strong>12-5</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_erosion_color_result.jpg" alt="ch12_4.py 彩色影像腐蚀结果">
+          <div class="caption">彩色影像执行腐蚀后的比较，参考原书第 <strong>12-6</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">12-2</span>
+        <h2>膨胀 Dilation</h2>
+      </div>
+
+      <p class="content-text">
+        膨胀和腐蚀相反，会让白色前景区域扩大。只要结构元素覆盖范围内存在前景，中心位置就可能被设置为白色。
+        膨胀可以补强断裂线条、扩大亮区，常和腐蚀搭配使用。
+      </p>
+
+      <div class="code-syntax">dst = cv2.dilate(src, kernel, anchor, iterations, borderType, borderValue)</div>
+
+      <p class="code-title">程序实例 ch12_5.py：用 3x3 内核理解膨胀操作</p>
+      <div class="code-block"># ch12_5.py
+import cv2
+import numpy as np
+
+src = np.zeros((7, 7), np.uint8)
+src[2:5, 2:5] = 1
+kernel = np.ones((3, 3), np.uint8)
+dst = cv2.dilate(src, kernel)
+
+print(f"src =\n{src}")
+print(f"kernel =\n{kernel}")
+print(f"Dilation =\n{dst}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">阵列执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_dilate_array_result.png" alt="ch12_5.py 膨胀阵列结果">
+          <div class="caption">膨胀会让前景向外扩张，参考原书第 <strong>12-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_6.py：使用不同大小内核膨胀二值图</p>
+      <div class="code-block"># ch12_6.py
+import cv2
+import numpy as np
+
+src = cv2.imread("bw_dilate.jpg")
+kernel5 = np.ones((5, 5), np.uint8)
+kernel11 = np.ones((11, 11), np.uint8)
+dst1 = cv2.dilate(src, kernel5)
+dst2 = cv2.dilate(src, kernel11)
+
+cv2.imshow("src", src)
+cv2.imshow("after dilation 5 x 5", dst1)
+cv2.imshow("after dilation 11 x 11", dst2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">膨胀图像结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_dilate_kernel_compare.png" alt="ch12_6.py 膨胀不同内核结果">
+          <div class="caption">内核越大，白色区域扩张越明显，参考原书第 <strong>12-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_7.py 与 ch12_8.py：字母图和彩色图膨胀</p>
+      <p class="content-text">
+        <code>ch12_7.py</code> 使用字母图观察 3x3 与 5x5 膨胀核的差异；<code>ch12_8.py</code> 把彩色影像的腐蚀程序改写为膨胀程序，
+        可看到亮色区域扩张。
+      </p>
+
+      <div class="result-box">
+        <span class="result-box-header">膨胀延伸结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_dilation_letter_a_result.jpg" alt="ch12_7.py 字母 A 膨胀结果">
+          <div class="caption">字母 A 使用不同内核膨胀后的结果，参考原书第 <strong>12-10</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_dilation_binary_results.jpg" alt="ch12_6.py 膨胀二值图结果">
+          <div class="caption">二值图膨胀对比，参考原书第 <strong>12-9</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">12-3</span>
+        <h2>OpenCV 应用在数学形态学的通用函数</h2>
+      </div>
+
+      <p class="content-text">
+        腐蚀和膨胀是基础运算。OpenCV 也提供 <code>morphologyEx()</code>，用同一个函数执行开运算、闭运算、形态学梯度、顶帽、黑帽等复合操作。
+        结构元素可用 <code>getStructuringElement()</code> 建立，并指定矩形、十字形或椭圆形。
+      </p>
+
+      <div class="code-syntax">dst = cv2.morphologyEx(src, op, kernel, anchor, iterations, borderType, borderValue)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th><code>op</code> 常数</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cv2.MORPH_OPEN</code></td><td>开运算：先腐蚀再膨胀。</td></tr>
+          <tr><td><code>cv2.MORPH_CLOSE</code></td><td>闭运算：先膨胀再腐蚀。</td></tr>
+          <tr><td><code>cv2.MORPH_GRADIENT</code></td><td>形态学梯度：膨胀图减腐蚀图，用来取得边界。</td></tr>
+          <tr><td><code>cv2.MORPH_TOPHAT</code></td><td>顶帽：原图减开运算结果。</td></tr>
+          <tr><td><code>cv2.MORPH_BLACKHAT</code></td><td>黑帽：闭运算结果减原图。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-syntax">kernel = cv2.getStructuringElement(shape, ksize, anchor)</div>
+
+      <table class="content-table">
+        <thead>
+          <tr><th><code>shape</code></th><th>结构元素</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cv2.MORPH_RECT</code></td><td>矩形内核。</td></tr>
+          <tr><td><code>cv2.MORPH_CROSS</code></td><td>十字形内核。</td></tr>
+          <tr><td><code>cv2.MORPH_ELLIPSE</code></td><td>椭圆形内核。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">12-4</span>
+        <h2>开运算 Opening</h2>
+      </div>
+
+      <p class="content-text">
+        开运算等于先腐蚀再膨胀。它常用于删除小型白色噪声、断开细连接，同时尽量保留较大的主体区域。
+        对二值树状图，开运算可以去掉细线连接；对彩色图，效果会表现为局部细节被平滑或移除。
+      </p>
+
+      <p class="code-title">程序实例 ch12_9.py：用开运算处理二值树状图</p>
+      <div class="code-block"># ch12_9.py
+import cv2
+import numpy as np
+
+src = cv2.imread("tree.jpg")
+kernel = np.ones((3, 3), np.uint8)
+dst = cv2.morphologyEx(src, cv2.MORPH_OPEN, kernel)
+
+cv2.imshow("src", src)
+cv2.imshow("after Opening 3 x 3", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">开运算二值图结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_opening_tree_result.png" alt="ch12_9.py 开运算处理树状二值图">
+          <div class="caption">开运算会先腐蚀细连接，再通过膨胀恢复主体大小，参考原书第 <strong>12-13</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_10.py：用开运算处理彩色夜景图</p>
+      <div class="code-block"># ch12_10.py
+import cv2
+import numpy as np
+
+src = cv2.imread("night.jpg")
+kernel = np.ones((9, 9), np.uint8)
+dst = cv2.morphologyEx(src, cv2.MORPH_OPEN, kernel)
+
+cv2.imshow("src", src)
+cv2.imshow("after Opening 9 x 9", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">开运算彩色图结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_opening_night_result.png" alt="ch12_10.py 开运算处理彩色影像">
+          <div class="caption">彩色图也可做形态学处理，效果取决于内核大小和影像内容，参考原书第 <strong>12-14</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_11.py：手动执行开运算流程</p>
+      <p class="content-text">
+        书中还把开运算拆成 <code>erode()</code> 后接 <code>dilate()</code>，用来验证 <code>MORPH_OPEN</code> 的实际流程。
+      </p>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">12-5</span>
+        <h2>闭运算 Closing</h2>
+      </div>
+
+      <p class="content-text">
+        闭运算等于先膨胀再腐蚀。它常用于填补白色区域中的小黑洞、连接相近的白色区域，适合修补前景对象中的断裂或空洞。
+      </p>
+
+      <p class="code-title">程序实例 ch12_13.py：用闭运算修补图形</p>
+      <div class="code-block"># ch12_13.py
+import cv2
+import numpy as np
+
+src = cv2.imread("snowman1.jpg")
+kernel = np.ones((10, 10), np.uint8)
+dst = cv2.morphologyEx(src, cv2.MORPH_CLOSE, kernel)
+
+cv2.imshow("src", src)
+cv2.imshow("after Closing", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">闭运算结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_closing_smile_result.png" alt="ch12_13.py 闭运算修补图形结果">
+          <div class="caption">闭运算可以填补内部孔洞或连接近距离区域，参考原书第 <strong>12-16</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_12.py 与 ch12_14.py：闭运算对照与手动流程</p>
+      <p class="content-text">
+        <code>ch12_12.py</code> 使用雪人图示范闭运算填补空洞；<code>ch12_14.py</code> 则用先 <code>dilate()</code> 后 <code>erode()</code> 的方式验证闭运算。
+      </p>
+
+      <div class="result-box">
+        <span class="result-box-header">闭运算延伸结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_closing_snowman_result.jpg" alt="ch12_12.py 雪人闭运算结果">
+          <div class="caption">闭运算可修补白色主体内部的黑色空洞，参考原书第 <strong>12-16</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">12-6</span>
+        <h2>形态学梯度 Morphological Gradient</h2>
+      </div>
+
+      <p class="content-text">
+        形态学梯度是膨胀结果减去腐蚀结果，能突出对象边界。它不像 Canny 那样完整执行多阶段边缘检测，
+        而是直接用形态学方式取得前景外扩和内缩之间的差异。
+      </p>
+
+      <div class="code-syntax">dst = cv2.morphologyEx(src, cv2.MORPH_GRADIENT, kernel)</div>
+
+      <p class="code-title">程序实例 ch12_16.py：用形态学梯度抽出边界</p>
+      <div class="code-block"># ch12_16.py
+import cv2
+import numpy as np
+
+src = cv2.imread("hole.jpg")
+kernel = np.ones((3, 3), np.uint8)
+dst = cv2.morphologyEx(src, cv2.MORPH_GRADIENT, kernel)
+
+cv2.imshow("src", src)
+cv2.imshow("morphological gradient", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">形态学梯度结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_gradient_result.png" alt="ch12_16.py 形态学梯度结果">
+          <div class="caption">形态学梯度可抽出白色对象的外缘，参考原书第 <strong>12-18</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_15.py 与 ch12_17.py：字母与城市图形态学梯度</p>
+      <div class="result-box">
+        <span class="result-box-header">形态学梯度延伸结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_gradient_k_result.jpg" alt="ch12_15.py K 字形态学梯度结果">
+          <div class="caption">字母图形的形态学梯度结果，参考原书第 <strong>12-18</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_gradient_city_result.jpg" alt="ch12_17.py 城市图形态学梯度结果">
+          <div class="caption">城市影像的形态学梯度结果，参考原书第 <strong>12-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">12-7</span>
+        <h2>顶帽运算 Tophat</h2>
+      </div>
+
+      <p class="content-text">
+        顶帽运算是原始影像减去开运算结果，常用来提取比结构元素小、且比周围区域更亮的局部特征。
+        如果影像中存在细亮线或小亮点，顶帽运算可以把这些细节凸显出来。
+      </p>
+
+      <div class="code-syntax">dst = cv2.morphologyEx(src, cv2.MORPH_TOPHAT, kernel)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">顶帽运算结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_tophat_result.png" alt="ch12_17.py 顶帽运算结果">
+          <div class="caption">顶帽运算能保留被开运算移除的亮细节，参考原书第 <strong>12-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <span class="result-box-header">礼帽运算补充结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_tophat_city_result.jpg" alt="ch12_18.py 城市图礼帽运算结果">
+          <div class="caption">城市夜景图的礼帽运算结果，参考原书第 <strong>12-19</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-7">
+        <span class="section-number">12-8</span>
+        <h2>黑帽运算 Blackhat</h2>
+      </div>
+
+      <p class="content-text">
+        黑帽运算是闭运算结果减去原始影像，常用来提取比结构元素小、且比周围区域更暗的局部特征。
+        它和顶帽运算互补：顶帽找亮细节，黑帽找暗细节。
+      </p>
+
+      <div class="code-syntax">dst = cv2.morphologyEx(src, cv2.MORPH_BLACKHAT, kernel)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">黑帽运算结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_blackhat_result.png" alt="ch12_20.py 黑帽运算结果">
+          <div class="caption">黑帽运算可凸显暗色局部结构，参考原书第 <strong>12-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_19.py 与 ch12_20.py：雪人与 Excel 图黑帽运算</p>
+      <div class="result-box">
+        <span class="result-box-header">黑帽运算延伸结果</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_blackhat_smiley_result.jpg" alt="ch12_19.py 雪人黑帽运算结果">
+          <div class="caption">黑帽运算可提取主体内部或周围的暗色细节，参考原书第 <strong>12-21</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_blackhat_excel_result.jpg" alt="ch12_20.py Excel 图黑帽运算结果">
+          <div class="caption">Excel 图黑帽运算对照，参考原书第 <strong>12-21</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-8">
+        <span class="section-number">12-9</span>
+        <h2>核函数 getStructuringElement()</h2>
+      </div>
+
+      <p class="content-text">
+        前面示例多用 <code>np.ones()</code> 建立矩形内核。OpenCV 还提供 <code>getStructuringElement()</code>，
+        可以直接建立矩形、椭圆形和十字形结构元素。不同形状的内核会让腐蚀、膨胀和复合形态学运算产生不同结果。
+      </p>
+
+      <p class="code-title">程序实例 ch12_21.py：建立不同形状的结构元素</p>
+      <div class="code-block"># ch12_21.py
+import cv2
+
+kernel1 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+kernel3 = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+
+print("MORPH_RECT =\n", kernel1)
+print("MORPH_ELLIPSE =\n", kernel2)
+print("MORPH_CROSS =\n", kernel3)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">结构元素输出</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_getstructuringelement_kernel_demo.jpg" alt="ch12_21.py getStructuringElement 内核结果">
+          <div class="caption">矩形、椭圆形与十字形结构元素的阵列结果，参考原书第 <strong>12-22</strong> 页。</div>
+        </div>
+      </div>
+
+      <p class="code-title">程序实例 ch12_22.py：比较不同结构元素对图像的影响</p>
+      <div class="code-block"># ch12_22.py
+import cv2
+
+src = cv2.imread("bw_circle.jpg")
+kernel1 = cv2.getStructuringElement(cv2.MORPH_RECT, (11, 11))
+kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+kernel3 = cv2.getStructuringElement(cv2.MORPH_CROSS, (11, 11))
+
+dst1 = cv2.erode(src, kernel1)
+dst2 = cv2.erode(src, kernel2)
+dst3 = cv2.erode(src, kernel3)
+
+cv2.imshow("src", src)
+cv2.imshow("MORPH_RECT", dst1)
+cv2.imshow("MORPH_ELLIPSE", dst2)
+cv2.imshow("MORPH_CROSS", dst3)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">结构元素形状对照</span>
+        <div class="result-box-image">
+          <img src="images/ch12/ch12_getstructuringelement_shape_results.jpg" alt="ch12_22.py 不同结构元素形状结果">
+          <div class="caption">同一图像搭配不同结构元素，腐蚀后的形状会明显不同，参考原书第 <strong>12-23</strong> 页。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1. 使用 <code>snowman.jpg</code>，分别用椭圆形与十字形结构元素执行膨胀或腐蚀，并比较轮廓差异。</p>
+          <p>2. 对二值人脸或图形执行 <code>MORPH_GRADIENT</code>、<code>MORPH_TOPHAT</code>、<code>MORPH_BLACKHAT</code>，观察它们抽出的结构不同。</p>
+          <p>3. 修改 <code>getStructuringElement()</code> 的 <code>shape</code> 与 <code>ksize</code>，说明结构元素如何影响输出。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch12/ch12_exercise_temple_gradient.jpg" alt="第 12 章寺庙影像形态学梯度习题参考结果">
+            <div class="caption">习题参考图一，参考原书第 <strong>12-24</strong> 页。</div>
+          </div>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch12/ch12_exercise_book_blackhat.jpg" alt="第 12 章书本黑帽运算习题参考结果">
+            <div class="caption">习题参考图二，参考原书第 <strong>12-25</strong> 页。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch11.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 11 章 删除影像杂讯</div>
+          </div>
+        </a>
+        <a href="ch13.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 13 章 影像梯度与边缘侦测</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch12");</script>
+</body>
+</html>
