@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 31 章 车牌辨识 - OpenCV 教学</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教学
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 31 章</span>
+      <h1 class="chapter-title">车牌辨识</h1>
+      <div class="chapter-meta">撷取车牌影像 · 使用 Tesseract OCR 执行车牌辨识 · 形态学开运算处理车牌 · 车牌辨识心得</div>
+
+      <div class="chapter-intro">
+        本章延续前一章所建立的哈尔辨识分类器，示范如何从汽车影像中撷取车牌，再使用 Tesseract OCR 判读车牌号码。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">31-1</span>
+        <h2>撷取所读取的车牌影像</h2>
+      </div>
+
+      <p class="content-text">前一章内容我们学会了辨识车牌，其实就可以将所辨识的车牌影像撷取与储存。</p>
+      <p class="code-title">程式实例 ch31_1.py：在 ch31\testCar 资料夹有 cartest1.jpg，我们先使用哈尔特征分类器找出车牌，然后将车牌影像撷取，以 atq9305.jpg 影像储存，同时显示此车牌。</p>
+      <div class="code-block"># ch31_1.py
+import cv2
+
+pictPath = "haar_carplate.xml"                         # 哈尔特征档路径
+img = cv2.imread("testCar/cartest1.jpg")               # 读辨识的影像
+car_cascade = cv2.CascadeClassifier(pictPath)          # 读哈尔特征档
+# 执行辨识
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=3,
+           minSize=(20,20),maxSize=(155,50))
+if len(plates) &gt; 0 :                                   # 有侦测到车牌
+    for (x, y, w, h) in plates:                        # 标记车牌
+        carplate = img[y:y+h, x:x+w]                   # 车牌影像
+else:
+    print("侦测车牌失败")
+
+cv2.imshow('Car', carplate)                            # 显示所读取的车辆
+cv2.imwrite("atq9305.jpg", carplate)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch31/ch31_01_atq9305_plate.png" alt="ch31_1.py 撷取并显示 ATQ9305 车牌影像">
+          <div class="caption">撷取出的车牌影像，并以 atq9305.jpg 储存。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">31-2</span>
+        <h2>使用 Tesseract OCR 执行车牌辨识</h2>
+      </div>
+
+      <p class="content-text">有关安装 Tesseract OCR 的相关知识请读者参考笔者所著的 Python 王者归来，这是文字辨识软体，我们可以将所储存的影像使用 Tesseract OCR 判读车牌。</p>
+      <p class="code-title">程式实例 ch31_2.py：读取 ch31_1.py 所建立的 atq9305.jpg，然后列出此影像的车牌号码。</p>
+      <div class="code-block"># ch31_2.py
+from PIL import Image
+import pytesseract
+
+config = '--tessdata-dir "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata"'
+text = pytesseract.image_to_string(Image.open('atq9305.jpg'),
+                                   config=config)
+print(f"车号是：{text}")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch31\ch31_2.py ====================
+车号是： ATQ9305</div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">31-3</span>
+        <h2>侦测车牌与辨识车牌</h2>
+      </div>
+
+      <p class="content-text">我们可以整合 31-1 与 31-2 节，读取汽车影像后，同时列出车牌。</p>
+      <p class="code-title">程式实例 ch31_3.py：读取汽车影像，然后输出此汽车的车牌。</p>
+      <div class="code-block"># ch31_3.py
+import cv2
+import pytesseract
+
+config = '--tessdata-dir "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata"'
+pictPath = "haar_carplate.xml"                         # 哈尔特征档路径
+img = cv2.imread("testCar/cartest1.jpg")               # 读辨识的影像
+car_cascade = cv2.CascadeClassifier(pictPath)          # 读哈尔特征档
+# 执行辨识
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.05,
+           minNeighbors=3, minSize=(20,20), maxSize=(155,50))
+if len(plates) &gt; 0 :                                   # 有侦测到车牌
+    for (x, y, w, h) in plates:                        # 标记车牌
+        carplate = img[y:y+h, x:x+w]                   # 车牌影像
+else:
+    print("侦测车牌失败")
+
+cv2.imshow('Car', carplate)                            # 显示所读取的车辆
+text = pytesseract.image_to_string(carplate,config=config)  # OCR辨识
+print(f"车号是：{text}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch31/ch31_02_ch31_3_plate.png" alt="ch31_3.py 撷取 ATQ9305 车牌影像">
+        </div>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch31\ch31_3.py ====================
+车号是： ATQ9305</div>
+      </div>
+
+      <p class="content-text">上述我们获得不错的结果，但是 OCR 辨识也会失误，可以参考下列实例。</p>
+      <p class="code-title">程式实例 ch31_4.py：使用 testCar/cartest3.jpg 影像辨识，这个程式只是修改所读取的汽车影像档案。</p>
+      <div class="code-block">img = cv2.imread("testCar/cartest3.jpg")             # 读辨识的影像</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch31/ch31_03_ch31_4_bad_ocr.png" alt="ch31_4.py OCR 辨识为 _ATES312">
+        </div>
+      </div>
+
+      <p class="content-text">上述缺点有两项，分别是 A 左边出现底线符号（_），5 辨识为 S。</p>
+      <div class="note-box">
+        <span class="note-icon">注</span>
+        <div class="note-box-content">上述车牌号码最右数字是 2，笔者用模糊化处理。</div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">31-4</span>
+        <h2>二值化处理车牌</h2>
+      </div>
+
+      <p class="content-text">这一节尝试改良上一节的缺点。</p>
+      <p class="code-title">程式实例 ch31_5.py：使用二值化处理车牌，同时将车牌存入 car_plate.jpg。</p>
+      <div class="code-block"># ch31_5.py
+import cv2
+import pytesseract
+
+carFile = "car_plate.jpg"
+config = '--tessdata-dir "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata"'
+pictPath = "haar_carplate.xml"                         # 哈尔特征档路径
+img = cv2.imread("testCar/cartest3.jpg")               # 读辨识的影像
+car_cascade = cv2.CascadeClassifier(pictPath)          # 读哈尔特征档
+# 执行辨识
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=3,
+           minSize=(20,20),maxSize=(155,50))
+if len(plates) &gt; 0 :                                   # 有侦测到车牌
+    for (x, y, w, h) in plates:                        # 标记车牌
+        carplate = img[y:y+h, x:x+w]                   # 车牌影像
+else:
+    print("侦测车牌失败")
+
+cv2.imshow('Car', carplate)                            # 显示所读取的车辆
+ret, dst = cv2.threshold(carplate,100,255,cv2.THRESH_BINARY)  # 二值化
+cv2.imshow('Car binary', dst)                          # 显示二值化车牌
+text = pytesseract.image_to_string(carplate,config=config)    # OCR辨识
+print(f"车号是：{text}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch31/ch31_04_ch31_5_binary.png" alt="ch31_5.py 显示原车牌与二值化车牌，输出 ATFS5312">
+        </div>
+        <div class="result-box-content result-output">==================== RESTART: D:/OpenCV_Python/ch31/ch31_5.py ====================
+车号是： ATFS5312</div>
+      </div>
+
+      <p class="content-text">上述得到 ATFS5312，字母 S 是多余的，其实这个辨识是不稳定的，因为有时候得到的结果是 ATF5312，5 被辨识为 S。或是，有时辨识结果仍是 _ATES312。这表示影像仍有杂质，干扰辨识，下一节继续解说。</p>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">31-5</span>
+        <h2>形态学的开运算处理车牌</h2>
+      </div>
+
+      <p class="content-text">使用形态学的开运算可以删除噪音。</p>
+      <p class="code-title">程式实例 ch31_6.py：形态学的开运算处理车牌。</p>
+      <div class="code-block"># ch31_6.py
+import cv2
+import numpy as np
+import pytesseract
+
+carFile = "car_plate.jpg"
+config = '--tessdata-dir "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata"'
+pictPath = "haar_carplate.xml"                         # 哈尔特征档路径
+img = cv2.imread("testCar/cartest3.jpg")               # 读辨识的影像
+car_cascade = cv2.CascadeClassifier(pictPath)          # 读哈尔特征档
+# 执行辨识
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=3,
+           minSize=(20,20),maxSize=(155,50))
+if len(plates) &gt; 0 :                                   # 有侦测到车牌
+    for (x, y, w, h) in plates:                        # 标记车牌
+        carplate = img[y:y+h, x:x+w]                   # 车牌影像
+else:
+    print("侦测车牌失败")
+
+cv2.imshow('Car', carplate)                            # 显示所读取的车辆
+ret, dst = cv2.threshold(carplate,100,255,cv2.THRESH_BINARY)  # 二值化
+
+cv2.imshow('Car binary', dst)                          # 显示二值化车牌
+kernel = np.ones((3,3), np.uint8)
+dst1 = cv2.morphologyEx(dst, cv2.MORPH_OPEN, kernel)   # 执行开运算
+text = pytesseract.image_to_string(dst1,config=config) # 执行辨识
+print(f"车号是：{text}")
+cv2.imwrite(carFile, dst)                              # 写入储存
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch31/ch31_05_ch31_6_opening.png" alt="ch31_6.py 形态学开运算后输出 ATF5312">
+        </div>
+        <div class="result-box-content result-output">==================== RESTART: D:/OpenCV_Python/ch31/ch31_6.py ====================
+车号是： ATF5312</div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">31-6</span>
+        <h2>车牌辨识心得</h2>
+      </div>
+
+      <p class="content-text">坦白说车牌要辨识成功，第 30 章建立好的哈尔辨识分类器仍是关键，前一节笔者使用二值化处理车牌影像，然后再去除车牌噪音，对整个辨识是有加分效果。</p>
+      <p class="content-text">实务上当下停车场，缴费机在要求输入车牌号码后，会要求点选车牌影像其实就是担心辨识错误，最终是靠所点选的车牌影像为缴费的依据。</p>
+      <p class="content-text">这一章笔者使用 Tesseract-OCR 辨识系统，辨识车牌字母与阿拉伯数字，如果读者要更进一步很精确也可以将车牌字母与阿拉伯数字拆开，相当于将字母与数字拆成 7 个影像，然后再单独辨识字母与影像。</p>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：读取 cartest2.jpg，如下所示：</p>
+          <div class="result-box-image">
+            <img src="images/ch31/ch31_06_exercise_cartest2.png" alt="习题 cartest2.jpg 汽车影像">
+          </div>
+          <p>请辨识车牌，最右侧号码是 7，笔者用模糊化处理。</p>
+          <div class="result-box-image">
+            <img src="images/ch31/ch31_07_exercise_result.png" alt="习题参考结果 AKY6217">
+          </div>
+          <div class="result-box-content result-output">==================== RESTART: D:/OpenCV_Python/ex/ex31_1.py ====================
+车号是： AKY6217</div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a href="ch30.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 30 章 创建哈尔特征分类器</div>
+          </div>
+        </a>
+        <a href="appendix-a.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">附录 A 安装 OpenCV</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch31");</script>
+</body>
+</html>

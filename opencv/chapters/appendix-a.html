@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>附录 A 安装 OpenCV - OpenCV 教学</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+  <style>
+    .chapter-figure { margin: 1.25rem 0; text-align: center; }
+    .chapter-figure img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.12); background: #fff; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教学
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导览</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">附录 A</span>
+      <h1 class="chapter-title">安装 OpenCV</h1>
+      <div class="chapter-meta">安装 Numpy · 基本安装 OpenCV · 扩展模组安装 · OpenCV 的阶层式分类器资源档案</div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">A-1</span>
+        <h2>安装 Numpy</h2>
+      </div>
+
+      <p class="content-text">OpenCV 是用二维或是三维阵列代表影像，阵列元素就是影像的像素值，OpenCV 使用 Numpy 的资料格式与工具执行阵列运算，所以在安装 OpenCV 前须使用下列方式安装 Numpy。</p>
+      <div class="code-block">pip install numpy</div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">A-2</span>
+        <h2>基本安装 OpenCV</h2>
+      </div>
+
+      <p class="content-text">在 Windows 环境下可以使用下列指令执行基本安装 OpenCV。</p>
+      <div class="code-block">pip install opencv-python</div>
+
+      <p class="content-text">如果你的电脑有安装 2 个或更多版本的 Python，如果执行上述安装，OpenCV 将被安装在旧版本。例如：笔者电脑安装了 Python 3.7 与 Python 3.85，在 Windows 的 DOS 环境执行上述安装时，OpenCV 被安装在 Python 3.7 版。</p>
+      <p class="content-text">笔者每次启动 Python 3.8 版时，同时有 <code>py.exe</code> 程式自动被启动，如果希望 OpenCV 安装在 Python 3.85 版，方法是使用下列指令。</p>
+      <div class="code-block">py -m pip install opencv-python</div>
+
+      <p class="content-text">整个过程如下：</p>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">PS D:\&gt; py -m pip install opencv-python
+Collecting opencv-python
+  Downloading opencv_python-4.5.3.56-cp38-cp38-win32.whl (25.7 MB)
+     |████████████████████████████████| 25.7 MB 6.4 MB/s
+Requirement already satisfied: numpy&gt;=1.17.3 in c:\users\user\appdata\local\programs\python\python38-32\lib\site-packages (from opencv-python) (1.19.1)
+Installing collected packages: opencv-python
+Successfully installed opencv-python-4.5.3.56</div>
+      </div>
+
+      <p class="content-text">上述所叙述的是安装了 <code>opencv-python</code> 的主要模组。</p>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">A-3</span>
+        <h2>扩展模组安装</h2>
+      </div>
+
+      <p class="content-text">OpenCV-python 除了有主要模组，另外有扩展模组，扩展模组包含一些含专利需要收费的演算法，以及目前尚在测试的演算法（这些测试的演算法在稳定后未来也会并入主要模组），如果想要一起安装，可以执行下列指令安装。</p>
+      <div class="code-block">pip -m install opencv-contrib-python</div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">A-4</span>
+        <h2>OpenCV 的阶层式分类器资源档案</h2>
+      </div>
+
+      <p class="content-text">人脸辨识是计算机技术的一种，这个技术可以测出人脸在影像中的位置，同时也可以找出多个人脸，在检测过程中基本上会忽略背景或其他物体，例如：身体、建筑物或树木，... 等。当然在检测过程，很重要的是与图像资料库互相匹配比对，所用的技术是哈尔（Harr）特征。</p>
+      <p class="content-text">OpenCV 已经将许多已经训练测试过的面部、笑脸、路人、上半身、下半身、猫等特征分类档案储存在 <code>haarcascades</code> 资料夹内。安装 OpenCV 时，这个资料夹会被自动拷贝至下列资料夹。</p>
+      <div class="code-block">C:/Users/User/AppData/Local/Programs/Python/Python38-32/Lib/site-packages/cv2/data/</div>
+      <p class="content-text">进入此资料夹可以看到下列所有的档案。</p>
+
+      <div class="chapter-figure">
+        <img src="images/appendix-a/appendix_a_haarcascades_folder.png" alt="OpenCV cv2 data 资料夹中的 haarcascade 分类器资源档案列表">
+        <div class="caption">OpenCV 的阶层式分类器资源档案。</div>
+      </div>
+
+      <p class="content-text">未来读者可以参考使用。</p>
+
+      <div class="page-nav">
+        <a href="ch31.html">
+          <div class="nav-label">&larr; 上一章</div>
+          <div class="nav-title">第 31 章 车牌识别</div>
+        </a>
+        <a href="appendix-b.html">
+          <div class="nav-label">下一章 &rarr;</div>
+          <div class="nav-title">附录 B 函数索引表</div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("appendix-a");</script>
+</body>
+</html>

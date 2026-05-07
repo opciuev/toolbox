@@ -56,9 +56,12 @@
         于是整张图就可以用一个 12×12 的 0/1 矩阵来表示。因为每个像素只由 1 个 bit 组成，这种表示法就叫做<strong class="highlight">位图像表示法</strong>。
       </p>
 
-      <div class="note-box">
-        <span class="note-icon">图示</span>
-        <span>字母 H 的位图和对应的 0/1 矩阵见原书第 <strong>2-2</strong> 页。</span>
+      <div class="result-box">
+        <span class="result-box-header">位图像与 0/1 矩阵</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_bitmap_h_matrix.jpg" alt="字母 H 的位图像与 0/1 矩阵">
+          <div class="caption">字母 H 的 12x12 位图像与对应矩阵，参考原书第 <strong>2-2</strong> 页。</div>
+        </div>
       </div>
 
       <!-- ===== 2-2 ===== -->
@@ -96,6 +99,14 @@
         </tbody>
       </table>
 
+      <div class="result-box">
+        <span class="result-box-header">GRAY 色彩空间示意</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_gray_scale_example.jpg" alt="灰度图像与 0 到 255 灰阶对照">
+          <div class="caption">灰度图像与 0 到 255 灰阶对照，参考原书第 <strong>2-3</strong> 页。</div>
+        </div>
+      </div>
+
       <p class="content-text">
         灰度图像在程序里可以用一个<strong class="highlight">二维数组</strong>来表达：行数 × 列数，每个元素是 0~255 的整数。
       </p>
@@ -109,6 +120,14 @@
       <p class="content-text">
         彩色图像最常见的表达方式是 <strong class="highlight">RGB 色彩空间</strong>：任何颜色都由 <strong>R（Red 红）</strong>、<strong>G（Green 绿）</strong>、<strong>B（Blue 蓝）</strong> 三原色按不同比例组成，每个分量称为一个<strong class="highlight">通道（channel）</strong>，取值范围都是 <code>0 ~ 255</code>。
       </p>
+
+      <div class="result-box">
+        <span class="result-box-header">RGB 三原色</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_rgb_materialui_example.jpg" alt="RGB 三原色与 materialui 色彩网站示意">
+          <div class="caption">RGB 三原色与配色网站查看 RGB 值的示意，参考原书第 <strong>2-4</strong> 页。</div>
+        </div>
+      </div>
 
       <div class="note-box">
         <span class="note-icon">注</span>
@@ -127,6 +146,14 @@
         Excel 的「设置单元格格式 → 填充 → 其他颜色 → 自定义」里可以直接输入 R / G / B 数值，立刻看到对应的颜色区块。例如 <code>(255, 255, 0)</code> 就是黄色。
       </p>
 
+      <div class="result-box">
+        <span class="result-box-header">输入 RGB 通道值取得色彩区块</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_rgb_custom_color_dialog.jpg" alt="Office 自定义颜色对话框输入 RGB 值">
+          <div class="caption">在自定义颜色对话框中输入 RGB 通道值取得颜色区块，参考原书第 <strong>2-5</strong> 页。</div>
+        </div>
+      </div>
+
       <p class="content-text">
         RGB 每个通道 256 个值，三个通道组合起来共可表示：
       </p>
@@ -138,9 +165,12 @@
         一张 RGB 彩色图像可以用一个<strong class="highlight">三维数组</strong>来表达，形状是 <code>(高, 宽, 3)</code>，也就是三个二维数组（B 层、G 层、R 层）叠在一起。
       </p>
 
-      <div class="note-box">
-        <span class="note-icon">图示</span>
-        <span>RGB 三通道叠加示意图见原书第 <strong>2-6</strong> 页。</span>
+      <div class="result-box">
+        <span class="result-box-header">RGB 彩色像素表示法</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_rgb_pixel_channels.jpg" alt="RGB 彩色像素的三维数组表示法">
+          <div class="caption">RGB 彩色像素以三维数组表示，参考原书第 <strong>2-6</strong> 页。</div>
+        </div>
       </div>
 
       <!-- ===== 2-4 ===== -->

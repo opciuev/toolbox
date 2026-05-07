@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>附录 B OpenCV 函数、名词与具名常数索引表 - OpenCV 教学</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+  <style>
+    .quick-jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .quick-jump a {
+      display: inline-block;
+      padding: .4rem .7rem;
+      border: 1px solid rgba(0, 0, 0, .12);
+      border-radius: 999px;
+      background: #fff;
+      color: #1f2937;
+      text-decoration: none;
+      font-size: .92rem;
+    }
+    .index-section {
+      margin: 1.6rem 0 2.2rem;
+    }
+    .index-table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(0, 0, 0, .1);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    }
+    .index-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: .95rem;
+    }
+    .index-table th,
+    .index-table td {
+      padding: .62rem .75rem;
+      border-bottom: 1px solid rgba(0, 0, 0, .08);
+      text-align: left;
+      vertical-align: top;
+    }
+    .index-table th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+      z-index: 1;
+    }
+    .index-table td:nth-child(2),
+    .index-table td:nth-child(4) {
+      width: 7.5rem;
+      white-space: nowrap;
+      color: #475569;
+    }
+    .index-table code {
+      padding: 0;
+      background: transparent;
+      color: #0f172a;
+      font-family: Consolas, "Liberation Mono", Menlo, monospace;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教学
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导航</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">附录 B</span>
+      <h1 class="chapter-title">OpenCV 函数、名词与具名常数索引表</h1>
+      <div class="chapter-meta">函数名称 · 术语 · 具名常数 · 原书章节索引</div>
+
+      <div class="chapter-intro">
+        本页依据原书附录 B 重建为可阅读、可选择文字的索引表。表格保留原书的左右双栏索引结构；章节栏位对应原书中的章节或小节编号。
+      </div>
+
+      <div class="quick-jump" aria-label="附录 B 分段跳转">
+        <a href="#page-2">B-1</a>
+        <a href="#page-3">B-2</a>
+        <a href="#page-4">B-3</a>
+        <a href="#page-5">B-4</a>
+        <a href="#page-6">B-5</a>
+        <a href="#page-7">B-6</a>
+        <a href="#page-8">B-7</a>
+      </div>
+
+      
+        <section class="index-section" id="page-2">
+          <div class="section-heading">
+            <span class="section-number">B-1</span>
+            <h2>索引表 B-1</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>ADAPTIVE_THRESH_GAUSSIAN_C</code></td>
+                <td>9-3</td>
+                <td><code>boxPoints()</code></td>
+                <td>16-1-2</td>
+              </tr>
+              <tr>
+                <td><code>ADAPTIVE_THRESH_MEAN_C</code></td>
+                <td>9-3</td>
+                <td><code>calcHist()</code></td>
+                <td>19-2-2</td>
+              </tr>
+              <tr>
+                <td><code>adaptiveThreshold()</code></td>
+                <td>9-3</td>
+                <td><code>Canny</code></td>
+                <td>13-5</td>
+              </tr>
+              <tr>
+                <td><code>add()</code></td>
+                <td>8-1-1</td>
+                <td><code>Canny()</code></td>
+                <td>13-5-3</td>
+              </tr>
+              <tr>
+                <td><code>addWeighted()</code></td>
+                <td>8-3-2</td>
+                <td><code>CAP_PROP_FOURCC</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>alpha</code></td>
+                <td>4-7</td>
+                <td><code>CAP_PROP_FPS</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>apply()</code></td>
+                <td>19-4-3</td>
+                <td><code>CAP_PROP_FRAME_COUNT</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>approxPolyDP()</code></td>
+                <td>16-1-6</td>
+                <td><code>CAP_PROP_FRAME_HEIGHT</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>arange()</code></td>
+                <td>3-3-8</td>
+                <td><code>CAP_PROP_FRAME_WIDTH</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>arcLength()</code></td>
+                <td>15-4-5</td>
+                <td><code>CAP_PROP_POS_AVI_RATIO</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>argmax()</code></td>
+                <td>17-2-2</td>
+                <td><code>CAP_PROP_POS_FRAMES</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>argmin()</code></td>
+                <td>17-2-2</td>
+                <td><code>CAP_PROP_POS_MSEC</code></td>
+                <td>26-4-1</td>
+              </tr>
+              <tr>
+                <td><code>array()</code></td>
+                <td>3-3-2</td>
+                <td><code>CHAIN_APPROX_NONE</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>Aspect Ratio</code></td>
+                <td>17-1</td>
+                <td><code>CHAIN_APPROX_SIMPLE</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>axis</code></td>
+                <td>3-5</td>
+                <td><code>CHAIN_APPROX_TC89KCOS</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>bar()</code></td>
+                <td>19-1-1</td>
+                <td><code>CHAIN_APPROX_TC89L1</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>BGR</code></td>
+                <td>2-4</td>
+                <td><code>Channels</code></td>
+                <td>2-3</td>
+              </tr>
+              <tr>
+                <td><code>Bilateral filter</code></td>
+                <td>11-6</td>
+                <td><code>circle()</code></td>
+                <td>7-5-1</td>
+              </tr>
+              <tr>
+                <td><code>bilateralFilter()</code></td>
+                <td>11-6-2</td>
+                <td><code>CLAHE</code></td>
+                <td>19-4</td>
+              </tr>
+              <tr>
+                <td><code>bitwise_and()</code></td>
+                <td>8-4-1</td>
+                <td><code>clipLimit</code></td>
+                <td>19-4-3</td>
+              </tr>
+              <tr>
+                <td><code>bitwise_not()</code></td>
+                <td>8-4-3</td>
+                <td><code>closed</code></td>
+                <td>15-4-5</td>
+              </tr>
+              <tr>
+                <td><code>bitwise_or()</code></td>
+                <td>8-4-2</td>
+                <td><code>Closing</code></td>
+                <td>12-5</td>
+              </tr>
+              <tr>
+                <td><code>bitwise_xor()</code></td>
+                <td>8-4-4</td>
+                <td><code>COLOR_BGR2BGRA</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>blackhat</code></td>
+                <td>12-8</td>
+                <td><code>COLOR_BGR2GRAY</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>blur()</code></td>
+                <td>11-2-4</td>
+                <td><code>COLOR_BGR2HSV</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>Blurring Images</code></td>
+                <td>11</td>
+                <td><code>COLOR_BGR2RGB</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>BORDER_CONSTANT</code></td>
+                <td>10-3-2</td>
+                <td><code>COLOR_BGR2RGBA</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>borderMode</code></td>
+                <td>10-3-2</td>
+                <td><code>COLOR_BGRA2BGR</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>borderValue</code></td>
+                <td>10-3-2</td>
+                <td><code>COLOR_BGRA2RGB</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>bool_</code></td>
+                <td>3-2</td>
+                <td><code>COLOR_GRAY2BGR</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>boundingRect()</code></td>
+                <td>16-1-1</td>
+                <td><code>COLOR_GRAY2RGB</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>boundingRect()</code></td>
+                <td>17-1</td>
+                <td><code>COLOR_HSV2BGR</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>boxFilter()</code></td>
+                <td>11-3-2</td>
+                <td><code>COLOR_HSV2RGB</code></td>
+                <td>4-1</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="index-section" id="page-3">
+          <div class="section-heading">
+            <span class="section-number">B-2</span>
+            <h2>索引表 B-2</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>COLOR_RGBA2RGB</code></td>
+                <td>4-1</td>
+                <td><code>cv2.CV_16S</code></td>
+                <td>13-2-4</td>
+              </tr>
+              <tr>
+                <td><code>COLOR_RGB2BGR</code></td>
+                <td>4-1</td>
+                <td><code>cv2.CV_16U</code></td>
+                <td>13-2-4</td>
+              </tr>
+              <tr>
+                <td><code>COLOR_RGB2BGRA</code></td>
+                <td>4-1</td>
+                <td><code>cv2.CV_32F</code></td>
+                <td>13-2-4</td>
+              </tr>
+              <tr>
+                <td><code>COLOR_RGB2GRAY</code></td>
+                <td>4-1</td>
+                <td><code>cv2.CV_64F</code></td>
+                <td>13-2-4</td>
+              </tr>
+              <tr>
+                <td><code>COLOR_RGB2HSV</code></td>
+                <td>4-1</td>
+                <td><code>cv2.CV_8U</code></td>
+                <td>13-2-4</td>
+              </tr>
+              <tr>
+                <td><code>COLOR_RGB2RGBA</code></td>
+                <td>4-1</td>
+                <td><code>cvtColor()</code></td>
+                <td>4-1</td>
+              </tr>
+              <tr>
+                <td><code>COLOR_RGBA2BGR</code></td>
+                <td>4-1</td>
+                <td><code>destroyAllWindows()</code></td>
+                <td>1-3-2</td>
+              </tr>
+              <tr>
+                <td><code>complex ndarray</code></td>
+                <td>21-4-1</td>
+                <td><code>destroyWindow()</code></td>
+                <td>1-3-2</td>
+              </tr>
+              <tr>
+                <td><code>complex_</code></td>
+                <td>3-2</td>
+                <td><code>dft()</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>complex128</code></td>
+                <td>3-2</td>
+                <td><code>DFT_COMPLEX_INPUT</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>complex64</code></td>
+                <td>3-2</td>
+                <td><code>DFT_COMPLEX_OUTPUT</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>computeDistance()</code></td>
+                <td>15-6-2</td>
+                <td><code>DFT_INVERSE</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>connectedComponents()</code></td>
+                <td>22-5</td>
+                <td><code>DFT_REAL_OUTPUT</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>contourArea()</code></td>
+                <td>15-4-4</td>
+                <td><code>DFT_ROWS</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>CONTOURS_MATCH_I1</code></td>
+                <td>15-5-3</td>
+                <td><code>DFT_SCALE</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>CONTOURS_MATCH_I2</code></td>
+                <td>15-5-3</td>
+                <td><code>dilate()</code></td>
+                <td>12-2-2</td>
+              </tr>
+              <tr>
+                <td><code>CONTOURS_MATCH_I3</code></td>
+                <td>15-5-3</td>
+                <td><code>Dilation</code></td>
+                <td>12-2</td>
+              </tr>
+              <tr>
+                <td><code>contoursldx</code></td>
+                <td>15-2-3</td>
+                <td><code>DIST_C</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>convertScaleAbs()</code></td>
+                <td>13-2-5</td>
+                <td><code>DIST_C</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>convexHull</code></td>
+                <td>16-2</td>
+                <td><code>DIST_FAIR</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>convexHull</code></td>
+                <td>16-2-1</td>
+                <td><code>DIST_FAIR</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>convexity defects</code></td>
+                <td>16-2-2</td>
+                <td><code>DIST_HUBER</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>convexityDefects()</code></td>
+                <td>16-2-2</td>
+                <td><code>DIST_HUBER</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>Convolution kernel</code></td>
+                <td>11-2-3</td>
+                <td><code>DIST_L1</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>Convolution</code></td>
+                <td>11-2-3</td>
+                <td><code>DIST_L1</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>copy</code></td>
+                <td>3-3-2</td>
+                <td><code>DIST_L12</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>copy()</code></td>
+                <td>3-4-5</td>
+                <td><code>DIST_L12</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>COS</code></td>
+                <td>21-2-2</td>
+                <td><code>DIST_L2</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>createCLAHE()</code></td>
+                <td>19-4-3</td>
+                <td><code>DIST_L2</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>createShapeContextDistanceExtractor()</code></td>
+                <td>15-6-1</td>
+                <td><code>DIST_MASK_3</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>createTrackbar()</code></td>
+                <td>7-11</td>
+                <td><code>DIST_MASK_5</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>CV_8U</code></td>
+                <td>13-2-4</td>
+                <td><code>DIST_MASK_PRECISE</code></td>
+                <td>22-3</td>
+              </tr>
+              <tr>
+                <td><code>[?]</code></td>
+                <td>[?]</td>
+                <td><code>DIST_USER</code></td>
+                <td>16-1-7</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="index-section" id="page-4">
+          <div class="section-heading">
+            <span class="section-number">B-3</span>
+            <h2>索引表 B-3</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>DIST_USER</code></td>
+                <td>22-3</td>
+                <td><code>Fast Marching Method</code></td>
+                <td>24-1-1</td>
+              </tr>
+              <tr>
+                <td><code>DIST_WELSCH</code></td>
+                <td>16-1-7</td>
+                <td><code>fft.fft2()</code></td>
+                <td>21-3-1</td>
+              </tr>
+              <tr>
+                <td><code>DIST_WELSCH</code></td>
+                <td>22-3</td>
+                <td><code>fft.fftshift()</code></td>
+                <td>21-3-1</td>
+              </tr>
+              <tr>
+                <td><code>distanceTransform()</code></td>
+                <td>22-3</td>
+                <td><code>filter2D()</code></td>
+                <td>11-7</td>
+              </tr>
+              <tr>
+                <td><code>drawContours()</code></td>
+                <td>15-1-2</td>
+                <td><code>findContours()</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>dtype</code></td>
+                <td>2-5</td>
+                <td><code>findNearest()</code></td>
+                <td>25-3-1</td>
+              </tr>
+              <tr>
+                <td><code>dtype</code></td>
+                <td>3-3-1</td>
+                <td><code>findNonZero()</code></td>
+                <td>17-6-3</td>
+              </tr>
+              <tr>
+                <td><code>ellipse()</code></td>
+                <td>7-6</td>
+                <td><code>First_Child</code></td>
+                <td>15-3</td>
+              </tr>
+              <tr>
+                <td><code>empty()</code></td>
+                <td>3-3-6</td>
+                <td><code>Fisherfaces</code></td>
+                <td>29-3</td>
+              </tr>
+              <tr>
+                <td><code>equalizeHist()</code></td>
+                <td>19-3-2</td>
+                <td><code>fitEllipse()</code></td>
+                <td>16-1-4</td>
+              </tr>
+              <tr>
+                <td><code>Equivalent Diameter</code></td>
+                <td>17-5</td>
+                <td><code>fitLine()</code></td>
+                <td>16-1-7</td>
+              </tr>
+              <tr>
+                <td><code>erode()</code></td>
+                <td>12-1-2</td>
+                <td><code>Flash</code></td>
+                <td>26-2-2</td>
+              </tr>
+              <tr>
+                <td><code>Erosion</code></td>
+                <td>12-1</td>
+                <td><code>flip()</code></td>
+                <td>10-2</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_FLAG_ALTKEY</code></td>
+                <td>7-10-1</td>
+                <td><code>flip()</code></td>
+                <td>26-1-6</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_FLAG_CTRLKEY</code></td>
+                <td>7-10-1</td>
+                <td><code>float_</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_FLAG_LBUTTON</code></td>
+                <td>7-10-1</td>
+                <td><code>float16</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_FLAG_MBUTTON</code></td>
+                <td>7-10-1</td>
+                <td><code>float32</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_FLAG_RBUTTON</code></td>
+                <td>7-10-1</td>
+                <td><code>float32()</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_FLAG_SHIFTKEY</code></td>
+                <td>7-10-1</td>
+                <td><code>float64</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_LBUTTONDBCLK</code></td>
+                <td>7-10-1</td>
+                <td><code>FMM</code></td>
+                <td>24-1-1</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_LBUTTONDOWN</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_COMPLEX</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_LBUTTONUP</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_COMPLEX_SMALL</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_MBUTTONDBCLK</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_DUPLEX</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_MBUTTONDOWN</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_PLAIN</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_MBUTTONUP</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_SCRIPT_COMPLEX</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_MOUSEMOVE</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_SCRIPT_SIMPLEX</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_RBUTTONDBCLK</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_SIMPLEX</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_RBUTTONDOWN</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_HERSHEY_TRIPLEX</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>EVENT_RBUTTONUP</code></td>
+                <td>7-10-1</td>
+                <td><code>FONT_ITALIC</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>Extent</code></td>
+                <td>17-3</td>
+                <td><code>fourcc</code></td>
+                <td>26-2-1</td>
+              </tr>
+              <tr>
+                <td><code>face.EigenFaceRecognizer_create()</code></td>
+                <td>29-2-1</td>
+                <td><code>Fourier</code></td>
+                <td>21-2-1</td>
+              </tr>
+              <tr>
+                <td><code>face.FisherFaceRecognizer_create()</code></td>
+                <td>29-3-2</td>
+                <td><code>fps</code></td>
+                <td>26-2-1</td>
+              </tr>
+              <tr>
+                <td><code>face.LBPHFaceRecognizer_create()</code></td>
+                <td>29-1-2</td>
+                <td><code>Gaussian blur</code></td>
+                <td>11-5</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="index-section" id="page-5">
+          <div class="section-heading">
+            <span class="section-number">B-4</span>
+            <h2>索引表 B-4</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>Gaussian filter</code></td>
+                <td>11-5</td>
+                <td><code>hierarchy</code></td>
+                <td>15-1-1,15-3</td>
+              </tr>
+              <tr>
+                <td><code>Gaussian smoothing</code></td>
+                <td>11-5</td>
+                <td><code>hist()</code></td>
+                <td>19-2-1</td>
+              </tr>
+              <tr>
+                <td><code>GaussianBlur()</code></td>
+                <td>11-5-2</td>
+                <td><code>Hough Transform</code></td>
+                <td>18</td>
+              </tr>
+              <tr>
+                <td><code>GC_BGD</code></td>
+                <td>23-2</td>
+                <td><code>HoughCircles()</code></td>
+                <td>18-4</td>
+              </tr>
+              <tr>
+                <td><code>GC_FGD</code></td>
+                <td>23-2</td>
+                <td><code>HoughLines()</code></td>
+                <td>18-2</td>
+              </tr>
+              <tr>
+                <td><code>GC_INIT_WITH_MASK</code></td>
+                <td>23-2</td>
+                <td><code>HoughLinesP()</code></td>
+                <td>18-3</td>
+              </tr>
+              <tr>
+                <td><code>GC_INIT_WITH_RECT</code></td>
+                <td>23-2</td>
+                <td><code>hsplit()</code></td>
+                <td>25-4-2</td>
+              </tr>
+              <tr>
+                <td><code>GC_PR_BGD</code></td>
+                <td>23-2</td>
+                <td><code>hstack()</code></td>
+                <td>3-7-1</td>
+              </tr>
+              <tr>
+                <td><code>GC_PR_BGD</code></td>
+                <td>23-2</td>
+                <td><code>HSV</code></td>
+                <td>4-3-1</td>
+              </tr>
+              <tr>
+                <td><code>get()</code></td>
+                <td>26-4-1</td>
+                <td><code>Hu</code></td>
+                <td>15-5</td>
+              </tr>
+              <tr>
+                <td><code>getAffineTransform()</code></td>
+                <td>10-3-5</td>
+                <td><code>Hue</code></td>
+                <td>4-3-1</td>
+              </tr>
+              <tr>
+                <td><code>getHistograms()</code></td>
+                <td>29-1-4</td>
+                <td><code>HuMoments()</code></td>
+                <td>15-5-1</td>
+              </tr>
+              <tr>
+                <td><code>getPerspectiveTransform()</code></td>
+                <td>10-4</td>
+                <td><code>Hysteresis Thresholding</code></td>
+                <td>13-5-2</td>
+              </tr>
+              <tr>
+                <td><code>getRotationMatrix2D()</code></td>
+                <td>10-3-4</td>
+                <td><code>idft()</code></td>
+                <td>21-4-2</td>
+              </tr>
+              <tr>
+                <td><code>getStructuringElement()</code></td>
+                <td>12-9</td>
+                <td><code>Image gradient</code></td>
+                <td>13-1-2</td>
+              </tr>
+              <tr>
+                <td><code>getTrackbarPos()</code></td>
+                <td>7-11</td>
+                <td><code>Image moments</code></td>
+                <td>15-4</td>
+              </tr>
+              <tr>
+                <td><code>glob()</code></td>
+                <td>30-2-2</td>
+                <td><code>Image Pyramid</code></td>
+                <td>14</td>
+              </tr>
+              <tr>
+                <td><code>GMM</code></td>
+                <td>23-1</td>
+                <td><code>Images filtering</code></td>
+                <td>11</td>
+              </tr>
+              <tr>
+                <td><code>grabCut()</code></td>
+                <td>23-2</td>
+                <td><code>imread()</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>Haar</code></td>
+                <td>30-1</td>
+                <td><code>IMREAD_ANYCOLOR</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_eye.xml</code></td>
+                <td>27-5-1</td>
+                <td><code>IMREAD_ANYDEPTH</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_frontalcatface.xml</code></td>
+                <td>27-6</td>
+                <td><code>IMREAD_COLOR</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_frontalface_alt.xml</code></td>
+                <td>27-3-1</td>
+                <td><code>IMREAD_GRAYSCALE</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_frontalface_alt_tree.xml</code></td>
+                <td>27-3-1</td>
+                <td><code>IMREAD_IGNORE_ORIENTATION</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_frontalface_alt2.xml</code></td>
+                <td>27-3-1</td>
+                <td><code>IMREAD_LOAD_GDAL</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_frontalface_default.xml</code></td>
+                <td>27-3-1</td>
+                <td><code>IMREAD_REDUCED_COLOR_2</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_fullbody.xml</code></td>
+                <td>27-4-1</td>
+                <td><code>IMREAD_REDUCED_COLOR_4</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_lefteye_2splits.xml</code></td>
+                <td>27-5-2</td>
+                <td><code>IMREAD_REDUCED_COLOR_8</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_lowerbody.xml</code></td>
+                <td>27-4-2</td>
+                <td><code>IMREAD_REDUCED_GRAYSCALE_2</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_righteye_2splits.xml</code></td>
+                <td>27-5-3</td>
+                <td><code>IMREAD_REDUCED_GRAYSCALE_4</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_russian_plate_number.xml</code></td>
+                <td>27-7</td>
+                <td><code>IMREAD_REDUCED_GRAYSCALE_8</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>haarcascade_upperbody.xml</code></td>
+                <td>27-4-3</td>
+                <td><code>IMREAD_UNCHANGED</code></td>
+                <td>1-2-1</td>
+              </tr>
+              <tr>
+                <td><code>Hausdorff</code></td>
+                <td>15-6-2</td>
+                <td><code>imshow()</code></td>
+                <td>1-3-1</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="index-section" id="page-6">
+          <div class="section-heading">
+            <span class="section-number">B-5</span>
+            <h2>索引表 B-5</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>imwrite()</code></td>
+                <td>1-4</td>
+                <td><code>LBPH</code></td>
+                <td>29-1</td>
+              </tr>
+              <tr>
+                <td><code>inpaint()</code></td>
+                <td>24-2</td>
+                <td><code>Lena Forsen</code></td>
+                <td>13-2-8</td>
+              </tr>
+              <tr>
+                <td><code>INPAINT_NS</code></td>
+                <td>24-2</td>
+                <td><code>line()</code></td>
+                <td>7-2</td>
+              </tr>
+              <tr>
+                <td><code>INPAINT_TELEA</code></td>
+                <td>24-2</td>
+                <td><code>Local Binary Pattern Histogram</code></td>
+                <td>29-1</td>
+              </tr>
+              <tr>
+                <td><code>int_</code></td>
+                <td>3-2</td>
+                <td><code>magnitude()</code></td>
+                <td>21-4-1</td>
+              </tr>
+              <tr>
+                <td><code>int16</code></td>
+                <td>3-2</td>
+                <td><code>mask</code></td>
+                <td>8-2</td>
+              </tr>
+              <tr>
+                <td><code>int32</code></td>
+                <td>3-2</td>
+                <td><code>matchShapes()</code></td>
+                <td>15-5-3</td>
+              </tr>
+              <tr>
+                <td><code>int64</code></td>
+                <td>3-2</td>
+                <td><code>matchTemplate()</code></td>
+                <td>20-2-1</td>
+              </tr>
+              <tr>
+                <td><code>int8</code></td>
+                <td>3-2</td>
+                <td><code>MaxLineGap</code></td>
+                <td>18-3</td>
+              </tr>
+              <tr>
+                <td><code>intc</code></td>
+                <td>3-2</td>
+                <td><code>maxRadius</code></td>
+                <td>18-4</td>
+              </tr>
+              <tr>
+                <td><code>Intensity Gradient</code></td>
+                <td>13-5-2</td>
+                <td><code>Mean filter</code></td>
+                <td>11-2</td>
+              </tr>
+              <tr>
+                <td><code>INTER_AREA</code></td>
+                <td>10-1</td>
+                <td><code>mean()</code></td>
+                <td>17-8-1</td>
+              </tr>
+              <tr>
+                <td><code>INTER_CUBIC</code></td>
+                <td>10-1</td>
+                <td><code>meanStdDev()</code></td>
+                <td>17-8-4</td>
+              </tr>
+              <tr>
+                <td><code>INTER_LANCZOS4</code></td>
+                <td>10-1</td>
+                <td><code>measureDist</code></td>
+                <td>16-3-2</td>
+              </tr>
+              <tr>
+                <td><code>INTER_LINEAR</code></td>
+                <td>10-1</td>
+                <td><code>Median filter</code></td>
+                <td>11-4</td>
+              </tr>
+              <tr>
+                <td><code>INTER_LINEAR</code></td>
+                <td>10-3-2</td>
+                <td><code>medianBlur()</code></td>
+                <td>11-4-2</td>
+              </tr>
+              <tr>
+                <td><code>INTER_NEAREST</code></td>
+                <td>10-1</td>
+                <td><code>merge()</code></td>
+                <td>4-5-1</td>
+              </tr>
+              <tr>
+                <td><code>intercept</code></td>
+                <td>18</td>
+                <td><code>minAreaRect()</code></td>
+                <td>16-1-2</td>
+              </tr>
+              <tr>
+                <td><code>intp</code></td>
+                <td>3-2</td>
+                <td><code>min Dist</code></td>
+                <td>18-4</td>
+              </tr>
+              <tr>
+                <td><code>isContourConvex()</code></td>
+                <td>16-3-1</td>
+                <td><code>minEnclosingCircle()</code></td>
+                <td>16-1-3</td>
+              </tr>
+              <tr>
+                <td><code>isOpened()</code></td>
+                <td>26-1-2</td>
+                <td><code>minEnclosingTriangle()</code></td>
+                <td>16-1-5</td>
+              </tr>
+              <tr>
+                <td><code>item()</code></td>
+                <td>6-4</td>
+                <td><code>MinLineLength</code></td>
+                <td>18-3</td>
+              </tr>
+              <tr>
+                <td><code>itemset()</code></td>
+                <td>6-4</td>
+                <td><code>minMaxLoc()</code></td>
+                <td>17-7</td>
+              </tr>
+              <tr>
+                <td><code>itemsize</code></td>
+                <td>3-3-1</td>
+                <td><code>minRadius</code></td>
+                <td>18-4</td>
+              </tr>
+              <tr>
+                <td><code>iterations</code></td>
+                <td>12-1-2</td>
+                <td><code>moments()</code></td>
+                <td>15-4-1</td>
+              </tr>
+              <tr>
+                <td><code>JPEG</code></td>
+                <td>1-2-2</td>
+                <td><code>MORPH_BLACKHAT</code></td>
+                <td>12-3</td>
+              </tr>
+              <tr>
+                <td><code>kernel</code></td>
+                <td>12-1-1</td>
+                <td><code>MORPH_CLOSE</code></td>
+                <td>12-3</td>
+              </tr>
+              <tr>
+                <td><code>K-Nearest Neighbor</code></td>
+                <td>25-1</td>
+                <td><code>MORPH_CROSS</code></td>
+                <td>12-9</td>
+              </tr>
+              <tr>
+                <td><code>KNearest_create()</code></td>
+                <td>25-3-1</td>
+                <td><code>MORPH_DILATE</code></td>
+                <td>12-3</td>
+              </tr>
+              <tr>
+                <td><code>KNN</code></td>
+                <td>25-1</td>
+                <td><code>MORPH_ELLIPSE</code></td>
+                <td>12-9</td>
+              </tr>
+              <tr>
+                <td><code>Laplacian Pyramid</code></td>
+                <td>14-5</td>
+                <td><code>MORPH_ERODE</code></td>
+                <td>12-3</td>
+              </tr>
+              <tr>
+                <td><code>Laplacian</code></td>
+                <td>13-4-2</td>
+                <td><code>MORPH_GRADIENT</code></td>
+                <td>12-3</td>
+              </tr>
+              <tr>
+                <td><code>Laplacian()</code></td>
+                <td>13-4-3</td>
+                <td><code>MORPH_HITMISS</code></td>
+                <td>12-3</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="index-section" id="page-7">
+          <div class="section-heading">
+            <span class="section-number">B-6</span>
+            <h2>索引表 B-6</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>MORPH_OPEN</code></td>
+                <td>12-3</td>
+                <td><code>predict()</code></td>
+                <td>29-1-2</td>
+              </tr>
+              <tr>
+                <td><code>MORPH_RECT</code></td>
+                <td>12-9</td>
+                <td><code>Previous</code></td>
+                <td>15-3</td>
+              </tr>
+              <tr>
+                <td><code>MORPH_TOPHAT</code></td>
+                <td>12-3</td>
+                <td><code>putText()</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>Morphological gradient</code></td>
+                <td>12-6</td>
+                <td><code>pyrDown()</code></td>
+                <td>14-2</td>
+              </tr>
+              <tr>
+                <td><code>morphologyEx()</code></td>
+                <td>12-3</td>
+                <td><code>pyrUp()</code></td>
+                <td>14-3</td>
+              </tr>
+              <tr>
+                <td><code>MPEG</code></td>
+                <td>26-2-2</td>
+                <td><code>randint()</code></td>
+                <td>3-3-7</td>
+              </tr>
+              <tr>
+                <td><code>namedWindow()</code></td>
+                <td>1-3-4</td>
+                <td><code>ravel()</code></td>
+                <td>25-2-2</td>
+              </tr>
+              <tr>
+                <td><code>ndarray</code></td>
+                <td>2-6-2</td>
+                <td><code>read()</code></td>
+                <td>26-1-3</td>
+              </tr>
+              <tr>
+                <td><code>ndarray</code></td>
+                <td>3-1</td>
+                <td><code>createHausdorffDistanceExtractor()</code></td>
+                <td>15-6-2</td>
+              </tr>
+              <tr>
+                <td><code>ndim</code></td>
+                <td>3-3-1</td>
+                <td><code>rectangle()</code></td>
+                <td>7-4</td>
+              </tr>
+              <tr>
+                <td><code>ndmin</code></td>
+                <td>3-3-2</td>
+                <td><code>release()</code></td>
+                <td>26-1-4</td>
+              </tr>
+              <tr>
+                <td><code>Negative</code></td>
+                <td>30-1-2</td>
+                <td><code>remap()</code></td>
+                <td>10-5</td>
+              </tr>
+              <tr>
+                <td><code>Next</code></td>
+                <td>15-3</td>
+                <td><code>repeat()</code></td>
+                <td>25-4-3</td>
+              </tr>
+              <tr>
+                <td><code>Noise Reduction</code></td>
+                <td>13-5-2</td>
+                <td><code>reshape()</code></td>
+                <td>3-3-9</td>
+              </tr>
+              <tr>
+                <td><code>Non-maximum Suppression</code></td>
+                <td>13-5-2</td>
+                <td><code>resize()</code></td>
+                <td>10-1</td>
+              </tr>
+              <tr>
+                <td><code>normalize</code></td>
+                <td>11-3-2</td>
+                <td><code>resizeWindow()</code></td>
+                <td>26-3-4</td>
+              </tr>
+              <tr>
+                <td><code>Numpy</code></td>
+                <td>3-2</td>
+                <td><code>RETR_CCOMP</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>Ogg Vorbis</code></td>
+                <td>26-2-2</td>
+                <td><code>RETR_EXTERNAL</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>onChange</code></td>
+                <td>7-11</td>
+                <td><code>RETR_LIST</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>ones()</code></td>
+                <td>3-3-5</td>
+                <td><code>RETR_TREE</code></td>
+                <td>15-1-1</td>
+              </tr>
+              <tr>
+                <td><code>OnMouseAction</code></td>
+                <td>7-10-1</td>
+                <td><code>returnPoints</code></td>
+                <td>16-2-1</td>
+              </tr>
+              <tr>
+                <td><code>Opening</code></td>
+                <td>12-4</td>
+                <td><code>RGB</code></td>
+                <td>2-3</td>
+              </tr>
+              <tr>
+                <td><code>order</code></td>
+                <td>3-3-2</td>
+                <td><code>rho</code></td>
+                <td>18-1-4</td>
+              </tr>
+              <tr>
+                <td><code>oriented</code></td>
+                <td>15-4-4</td>
+                <td><code>ROI</code></td>
+                <td>6-5-1</td>
+              </tr>
+              <tr>
+                <td><code>Otsu</code></td>
+                <td>9-2</td>
+                <td><code>ROW_SAMPLE</code></td>
+                <td>25-3-1</td>
+              </tr>
+              <tr>
+                <td><code>Parent</code></td>
+                <td>15-3</td>
+                <td><code>sans-serif</code></td>
+                <td>7-8</td>
+              </tr>
+              <tr>
+                <td><code>PCA</code></td>
+                <td>29-3-1</td>
+                <td><code>saturate()</code></td>
+                <td>8-3-1</td>
+              </tr>
+              <tr>
+                <td><code>plot()</code></td>
+                <td>19-1-1</td>
+                <td><code>Saturation</code></td>
+                <td>4-3-1</td>
+              </tr>
+              <tr>
+                <td><code>PNG</code></td>
+                <td>1-2-2</td>
+                <td><code>save()</code></td>
+                <td>29-1-5</td>
+              </tr>
+              <tr>
+                <td><code>pointPolygonTest()</code></td>
+                <td>16-3-2</td>
+                <td><code>Scharr</code></td>
+                <td>13-3-1</td>
+              </tr>
+              <tr>
+                <td><code>Polar coordinate system</code></td>
+                <td>18-1-3</td>
+                <td><code>Scharr()</code></td>
+                <td>13-3-2</td>
+              </tr>
+              <tr>
+                <td><code>polylines()</code></td>
+                <td>7-7</td>
+                <td><code>seed()</code></td>
+                <td>25-2-1</td>
+              </tr>
+              <tr>
+                <td><code>Positive</code></td>
+                <td>30-1-1</td>
+                <td><code>set()</code></td>
+                <td>26-4-2</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="index-section" id="page-8">
+          <div class="section-heading">
+            <span class="section-number">B-7</span>
+            <h2>索引表 B-7</h2>
+          </div>
+          <div class="index-table-wrap">
+            <table class="index-table">
+              <thead>
+                <tr>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                  <th>函数／名词／常量</th>
+                  <th>章节</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><code>setMouseCallback()</code></td>
+                <td>7-10-2</td>
+                <td><code>TM_CCORR_NORMED</code></td>
+                <td>20-2-1</td>
+              </tr>
+              <tr>
+                <td><code>shape</code></td>
+                <td>2-5</td>
+                <td><code>TM_SQDIFF</code></td>
+                <td>20-2-1</td>
+              </tr>
+              <tr>
+                <td><code>shape</code></td>
+                <td>3-3-1</td>
+                <td><code>TM_SQDIFF_NORMED</code></td>
+                <td>20-2-1</td>
+              </tr>
+              <tr>
+                <td><code>shuffle()</code></td>
+                <td>7-9</td>
+                <td><code>tophat</code></td>
+                <td>12-7</td>
+              </tr>
+              <tr>
+                <td><code>sigmaColor</code></td>
+                <td>11-6-2</td>
+                <td><code>train()</code></td>
+                <td>25-3-1</td>
+              </tr>
+              <tr>
+                <td><code>sigmaSpace</code></td>
+                <td>11-6-2</td>
+                <td><code>train()</code></td>
+                <td>29-1-2</td>
+              </tr>
+              <tr>
+                <td><code>sin</code></td>
+                <td>21-2-2</td>
+                <td><code>transpose()</code></td>
+                <td>17-6-1</td>
+              </tr>
+              <tr>
+                <td><code>size</code></td>
+                <td>2-5</td>
+                <td><code>uint16</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>size</code></td>
+                <td>3-3-1</td>
+                <td><code>uint32</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>slope</code></td>
+                <td>18</td>
+                <td><code>uint64</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>Smoothing Images</code></td>
+                <td>11</td>
+                <td><code>uint8</code></td>
+                <td>2-6-1</td>
+              </tr>
+              <tr>
+                <td><code>Sobel</code></td>
+                <td>13-2-1</td>
+                <td><code>uint8</code></td>
+                <td>3-2</td>
+              </tr>
+              <tr>
+                <td><code>Sobel()</code></td>
+                <td>13-2-4</td>
+                <td><code>Value</code></td>
+                <td>4-3-1</td>
+              </tr>
+              <tr>
+                <td><code>Solidity</code></td>
+                <td>17-4</td>
+                <td><code>VideoCapture</code></td>
+                <td>26-1</td>
+              </tr>
+              <tr>
+                <td><code>split()</code></td>
+                <td>4-4-1</td>
+                <td><code>VideoCapture()</code></td>
+                <td>26-1-1</td>
+              </tr>
+              <tr>
+                <td><code>subok</code></td>
+                <td>3-3-2</td>
+                <td><code>VideoWriter</code></td>
+                <td>26-2</td>
+              </tr>
+              <tr>
+                <td><code>Tesseract OCR</code></td>
+                <td>31-2</td>
+                <td><code>VideoWriter()</code></td>
+                <td>26-2-1</td>
+              </tr>
+              <tr>
+                <td><code>theta</code></td>
+                <td>18-2</td>
+                <td><code>VideoWriter_fourcc()</code></td>
+                <td>26-2-2</td>
+              </tr>
+              <tr>
+                <td><code>thickness</code></td>
+                <td>7-2</td>
+                <td><code>vsplit()</code></td>
+                <td>25-4-1</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_BINARY</code></td>
+                <td>9-1-1</td>
+                <td><code>vstack()</code></td>
+                <td>3-6-1</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_BINARY_INV</code></td>
+                <td>9-1-1</td>
+                <td><code>waitKey()</code></td>
+                <td>1-3-3</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_OTSU</code></td>
+                <td>9-1-1</td>
+                <td><code>warpAffine()</code></td>
+                <td>10-3-2</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_TOZERO</code></td>
+                <td>9-1-1</td>
+                <td><code>WARP_INVERSE_MAP</code></td>
+                <td>10-3-2</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_TOZERO_INV</code></td>
+                <td>9-1-1</td>
+                <td><code>warpPerspective()</code></td>
+                <td>10-4</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_TRIANGLE</code></td>
+                <td>9-1-1</td>
+                <td><code>watershed()</code></td>
+                <td>22-6</td>
+              </tr>
+              <tr>
+                <td><code>THRESH_TRUNC</code></td>
+                <td>9-1-1</td>
+                <td><code>WINDOW_AUTOSIZE</code></td>
+                <td>1-3-4</td>
+              </tr>
+              <tr>
+                <td><code>threshold()</code></td>
+                <td>9-1</td>
+                <td><code>WINDOW_NORMAL</code></td>
+                <td>1-3-4</td>
+              </tr>
+              <tr>
+                <td><code>TIFF</code></td>
+                <td>1-2-2</td>
+                <td><code>WINDOW_OPENGL</code></td>
+                <td>1-3-4</td>
+              </tr>
+              <tr>
+                <td><code>tileGridSize</code></td>
+                <td>19-4-3</td>
+                <td><code>write()</code></td>
+                <td>26-2-3</td>
+              </tr>
+              <tr>
+                <td><code>time()</code></td>
+                <td>7-9</td>
+                <td><code>YUV</code></td>
+                <td>26-2-2</td>
+              </tr>
+              <tr>
+                <td><code>TM_CCOEFF</code></td>
+                <td>20-2-1</td>
+                <td><code>zeros()</code></td>
+                <td>3-3-4</td>
+              </tr>
+              <tr>
+                <td><code>TM_CCOEFF_NORMED</code></td>
+                <td>20-2-1</td>
+                <td><code></code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>TM_CCORR</code></td>
+                <td>20-2-1</td>
+                <td><code></code></td>
+                <td></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      <div class="page-nav">
+        <a href="appendix-a.html">
+          <div class="nav-label">&larr; 上一页</div>
+          <div class="nav-title">附录 A 安装 OpenCV</div>
+        </a>
+        <a href="#" style="opacity:0.6;pointer-events:none">
+          <div class="nav-label">下一页 &rarr;</div>
+          <div class="nav-title">已到最后一页</div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("appendix-b");</script>
+</body>
+</html>

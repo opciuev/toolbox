@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 30 章 建立哈尔特征分类器 - 车牌辨识 - OpenCV 教学</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+  <style>
+    .chapter-figure { margin: 1.25rem 0; text-align: center; }
+    .chapter-figure img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.12); background: #fff; }
+    .chapter-figure.cover img { max-width: 760px; }
+    .inline-list { margin: .75rem 0 1rem 1.5rem; }
+    .inline-list li { margin: .35rem 0; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教学
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节导览</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 30 章</span>
+      <h1 class="chapter-title">建立哈尔特征分类器 - 车牌辨识</h1>
+      <div class="chapter-meta">正样本与负样本影像资料 · Haar 训练工具 · 样本标记 · 车牌侦测</div>
+
+      <div class="chapter-figure cover">
+        <img src="images/ch30/ch30_00_cover.png" alt="第 30 章 建立哈尔特征分类器 - 车牌辨识封面">
+      </div>
+
+      <div class="chapter-intro">
+        第 27 章笔者介绍了 OpenCV 所提供的哈尔 (Haar) 特征分类器资源档案，侦测物件，这一节将以程式实例带领读者自行设计哈尔 (Haar) 特征分类器档案，一步一步做辨识台湾汽车车牌。
+      </div>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">30-1</span>
+        <h2>准备正样本与负样本影像资料</h2>
+      </div>
+
+      <p class="content-text">这一章的内容是要建立可以辨识汽车车牌的哈尔 (Haar) 特征分类器资源档案，这时必须准备 2 类影像，其中含汽车车牌的影像我们可以称正 (Positive) 样本影像，不含汽车车牌的影像称负 (Negative) 样本影像。</p>
+
+      <h3>30-1-1 准备正样本影像 - 含汽车车牌影像</h3>
+      <p class="content-text">首先我们要准备汽车车牌，这些影像资料又称正样本影像，如下方左图所示，然后我们期待可以设计程式将车牌框选，可以参考下方右图。</p>
+      <div class="chapter-figure">
+        <img src="images/ch30/ch30_01_positive_samples.png" alt="正样本影像与框选车牌示意">
+        <div class="caption">正样本影像 - 含汽车车牌影像。</div>
+      </div>
+      <p class="content-text">目前台湾的汽车车牌有新式，相当然有 7 码与 6 码，为了单纯化笔者选择使用 7 码当作车牌辨识的样本影像。许多车牌辨识的停车场会将摄影机架在车身引擎盖相同的高度或是略高一点，所以我们在拍摄汽车影像时，最好也是如此，建议拍摄汽车影像时注意下列三点：</p>
+      <ol class="inline-list">
+        <li>固定高度。</li>
+        <li>固定距离。</li>
+        <li>光线良好，可以清楚显示车身与车牌。</li>
+      </ol>
+      <p class="content-text">也就是我们模拟停车场的摄影机镜头，但是拍摄时很担心被路人或车主撞见，被怀疑有不良企图，因此笔者所准备的影像无法保持一定高度与距离，本章实例笔者只准备了约 50 张影像，部分影像则是相同影像裁剪不同部位而成，最后处理成 90 张影像。</p>
+
+      <h3>30-1-2 准备负样本影像 - 不含汽车车牌影像</h3>
+      <p class="content-text">所谓的负样本影像就是指不含汽车车牌的影像，由于我们要训练电脑可以认识汽车车牌，所以要准备一系列不含汽车车牌的影像告诉系统这些影像是不含汽车车牌，这些影像最好是包罗万象，越多越好，本书笔者准备了约 295 张影像。</p>
+      <p class="content-text">建议读者学会本章内容后，可以准备 1000 张以上的影像。</p>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">30-2</span>
+        <h2>处理正样本影像</h2>
+      </div>
+
+      <p class="content-text">这本书笔者将原始拍摄的影像放在 <code>ch30/srcCar</code> 资料夹，如下所示：</p>
+      <div class="chapter-figure">
+        <img src="images/ch30/ch30_02_srcCar_folder.png" alt="ch30/srcCar 资料夹">
+      </div>
+
+      <h3>30-2-1 将正样本影像处理成固定宽度与高度</h3>
+      <p class="content-text">停车场的摄影机由于固定在入口位置，所以可以保持一定高度与距离拍摄车辆，最后可以取得固定大小的影像，我们的影像是用手机拍摄，高度与距离无法完全相同，所以只能使用裁剪方式处理正样本影像。</p>
+      <p class="code-title">程式实例 ch30_1.py：将所有在 ch30/srcCar 资料夹的档案，处理成宽与高分别是 320 和 240 像素的影像，然后储存在 ch30/dstCar 资料夹。</p>
+      <div class="code-block"># ch30_1.py
+import cv2
+import os
+import glob
+import time
+import shutil
+
+srcDir = "srcCar"
+dstDir = "dstCar"
+width = 320
+height = 240
+if os.path.isdir(dstDir):                    # 检查是否存在
+    # 因为 dstCar 资料夹可能含资料，所以使用 shutil.rmtree() 函数删除
+    shutil.rmtree(dstDir)                    # 先删除资料夹
+    time.sleep(3)                            # 休息让系统处理
+os.mkdir(dstDir)                             # 建立资料夹
+
+cars = glob.glob(srcDir + "/*.jpg")          # 取得资料夹下所有汽车影像名称
+print(f"执行{srcDir}资料夹内修改尺寸的汽车影像")
+for index, car in enumerate(cars):           # 依序取出所有档案
+    img_car = cv2.imread(car, cv2.IMREAD_COLOR)        # 读取车辆影像
+    img_car_resize = cv2.resize(img_car, (width, height))
+    car_name = "car" + str(index) + ".jpg"             # 车辆影像命名
+    fullpath = dstDir + "\\" + car_name
+    print(f"储存{dstDir}资料夹内修改尺寸的影像。")
+    cv2.imwrite(fullpath, img_car_resize)              # 写入车辆影像</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch30\ch30_1.py ====================
+执行srcCar资料夹内修改尺寸的汽车影像
+储存dstCar资料夹内修改尺寸的影像。</div>
+      </div>
+      <p class="content-text">开启 <code>ch30/dstCar</code> 资料夹可以得到下列结果，同时每张影像宽与高分别是 320 和 240。</p>
+      <div class="chapter-figure">
+        <img src="images/ch30/ch30_03_dstCar_folder.png" alt="ch30/dstCar 资料夹">
+      </div>
+
+      <h3>30-2-2 将正样本影像转成 bmp 档案</h3>
+      <p class="content-text">为了要记录我们建立哈尔分类器的过程，所以笔者采用逐步说明，使用不同资料夹储存每一阶段的执行结果。在讲解程式实例 ch30_3.py 之前，笔者先介绍将含路径的字串拆成资料夹与档案名称。</p>
+      <p class="code-title">程式实例 ch30_2.py：读取所有 dstCar 资料夹的档案，将档案串列的路径与档案名称拆开。</p>
+      <div class="code-block"># ch30_2.py
+import os
+import glob
+
+dstDir = "dstCar"
+allcars = dstDir + "/*.jpg"                  # 建立档案模式
+cars = glob.glob(allcars)                    # 获得档案名称
+print(f"目前资料夹档案名称 = \n{cars}")      # 列印档案名称
+
+# 拆解资料夹符号
+for car in cars:
+    carname = car.split("\\")                # 将字串转成串列
+    print(carname)</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch30\ch30_2.py ====================
+目前资料夹档案名称 =
+['dstCar\\car1.jpg', 'dstCar\\car10.jpg', 'dstCar\\car11.jpg', ...,
+ 'dstCar\\car89.jpg', 'dstCar\\car9.jpg', 'dstCar\\car90.jpg']
+['dstCar', 'car1.jpg']
+['dstCar', 'car10.jpg']
+['dstCar', 'car11.jpg']</div>
+      </div>
+      <p class="content-text">了解上述程式后，读者可以比较容易了解下列程式。</p>
+      <p class="code-title">程式实例 ch30_3.py：将所有 ch30/dstCar 资料夹内的 .jpg 汽车影像转成 .bmp 影像，同时存入 ch30/bmpCar 资料夹。</p>
+      <div class="code-block"># ch30_3.py
+import cv2
+import os
+import glob
+import time
+import shutil
+
+dstDir = "dstCar"
+bmpDir = "bmpCar"
+if os.path.isdir(bmpDir):                    # 检查是否存在
+    # 因为 bmpDir 资料夹可能含资料，所以使用 shutil.rmtree() 函数删除
+    shutil.rmtree(bmpDir)                    # 先删除资料夹
+    time.sleep(3)                            # 休息让系统处理
+os.mkdir(bmpDir)                             # 建立新资料夹
+
+allcars = dstDir + "/*.jpg"                  # 建立档案模式
+cars = glob.glob(allcars)                    # 获得档案名称
+# print(f"目前资料夹档案名称 = \n{cars}")    # 列印档案名称
+
+# 拆解资料夹符号
+for car in cars:
+    carname = car.split("\\")                # 将字串转成串列
+    # print(carname)
+    car_img = cv2.imread(car, cv2.IMREAD_COLOR)       # 读车子影像
+    outname = carname[1].replace(".jpg", ".bmp")      # 将 jpg 改为 bmp
+    fullpath = bmpDir + "\\" + outname                # 完整档名
+    cv2.imwrite(fullpath, car_img)                    # 写入资料夹
+print("在 bmpCar 资料夹重新命名车辆副档名成功")</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch30\ch30_3.py ====================
+在 bmpCar 资料夹重新命名车辆副档名成功</div>
+      </div>
+      <div class="chapter-figure">
+        <img src="images/ch30/ch30_04_bmpCar_folder.png" alt="ch30/bmpCar 资料夹">
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">30-3</span>
+        <h2>处理负样本影像</h2>
+      </div>
+
+      <p class="content-text">如前所述负样本影像就是不要含有汽车的影像，但是可以有与汽车相关的影像，例如：车道。当然为了能让我们哈尔 (Haar) 分类器可以辨识哪些影像是不含汽车，所以负样本影像也是越丰富越好，在实务上建议有 1000 张以上的影像，这些影像必须转成灰阶色彩，同时负样本影像宽与高必须大于正样本影像。</p>
+      <p class="content-text">笔者准备的负样本影像储存在 <code>ch30/notCar</code> 资料夹。</p>
+      <p class="code-title">程式实例 ch30_4.py：将 ch30/notCar 资料夹的所有负样本影像转为灰阶，档案名称改为 notcar*.jpg，同时将宽与高改为 500 和 400，然后存至 ch30/notCarGray 资料夹。</p>
+      <div class="code-block"># ch30_4.py
+import cv2
+import os
+import glob
+import shutil
+import time
+
+srcDir = "notCar"
+dstDir = "notCarGray"
+width = 500                                  # 负样本宽
+height = 400                                 # 负样本高
+if os.path.isdir(dstDir):                    # 检查是否存在
+    # 因为 notCarDir 资料夹可能含资料，所以使用 shutil.rmtree() 函数删除
+    shutil.rmtree(dstDir)                    # 先删除资料夹
+    time.sleep(3)                            # 休息让系统处理
+os.mkdir(dstDir)                             # 建立新资料夹
+
+allcars = srcDir + "/*.jpg"                  # 建立档案模式
+cars = glob.glob(allcars)                    # 获得档案名称
+for index, car in enumerate(cars, 1):
+    img = cv2.imread(car, cv2.IMREAD_GRAYSCALE)       # 灰阶读车子影像
+    img_resize = cv2.resize(img, (width, height))     # 调整负样本影像
+    imgname = "notcar" + str(index)
+    fullpath = dstDir + "\\" + imgname + ".jpg"
+    cv2.imwrite(fullpath, img_resize)
+print("在 notCar 资料夹将影像转为灰阶成功，同时存入notCarGray资料夹")</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch30\ch30_4.py ====================
+在 notCar 资料夹将影像转为灰阶成功，同时存入notCarGray资料夹</div>
+      </div>
+      <p class="content-text">下列是原先的 <code>ch30/notCar</code> 资料夹内容。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_05_notCar_folder.png" alt="ch30/notCar 资料夹"></div>
+      <p class="content-text">下列是执行结果 <code>ch30/notCarGray</code> 资料夹内容。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_06_notCarGray_folder.png" alt="ch30/notCarGray 资料夹"></div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">30-4</span>
+        <h2>建立辨识车牌的哈尔 (Haar) 特征分类器</h2>
+      </div>
+
+      <h3>30-4-1 下载建立哈尔特征分类器工具</h3>
+      <p class="content-text">请进入下列网址。</p>
+      <div class="code-block">https://github.com/sauhaardac/haar-training</div>
+      <p class="content-text">然后可以看到下列网页内容。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_07_github_download.png" alt="haar-training GitHub 下载页"></div>
+      <p class="content-text">请点选 Code 内的 Download ZIP，可以下载 Haar-Training-master.zip 档案，请解压缩这个资料夹，可以得到 Haar-Training-master 资料夹，这个资料夹的资源主要是可以建立哈尔特征分类器，由于目前是要建立车牌辨识，所以笔者将资料夹名称改为 <code>Haar-Training-car-plate</code>。本书所附程式档案已经有这个资料夹了，所以读者可以省略下载步骤。</p>
+
+      <h3>30-4-2 储存正样本影像</h3>
+      <p class="content-text">正样本影像必须储存在下列资料夹：</p>
+      <div class="code-block">ch30/Haar-Training-car-plate/training/positive/rawdata</div>
+      <p class="content-text">请先将上述资料夹所有档案删除，然后将原先 <code>ch30/bmpCar</code> 资料夹的所有 bmp 影像拷贝至此资料夹，下列是执行结果。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_08_positive_rawdata.png" alt="positive/rawdata 资料夹"></div>
+
+      <h3>30-4-3 储存负样本影像</h3>
+      <p class="content-text">负样本影像是储存在下列资料夹：</p>
+      <div class="code-block">ch30/Haar-Training-car-plate/training/negative</div>
+      <p class="content-text">请执行下列步骤：</p>
+      <ol class="inline-list">
+        <li>先将上述资料夹所有影像档案和 <code>bg.txt</code> 档案删除。</li>
+        <li>只保留 <code>create_list.bat</code>。</li>
+        <li>将程式实例 ch30_4.py 所建立的 <code>ch30/notCarGray</code> 资料夹内所有灰阶影像复制至此资料夹。</li>
+      </ol>
+      <p class="content-text">档案 <code>create_list.bat</code> 是批次档，主要是建立 <code>bg.txt</code>，连接两下可以建立此 <code>bg.txt</code> 档案，下列是执行结果。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_09_negative_folder.png" alt="negative 资料夹"></div>
+      <p class="content-text">上述建立 <code>bg.txt</code> 则是记录这个资料夹内的所有档案名称。</p>
+      <div class="result-box-content result-output">notcar0.jpg
+notcar10.jpg
+notcar100.jpg
+notcar101.jpg
+notcar102.jpg
+notcar103.jpg</div>
+
+      <h3>30-4-4 为正样本加上标记</h3>
+      <p class="content-text">我们必须告诉分类器所要侦测的物件，所以为正样本加上标记就是要将分类器辨识的物件标记出来，我们想要辨识汽车车牌，所以标记的方式是使用框选汽车影像的车牌。</p>
+      <p class="content-text">开启 <code>Haar-Training-car-plate/training/positive</code> 资料夹内的 <code>objectmarker.exe</code> 档案，连接两下可以开启正的汽车样本影像，然后为每部车子的车牌加上外框，这个加外框的动作也称标记，标记方式如下：</p>
+      <ol class="inline-list">
+        <li>将滑鼠标移至车牌左上角，拖曳至车牌右下角，可以建立车牌框。</li>
+        <li>同时按空白键和 Enter，可以自动出现下一辆车的影像。</li>
+      </ol>
+      <div class="chapter-figure"><img src="images/ch30/ch30_11_objectmarker_mark.png" alt="objectmarker 框选车牌"></div>
+      <p class="content-text">上述框选完车牌后请同时按空白键和 Enter，可以看到所框选的左上角座标和 width 与 height，同时显示下一部车供框选。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_12_objectmarker_next.png" alt="objectmarker 显示下一部车"></div>
+      <p class="content-text">标记完成后，在相同的资料夹中可以看到 <code>info.txt</code> 档案，这个档案纪录正样本影像的路径与档名、标记数量、标记座标、宽与高。</p>
+      <div class="result-box-content result-output">rawdata/car1.bmp     1  133 177  76 27
+rawdata/car10.bmp    1  134 148  86 38
+rawdata/car101.bmp   1  113 172 114 34
+rawdata/car12.bmp    1  143 182  72 30
+rawdata/car13.bmp    1  119 180  96 28</div>
+
+      <h3>30-4-5 设计程式显示标记</h3>
+      <p class="content-text">前一节我们为每个正样本影像建立标记了，现在可以使用程式了解所建立的正样本影像标记，如果感觉位置有偏差可以修订 <code>info.txt</code> 的内容。</p>
+      <p class="content-text"><strong>注意：</strong>如果重新执行 <code>objectmarker.exe</code> 会造成原先的标记消失。</p>
+      <p class="code-title">程式实例 ch30_5.py：显示以及绘制车牌框线，读者可以在 ch30/plate-mark 资料夹看到所有框选的结果。</p>
+      <div class="code-block"># ch30_5.py
+# 标记检查
+import cv2
+import os
+import shutil
+import time
+
+dstDir = "plate-mark"
+path = "Haar-Training-car-plate/training/positive/"
+
+if os.path.exists(dstDir):                   # 检查是否存在
+    shutil.rmtree(dstDir)                    # 删除资料夹
+    time.sleep(3)                            # 休息让系统处理
+os.mkdir(dstDir)
+
+fn = open(path + 'info.txt', 'r')
+row = fn.readline()                          # 读取 info.txt
+while row:
+    msg = row.split(' ')                     # 分割每一列文字
+    img = cv2.imread(path + msg[0])          # 读取档案
+    for i in range(int(msg[1])):
+        x = int(msg[2 + i * 4])              # 取得左上方 X 座标
+        y = int(msg[3 + i * 4])              # 取得左上方 Y 座标
+        w = int(msg[4 + i * 4])              # 取得 width 宽度
+        h = int(msg[5 + i * 4])              # 取得 height 高度
+        cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    imgname = (msg[0].split('/'))[-1]        # 使用 -1 是确定最右索引
+    print(imgname)                           # 输出处理过程
+    cv2.imwrite(dstDir + "\\" + imgname, img)# 写入资料夹
+    row = fn.readline()
+fn.close()
+print("绘制车牌框完成")</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:\OpenCV_Python\ch30\ch30_5.py ====================
+car1.bmp
+car10.bmp
+car11.bmp
+car12.bmp
+car13.bmp
+...
+car88.bmp
+car89.bmp
+car9.bmp
+car90.bmp
+绘制车牌框完成</div>
+      </div>
+      <p class="content-text">开启 <code>ch30/plate-mark</code> 资料夹看到所有框选的结果。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_13_plate_mark_folder.png" alt="ch30/plate-mark 资料夹"></div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">30-5</span>
+        <h2>训练辨识车牌的哈尔特征分类器</h2>
+      </div>
+
+      <h3>30-5-1 建立向量档案</h3>
+      <p class="content-text">正样本影像必须打包为向量档案才可以进行训练，首先请编辑 <code>ch30/Haar-Training-car-plate/training</code> 资料夹的 <code>samples_creation.bat</code>，请参考下列修改内容：</p>
+      <div class="code-block">createsamples.exe -info positive/info.txt -vec vector/facevector.vec -num 90 -w 70 -h 20</div>
+      <p class="content-text">上述内容与意义如下：</p>
+      <ul class="inline-list">
+        <li><code>createsamples.exe</code>：打包向量档案的程式。</li>
+        <li><code>-info positive/info.txt</code>：positive/info.txt 是正样本标记的路径。</li>
+        <li><code>-vec vector/facevector.vec</code>：建立向量档的路径和档案名称。</li>
+        <li><code>-num</code>：正样本影像的数量。</li>
+        <li><code>-w</code>：侦测标记的宽度。</li>
+        <li><code>-h</code>：侦测标记的高度。</li>
+      </ul>
+      <p class="content-text">连按两下 <code>samples_creation.bat</code> 可以在 <code>vector</code> 资料夹建立 <code>facevector.vec</code> 向量档案，下列是执行结果。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_14_vector_folder.png" alt="vector 资料夹中的 facevector.vec"></div>
+
+      <h3>30-5-2 训练哈尔分类器</h3>
+      <p class="content-text">请删除 <code>ch30/Haar-Training-car-plate/training/cascades</code> 资料夹内容。请编辑 <code>ch30/Haar-Training-car-plate/training</code> 资料夹的 <code>haartraining.bat</code>，这是批次档，请参考下列修改内容：</p>
+      <div class="code-block">haartraining.exe -data cascades -vec vector/facevector.vec -bg negative/bg.txt -npos 90 -nneg 295 -nstages 15 -mem 512 -mode ALL -w 70 -h 20 -nonsym</div>
+      <p class="content-text">上述内容与意义如下：</p>
+      <ul class="inline-list">
+        <li><code>haartraining.exe</code>：训练哈尔分类器的执行档程式。</li>
+        <li><code>-data cascades</code>：data 是指未来要储存训练结果的资料夹，cascades 是储存结果的资料夹。</li>
+        <li><code>-vec vector/facevector.vec</code>：vec 是指正样本的向量档案。</li>
+        <li><code>-bg negative/bg.txt</code>：bg 是指负样本的档案。</li>
+        <li><code>-npos 90</code>：npos 是指正样本的数量。</li>
+        <li><code>-nneg</code>：nneg 是指负样本的数量。</li>
+        <li><code>-nstages</code>：nstages 是指训练的级数，一般训练级数越多所需时间越多，一般可以设定在 12 ~ 20 之间。</li>
+        <li><code>-mem</code>：哈尔特征训练资料所需的记忆体，记忆体越大所需时间越多。</li>
+        <li><code>-mode</code>：哈尔特征的训练模式，BASIC 是标准特征、CORE 是线性和核心特征、ALL 是使用所有特征。</li>
+        <li><code>-w</code>、<code>-h</code>：侦测物件的宽度与高度。</li>
+        <li><code>-nonsym</code>：侦测物件使用非对称方式，如果想要使用对称方式可以设为 sym。</li>
+      </ul>
+      <p class="content-text">然后连点此批次档两下，执行此档案，当看到下列画面表示开始训练资料。</p>
+      <div class="result-box-content result-output">Number of features used: 958635
+Parent node: NULL
+*** 1. cluster ***
+POS: 70 1.000000
+NEG: 295
+BACKGROUND PROCESSING TIME: 0.01
+precalculation time: 8.89
++----+---------+-----------+----------+----------+----------+
+|  N |    XMSF |    ST.THR |       HR |       FA |      ERR |
++----+---------+-----------+----------+----------+----------+
+| 1  |       1 | -0.942940 | 1.000000 | 1.000000 | 0.027387 |</div>
+      <div class="chapter-figure"><img src="images/ch30/ch30_15_training_console.png" alt="haartraining 训练画面"></div>
+      <p class="content-text">训练结束后，可以在 <code>ch30/Haar-Training-car-plate/training/cascades</code> 资料夹看到下列训练结果。</p>
+      <div class="chapter-figure"><img src="images/ch30/ch30_16_cascades_folder.png" alt="cascades 训练结果资料夹"></div>
+
+      <h3>30-5-3 建立哈尔特征分类器资源档</h3>
+      <p class="content-text">请编辑 <code>ch30/Haar-Training-car-plate/cascade2xml</code> 资料夹的 <code>convert.bat</code> 档案，内容如下：</p>
+      <div class="code-block">haarconv.exe ../training/cascades ../../haar_carplate.xml 70 20</div>
+      <p class="content-text">上述 <code>../</code> 代表上一层资料夹，其他内容与意义如下：</p>
+      <ul class="inline-list">
+        <li><code>haarconv.exe</code>：建立哈尔特征分类器资源档所需要的可执行档案。</li>
+        <li><code>../training/cascades</code>：哈尔特征分类器的训练结果资料夹。</li>
+        <li><code>../../haar_carplate.xml</code>：要建立的哈尔特征分类器资源档。</li>
+        <li><code>70 20</code>：侦测物件的宽度和高度。</li>
+      </ul>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">30-6</span>
+        <h2>车牌侦测</h2>
+      </div>
+
+      <p class="content-text">现在就可以使用第 27 章的观念侦测车牌，在 <code>ch30/testCar</code> 资料夹有 3 个供测试的汽车影像，分别是 <code>cartest1.jpg</code>、<code>cartest2.jpg</code> 和 <code>cartest3.jpg</code>。</p>
+      <p class="code-title">程式实例 ch30_6.py：侦测 cartest1.jpg 车牌的实例。</p>
+      <div class="code-block"># ch30_6.py
+import cv2
+
+pictPath = "haar_carplate.xml"                       # 哈尔特征路径
+img = cv2.imread("testCar/cartest1.jpg")             # 读辨识的影像
+car_cascade = cv2.CascadeClassifier(pictPath)        # 读哈尔特征档
+
+# 执行辨识
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=3,
+                                      minSize=(20, 20), maxSize=(155, 50))
+if len(plates) > 0:                                  # 有侦测到车牌
+    for (x, y, w, h) in plates:
+        cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2) # 标记车牌
+    print(plates)
+else:
+    print("侦测车牌失败")
+
+cv2.imshow("Car", img)                               # 显示所读取的车辆
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-content result-output">==================== RESTART: D:/OpenCV_Python/ch30/ch30_6.py ====================
+[[193 338 146  42]]</div>
+      </div>
+      <div class="chapter-figure">
+        <img src="images/ch30/ch30_17_detect_cartest1.png" alt="cartest1.jpg 车牌侦测结果">
+        <div class="caption">侦测 cartest1.jpg 车牌的结果。</div>
+      </div>
+      <p class="content-text">下列两张影像分别是 ch30_6_1.py 和 ch30_6_2.py 测试 cartest2.jpg 和 cartest3.jpg 的结果。</p>
+      <div class="chapter-figure">
+        <img src="images/ch30/ch30_18_detect_cartest2_3.png" alt="cartest2.jpg 与 cartest3.jpg 车牌侦测结果">
+      </div>
+
+      <div class="section-heading" id="section-7">
+        <span class="section-number">30-7</span>
+        <h2>心得报告</h2>
+      </div>
+
+      <p class="content-text">这一个章节笔者讲解建立车牌辨识哈尔分类器的整个步骤，经过测试其实辨识率仍有待加强，主要原因如下：</p>
+      <ol class="inline-list">
+        <li>拍摄车牌时笔者没有固定距离与高度。</li>
+        <li>车牌样本数不足，建议至少 500 张不同车辆影像。</li>
+        <li>负样本数量仍不够多，其实也应该多准备一些与车辆有关的影像（但是不含车辆），例如：道路影像。建议至少 500 张不同的负样本影像。</li>
+      </ol>
+
+      <h3>习题</h3>
+      <p class="content-text">1. 请参照 30-7 节的心得修订与改良本书的 <code>haar_carplate.xml</code> 哈尔特征分类器档案。</p>
+      <p class="content-text"><strong>注：</strong>这一题没有附习题解答。</p>
+
+      <div class="page-nav">
+        <a href="ch29.html">
+          <div>
+            <div class="nav-label">&larr; 上一章</div>
+            <div class="nav-title">第 29 章 人脸识别</div>
+          </div>
+        </a>
+        <a href="ch31.html">
+          <div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 31 章 车牌识别</div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch30");</script>
+</body>
+</html>

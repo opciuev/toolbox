@@ -136,8 +136,18 @@ const chapters = [
 
 const readyChapters = new Set([
   "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07",
-  "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16", "ch17", "ch18", "ch19"
+  "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16", "ch17", "ch18", "ch19", "ch20", "ch21", "ch22", "ch23", "ch24", "ch25", "ch26", "ch27", "ch28", "ch29", "ch30", "ch31", "appendix-a", "appendix-b"
 ]);
+
+function getNavTitleClass(chapterId, currentChapterId) {
+  const classNames = ["nav-group-title"];
+
+  if (chapterId === currentChapterId) {
+    classNames.push("current", "active");
+  }
+
+  return classNames.join(" ");
+}
 
 // Build sidebar HTML
 function buildSidebar(currentChapterId) {
@@ -147,12 +157,12 @@ function buildSidebar(currentChapterId) {
   let html = "";
   chapters.forEach((ch) => {
     const isCurrent = ch.id === currentChapterId;
-    const titleClass = isCurrent ? "nav-group-title current active" : "nav-group-title";
+    const titleClass = getNavTitleClass(ch.id, currentChapterId);
     const subClass = isCurrent ? "nav-sub show" : "nav-sub";
 
     html += `<div class="nav-group">`;
     html += `<div class="${titleClass}" onclick="toggleNav(this)" data-id="${ch.id}">`;
-    html += `<span>${ch.title}</span>`;
+    html += `<span class="nav-title-text">${ch.title}</span>`;
     html += `<span class="arrow">&#9654;</span>`;
     html += `</div>`;
 
@@ -184,12 +194,12 @@ function buildSidebarForChapter(currentChapterId) {
   let html = "";
   chapters.forEach((ch) => {
     const isCurrent = ch.id === currentChapterId;
-    const titleClass = isCurrent ? "nav-group-title current active" : "nav-group-title";
+    const titleClass = getNavTitleClass(ch.id, currentChapterId);
     const subClass = isCurrent ? "nav-sub show" : "nav-sub";
 
     html += `<div class="nav-group">`;
     html += `<div class="${titleClass}" onclick="toggleNav(this)" data-id="${ch.id}">`;
-    html += `<span>${ch.title}</span>`;
+    html += `<span class="nav-title-text">${ch.title}</span>`;
     html += `<span class="arrow">&#9654;</span>`;
     html += `</div>`;
 
@@ -261,4 +271,60 @@ function setupScrollSpy() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", setupScrollSpy);
+function getCodeBlockCopyText(block) {
+  const clone = block.cloneNode(true);
+  clone.querySelectorAll(".code-copy-button, .line-num").forEach((el) => el.remove());
+  return clone.textContent.replace(/^\n+|\s+$/g, "");
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function setupCodeCopyButtons() {
+  document.querySelectorAll(".code-block").forEach((block) => {
+    if (block.querySelector(".code-copy-button")) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "code-copy-button";
+    button.textContent = "复制";
+    button.setAttribute("aria-label", "复制代码");
+    button.addEventListener("click", async () => {
+      try {
+        await copyTextToClipboard(getCodeBlockCopyText(block));
+        button.textContent = "已复制";
+        button.classList.add("copied");
+        window.setTimeout(() => {
+          button.textContent = "复制";
+          button.classList.remove("copied");
+        }, 1400);
+      } catch (err) {
+        button.textContent = "复制失败";
+        window.setTimeout(() => {
+          button.textContent = "复制";
+        }, 1400);
+      }
+    });
+
+    block.appendChild(button);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupScrollSpy();
+  setupCodeCopyButtons();
+});

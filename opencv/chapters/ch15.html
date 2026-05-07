@@ -469,12 +469,30 @@ print(f"Hausdorff distance = {distance}")</div>
       </div>
 
       <div class="exercise-box">
-        <span class="exercise-box-header">本章重点回顾</span>
+        <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. <code>findContours()</code> 用于找轮廓，输入影像必须是 8 位单通道二值影像。</p>
-          <p>2. <code>drawContours()</code> 会直接修改来源影像；如果要保留原图，应先使用 <code>copy()</code>。</p>
-          <p>3. <code>hierarchy</code> 的四个元素分别表示同层前后关系、子轮廓与父轮廓。</p>
-          <p>4. 影像矩、Hu 矩和形状距离都可用于轮廓特征与外形匹配。</p>
+          <p>1. 参考 <code>ch15_3.py</code>，使用 <code>hw15_1.jpg</code> 影像，输出轮廓顺序改为输出黄色实心轮廓；并输出所有轮廓，同时中心标记蓝色点。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch15/ch15_exercise_01.jpg" alt="第 15 章习题 1 参考结果">
+            <div class="caption">习题 1 参考图，参考原书第 <strong>15-37</strong> 页。</div>
+          </div>
+          <p>2. 使用 <code>hw15_2.jpg</code>，将轮廓颜色改为红色。</p>
+          <p>3. 使用 <code>hw15_2.jpg</code>，将轮廓色反转。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch15/ch15_exercise_02_03.jpg" alt="第 15 章习题 2 至 3 参考结果">
+            <div class="caption">习题 2 至 3 参考图，参考原书第 <strong>15-38</strong> 页。</div>
+          </div>
+          <p>4. 使用 <code>hw15_2.jpg</code>，列出所有轮廓面积，并将最小面积轮廓用绿色外框标记。</p>
+          <p>5. 使用 <code>template.jpg</code> 找出 <code>hw15_2.jpg</code> 中外形最相似的轮廓，并以绿色实心填满。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch15/ch15_exercise_04_05.jpg" alt="第 15 章习题 4 至 5 参考结果">
+            <div class="caption">习题 4 至 5 参考图，参考原书第 <strong>15-39</strong> 页。</div>
+          </div>
+          <p>6. 使用 <code>myhand.jpg</code>，建立此影像的轮廓。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch15/ch15_exercise_05_06.jpg" alt="第 15 章习题 5 至 6 参考结果">
+            <div class="caption">习题 5 至 6 参考图，参考原书第 <strong>15-40</strong> 页。</div>
+          </div>
         </div>
       </div>
 

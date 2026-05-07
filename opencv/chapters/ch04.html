@@ -218,6 +218,18 @@ cv2.destroyAllWindows()</div>
         黑色位于底部，白色位于顶部，因此 HSV 也常被画成圆柱或倒圆锥模型。
       </p>
 
+      <div class="result-box">
+        <span class="result-box-header">HSV 色彩空间模型</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch04_hsv_cone_model.jpg" alt="HSV 色彩空间圆锥模型">
+          <div class="caption">HSV 的圆锥/圆柱几何理解，参考原书第 <strong>4-7</strong> 页。</div>
+        </div>
+        <div class="result-box-image">
+          <img src="images/ch04/ch04_hsv_hue_saturation_value.jpg" alt="HSV Hue Saturation Value 示意">
+          <div class="caption">Hue、Saturation、Value 的位置关系与 Hue 取值示意，参考原书第 <strong>4-8</strong> 页。</div>
+        </div>
+      </div>
+
       <table class="content-table">
         <thead>
           <tr><th>分量</th><th>意义</th><th>OpenCV 常用范围</th></tr>
@@ -239,6 +251,14 @@ cv2.destroyAllWindows()</div>
         原书列出 RGB 转 HSV 的公式作为参考。实际开发中通常直接使用 <code>cv2.cvtColor()</code>，但理解公式有助于解释
         Hue、Saturation、Value 分别改变了图像的哪一部分。
       </p>
+
+      <div class="result-box">
+        <span class="result-box-header">RGB 转 HSV 公式参考</span>
+        <div class="result-box-image">
+          <img src="images/ch04/ch04_rgb_to_hsv_formula.jpg" alt="RGB 转 HSV 公式">
+          <div class="caption">RGB 转 HSV 的计算公式，参考原书第 <strong>4-10</strong> 页。</div>
+        </div>
+      </div>
       <table class="content-table">
         <thead>
           <tr><th>符号</th><th>说明</th></tr>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 23 章 影像撷取 - OpenCV 教学</title>
+  <link rel="stylesheet" href="../css/style.css?v=20260422">
+</head>
+<body>
+
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">&#128218;</span>
+      OpenCV 教学
+    </a>
+    <div class="header-right">
+      <a href="../index.html">返回首页</a>
+    </div>
+  </header>
+
+  <div class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节列表</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+
+    <main class="main-content">
+      <span class="chapter-badge">第 23 章</span>
+      <h1 class="chapter-title">影像撷取</h1>
+      <div class="chapter-meta">本章共 4 个小节 · GrabCut · cv2.grabCut() · ROI · 自定义遮罩</div>
+
+      <div class="chapter-intro">
+        本章介绍使用 OpenCV 的 <code>grabCut()</code> 函数撷取影像前景。从影像撷取原理开始，接著说明函数语法、遮罩参数与 ROI 设定，最后以矩形初始化和自定义遮罩完成前景撷取。
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">23-1</span>
+        <h2>认识影像撷取的原理</h2>
+      </div>
+
+      <p class="content-text">
+        影像撷取技术最早是 2004 年由微软公司英国剑桥研究院的 C. Rother、V. Kolmogorov 和 A. Blake 等 3 个人发表，主题是 <strong>GrabCut: Interactive foreground extraction using iterated graph cuts</strong>，使用迭代切割技术交互式撷取影像前景。随后这项技术也被应用在 Microsoft 的软体内，例如：PowerPoint、小画家。
+      </p>
+      <p class="content-text">
+        基本观念是，最初使用者在影像内绘制一块矩形，所要撷取的前景必须在此矩形内，然后对此进行迭代分割，最后将前景影像撷取出来。
+      </p>
+      <p class="content-text">下列是此 GrabCut 演算法的步骤：</p>
+      <ol class="content-text">
+        <li>在影像内定义一个包含要撷取影像的矩形。</li>
+        <li>矩形区以外当作是确定背景。</li>
+        <li>可以使用矩形区以外的资料区分矩形区以内的前景和背景资料。</li>
+        <li>使用高斯混合模型（Gaussian Mixture Model，GMM）对前景和背景建模。GMM 方法会对使用者输入的讯息建立像素点的分布，同时对未定义的像素点标记为可能前景或是背景。图形会根据像素分布建构，另外建立两个节点：Source node 和 Sink node。每个前景像素点会连接到 Source 节点，每个背景像素点会连接到 Sink 节点。</li>
+        <li>影像中每一个像素点连接到 Source 节点或是 Sink 节点。像素点也会与周围的 3 像素点彼此间有连接，两个像素点连接的权重由他们之间的相似度决定；如果像素颜色值越接近，权重值越大。</li>
+        <li>节点完成连接后，如果节点之间的边一个属于前景，另一个属于背景，则可依据权重对边做切割。最后所有连接到 Source 节点就是前景，所有连接到 Sink 节点的就是背景，这样就可以将像素点划分为前景与背景。</li>
+        <li>重复上述过程直到分类收敛，就可以完成影像撷取。</li>
+      </ol>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">23-2</span>
+        <h2>OpenCV 的 grabCut() 函数</h2>
+      </div>
+
+      <p class="content-text">OpenCV 提供了 <code>grabCut()</code> 函数可以撷取影像，语法如下：</p>
+      <div class="code-syntax">mask, bgdModel, fgdModel = cv2.grabCut(img, mask, rect, bgdModel, fgdModel, iterCount, mode)</div>
+
+      <p class="content-text">上述各参数意义如下：</p>
+      <ul class="content-text">
+        <li><code>img</code>：3 个颜色通道、8 位元的输入影像，未来此影像含执行结果。</li>
+        <li><code>mask</code>：遮罩，遮罩元素可以是下表值。</li>
+      </ul>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>具名参数</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>GC_BGD</code></td><td>定义明显的背景元素，也可以用 <code>0</code> 表示。</td></tr>
+          <tr><td><code>GC_FGD</code></td><td>定义明显的前景元素，也可以用 <code>1</code> 表示。</td></tr>
+          <tr><td><code>GC_PR_BGD</code></td><td>定义可能的背景元素，也可以用 <code>2</code> 表示。</td></tr>
+          <tr><td><code>GC_PR_FGD</code></td><td>定义可能的前景元素，也可以用 <code>3</code> 表示。</td></tr>
+        </tbody>
+      </table>
+
+      <ul class="content-text">
+        <li><code>rect</code>：使用 ROI 定义前景矩形物件，资料格式是 <code>(x, y, w, h)</code>。这个参数只有当 <code>mode</code> 参数设为 <code>GC_INIT_WITH_RECT</code> 才有意义。</li>
+        <li><code>bgdModel</code>：内部计算用的阵列，只需设定 <code>(1, 65)</code> 大小的 <code>np.float64</code> 类型阵列。</li>
+        <li><code>fgdModel</code>：内部计算用的阵列，只需设定 <code>(1, 65)</code> 大小的 <code>np.float64</code> 类型阵列。</li>
+        <li><code>iterCount</code>：演算法的迭代次数，迭代次数越多所需执行时间越长。</li>
+        <li><code>mode</code>：可选参数，表示操作模式。设为 <code>GC_INIT_WITH_RECT</code> 时，表示使用矩形；设为 <code>GC_INIT_WITH_MASK</code> 时，表示使用所提供的遮罩当作初始化，然后 ROI 以外的区域会被自动初始化为 <code>GC_BGD</code>。<code>GC_INIT_WITH_RECT</code> 和 <code>GC_INIT_WITH_MASK</code> 可以共用。</li>
+      </ul>
+
+      <p class="content-text">上述函数的回传值内容如下：</p>
+      <ul class="content-text">
+        <li><code>mask</code>：执行 <code>grabCut()</code> 函数后的遮罩。其实呼叫 <code>grabCut()</code> 函数时所使用的 <code>mask</code> 内容也会同步更新，这个回传的遮罩 <code>mask</code> 值也就是更新的 <code>mask</code> 值。</li>
+        <li><code>bgdModel</code>：建立背景的临时建模。</li>
+        <li><code>fgdModel</code>：建立前景的临时建模。</li>
+      </ul>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">23-3</span>
+        <h2>grabCut() 基础实作</h2>
+      </div>
+
+      <p class="code-title">程式实例 ch23_1.py：影像撷取，原始影像是 <code>hung.jpg</code>，请建立元素是 0 的遮罩 <code>mask</code>，使用 <code>grabCut()</code> 执行影像撷取。</p>
+      <p class="content-text">这个实例设定 ROI 如下，不同的 ROI 设定会影响所撷取的内容，这将是读者的习题。</p>
+      <div class="code-syntax">rect = (10, 30, 380, 360)</div>
+
+      <div class="code-block"># ch23_1.py
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"] = ["Microsoft JhengHei"]
+
+src = cv2.imread('hung.jpg')                         # 读取影像
+mask = np.zeros(src.shape[:2], np.uint8)             # 建立遮罩，大小和src相同
+bgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+fgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+rect = (10, 30, 380, 360)                            # 建立ROI区域
+# 呼叫grabCut()进行分割，迭代 3 次，回传mask1
+# 其实mask1 = mask，因为mask也会同步更新
+mask1, bgd, fgd = cv2.grabCut(src, mask, rect, bgdModel, fgdModel, 3,
+                              cv2.GC_INIT_WITH_RECT)
+# 将 0, 2设为0 --- 1, 3设为1
+mask2 = np.where((mask1 == 0) | (mask1 == 2), 0, 1).astype('uint8')
+dst = src * mask2[:, :, np.newaxis]                  # 计算输出影像
+src_rgb = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+dst_rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+plt.subplot(121)
+plt.title("原始影像")
+plt.imshow(src_rgb)
+plt.axis('off')
+plt.subplot(122)
+plt.title("撷取影像")
+plt.imshow(dst_rgb)
+plt.axis('off')
+plt.show()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch23/ch23_01_grabcut_rect_result.png" alt="ch23_1.py 使用矩形 ROI 撷取 hung.jpg 的执行结果">
+          <div class="caption">左图是原始影像，右图是撷取影像；此例尚未获得完整撷取效果。</div>
+        </div>
+      </div>
+
+      <p class="content-text">上述第 14 和 17 列也可以使用下列方式简化：</p>
+      <div class="code-block">cv2.grabCut(src, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
+
+mask = np.where((mask == 0) | (mask == 2), 0, 1)</div>
+
+      <p class="content-text">对读者可能会对于第 17 列的 <code>np.where()</code> 函数陌生，这个函数的语法如下：</p>
+      <div class="code-syntax">np.where(condition, x, y)</div>
+      <p class="content-text">
+        如果 <code>condition</code> 是 <code>True</code>，则回传 <code>x</code>。如果 <code>condition</code> 是 <code>False</code>，则回传 <code>y</code>。程式第 8 列我们先建立全部元素内容是 0 的 <code>mask</code>，当我们使用 <code>grabCut()</code> 后，会产生元素内容是 0、1、2、3 的 <code>mask</code>，请回忆 23-2 节的解说：
+      </p>
+      <ul class="content-text">
+        <li>用 0 表示明显的背景元素。</li>
+        <li>用 1 表示明显的前景元素。</li>
+        <li>用 2 表示可能的背景元素。</li>
+        <li>用 3 表示可能的前景元素。</li>
+      </ul>
+      <p class="content-text">所以我们使用 <code>np.where()</code> 对整个运算结果分类，这个指令如下：</p>
+      <div class="code-syntax">mask2 = np.where((mask1 == 0) | (mask1 == 2), 0, 1)</div>
+      <p class="content-text">
+        上述相当于若是 0 或 2 的元素内容，结果是 0，也就是此像素点归为背景；1 或 3 的内容结果是 1，也就是此像素点归为前景。
+      </p>
+      <p class="content-text">程式第 18 列内容如下：</p>
+      <div class="code-syntax">dst = src * mask2[:, :, np.newaxis]</div>
+      <p class="content-text">
+        这是因为 <code>src</code> 是彩色读取所以是三维阵列，<code>mask2</code> 是二维阵列，两者无法相乘；但是 <code>mask2</code> 内使用 <code>np.newaxis</code> 是可以提升 <code>mask2</code> 为三维阵列，这样就可以相乘了。
+      </p>
+
+      <p class="content-text">
+        程式 <code>ch23_1.py</code> 我们并没有获得完整撷取的效果。为了改进，我们将影像进行标注；要保留的部分标记为白色，要删除的背景标记为黑色，可以参考下列 <code>hung_mask.jpg</code>。
+      </p>
+      <div class="result-box-image">
+        <img src="images/ch23/ch23_02_hung_mask.png" alt="hung_mask.jpg 前景白色背景黑色的遮罩示意">
+        <div class="caption">遮罩影像：白色内容确定是前景，黑色内容确定是背景。</div>
+      </div>
+
+      <p class="code-title">程式实例 ch23_2.py：另外呼叫 <code>grabCut()</code> 函数时，使用简化方式处理。</p>
+      <div class="code-block"># ch23_2.py
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"] = ["Microsoft JhengHei"]
+
+src = cv2.imread('hung.jpg')                         # 读取影像
+mask = np.zeros(src.shape[:2], np.uint8)             # 建立遮罩，大小和src相同
+bgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+fgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+rect = (10, 30, 380, 360)                            # 建立ROI区域
+# 呼叫grabCut()进行分割
+cv2.grabCut(src, mask, rect, bgdModel, fgdModel, 3, cv2.GC_INIT_WITH_RECT)
+maskpict = cv2.imread('hung_mask.jpg')               # 读取影像
+newmask = cv2.imread('hung_mask.jpg', cv2.IMREAD_GRAYSCALE)  # 灰阶读取
+mask[newmask == 0] = 0                               # 黑色内容则确定是背景
+mask[newmask == 255] = 1                             # 白色内容则确定是前景
+cv2.grabCut(src, mask, None, bgdModel, fgdModel, 3, cv2.GC_INIT_WITH_MASK)
+mask = np.where((mask == 0) | (mask == 2), 0, 1).astype('uint8')
+dst = src * mask[:, :, np.newaxis]                   # 计算输出影像
+
+src_rgb = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+maskpict_rgb = cv2.cvtColor(maskpict, cv2.COLOR_BGR2RGB)
+dst_rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+plt.subplot(131)
+plt.title("原始影像")
+plt.imshow(src_rgb)
+plt.axis('off')
+plt.subplot(132)
+plt.title("遮罩影像")
+plt.imshow(maskpict_rgb)
+plt.axis('off')
+plt.subplot(133)
+plt.title("撷取影像")
+plt.imshow(dst_rgb)
+plt.axis('off')
+plt.show()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch23/ch23_03_grabcut_mask_result.png" alt="ch23_2.py 使用遮罩后的影像撷取结果">
+          <div class="caption">左图是原始影像，中图是遮罩影像，右图是撷取影像。</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">23-4</span>
+        <h2>自定义遮罩实例</h2>
+      </div>
+
+      <p class="content-text">在说明这一节主题前，笔者将以 <code>lena.jpg</code> 影像为例建立影像撷取。</p>
+      <p class="code-title">程式实例 ch23_3.py：重新设计 <code>ch23_1.py</code>，建立 <code>lena.jpg</code> 影像撷取。</p>
+      <div class="code-block"># ch23_3.py
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"] = ["Microsoft JhengHei"]
+
+src = cv2.imread('lena.jpg')                         # 读取影像
+mask = np.zeros(src.shape[:2], np.uint8)             # 建立遮罩，大小和src相同
+bgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+fgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+rect = (30, 30, 280, 280)                            # 建立ROI区域
+# 呼叫grabCut()进行分割，迭代 3 次，回传mask1
+# 其实mask1 = mask，因为mask也会同步更新
+mask1, bgd, fgd = cv2.grabCut(src, mask, rect, bgdModel, fgdModel, 3,
+                              cv2.GC_INIT_WITH_RECT)
+# 将 0, 2设为0 --- 1, 3设为1
+mask2 = np.where((mask1 == 0) | (mask1 == 2), 0, 1).astype('uint8')
+dst = src * mask2[:, :, np.newaxis]                  # 计算输出影像
+src_rgb = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+dst_rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+
+plt.subplot(121)
+plt.title("原始影像")
+plt.imshow(src_rgb)
+plt.axis('off')
+plt.subplot(122)
+plt.title("撷取影像")
+plt.imshow(dst_rgb)
+plt.axis('off')
+plt.show()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch23/ch23_04_lena_rect_result.png" alt="ch23_3.py 使用矩形 ROI 撷取 lena.jpg 的执行结果">
+          <div class="caption">从上述可以得到所撷取的影像缺了身体、帽子上半部等。</div>
+        </div>
+      </div>
+
+      <p class="content-text">
+        <code>grabCut()</code> 函数也允许我们自定义遮罩，方式是先定义影像可能区域为 3，可以参考下列程式码：
+      </p>
+      <div class="code-syntax">mask[30:324, 30:300] = 3     # 定义可能前景区域</div>
+      <p class="content-text">然后定义确定前景区域为 1，可以参考下列程式码：</p>
+      <div class="code-syntax">mask[90:200, 90:200] = 1     # 定义确定前景区域</div>
+      <p class="content-text">
+        然后将上述区域代入 <code>grabCut()</code> 函数，在代入过程就可以省略 ROI 的设定，同时 <code>mode</code> 参数需改为 <code>GC_INIT_WITH_MASK</code>。
+      </p>
+
+      <p class="code-title">程式实例 ch23_4.py：使用自定义遮罩重新设计 <code>ch23_3.py</code>。</p>
+      <div class="code-block"># ch23_4.py
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams["font.family"] = ["Microsoft JhengHei"]
+
+src = cv2.imread('lena.jpg')                         # 读取影像
+bgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+fgdModel = np.zeros((1, 65), np.float64)             # 建立内部用暂时计算阵列
+mask = np.zeros(src.shape[:2], np.uint8)             # 建立遮罩，大小和src相同
+mask[30:324, 30:300] = 3                             # 定义可能前景区域
+mask[90:200, 90:200] = 1                             # 定义确定前景区域
+# 呼叫grabCut()进行分割，迭代 3 次，回传mask1
+# 其实mask1 = mask，因为mask也会同步更新
+mask1, bgd, fgd = cv2.grabCut(src, mask, None, bgdModel, fgdModel, 3,
+                              cv2.GC_INIT_WITH_MASK)
+# 将 0, 2设为0 --- 1, 3设为1
+mask2 = np.where((mask1 == 0) | (mask1 == 2), 0, 1).astype('uint8')
+dst = src * mask2[:, :, np.newaxis]                  # 计算输出影像
+src_rgb = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+dst_rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)       # 将BGR转RGB
+
+plt.subplot(121)
+plt.title("原始影像")
+plt.imshow(src_rgb)
+plt.axis('off')
+plt.subplot(122)
+plt.title("撷取影像")
+plt.imshow(dst_rgb)
+plt.axis('off')
+plt.show()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">执行结果</span>
+        <div class="result-box-image">
+          <img src="images/ch23/ch23_05_lena_custom_result.png" alt="ch23_4.py 自定义遮罩撷取 lena.jpg 的执行结果">
+          <div class="caption">自定义遮罩后，可以得到较完整的撷取影像。</div>
+        </div>
+      </div>
+
+      <div class="exercise-box">
+        <span class="exercise-box-header">习题</span>
+        <div class="exercise-box-content">
+          <p>1：请将 <code>ch23_1.py</code> 的 ROI 设定更改如下：</p>
+          <div class="code-syntax">rect = (10, 30, 300, 300)</div>
+          <p>请列出执行结果。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch23/ch23_06_exercise_roi_result.png" alt="习题 1 更改 ROI 后的执行结果">
+          </div>
+          <p>2：重新设计 <code>ch23_2.py</code>，将所撷取的图案背景改为白色。</p>
+          <div class="result-box-image" style="padding:12px 0 0;">
+            <img src="images/ch23/ch23_07_exercise_white_bg_result.png" alt="习题 2 撷取影像背景改为白色的执行结果">
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+          <a href="ch22.html">
+            <div>
+              <div class="nav-label">&larr; 上一章</div>
+              <div class="nav-title">第 22 章 分水岭算法</div>
+            </div>
+          </a>
+          <a href="ch24.html">
+            <div>
+              <div class="nav-label">下一章 &rarr;</div>
+              <div class="nav-title">第 24 章 影像修复</div>
+            </div>
+          </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+  </footer>
+
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch23");</script>
+</body>
+</html>
