@@ -324,7 +324,217 @@ function setupCodeCopyButtons() {
   });
 }
 
+function getSitePathPrefix() {
+  return window.location.pathname.includes("/chapters/") ? "" : "chapters/";
+}
+
+function getSearchLinkPrefix() {
+  return window.location.pathname.includes("/chapters/") ? "" : "chapters/";
+}
+
+function normalizeSearchText(text) {
+  return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function escapeSearchHtml(text) {
+  return text.replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[char]));
+}
+
+function extractSearchText(doc) {
+  const main = doc.querySelector(".main-content") || doc.body;
+  const clone = main.cloneNode(true);
+  clone.querySelectorAll("script, style, .page-nav, .code-copy-button").forEach((el) => el.remove());
+  return clone.textContent.replace(/\s+/g, " ").trim();
+}
+
+function makeSearchSnippet(text, query) {
+  const haystack = text.toLowerCase();
+  const needle = query.toLowerCase();
+  const index = haystack.indexOf(needle);
+
+  if (index < 0) {
+    return text.slice(0, 110) + (text.length > 110 ? "..." : "");
+  }
+
+  const start = Math.max(0, index - 42);
+  const end = Math.min(text.length, index + query.length + 68);
+  const prefix = start > 0 ? "..." : "";
+  const suffix = end < text.length ? "..." : "";
+  return prefix + text.slice(start, end) + suffix;
+}
+
+function findSectionAnchor(doc, query) {
+  const sections = Array.from(doc.querySelectorAll(".section-heading[id]"));
+  const needle = query.toLowerCase();
+
+  for (let i = sections.length - 1; i >= 0; i -= 1) {
+    const section = sections[i];
+    let text = section.textContent || "";
+    let node = section.nextElementSibling;
+
+    while (node && !node.classList.contains("section-heading")) {
+      text += " " + (node.textContent || "");
+      node = node.nextElementSibling;
+    }
+
+    if (text.toLowerCase().includes(needle)) {
+      return section.id;
+    }
+  }
+
+  return "";
+}
+
+async function buildSearchIndex() {
+  const parser = new DOMParser();
+  const pathPrefix = getSitePathPrefix();
+  const ready = chapters.filter((chapter) => readyChapters.has(chapter.id));
+  const entries = [];
+
+  for (const chapter of ready) {
+    try {
+      const response = await fetch(pathPrefix + chapter.file);
+      if (!response.ok) continue;
+
+      const html = await response.text();
+      const doc = parser.parseFromString(html, "text/html");
+      const text = extractSearchText(doc);
+
+      entries.push({
+        id: chapter.id,
+        title: chapter.title,
+        file: chapter.file,
+        sections: chapter.sections,
+        text,
+        normalized: normalizeSearchText([chapter.title, chapter.sections.join(" "), text].join(" ")),
+        doc,
+      });
+    } catch (err) {
+      // Keep search usable even if one chapter fails to load.
+    }
+  }
+
+  return entries;
+}
+
+function renderSearchResults(container, entries, query) {
+  const normalizedQuery = normalizeSearchText(query);
+
+  if (!normalizedQuery) {
+    container.innerHTML = "";
+    container.classList.remove("show");
+    return;
+  }
+
+  const terms = normalizedQuery.split(" ").filter(Boolean);
+  const matches = entries
+    .map((entry) => {
+      const titleText = normalizeSearchText(entry.title);
+      const sectionText = normalizeSearchText(entry.sections.join(" "));
+      const score = terms.reduce((total, term) => {
+        let next = total;
+        if (titleText.includes(term)) next += 20;
+        if (sectionText.includes(term)) next += 8;
+        if (entry.normalized.includes(term)) next += 1;
+        return next;
+      }, 0);
+      return { entry, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.entry.id.localeCompare(b.entry.id))
+    .slice(0, 12);
+
+  if (matches.length === 0) {
+    container.innerHTML = '<div class="site-search-empty">没有找到相关内容</div>';
+    container.classList.add("show");
+    return;
+  }
+
+  const linkPrefix = getSearchLinkPrefix();
+  container.innerHTML = matches.map(({ entry }) => {
+    const anchor = findSectionAnchor(entry.doc, query);
+    const href = `${linkPrefix}${entry.file}${anchor ? "#" + anchor : ""}`;
+    const snippet = makeSearchSnippet(entry.text, query);
+
+    return `
+      <a class="site-search-result" href="${href}">
+        <strong>${escapeSearchHtml(entry.title)}</strong>
+        <span>${escapeSearchHtml(snippet)}</span>
+      </a>
+    `;
+  }).join("");
+  container.classList.add("show");
+}
+
+function setupSiteSearch() {
+  const headerRight = document.querySelector(".header-right");
+  if (!headerRight || headerRight.querySelector(".site-search")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "site-search";
+  wrapper.innerHTML = `
+    <input class="site-search-input" type="search" placeholder="搜索知识点..." aria-label="搜索 OpenCV 教程内容" autocomplete="off">
+    <div class="site-search-results" role="listbox"></div>
+  `;
+  headerRight.prepend(wrapper);
+
+  const input = wrapper.querySelector(".site-search-input");
+  const results = wrapper.querySelector(".site-search-results");
+  let searchIndexPromise = null;
+  let debounceTimer = null;
+
+  input.addEventListener("input", () => {
+    window.clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(async () => {
+      const query = input.value.trim();
+      if (!query) {
+        renderSearchResults(results, [], "");
+        return;
+      }
+
+      results.innerHTML = '<div class="site-search-empty">正在检索...</div>';
+      results.classList.add("show");
+      searchIndexPromise ||= buildSearchIndex();
+      const index = await searchIndexPromise;
+      renderSearchResults(results, index, query);
+    }, 160);
+  });
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      input.value = "";
+      renderSearchResults(results, [], "");
+      input.blur();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!wrapper.contains(event.target)) {
+      results.classList.remove("show");
+    }
+  });
+}
+
+function setupWorkbenchHomeLink() {
+  const headerRight = document.querySelector(".header-right");
+  if (!headerRight || headerRight.querySelector(".workbench-home-link")) return;
+
+  const link = document.createElement("a");
+  link.className = "workbench-home-link";
+  link.href = window.location.pathname.includes("/chapters/") ? "../../index.html" : "../index.html";
+  link.textContent = "工作台首页";
+  headerRight.appendChild(link);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupScrollSpy();
   setupCodeCopyButtons();
+  setupWorkbenchHomeLink();
+  setupSiteSearch();
 });
