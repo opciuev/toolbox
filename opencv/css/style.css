@@ -445,6 +445,7 @@ a:hover {
   color: #2e7d32;
   border-radius: 0 4px 4px 0;
   overflow-x: auto;
+  white-space: pre-wrap;
 }
 
 .code-block {

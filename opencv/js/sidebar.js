@@ -134,11 +134,6 @@ const chapters = [
   }
 ];
 
-const readyChapters = new Set([
-  "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07",
-  "ch08", "ch09", "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16", "ch17", "ch18", "ch19", "ch20", "ch21", "ch22", "ch23", "ch24", "ch25", "ch26", "ch27", "ch28", "ch29", "ch30", "ch31", "appendix-a", "appendix-b"
-]);
-
 function getNavTitleClass(chapterId, currentChapterId) {
   const classNames = ["nav-group-title"];
 
@@ -172,10 +167,8 @@ function buildSidebar(currentChapterId) {
         const sectionId = `section-${idx}`;
         if (isCurrent) {
           html += `<li><a href="#${sectionId}">${sec}</a></li>`;
-        } else if (readyChapters.has(ch.id)) {
-          html += `<li><a href="chapters/${ch.file}#section-${idx}">${sec}</a></li>`;
         } else {
-          html += `<li><a href="#" style="opacity:0.45;pointer-events:none">${sec}</a></li>`;
+          html += `<li><a href="chapters/${ch.file}#section-${idx}">${sec}</a></li>`;
         }
       });
       html += `</ul>`;
@@ -209,10 +202,8 @@ function buildSidebarForChapter(currentChapterId) {
         const sectionId = `section-${idx}`;
         if (isCurrent) {
           html += `<li><a href="#${sectionId}">${sec}</a></li>`;
-        } else if (readyChapters.has(ch.id)) {
-          html += `<li><a href="${ch.file}#section-${idx}">${sec}</a></li>`;
         } else {
-          html += `<li><a href="#" style="opacity:0.45;pointer-events:none">${sec}</a></li>`;
+          html += `<li><a href="${ch.file}#section-${idx}">${sec}</a></li>`;
         }
       });
       html += `</ul>`;
@@ -332,6 +323,10 @@ function getSearchLinkPrefix() {
   return window.location.pathname.includes("/chapters/") ? "" : "chapters/";
 }
 
+function getSearchIndexPath() {
+  return window.location.pathname.includes("/chapters/") ? "../js/search-index.json" : "js/search-index.json";
+}
+
 function normalizeSearchText(text) {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -391,22 +386,57 @@ function findSectionAnchor(doc, query) {
   return "";
 }
 
+function findEntrySectionAnchor(entry, query) {
+  const needle = query.toLowerCase();
+  const sectionTexts = entry.sectionTexts || [];
+
+  for (const section of sectionTexts) {
+    if ((section.text || "").toLowerCase().includes(needle)) {
+      return section.id || "";
+    }
+  }
+
+  return entry.doc ? findSectionAnchor(entry.doc, query) : "";
+}
+
+async function buildSearchIndexFromJson() {
+  const response = await fetch(getSearchIndexPath());
+  if (!response.ok) {
+    throw new Error(`Search index request failed: ${response.status}`);
+  }
+
+  const entries = await response.json();
+  return entries.map((entry) => ({
+    ...entry,
+    sections: entry.sections || [],
+    sectionTexts: entry.sectionTexts || [],
+    normalized: normalizeSearchText([
+      entry.title || "",
+      (entry.sections || []).join(" "),
+      entry.text || "",
+    ].join(" ")),
+  }));
+}
+
 async function buildSearchIndex() {
+  try {
+    return await buildSearchIndexFromJson();
+  } catch (err) {
+    // Fallback for local experiments when the generated JSON index is absent.
+  }
+
   const parser = new DOMParser();
   const pathPrefix = getSitePathPrefix();
-  const ready = chapters.filter((chapter) => readyChapters.has(chapter.id));
-  const entries = [];
-
-  for (const chapter of ready) {
+  const entries = await Promise.all(chapters.map(async (chapter) => {
     try {
       const response = await fetch(pathPrefix + chapter.file);
-      if (!response.ok) continue;
+      if (!response.ok) return null;
 
       const html = await response.text();
       const doc = parser.parseFromString(html, "text/html");
       const text = extractSearchText(doc);
 
-      entries.push({
+      return {
         id: chapter.id,
         title: chapter.title,
         file: chapter.file,
@@ -414,13 +444,14 @@ async function buildSearchIndex() {
         text,
         normalized: normalizeSearchText([chapter.title, chapter.sections.join(" "), text].join(" ")),
         doc,
-      });
+      };
     } catch (err) {
       // Keep search usable even if one chapter fails to load.
+      return null;
     }
-  }
+  }));
 
-  return entries;
+  return entries.filter(Boolean);
 }
 
 function renderSearchResults(container, entries, query) {
@@ -458,7 +489,7 @@ function renderSearchResults(container, entries, query) {
 
   const linkPrefix = getSearchLinkPrefix();
   container.innerHTML = matches.map(({ entry }) => {
-    const anchor = findSectionAnchor(entry.doc, query);
+    const anchor = findEntrySectionAnchor(entry, query);
     const href = `${linkPrefix}${entry.file}${anchor ? "#" + anchor : ""}`;
     const snippet = makeSearchSnippet(entry.text, query);
 
@@ -489,6 +520,19 @@ function setupSiteSearch() {
   let searchIndexPromise = null;
   let debounceTimer = null;
 
+  const ensureSearchIndex = () => {
+    searchIndexPromise ||= buildSearchIndex();
+    return searchIndexPromise;
+  };
+
+  const warmSearchIndex = () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => ensureSearchIndex(), { timeout: 2000 });
+      return;
+    }
+    window.setTimeout(() => ensureSearchIndex(), 600);
+  };
+
   input.addEventListener("input", () => {
     window.clearTimeout(debounceTimer);
     debounceTimer = window.setTimeout(async () => {
@@ -500,8 +544,7 @@ function setupSiteSearch() {
 
       results.innerHTML = '<div class="site-search-empty">正在检索...</div>';
       results.classList.add("show");
-      searchIndexPromise ||= buildSearchIndex();
-      const index = await searchIndexPromise;
+      const index = await ensureSearchIndex();
       renderSearchResults(results, index, query);
     }, 160);
   });
@@ -519,6 +562,8 @@ function setupSiteSearch() {
       results.classList.remove("show");
     }
   });
+
+  warmSearchIndex();
 }
 
 function setupWorkbenchHomeLink() {
@@ -532,9 +577,10 @@ function setupWorkbenchHomeLink() {
   headerRight.appendChild(link);
 }
 
+setupWorkbenchHomeLink();
+setupSiteSearch();
+
 document.addEventListener("DOMContentLoaded", () => {
   setupScrollSpy();
   setupCodeCopyButtons();
-  setupWorkbenchHomeLink();
-  setupSiteSearch();
 });
