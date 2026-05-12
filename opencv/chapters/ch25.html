@@ -647,7 +647,31 @@ print(f"测试数据辨识成功率 = {accuracy}")</div>
       <p class="content-text">上述第 1 个参数 name.npz 是所储存的名称，读者可以自订，第 2 个和第 3 个则是分别设定储存训练资料和分类数据。</p>
       <p class="code-title">程式实例 ch25_13.py：扩充设计 ch25_12.py，储存训练数据到档案 knn_digit.npz。</p>
       <div class="code-block"># ch25_13.py
-# 在 ch25_12.py 程式最后新增下列叙述
+import cv2
+import numpy as np
+
+img = cv2.imread("digits.png")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+cells = [np.hsplit(row, 100) for row in np.vsplit(gray, 50)]
+x = np.array(cells)
+
+train = x[:, :50].reshape(-1, 400).astype(np.float32)
+test = x[:, 50:100].reshape(-1, 400).astype(np.float32)
+
+k = np.arange(10)
+train_labels = np.repeat(k, 250)[:, np.newaxis]
+test_labels = train_labels.copy()
+
+knn = cv2.ml.KNearest_create()
+knn.train(train, cv2.ml.ROW_SAMPLE, train_labels)
+ret, result, neighbours, dist = knn.findNearest(test, k=5)
+
+matches = result == test_labels
+correct = np.count_nonzero(matches)
+accuracy = correct * 100.0 / result.size
+print(f"测试数据辨识成功率 = {accuracy}")
+
 np.savez("knn_digit.npz", train=train, train_labels=train_labels)</div>
       <p class="content-text">这个程式的执行结果与 ch25_12.py 相同，不过在 ch25 资料夹可以看到 knn_digit.npz 档案。</p>
 

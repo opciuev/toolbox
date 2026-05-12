@@ -332,9 +332,20 @@ dst = cv2.warpPerspective(src, M, (width, height))</div>
       </p>
 
       <p class="code-title">程序实例 ch10_10_1.py：所有目标像素都映射到同一来源坐标</p>
-      <div class="code-block">mapx = np.ones(src.shape, np.float32) * 3
+      <div class="code-block"># ch10_10_1.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=[3, 4], dtype=np.uint8)
+rows, cols = src.shape
+mapx = np.ones(src.shape, np.float32) * 3
 mapy = np.ones(src.shape, np.float32) * 2
-dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+print(f"src =\n{src}")
+print(f"mapx =\n{mapx}")
+print(f"mapy =\n{mapy}")
+print(f"dst =\n{dst}")</div>
 
       <p class="subsection-heading">10-5-2 图像复制</p>
       <p class="content-text">
@@ -343,7 +354,35 @@ dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
       </p>
 
       <p class="code-title">程序实例 ch10_11.py：使用 remap() 执行矩阵复制</p>
-      <div class="code-block">mapx = np.zeros(src.shape[:2], np.float32)
+      <div class="code-block"># ch10_11.py
+import cv2
+import numpy as np
+
+src = np.random.randint(0, 256, size=[3, 5], dtype=np.uint8)
+rows, cols = src.shape
+mapx = np.zeros(src.shape, np.float32)
+mapy = np.zeros(src.shape, np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), c)
+        mapy.itemset((r, c), r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+print(f"src =\n{src}")
+print(f"mapx =\n{mapx}")
+print(f"mapy =\n{mapy}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch10_12.py：使用 remap() 执行图像复制</p>
+      <div class="code-block"># ch10_12.py
+import cv2
+import numpy as np
+
+src = cv2.imread("huang.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros(src.shape[:2], np.float32)
 mapy = np.zeros(src.shape[:2], np.float32)
 
 for r in range(rows):
@@ -351,20 +390,12 @@ for r in range(rows):
         mapx.itemset((r, c), c)
         mapy.itemset((r, c), r)
 
-dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
 
-      <p class="code-title">程序实例 ch10_12.py：使用 remap() 执行图像复制</p>
-      <div class="code-block">src = cv2.imread("southpole.jpg")
-rows, cols = src.shape[:2]
-mapx = np.zeros((rows, cols), np.float32)
-mapy = np.zeros((rows, cols), np.float32)
-
-for r in range(rows):
-    for c in range(cols):
-        mapx.itemset((r, c), c)
-        mapy.itemset((r, c), r)
-
-dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="result-box">
         <span class="result-box-header">重映射复制结果</span>
@@ -382,40 +413,92 @@ dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
       </p>
 
       <p class="code-title">程序实例 ch10_13.py：使用 remap() 执行垂直翻转的矩阵实例</p>
-      <div class="code-block"># 垂直翻转矩阵
-mapx.itemset((r, c), c)
-mapy.itemset((r, c), rows - 1 - r)</div>
+      <div class="code-block"># ch10_13.py
+import cv2
+import numpy as np
 
-      <p class="code-title">程序实例 ch10_14.py：使用 remap() 执行图像垂直翻转</p>
-      <div class="code-block">src = cv2.imread("southpole.jpg")
-rows, cols = src.shape[:2]
-mapx = np.zeros((rows, cols), np.float32)
-mapy = np.zeros((rows, cols), np.float32)
+src = np.random.randint(0, 256, size=[3, 5], dtype=np.uint8)
+rows, cols = src.shape
+mapx = np.zeros(src.shape, np.float32)
+mapy = np.zeros(src.shape, np.float32)
 
 for r in range(rows):
     for c in range(cols):
         mapx.itemset((r, c), c)
         mapy.itemset((r, c), rows - 1 - r)
 
-dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+print(f"src =\n{src}")
+print(f"mapx =\n{mapx}")
+print(f"mapy =\n{mapy}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch10_14.py：使用 remap() 执行图像垂直翻转</p>
+      <div class="code-block"># ch10_14.py
+import cv2
+import numpy as np
+
+src = cv2.imread("huang.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros(src.shape[:2], np.float32)
+mapy = np.zeros(src.shape[:2], np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), c)
+        mapy.itemset((r, c), rows - 1 - r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <p class="code-title">程序实例 ch10_15.py：使用 remap() 执行水平翻转的矩阵实例</p>
-      <div class="code-block"># 水平翻转矩阵
-mapx.itemset((r, c), cols - 1 - c)
-mapy.itemset((r, c), r)</div>
+      <div class="code-block"># ch10_15.py
+import cv2
+import numpy as np
 
-      <p class="code-title">程序实例 ch10_16.py：使用 remap() 执行图像水平翻转</p>
-      <div class="code-block">src = cv2.imread("southpole.jpg")
-rows, cols = src.shape[:2]
-mapx = np.zeros((rows, cols), np.float32)
-mapy = np.zeros((rows, cols), np.float32)
+src = np.random.randint(0, 256, size=[3, 5], dtype=np.uint8)
+rows, cols = src.shape
+mapx = np.zeros(src.shape, np.float32)
+mapy = np.zeros(src.shape, np.float32)
 
 for r in range(rows):
     for c in range(cols):
         mapx.itemset((r, c), cols - 1 - c)
         mapy.itemset((r, c), r)
 
-dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+print(f"src =\n{src}")
+print(f"mapx =\n{mapx}")
+print(f"mapy =\n{mapy}")
+print(f"dst =\n{dst}")</div>
+
+      <p class="code-title">程序实例 ch10_16.py：使用 remap() 执行图像水平翻转</p>
+      <div class="code-block"># ch10_16.py
+import cv2
+import numpy as np
+
+src = cv2.imread("huang.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros(src.shape[:2], np.float32)
+mapy = np.zeros(src.shape[:2], np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), cols - 1 - c)
+        mapy.itemset((r, c), r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="result-box">
         <span class="result-box-header">垂直翻转</span>
@@ -442,12 +525,30 @@ dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
       </p>
 
       <p class="code-title">程序实例 ch10_17.py：把图像缩小到目标中央</p>
-      <div class="code-block">if 0.25 * rows &lt; r &lt; 0.75 * rows and 0.25 * cols &lt; c &lt; 0.75 * cols:
-    mapx.itemset((r, c), 2 * (c - cols * 0.25))
-    mapy.itemset((r, c), 2 * (r - rows * 0.25))
-else:
-    mapx.itemset((r, c), 0)
-    mapy.itemset((r, c), 0)</div>
+      <div class="code-block"># ch10_17.py
+import cv2
+import numpy as np
+
+src = cv2.imread("tunnel.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros(src.shape[:2], np.float32)
+mapy = np.zeros(src.shape[:2], np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        if 0.25 * rows &lt; r &lt; 0.75 * rows and 0.25 * cols &lt; c &lt; 0.75 * cols:
+            mapx.itemset((r, c), 2 * (c - cols * 0.25))
+            mapy.itemset((r, c), 2 * (r - rows * 0.25))
+        else:
+            mapx.itemset((r, c), 0)
+            mapy.itemset((r, c), 0)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="result-box">
         <span class="result-box-header">重映射缩小</span>
@@ -458,9 +559,26 @@ else:
       </div>
 
       <p class="code-title">程序实例 ch10_18.py：垂直压缩一半</p>
-      <div class="code-block">mapx.itemset((r, c), c)
-mapy.itemset((r, c), 2 * r)
-dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)</div>
+      <div class="code-block"># ch10_18.py
+import cv2
+import numpy as np
+
+src = cv2.imread("tunnel.jpg")
+rows, cols = src.shape[:2]
+mapx = np.zeros(src.shape[:2], np.float32)
+mapy = np.zeros(src.shape[:2], np.float32)
+
+for r in range(rows):
+    for c in range(cols):
+        mapx.itemset((r, c), c)
+        mapy.itemset((r, c), 2 * r)
+
+dst = cv2.remap(src, mapx, mapy, cv2.INTER_LINEAR)
+
+cv2.imshow("src", src)
+cv2.imshow("dst", dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="result-box">
         <span class="result-box-header">垂直压缩</span>

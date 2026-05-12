@@ -198,8 +198,30 @@ cv2.destroyAllWindows()</div>
 
       <p class="code-title">程式实例 ch18_2.py：使用 lane.jpg 影像，设计仓库道路识别。</p>
       <div class="code-block"># ch18_2.py
-# 将 ch18_1.py 的第 5 行影像改成 lane.jpg。
-src = cv2.imread('lane.jpg', cv2.IMREAD_COLOR)</div>
+import cv2
+import numpy as np
+
+src = cv2.imread('lane.jpg', cv2.IMREAD_COLOR)
+cv2.imshow("src", src)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)      # 转成灰阶
+edges = cv2.Canny(src_gray, 50, 200)                  # 使用 Canny 边缘检测
+cv2.imshow("Canny", edges)
+lines = cv2.HoughLines(edges, 1, np.pi/180, 200)
+for line in lines:
+    rho, theta = line[0]
+    a = np.cos(theta)
+    b = np.sin(theta)
+    x0 = a * rho
+    y0 = b * rho
+    x1 = int(x0 + 1000 * (-b))
+    y1 = int(y0 + 1000 * (a))
+    x2 = int(x0 - 1000 * (-b))
+    y2 = int(y0 - 1000 * (a))
+    cv2.line(src, (x1, y1), (x2, y2), (255, 0, 0), 3)
+cv2.imshow("dst", src)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <p class="content-text">
         上述范例可用于简单道路识别。对于复杂的图，可能需要不断调整 <code>HoughLines()</code> 函数的 <code>threshold</code> 参数。实际应用不同影像时，必须适度调整 <code>HoughLinesP()</code> 的参数。
@@ -312,14 +334,10 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="exercise-box">
-        <span class="exercise-box-header">习题与本章重点</span>
+        <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
           <p>习题 1：使用 <code>lane2.jpg</code>，扩充 <code>ch18_2.py</code>，建立仓库道路影像。</p>
           <p>习题 2：请重新设计 <code>ch18_4.py</code>，将所有圆圈起来。</p>
-          <p>1. 霍夫变换将影像空间的几何形状映射到参数空间，借由交会与投票判断最可能的直线或圆。</p>
-          <p>2. <code>HoughLines()</code> 回传 <code>(ρ, θ)</code>，需要再转换为两个端点后用 <code>cv2.line()</code> 绘图。</p>
-          <p>3. <code>HoughLinesP()</code> 直接回传 <code>(x1, y1, x2, y2)</code>，较适合车道线等线段检测。</p>
-          <p>4. <code>HoughCircles()</code> 可检测圆心与半径，实作前建议先用 <code>medianBlur()</code> 降噪。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch18/ch18_page_13.png" alt="第 18 章习题 lane2 仓库道路影像">
             <div class="caption">原书第 18-13 页裁切：习题 1 的 <code>lane2.jpg</code> 仓库道路检测参考输出。</div>

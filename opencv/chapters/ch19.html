@@ -528,13 +528,39 @@ plt.show()</div>
 
       <p class="code-title">程序实例 ch19_15.py：<code>springfield.jpg</code> 是过暗影像，使用直方图均衡化</p>
       <div class="code-block"># ch19_15.py
-# 与 ch19_14.py 相同，只将读取文件改成 springfield.jpg。
-src = cv2.imread("springfield.jpg", cv2.IMREAD_GRAYSCALE)</div>
+import cv2
+import matplotlib.pyplot as plt
+
+src = cv2.imread("springfield.jpg", cv2.IMREAD_GRAYSCALE)
+plt.subplot(221)
+plt.imshow(src, "gray")
+plt.subplot(222)
+plt.hist(src.ravel(), 256)
+
+plt.subplot(223)
+dst = cv2.equalizeHist(src)
+plt.imshow(dst, "gray")
+plt.subplot(224)
+plt.hist(dst.ravel(), 256)
+plt.show()</div>
 
       <p class="code-title">程序实例 ch19_16.py：去除雾的实例</p>
       <div class="code-block"># ch19_16.py
-# 与 ch19_14.py 相同，只将读取文件改成 highway1.png。
-src = cv2.imread("highway1.png", cv2.IMREAD_GRAYSCALE)</div>
+import cv2
+import matplotlib.pyplot as plt
+
+src = cv2.imread("highway1.png", cv2.IMREAD_GRAYSCALE)
+plt.subplot(221)
+plt.imshow(src, "gray")
+plt.subplot(222)
+plt.hist(src.ravel(), 256)
+
+plt.subplot(223)
+dst = cv2.equalizeHist(src)
+plt.imshow(dst, "gray")
+plt.subplot(224)
+plt.hist(dst.ravel(), 256)
+plt.show()</div>
 
       <div class="result-box">
         <span class="result-box-header">过暗影像与去雾效果</span>

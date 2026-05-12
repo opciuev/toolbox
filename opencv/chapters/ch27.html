@@ -191,7 +191,25 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_2.py：使用 g5.jpg 辨识多张人脸的影像</div>
-      <div class="code-block">img = cv2.imread("g5.jpg")      # 读取影像</div>
+      <div class="code-block"># ch27_2.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_frontalface_default.xml'
+face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
+img = cv2.imread("g5.jpg")                      # 读取影像
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+cv2.rectangle(img, (img.shape[1]-140, img.shape[0]-20),
+              (img.shape[1],img.shape[0]), (0,255,255), -1)
+cv2.putText(img, "Finding " + str(len(faces)) + " face",
+            (img.shape[1]-135, img.shape[0]-5),
+            cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,0,0), 1)
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -209,7 +227,20 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_3.py：使用 solvay1927.jpg 影像侦测人脸</div>
-      <div class="code-block">img = cv2.imread("solvay1927.jpg")      # 读取影像</div>
+      <div class="code-block"># ch27_3.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_frontalface_default.xml'
+face_cascade = cv2.CascadeClassifier(pictPath)
+img = cv2.imread("solvay1927.jpg")
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -219,8 +250,20 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_3_1.py：将 minNeighbors 改为 5</div>
-      <div class="code-block">faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
-                                      minNeighbors = 5, minSize=(20,20))</div>
+      <div class="code-block"># ch27_3_1.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_frontalface_default.xml'
+face_cascade = cv2.CascadeClassifier(pictPath)
+img = cv2.imread("solvay1927.jpg")
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 5, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -231,9 +274,20 @@ cv2.destroyAllWindows()</div>
       <p class="content-text"><code>scaleFactor</code> 是控制变数，如果更改为比较大可以减少检测的图像，不过这也会造成部分资料没有检测出来。</p>
 
       <div class="code-title">程式实例 ch27_4.py：改用 haarcascade_frontalface_alt.xml</div>
-      <div class="code-block">pictPath = r'C:\opencv\data\haarcascade_frontalface_alt.xml'
-face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("solvay1927.jpg")              # 读取影像</div>
+      <div class="code-block"># ch27_4.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_frontalface_alt.xml'
+face_cascade = cv2.CascadeClassifier(pictPath)
+img = cv2.imread("solvay1927.jpg")
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -259,9 +313,20 @@ faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       maxSize=(50,50))</div>
 
       <div class="code-title">程式实例 ch27_6.py：使用 haarcascade_frontalface_alt_tree.xml</div>
-      <div class="code-block">pictPath = r'C:\opencv\data\haarcascade_frontalface_alt_tree.xml'
-face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("solvay1927.jpg")              # 读取影像</div>
+      <div class="code-block"># ch27_6.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_frontalface_alt_tree.xml'
+face_cascade = cv2.CascadeClassifier(pictPath)
+img = cv2.imread("solvay1927.jpg")
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -345,7 +410,20 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_8.py：侦测多人群聚的路人</div>
-      <div class="code-block">img = cv2.imread("people2.jpg")      # 读取影像</div>
+      <div class="code-block"># ch27_8.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_fullbody.xml'
+body_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
+img = cv2.imread("people2.jpg")                 # 读取影像
+bodies = body_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                       minNeighbors = 3, minSize=(20,20))
+for (x,y,w,h) in bodies:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Body", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <p class="content-text">经过测试，笔者感觉人潮不拥挤的路人侦测有比较好的效果，另外，如果是近距离的人像侦测效果也比较不好。</p>
 
       <h3>27-6-2 下半身的侦测</h3>
@@ -423,8 +501,26 @@ cv2.destroyAllWindows()</div>
       <p class="content-text">上述设定 <code>minNeighbors = 3</code> 时，左边检测口部也被当作眼睛处理，如果改为 <code>minNeighbors = 7</code> 则可以得到右边的结果。另外也可以设定 <code>maxSize</code> 参数，让大于特定的区块抛弃。</p>
 
       <div class="code-title">程式实例 ch27_12.py：设定 minNeighbors = 7</div>
-      <div class="code-block">eyes = eyes_cascade.detectMultiScale(img, scaleFactor=1.1,
-                                     minNeighbors = 7, minSize=(20,20))</div>
+      <div class="code-block"># ch27_12.py
+import cv2
+
+pictPath1 = r'C:\opencv\data\haarcascade_frontalface_default.xml'
+pictPath2 = r'C:\opencv\data\haarcascade_eye.xml'
+face_cascade = cv2.CascadeClassifier(pictPath1)
+eyes_cascade = cv2.CascadeClassifier(pictPath2)
+img = cv2.imread("jk.jpg")
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+eyes = eyes_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                     minNeighbors = 7, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+for (x,y,w,h) in eyes:
+    cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -458,7 +554,27 @@ cv2.imshow("Face", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
       <div class="code-title">程式实例 ch27_14.py：使用 haarcascade_righteye_2splits.xml</div>
-      <div class="code-block">pictPath2 = r'C:\opencv\data\haarcascade_righteye_2splits.xml'</div>
+      <div class="code-block"># ch27_14.py
+import cv2
+
+pictPath1 = r'C:\opencv\data\haarcascade_frontalface_default.xml'
+pictPath2 = r'C:\opencv\data\haarcascade_righteye_2splits.xml'
+
+face_cascade = cv2.CascadeClassifier(pictPath1)
+img = cv2.imread("jk.jpg")
+faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+eyes_cascade = cv2.CascadeClassifier(pictPath2)
+eyes = eyes_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                     minNeighbors = 7, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+for (x,y,w,h) in eyes:
+    cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -500,9 +616,20 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_16.py：侦测多数猫的影像</div>
-      <div class="code-block">img = cv2.imread("cat2.jpg")      # 读取影像
+      <div class="code-block"># ch27_16.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_frontalcatface.xml'
+cat_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
+img = cv2.imread("cat2.jpg")                   # 读取影像
 faces = cat_cascade.detectMultiScale(img, scaleFactor=1.1,
-                                     minNeighbors = 9, minSize=(20,20))</div>
+                                     minNeighbors = 9, minSize=(20,20))
+for (x,y,w,h) in faces:
+    cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)
+cv2.imshow("Face", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -545,7 +672,20 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_18.py：侦测俄罗斯车牌的应用</div>
-      <div class="code-block">img = cv2.imread("car1.jpg")      # 读取影像</div>
+      <div class="code-block"># ch27_18.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_russian_plate_number.xml'
+car_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
+img = cv2.imread("car1.jpg")                   # 读取影像
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+for (x,y,w,h) in plates:
+    cv2.rectangle(img, (x,y),(x+w,y+h),(255,0,0),2)
+cv2.imshow("Car Plate", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
@@ -555,7 +695,20 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="code-title">程式实例 ch27_19.py：更改另一种俄罗斯车牌格式</div>
-      <div class="code-block">img = cv2.imread("car2.jpg")      # 读取影像</div>
+      <div class="code-block"># ch27_19.py
+import cv2
+
+pictPath = r'C:\opencv\data\haarcascade_russian_plate_number.xml'
+car_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
+img = cv2.imread("car2.jpg")                   # 读取影像
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.1,
+                                      minNeighbors = 3, minSize=(20,20))
+for (x,y,w,h) in plates:
+    cv2.rectangle(img, (x,y),(x+w,y+h),(255,0,0),2)
+cv2.imshow("Car Plate", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>

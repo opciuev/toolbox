@@ -317,7 +317,23 @@ cv2.destroyAllWindows()</div>
         OpenCV 支持许多影片播放格式，例如 iPhone 录制的影片扩展名是 <code>mov</code>，也可以使用同样方式播放。
       </p>
       <p class="code-title">程序实例 ch26_7.py：播放 <code>iceocean.mov</code> 档案。</p>
-      <div class="code-block">video = cv2.VideoCapture('iceocean.mov')    # 开启影片档案</div>
+      <div class="code-block"># ch26_7.py
+import cv2
+
+video = cv2.VideoCapture('iceocean.mov')    # 开启影片档案
+
+while(video.isOpened()):
+    ret, frame = video.read()               # 读取影片档案
+    if ret:
+        cv2.imshow('frame', frame)          # 显示影片
+    else:
+        break
+    c = cv2.waitKey(50)                     # 可控制播放速度
+    if c == 27:                             # 按 Esc 键结束
+        break
+
+video.release()
+cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">

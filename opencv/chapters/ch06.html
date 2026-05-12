@@ -236,8 +236,22 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="code-title">程序实例 ch6_7_1.py：用切片取代 ch6_7.py 的部分循环</p>
-      <div class="code-block"># ch6_7_1.py 的关键差异
-img[115:125, 110:210] = [255, 0, 255]</div>
+      <div class="code-block"># ch6_7_1.py
+import cv2
+
+img = cv2.imread("jk.jpg")
+cv2.imshow("Before modify", img)
+
+print(f"修改前 img[115,110] = {img[115, 110]}")
+img[115:125, 110:210] = [255, 0, 255]
+img[125:135, 110:210] = [255, 255, 255]
+img[135:145, 110:210] = [0, 255, 255]
+
+cv2.imshow("After modify", img)
+print(f"修改后 img[115,110] = {img[115, 110]}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="note-box">
         <span class="note-icon">效率</span>

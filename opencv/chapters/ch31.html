@@ -135,7 +135,29 @@ cv2.destroyAllWindows()</div>
 
       <p class="content-text">上述我们获得不错的结果，但是 OCR 辨识也会失误，可以参考下列实例。</p>
       <p class="code-title">程式实例 ch31_4.py：使用 testCar/cartest3.jpg 影像辨识，这个程式只是修改所读取的汽车影像档案。</p>
-      <div class="code-block">img = cv2.imread("testCar/cartest3.jpg")             # 读辨识的影像</div>
+      <div class="code-block"># ch31_4.py
+import cv2
+import pytesseract
+
+config = '--tessdata-dir "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata"'
+pictPath = "haar_carplate.xml"                         # 哈尔特征档路径
+img = cv2.imread("testCar/cartest3.jpg")               # 读辨识的影像
+car_cascade = cv2.CascadeClassifier(pictPath)          # 读哈尔特征档
+
+plates = car_cascade.detectMultiScale(img, scaleFactor=1.05,
+           minNeighbors=3, minSize=(20,20), maxSize=(155,50))
+if len(plates) &gt; 0 :
+    for (x, y, w, h) in plates:
+        carplate = img[y:y+h, x:x+w]
+else:
+    print("侦测车牌失败")
+
+cv2.imshow('Car', carplate)
+text = pytesseract.image_to_string(carplate,config=config)
+print(f"车号是：{text}")
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <div class="result-box">
         <span class="result-box-header">执行结果</span>

@@ -6,7 +6,7 @@
   <title>第 15 章 轮廓的检测与匹配 - OpenCV 教程</title>
   <link rel="stylesheet" href="../css/style.css?v=20260422">
 </head>
-<body>
+<body class="chapter-output-pre">
 
   <header class="header">
     <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
@@ -137,23 +137,53 @@ cv2.imshow("src1", src)</div>
         </div>
       </div>
 
-      <p class="code-title">程序实例 ch15_2.py / ch15_3.py / ch15_4.py：查看 contours 的类型、数量与各轮廓属性</p>
+      <p class="code-title">程序实例 ch15_2.py：查看 contours 的类型与数量</p>
       <div class="code-block"># ch15_2.py
-print(f"资料类型 = {type(contours)}")
-print(f"轮廓数量 = {len(contours)}")
+import cv2
 
-# ch15_3.py
+src = cv2.imread("easy.jpg")
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
+print(f"资料类型 = {type(contours)}")
+print(f"轮廓数量 = {len(contours)}")</div>
+
+      <p class="code-title">程序实例 ch15_3.py：依索引逐一绘制轮廓</p>
+      <div class="code-block"># ch15_3.py
 n = len(contours)
 imgList = []
 for i in range(n):
     img = np.zeros(src.shape, np.uint8)
     imgList.append(img)
     imgList[i] = cv2.drawContours(imgList[i], contours, i, (255, 255, 255), 5)
-    cv2.imshow("contours" + str(i), imgList[i])
+    cv2.imshow("contours" + str(i), imgList[i])</div>
 
-# ch15_4.py
+      <p class="code-title">程序实例 ch15_4.py：列出轮廓属性</p>
+      <div class="code-block"># ch15_4.py
+import cv2
+
+src = cv2.imread("easy.jpg")
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+
 for i in range(len(contours)):
     print(f"contours[{i}].shape = {contours[i].shape}")</div>
+
+      <p class="code-title">程序实例 ch15_5.py：列出编号 1 的轮廓点内容</p>
+      <div class="code-block"># ch15_5.py
+print(f"轮廓数量 = {len(contours)}")
+print("contours[1] =")
+print(contours[1])</div>
 
       <div class="result-box">
         <span class="result-box-header">轮廓列表与索引</span>
@@ -163,16 +193,17 @@ for i in range(len(contours)):
         </div>
       </div>
 
-      <p class="code-title">程序实例 ch15_6.py / ch15_7.py：外部轮廓与所有轮廓</p>
+      <p class="code-title">程序实例 ch15_6.py：只检测外部轮廓</p>
       <div class="code-block"># ch15_6.py
 src = cv2.imread("easy1.jpg")
 contours, hierarchy = cv2.findContours(
     dst_binary,
     cv2.RETR_EXTERNAL,
     cv2.CHAIN_APPROX_SIMPLE
-)
+)</div>
 
-# ch15_7.py
+      <p class="code-title">程序实例 ch15_7.py：检测所有轮廓</p>
+      <div class="code-block"># ch15_7.py
 # 若要检测所有轮廓，将检测模式改为 RETR_LIST。
 contours, hierarchy = cv2.findContours(
     dst_binary,
@@ -180,7 +211,7 @@ contours, hierarchy = cv2.findContours(
     cv2.CHAIN_APPROX_SIMPLE
 )</div>
 
-      <p class="code-title">程序实例 ch15_8.py / ch15_9.py / ch15_10.py：绘制一般影像轮廓与目标取出</p>
+      <p class="code-title">程序实例 ch15_8.py：绘制一般影像轮廓</p>
       <div class="code-block"># ch15_8.py
 src = cv2.imread("lake.jpg")
 src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
@@ -188,15 +219,17 @@ ret, dst_binary = cv2.threshold(src_gray, 150, 255, cv2.THRESH_BINARY)
 cv2.imshow("binary", dst_binary)
 contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 2)
-cv2.imshow("result", dst)
+cv2.imshow("result", dst)</div>
 
-# ch15_9.py
+      <p class="code-title">程序实例 ch15_9.py：以实心轮廓清除背景</p>
+      <div class="code-block"># ch15_9.py
 # 使用白色实心轮廓建立遮罩，可视为取出图案。
 mask = np.zeros(src.shape[:2], np.uint8)
 dst = cv2.drawContours(mask, contours, -1, 255, -1)
-dst_result = cv2.bitwise_and(src, src, mask=dst)
+dst_result = cv2.bitwise_and(src, src, mask=dst)</div>
 
-# ch15_10.py
+      <p class="code-title">程序实例 ch15_10.py：保留天空背景并隐藏灯塔</p>
+      <div class="code-block"># ch15_10.py
 # 保留天空背景，但将灯塔以黑色显示。
 mask = np.ones(src.shape[:2], np.uint8) * 255
 dst = cv2.drawContours(mask, contours, -1, 0, -1)
@@ -232,7 +265,7 @@ dst_result = cv2.bitwise_and(src, src, mask=dst)</div>
         </tbody>
       </table>
 
-      <p class="code-title">程序实例 ch15_11.py / ch15_12.py / ch15_13.py / ch15_14.py：不同检测模式的 hierarchy</p>
+      <p class="code-title">程序实例 ch15_11.py：检测模式 RETR_EXTERNAL</p>
       <div class="code-block"># ch15_11.py
 src = cv2.imread("easy2.jpg")
 contours, hierarchy = cv2.findContours(
@@ -241,17 +274,52 @@ contours, hierarchy = cv2.findContours(
     cv2.CHAIN_APPROX_SIMPLE
 )
 print(f"hierarchy 资料类型：{type(hierarchy)}")
-print(f"列印层级 \n {hierarchy}")
+print(f"列印层级 \n {hierarchy}")</div>
 
-# ch15_12.py
-contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+      <p class="code-title">程序实例 ch15_12.py：检测模式 RETR_LIST</p>
+      <div class="code-block"># ch15_12.py
+import cv2
 
-# ch15_13.py
+src = cv2.imread("easy2.jpg")
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_LIST,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+print(f"hierarchy 资料类型：{type(hierarchy)}")
+print(f"列印层级 \n {hierarchy}")</div>
+
+      <p class="code-title">程序实例 ch15_13.py：检测模式 RETR_CCOMP</p>
+      <div class="code-block"># ch15_13.py
+import cv2
+
 src = cv2.imread("easy3.jpg")
-contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_CCOMP,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+print(f"hierarchy 资料类型：{type(hierarchy)}")
+print(f"列印层级 \n {hierarchy}")</div>
 
-# ch15_14.py
-contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</div>
+      <p class="code-title">程序实例 ch15_14.py：检测模式 RETR_TREE</p>
+      <div class="code-block"># ch15_14.py
+import cv2
+
+src = cv2.imread("easy3.jpg")
+src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+ret, dst_binary = cv2.threshold(src_gray, 127, 255, cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(
+    dst_binary,
+    cv2.RETR_TREE,
+    cv2.CHAIN_APPROX_SIMPLE
+)
+print(f"hierarchy 资料类型：{type(hierarchy)}")
+print(f"列印层级 \n {hierarchy}")</div>
 
       <div class="result-box chapter-output-pre">
         <span class="result-box-header">RETR_EXTERNAL 输出示例</span>
@@ -296,14 +364,15 @@ contours, hierarchy = cv2.findContours(dst_binary, cv2.RETR_TREE, cv2.CHAIN_APPR
       <div class="code-syntax">cx = m10 / m00
 cy = m01 / m00</div>
 
-      <p class="code-title">程序实例 ch15_15.py / ch15_16.py：列印影像矩并绘制质心</p>
+      <p class="code-title">程序实例 ch15_15.py：列印影像矩</p>
       <div class="code-block"># ch15_15.py
 for i in range(len(contours)):
     M = cv2.moments(contours[i])
     print(f"轮廓面积 str({i}) = {M['m00']}")
-    print(f"影像矩 str({i}) = \n{M}")
+    print(f"影像矩 str({i}) = \n{M}")</div>
 
-# ch15_16.py
+      <p class="code-title">程序实例 ch15_16.py：绘制轮廓质心</p>
+      <div class="code-block"># ch15_16.py
 dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 5)
 for c in contours:
     M = cv2.moments(c)
@@ -331,13 +400,14 @@ cv2.imshow("result", dst)</div>
       <div class="code-syntax">area = cv2.contourArea(contour, oriented)
 length = cv2.arcLength(contour, closed)</div>
 
-      <p class="code-title">程序实例 ch15_17.py / ch15_18.py：计算轮廓面积与周长</p>
+      <p class="code-title">程序实例 ch15_17.py：计算轮廓面积</p>
       <div class="code-block"># ch15_17.py
 for i in range(len(contours)):
     area = cv2.contourArea(contours[i])
-    print(f"轮廓({i})面积 = {area}")
+    print(f"轮廓({i})面积 = {area}")</div>
 
-# ch15_18.py
+      <p class="code-title">程序实例 ch15_18.py：计算轮廓周长</p>
+      <div class="code-block"># ch15_18.py
 for i in range(len(contours)):
     length = cv2.arcLength(contours[i], True)
     print(f"轮廓({i})周长 = {length}")</div>
@@ -354,21 +424,23 @@ for i in range(len(contours)):
 
       <div class="code-syntax">hu = cv2.HuMoments(m)</div>
 
-      <p class="code-title">程序实例 ch15_19.py / ch15_20.py / ch15_21.py：计算不同轮廓的 Hu 矩</p>
+      <p class="code-title">程序实例 ch15_19.py：计算 heart.jpg 的 Hu 矩</p>
       <div class="code-block"># ch15_19.py
 src = cv2.imread("heart.jpg")
 M = cv2.moments(contours[0])
 hu = cv2.HuMoments(M)
-print(f"Hu Moments = \n{hu}")
+print(f"Hu Moments = \n{hu}")</div>
 
-# ch15_20.py
+      <p class="code-title">程序实例 ch15_20.py：列出 3heart.jpg 内部 3 个轮廓的 Hu 矩</p>
+      <div class="code-block"># ch15_20.py
 src = cv2.imread("3heart.jpg")
 for i in range(len(contours)):
     M = cv2.moments(contours[i])
     hu = cv2.HuMoments(M)
-    print(f"轮廓({i}) Hu 矩 = \n{hu}")
+    print(f"轮廓({i}) Hu 矩 = \n{hu}")</div>
 
-# ch15_21.py
+      <p class="code-title">程序实例 ch15_21.py：列出 3shapes.jpg 内部 3 个轮廓的 Hu 矩</p>
+      <div class="code-block"># ch15_21.py
 src = cv2.imread("3shapes.jpg")
 for i in range(len(contours)):
     M = cv2.moments(contours[i])
@@ -446,13 +518,14 @@ distance = sd.computeDistance(contour1, contour2)
 hd = cv2.createHausdorffDistanceExtractor()
 distance = hd.computeDistance(contour1, contour2)</div>
 
-      <p class="code-title">程序实例 ch15_23.py / ch15_24.py：Shape Context 与 Hausdorff 距离</p>
+      <p class="code-title">程序实例 ch15_23.py：Shape Context 距离</p>
       <div class="code-block"># ch15_23.py
 sc = cv2.createShapeContextDistanceExtractor()
 distance = sc.computeDistance(contours[0], contours[1])
-print(f"Shape Context distance = {distance}")
+print(f"Shape Context distance = {distance}")</div>
 
-# ch15_24.py
+      <p class="code-title">程序实例 ch15_24.py：Hausdorff 距离</p>
+      <div class="code-block"># ch15_24.py
 hd = cv2.createHausdorffDistanceExtractor()
 distance = hd.computeDistance(contours[0], contours[1])
 print(f"Hausdorff distance = {distance}")</div>

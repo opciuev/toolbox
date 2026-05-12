@@ -510,8 +510,21 @@ cv2.imshow("The New Image", new_image)</div>
       </p>
 
       <p class="code-title">程序实例 ch4_12_1.py：用 fill() 修改 Hue 通道</p>
-      <div class="code-block"># ch4_12_1.py 的关键差异
-hsv.fill(200)        # 等同于 hsv[:, :] = 200</div>
+      <div class="code-block"># ch4_12_1.py
+import cv2
+
+image = cv2.imread("street.jpg")
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+hsv, saturation, value = cv2.split(hsv_image)
+
+hsv.fill(200)        # 等同于 hsv[:, :] = 200
+hsv_image = cv2.merge([hsv, saturation, value])
+new_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+
+cv2.imshow("The Image", image)
+cv2.imshow("The New Image", new_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()</div>
 
       <h3 class="subsection-heading">4-6-2 饱和度 Saturation 调整</h3>
 
