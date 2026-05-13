@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的工作台</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M16 18h32v28H16z' fill='%232563eb'/%3E%3Cpath d='M22 25h20M22 32h20M22 39h14' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
@@ -313,27 +314,20 @@
             }
         }
 
-        function draw() {
+        function drawStatic() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(180, 160, 255, ${p.alpha})`;
                 ctx.fill();
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
             });
-            requestAnimationFrame(draw);
         }
 
-        window.addEventListener('resize', () => { resize(); initParticles(); });
+        window.addEventListener('resize', () => { resize(); initParticles(); drawStatic(); });
         resize();
         initParticles();
-        draw();
+        drawStatic();
     </script>
 </body>
 </html>
