@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python3 网络爬虫开发实战 第2版</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
+    <div class="header-right"><a href="../index.html">工作台首页</a><a href="chapters/ch01.html">开始阅读 &rarr;</a></div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <section class="home-hero">
+        <h1>Python3 网络爬虫开发实战 第2版</h1>
+        <p>按章节逐步精修的本地学习网页。完成章节可以阅读，未完成章节只保留进度标记。</p>
+      </section>
+      <div class="chapter-grid">
+        <a class="chapter-card" href="chapters/ch01.html">
+          <span class="card-label">第1章</span>
+          <span class="status-pill completed">完成</span>
+          <h3>第1章 爬虫基础</h3>
+        </a>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第2章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第2章 基本库的使用</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第3章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第3章 网页数据的解析提取</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第4章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第4章 数据的存储</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第5章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第5章 Ajax数据爬取</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第6章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第6章 异步爬虫</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第7章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第7章 JavaScript动态渲染页面爬取</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第8章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第8章 验证码的识别</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第9章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第9章 代理的使用</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第10章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第10章 模拟登录</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第11章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第11章 JavaScript逆向爬虫</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第12章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第12章 APP数据的爬取</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第13章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第13章 Android逆向</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第14章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第14章 页面智能解析</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第15章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第15章 Scrapy框架的使用</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第16章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第16章 分布式爬虫</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">第17章</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>第17章 爬虫的管理和部署</h3>
+        </div>
+        <div class="chapter-card disabled" aria-disabled="true">
+          <span class="card-label">附录</span>
+          <span class="status-pill pending">未完成</span>
+          <h3>附录 爬虫与法律</h3>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="footer">Python3 网络爬虫开发实战 第2版 · 本地学习网页</footer>
+  <script src="js/sidebar.js"></script>
+  <script>buildSidebar(null);</script>
+</body>
+</html>

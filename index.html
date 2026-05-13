@@ -18,8 +18,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            justify-content: flex-start;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* 动态背景粒子 */
@@ -35,10 +36,12 @@
             z-index: 1;
             width: 100%;
             max-width: 960px;
+            min-height: 100vh;
             padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 3rem;
         }
 
@@ -115,6 +118,15 @@
 
         .card-pyside:hover {
             box-shadow: 0 32px 80px rgba(0, 172, 193, 0.45);
+        }
+
+        .card-spider {
+            background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.25);
+        }
+
+        .card-spider:hover {
+            box-shadow: 0 32px 80px rgba(37, 99, 235, 0.45);
         }
 
         /* 卡片内光晕装饰 */
@@ -245,7 +257,20 @@
                 </div>
             </a>
 
+            <a href="python-web-spider/index.html" class="entry-card card-spider">
+                <span class="card-icon">🕷️</span>
+                <div class="card-body">
+                    <div class="card-label">Learning</div>
+                    <div class="card-title">Python 网络爬虫开发实战</div>
+                    <div class="card-desc">Python3 网络爬虫开发实战第 2 版，本地精修阅读版，按章节逐步整理</div>
+                </div>
+                <div class="card-arrow">
+                    <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
             <!-- 通用工具入口 -->
+
             <a href="tools.html" class="entry-card card-tools">
                 <span class="card-icon">🛠️</span>
                 <div class="card-body">

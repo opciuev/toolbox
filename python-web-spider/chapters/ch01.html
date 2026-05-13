@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第1章 爬虫基础 - Python3 网络爬虫开发实战 第2版</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
+    <div class="header-right"><a href="../../index.html">工作台首页</a><a href="../index.html">章节首页</a></div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <span class="chapter-badge">第1章</span>
+      <h1 class="chapter-title">第1章 爬虫基础</h1>
+      <div class="chapter-meta">来源：01_第1章_爬虫基础.pdf · 共 28 页 · 完成</div>
+      <article class="ocr-content">
+<p class="content-text">在写爬虫之前，我们还需要了解一些基础知识，如 HTTP 原理、网页的基础知识、爬虫的基本原理、Cookie 的基本原理、多进程和多线程的基本原理等，了解这些内容有助于我们更好地理解和编写网络爬虫相关的程序。</p>
+<p class="content-text">本章我们就对这些基础知识做一个简单的总结。</p>
+<div class="section-heading" id="section-0"><h2>1.1 HTTP 基本原理</h2></div>
+<p class="content-text">本节我们会详细了解 HTTP 的基本原理，了解从浏览器中输入 URL 到获取网页内容之间都发生了什么。了解这些内容有助于我们进一步了解爬虫的基本原理。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. URI 和 URL</h3>
+<p class="content-text">我们先了解一下 URI 和 URL。URI 的全称为 Uniform Resource Identifier，即统一资源标识符；URL 的全称为 Universal Resource Locator，即统一资源定位符。它们是什么意思呢？举例来说，https://github.com/favicon.ico 既是一个 URI，也是一个 URL。即有 favicon.ico 这样一个图标资源，我们用上一行中的 URI/URL 指定了访问它的唯一方式，其中包括访问协议 https、访问路径（即根目录）和资源名称。通过一个链接，便可以从互联网中找到某个资源，这个链接就是 URI/URL。</p>
+<p class="content-text">URL 是 URI 的子集，也就是说每个 URL 都是 URI，但并非每个 URI 都是 URL。那么，怎样的 URI 不是 URL 呢？除了 URL，URI 还包括一个子类，叫作 URN，其全称为 Universal Resource Name，即统一资源名称。URN 只为资源命名而不指定如何定位资源，例如 urn:isbn:0451450523 指定了一本书的 ISBN，可以唯一标识这本书，但没有指定到哪里获取这本书，这就是 URN。</p>
+<p class="content-text">URL、URN 和 URI 的关系可以用图 1-1 表示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_1.jpg" alt="图1-1 URL、URN和URI关系图" loading="lazy"><figcaption>图1-1 URL、URN和URI关系图</figcaption></figure>
+<p class="content-text">在目前的互联网中，URN 使用得非常少，几乎所有的 URI 都是 URL，所以对于一般的网页链接，我们既可以称之为 URL，也可以称之为 URI，我个人习惯称 URL。</p>
+<p class="content-text">但 URL 也不是随便写的，它也是需要遵循一定格式规范的，基本的组成格式如下：</p>
+<pre class="code-block"><code>scheme://[username:password@]hostname[:port][/path][;parameters][?query][#fragment]</code></pre>
+<p class="content-text">其中，中括号包括的内容代表非必要部分，比如 https://www.baidu.com 这个 URL，这里就只包含了 scheme 和 hostname 两部分，没有 port、path、parameters、query、fragment。这里我们分别介绍一下几部分代表的含义和作用。</p>
+<p class="content-text list-like"><strong class="term-label">scheme:</strong>协议。常用的协议有 http、https、ftp 等，另外 scheme 也被常称作 protocol，二者都代表协议的意思。</p>
+<p class="content-text list-like"><strong class="term-label">username、password:</strong>用户名和密码。在某些情况下URL 需要提供用户名和密码才能访问,这时候可以把用户名和密码放在 host 前面。比如https://ssr3.scrape.center 这个URL需要用户名和密码才能访问,直接写为https://admin:admin@ssr3.scrape.center 则可以直接访问。</p>
+<p class="content-text list-like"><strong class="term-label">hostname:</strong>主机地址。可以是域名或IP 地址,比如 https://www.baidu.com 这个 URL 中的hostname 就是 www.baidu.com,这就是百度的二级域名。比如https://8.8.8.8 这个URL 中的hostname 就是 8.8.8.8,它是一个IP地址。</p>
+<p class="content-text list-like"><strong class="term-label">port:</strong>端口。这是服务器设定的服务端口,比如https://8.8.8.8:12345 这个URL 中的端口就是12345。但是有些URL 中没有端口信息,这是使用了默认的端口。http协议的默认端口是80, https 协议的默认端口是443。所以https://www.baidu.com 其实相当于 https://www.baidu.com:443,而 http://www.baidu.com 其实相当于http://www.baidu.com:80。</p>
+<p class="content-text list-like"><strong class="term-label">path:</strong>路径。指的是网络资源在服务器中的指定地址,比如 https://github.com/favicon.ico 中的path 就是 favicon.ico,指的是访问 GitHub根目录下的favicon.ico。</p>
+<p class="content-text list-like"><strong class="term-label">parameters:</strong>参数。用来指定访问某个资源时的附加信息,比如https://8.8.8.8:12345/hello;user 中的user 就是 parameters。但是 parameters 现在用得很少,所以目前很多人会把该参数后面的 query部分称为参数,甚至把 parameters 和 query 混用。严格意义上来说,parameters 是分号(;) 后面的内容。</p>
+<p class="content-text list-like"><strong class="term-label">query:</strong>查询。用来查询某类资源,如果有多个查询,则用&amp;隔开。query 其实非常常见,比如 https://www.baidu.com/s?wd=nba&amp;ie=utf-8,其中的query 部分就是wd=nba&amp;ie=utf-8,这里指定了 wd 是 nba,ie是utf-8。由于 query 比刚才所说的 parameters 使用频率高很多,所以平时我们见到的参数、GET请求参数、parameters、params 等称呼多数情况指代的也是query。从严格意义上来说,应该用query 来表示。</p>
+<p class="content-text list-like"><strong class="term-label">fragment:</strong>片段。它是对资源描述的部分补充,可以理解为资源内部的书签。目前它有两个主要的应用,一个是用作单页面路由,比如现代前端框架 Vue、React 都可以借助它来做路由管理;另外一个是用作HTML 锚点,用它可以控制一个页面打开时自动下滑滚动到某个特定的位置。</p>
+<p class="content-text">以上我们简单了解了URL的基本概念和构成,后文我们会结合多个实战案例来帮助大家加深理解。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. HTTP 和 HTTPS</h3>
+<p class="content-text">刚才我们了解了URL的基本构成,其支持的协议有很多,比如http、https、ftp、sftp、smb等。</p>
+<p class="content-text">在爬虫中,我们抓取的页面通常是基于http 或https协议的,因此这里首先了解一下这两个协议的含义。</p>
+<p class="content-text">HTTP的全称是Hypertext Transfer Protocol,中文名为超文本传输协议,其作用是把超文本数据从网络传输到本地浏览器,能够保证高效而准确地传输超文本文档。HTTP是由万维网协会(World Wide Web Consortium)和Internet 工作小组 IETF(Internet Engineering Task Force)合作制定的规范,目前被人们广泛使用的是HTTP 1.1 版本,当然,现在也有不少网站支持 HTTP 2.0。</p>
+<p class="content-text">HTTP的发展历史见表1-1。</p>
+<p class="table-caption">表1-1 HTTP 发展史</p>
+<table class="content-table"><thead><tr><th>版本</th><th>产生时间</th><th>主要特点</th><th>发展现状</th></tr></thead><tbody><tr><td>HTTP 0.9</td><td>1991年</td><td>不涉及数据包传输，规定客户端和服务器之间的通信格式，只能使用GET请求</td><td>没有作为正式的标准</td></tr>
+<tr><td>HTTP 1.0</td><td>1996年</td><td>传输内容格式不限制，增加PUT、PATCH、HEAD、OPTIONS、DELETE命令</td><td>正式作为标准</td></tr>
+<tr><td>HTTP 1.1</td><td>1997年</td><td>持久连接(长连接)、节约带宽、HOST域、管道机制、分块传输编码</td><td>正式作为标准并广泛使用</td></tr>
+<tr><td>HTTP 2.0</td><td>2015年</td><td>多路复用、服务器推送、头信息压缩、二进制协议等</td><td>逐渐覆盖市场</td></tr></tbody></table>
+<p class="content-text">HTTPS 的全称是 Hypertext Transfer Protocol over Secure Socket Layer,是以安全为目标的HTTP通道,简单讲就是HTTP的安全版,即在HTTP下加入SSL层,简称HTTPS。</p>
+<p class="content-text">HTTPS 的安全基础是SSL,因此通过该协议传输的内容都是经过SSL加密的,SSL的主要作用有以下两种。</p>
+<p class="content-text list-like">建立一个信息安全通道,保证数据传输的安全性。</p>
+<p class="content-text list-like">确认网站的真实性。凡是使用了HTTPS协议的网站,都可以通过单击浏览器地址栏的锁头标志来查看网站认证之后的真实信息,此外还可以通过CA机构颁发的安全签章来查询。</p>
+<p class="content-text">现在有越来越多的网站和App朝着HTTPS的方向发展,举例如下。</p>
+<p class="content-text list-like">苹果公司强制所有iOS App在2017年1月1日前全部改为使用HTTPS加密,否则App 无法在应用商店上架。</p>
+<p class="content-text list-like">谷歌从2017年1月推出的Chrome 56开始,对未进行HTTPS加密的网址亮出风险提示,即在地址栏的显著位置提醒用户“此网页不安全”。</p>
+<p class="content-text list-like">腾讯微信小程序的官方需求文档要求后台使用HTTPS 请求进行网络通信,不满足条件的域名和协议无法正常请求。</p>
+<p class="content-text">HTTPS 已然是大势所趋。</p>
+<div class="note-box"><span class="note-icon">注</span><div class="note-text">HTTP和HTTPS协议都属于计算机网络中的应用层协议,其下层是基于TCP协议实现的,TCP协议属于计算机网络中的传输层协议,包括建立连接时的三次握手和断开时的四次挥手等过程。但本书主要讲的是网络爬虫相关知识,主要爬取的是HTTP/HTTPS 协议相关的内容,因此这里就不对TCP、IP等内容展开深入讲解了,感兴趣的读者可以搜索相关资料了解下,如《计算机网络》《图解HTTP》等书。</div></div>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. HTTP 请求过程</h3>
+<p class="content-text">在浏览器地址栏中输入一个URL,按下回车之后便可观察到对应的页面内容。实际上,这个过程是浏览器先向网站所在的服务器发送一个请求,网站服务器接收到请求后对其进行处理和解析,然后返回对应的响应,接着传回浏览器。由于响应里包含页面的源代码等内容,所以浏览器再对其进行解析,便将网页呈现出来,流程如图1-2所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_2.jpg" alt="图1-2 流程图" loading="lazy"><figcaption>图1-2 流程图</figcaption></figure>
+<p class="content-text">图1-2中的客户端代表我们自己的电脑或手机浏览器,服务器就是要访问的网站所在的服务器。</p>
+<p class="content-text">为了更直观地说明上述过程,这里用Chrome浏览器开发者模式下的 Network 监听组件来做一下演示。Network 监听组件可以在访问当前请求的网页时,显示产生的所有网络请求和响应。</p>
+<p class="content-text">打开 Chrome 浏览器,访问百度,这时候单击鼠标右键并选择“检查”菜单(或者直接按快捷键F12)即可打开浏览器的开发者工具,如图1-3所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_3.jpg" alt="图1-3 开发者工具界面" loading="lazy"><figcaption>图1-3 开发者工具界面</figcaption></figure>
+<p class="content-text">我们切换到 Network 面板,然后重新刷新网页,这时候就可以看到在 Network 面板下方出现了很多个条目,其中一个条目就代表一次发送请求和接收响应的过程,如图 1-4 所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_4.jpg" alt="图1-4 Network 面板" loading="lazy"><figcaption>图1-4 Network 面板</figcaption></figure>
+<p class="content-text">我们先观察第一个网络请求,即 www.baidu.com,其中各列的含义如下。</p>
+<p class="content-text list-like"><strong class="term-label">第一列 Name:</strong>请求的名称。一般会用 URL 的最后一部分内容作为名称。</p>
+<p class="content-text list-like"><strong class="term-label">第二列 Status:</strong>响应的状态码。这里显示为 200,代表响应是正常的。通过状态码,我们可以判断发送请求之后是否得到了正常的响应。</p>
+<p class="content-text">第三列 Protocol:请求的协议类型。这里http/1.1 代表 HTTP 1.1 版本,h2代表 HTTP 2.0版本。</p>
+<p class="content-text list-like"><strong class="term-label">第四列 Type:</strong>请求的文档类型。这里为document,代表我们这次请求的是一个HTML 文档,内容是一些HTML代码。</p>
+<p class="content-text list-like"><strong class="term-label">第五列 Initiator:</strong>请求源。用来标记请求是由哪个对象或进程发起的。</p>
+<p class="content-text list-like"><strong class="term-label">第六列 Size:</strong>从服务器下载的文件或请求的资源大小。如果资源是从缓存中取得的,则该列会显示 from cache。</p>
+<p class="content-text list-like"><strong class="term-label">第七列Time:</strong>从发起请求到获取响应所花的总时间。</p>
+<p class="content-text list-like"><strong class="term-label">第八列 Waterfall:</strong>网络请求的可视化瀑布流。我们单击这个条目,即可看到其更详细的信息,如图1-5所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_5.jpg" alt="图1-5 详细信息" loading="lazy"><figcaption>图1-5 详细信息</figcaption></figure>
+<p class="content-text">首先是 General 部分,其中Request URL 为请求的URL, Request Method为请求的方法, Status Code为响应状态码,Remote Address 为远程服务器的地址和端口,Referrer Policy为Referrer 判别策略。</p>
+<p class="content-text">继续往下可以看到 Response Headers 和 Request Headers,分别代表响应头和请求头。请求头中包含许多请求信息,如浏览器标识、Cookie、Host等信息,这些是请求的一部分,服务器会根据请求头里的信息判断请求是否合法,进而做出对应的响应。响应头是响应的一部分,其中包含服务器的类型、文档类型、日期等信息,浏览器在接收到响应后,会对其进行解析,进而呈现网页内容。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 请求</h3>
+<p class="content-text">请求,英文为 Request,由客户端发往服务器,分为四部分内容:请求方法(Request Method)、请求的网址(Request URL)、请求头(Request Headers)、请求体(Request Body)。下面我们分别予以介绍。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">请求方法</h4>
+<p class="content-text">请求方法,用于标识请求客户端请求服务端的方式,常见的请求方法有两种:GET和POST。</p>
+<p class="content-text">在浏览器中直接输入URL并回车,便发起了一个GET请求,请求的参数会直接包含到URL里。</p>
+<p class="content-text">例如,在百度搜索引擎中搜索 Python 就是一个GET请求,链接为https://www.baidu.com/s?wd=Python,其中 URL 中包含了请求的 query 信息,这里的参数 wd 表示要搜寻的关键字。POST请求大多在提交表单时发起。例如,对于一个登录表单,输入用户名和密码后,单击“登录”按钮,这时通常会发起一个POST请求,其数据通常以表单的形式传输,而不会体现在 URL中。</p>
+<p class="content-text">GET 和 POST请求方法有如下区别。</p>
+<p class="content-text list-like">GET请求中的参数包含在URL里面,数据可以在URL 中看到;而POST请求的URL 不会包含这些数据,数据都是通过表单形式传输的,会包含在请求体中。</p>
+<p class="content-text list-like">GET请求提交的数据最多只有1024字节,POST方式则没有限制。</p>
+<p class="content-text">登录时一般需要提交用户名和密码,其中密码是敏感信息,如果使用GET方式请求,密码就会暴露在 URL 里面,造成密码泄露,所以这时候最好以 POST方式发送。上传文件时,由于文件内容比较大,因此也会选用POST方式。</p>
+<p class="content-text">我们平常遇到的绝大部分请求是 GET 或POST请求。其实除了这两个,还有一些请求方法,如HEAD、PUT、DELETE、CONNECT、OPTIONS、TRACE等,我们简单将请求方法总结为表1-2。</p>
+<p class="table-caption">表1-2 请求方法</p>
+<table class="content-table"><thead><tr><th>方法</th><th>描述</th></tr></thead><tbody><tr><td>GET</td><td>请求页面，并返回页面内容</td></tr>
+<tr><td>HEAD</td><td>类似于 GET 请求，只不过返回的响应中没有具体内容。用于获取报头</td></tr>
+<tr><td>POST</td><td>大多用于提交表单或上传文件，数据包含在请求体中</td></tr>
+<tr><td>PUT</td><td>用客户端传向服务器的数据取代指定文档中的内容</td></tr>
+<tr><td>DELETE</td><td>请求服务器删除指定的页面</td></tr>
+<tr><td>CONNECT</td><td>把服务器当作跳板，让服务器代替客户端访问其他网页</td></tr>
+<tr><td>OPTIONS</td><td>允许客户端查看服务器的性能</td></tr>
+<tr><td>TRACE</td><td>回显服务器收到的请求。主要用于测试或诊断</td></tr></tbody></table>
+<p class="content-text">本表参考:http://www.runoob.com/http/http-methods.html。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">请求的网址</h4>
+<p class="content-text">请求的网址,它可以唯一确定客户端想请求的资源。关于 URL 的构成和各个部分的功能我们在前文已经提及了,这里就不再赘述。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">请求头</h4>
+<p class="content-text">请求头,用来说明服务器要使用的附加信息,比较重要的信息有 Cookie、Referer、User-Agent等。</p>
+<p class="content-text">下面简要说明一些常用的请求头信息。</p>
+<p class="content-text list-like"><strong class="term-label">Accept:</strong>请求报头域,用于指定客户端可接受哪些类型的信息。</p>
+<p class="content-text list-like"><strong class="term-label">Accept-Language:</strong>用于指定客户端可接受的语言类型。</p>
+<p class="content-text list-like"><strong class="term-label">Accept-Encoding:</strong>用于指定客户端可接受的内容编码。</p>
+<p class="content-text list-like"><strong class="term-label">Host:</strong>用于指定请求资源的主机IP和端口号,其内容为请求URL的原始服务器或网关的位置。从HTTP 1.1版本开始,请求必须包含此内容。</p>
+<p class="content-text list-like"><strong class="term-label">Cookie:</strong>也常用复数形式 Cookies,这是网站为了辨别用户,进行会话跟踪而存储在用户本地的数据。</p>
+<p class="content-text">它的主要功能是维持当前访问会话。例如,输入用户名和密码成功登录某个网站后,服务器会用会话保存登录状态信息,之后每次刷新或请求该站点的其他页面,都会发现处于登录状态,这就是 Cookie 的功劳。Cookie 里有信息标识了我们所对应的服务器的会话,每次浏览器在请求该站点的页面时,都会在请求头中加上 Cookie 并将其发送给服务器,服务器通过Cookie 识别出是我们自己,并且查出当前状态是登录状态,所以返回结果就是登录之后才能看到的网页内容。</p>
+<p class="content-text list-like"><strong class="term-label">Referer:</strong>用于标识请求是从哪个页面发过来的,服务器可以拿到这一信息并做相应的处理,如做来源统计、防盗链处理等。</p>
+<p class="content-text list-like"><strong class="term-label">User-Agent:</strong>简称UA,这是一个特殊的字符串头,可以使服务器识别客户端使用的操作系统及版本、浏览器及版本等信息。做爬虫时如果加上此信息,可以伪装为浏览器;如果不加,很可能会被识别出来。</p>
+<p class="content-text list-like"><strong class="term-label">Content-Type:</strong>也叫互联网媒体类型(Internet Media Type)或者MIME类型,在HTTP协议消息头中,它用来表示具体请求中的媒体类型信息。例如,text/html 代表 HTML格式,image/gif代表 GIF图片,application/json代表 JSON 类型。</p>
+<p class="content-text">请求头是请求的重要组成部分,在写爬虫时,通常都需要设定请求头。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">请求体</h4>
+<p class="content-text">请求体,一般承载的内容是POST请求中的表单数据,对于GET请求,请求体为空。</p>
+<p class="content-text">例如,我登录 GitHub 时捕获到的请求和响应如图1-6所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_6.jpg" alt="图1-6 详细信息" loading="lazy"><figcaption>图1-6 详细信息</figcaption></figure>
+<p class="content-text">登录之前,需要先填写用户名和密码信息,登录时这些内容会以表单数据的形式提交给服务器,此时需要注意 Request Headers 中指定 Content-Type为 application/x-www-form-urlencoded。只有这样设置 Content-Type,内容才会以表单数据的形式提交。另外,也可以将Content-Type 设置为 application/json来提交 JSON数据,或者设置为 multipart/form-data来上传文件。</p>
+<p class="content-text">下表列出了 Content-Type 和 POST 提交数据方式的关系。</p>
+<p class="table-caption">表1-3 Content-Type 和 POST 提交数据方式的关系</p>
+<table class="content-table"><thead><tr><th>Content-Type</th><th>POST 提交数据的方式</th></tr></thead><tbody><tr><td>application/x-www-form-urlencoded</td><td>表单数据</td></tr>
+<tr><td>multipart/form-data</td><td>表单文件上传</td></tr>
+<tr><td>application/json</td><td>序列化 JSON 数据</td></tr>
+<tr><td>text/xml</td><td>XML 数据</td></tr></tbody></table>
+<p class="content-text">在爬虫中,构造 POST 请求需要使用正确的 Content-Type,并了解设置各种请求库的各个参数时使用的都是哪种 Content-Type,如若不然可能会导致 POST 提交后无法得到正常响应。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 响应</h3>
+<p class="content-text">响应,即 Response,由服务器返回给客户端,可以分为三部分:响应状态码 (Response Status Code)、响应头 (Response Headers) 和响应体 (Response Body)。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">响应状态码</h4>
+<p class="content-text">响应状态码,表示服务器的响应状态,如 200 代表服务器正常响应、404 代表页面未找到、500 代表服务器内部发生错误。在爬虫中,我们可以根据状态码判断服务器的响应状态,如状态码为 200,证明成功返回数据,可以做进一步的处理,否则直接忽略。表 1-4 列出了常见的错误状态码及错误原因。</p>
+<p class="table-caption">表1-4 常见的错误状态码及错误原因</p>
+<table class="content-table"><thead><tr><th>状态码</th><th>说明</th><th>详情</th></tr></thead><tbody><tr><td>100</td><td>继续</td><td>请求者应当继续提出请求。服务器已接收到请求的一部分，正在等待其余部分</td></tr>
+<tr><td>101</td><td>切换协议</td><td>请求者已要求服务器切换协议，服务器已确认并准备切换</td></tr>
+<tr><td>200</td><td>成功</td><td>服务器已成功处理了请求</td></tr>
+<tr><td>201</td><td>已创建</td><td>请求成功并且服务器创建了新的资源</td></tr>
+<tr><td>202</td><td>已接收</td><td>服务器已接收请求，但尚未处理</td></tr>
+<tr><td>203</td><td>非授权信息</td><td>服务器已成功处理了请求，但返回的信息可能来自另一个源</td></tr>
+<tr><td>204</td><td>无内容</td><td>服务器成功处理了请求，但没有返回任何内容</td></tr>
+<tr><td>205</td><td>重置内容</td><td>服务器成功处理了请求，内容被重置</td></tr>
+<tr><td>206</td><td>部分内容</td><td>服务器成功处理了部分请求</td></tr>
+<tr><td>300</td><td>多种选择</td><td>针对请求，服务器可执行多种操作</td></tr>
+<tr><td>301</td><td>永久移动</td><td>请求的网页已永久移动到新位置，即永久重定向</td></tr>
+<tr><td>302</td><td>临时移动</td><td>请求的网页暂时跳转到其他页面，即暂时重定向</td></tr>
+<tr><td>303</td><td>查看其他位置</td><td>如果原来的请求是 POST，重定向目标文档应该通过 GET 提取</td></tr>
+<tr><td>304</td><td>未修改</td><td>此次请求返回的网页未经修改，继续使用上次的资源</td></tr>
+<tr><td>305</td><td>使用代理</td><td>请求者应该使用代理访问该网页</td></tr>
+<tr><td>307</td><td>临时重定向</td><td>临时从其他位置响应请求的资源</td></tr>
+<tr><td>400</td><td>错误请求</td><td>服务器无法解析该请求</td></tr>
+<tr><td>401</td><td>未授权</td><td>请求没有进行身份验证或验证未通过</td></tr>
+<tr><td>403</td><td>禁止访问</td><td>服务器拒绝此请求</td></tr>
+<tr><td>404</td><td>未找到</td><td>服务器找不到请求的网页</td></tr>
+<tr><td>405</td><td>方法禁用</td><td>服务器禁用了请求中指定的方法</td></tr>
+<tr><td>406</td><td>不接收</td><td>无法使用请求的内容响应请求的网页</td></tr>
+<tr><td>407</td><td>需要代理授权</td><td>请求者需要使用代理授权</td></tr>
+<tr><td>408</td><td>请求超时</td><td>服务器请求超时</td></tr>
+<tr><td>409</td><td>冲突</td><td>服务器在完成请求时发生冲突</td></tr>
+<tr><td>410</td><td>已删除</td><td>请求的资源已永久删除</td></tr>
+<tr><td>411</td><td>需要有效长度</td><td>服务器不接收不含有效内容长度标头字段的请求</td></tr>
+<tr><td>412</td><td>未满足前提条件</td><td>服务器未满足请求者在请求中设置的某一个前提条件</td></tr>
+<tr><td>413</td><td>请求实体过大</td><td>请求实体过大，超出服务器的处理能力</td></tr>
+<tr><td>414</td><td>请求 URI 过长</td><td>请求网址过长，服务器无法处理</td></tr>
+<tr><td>415</td><td>不支持类型</td><td>请求格式不被请求页面支持</td></tr>
+<tr><td>416</td><td>请求范围不符</td><td>页面无法提供请求的范围</td></tr>
+<tr><td>417</td><td>未满足期望值</td><td>服务器未满足期望请求标头字段的要求</td></tr>
+<tr><td>500</td><td>服务器内部错误</td><td>服务器遇到错误，无法完成请求</td></tr>
+<tr><td>501</td><td>未实现</td><td>服务器不具备完成请求的能力</td></tr>
+<tr><td>502</td><td>错误网关</td><td>服务器作为网关或代理，接收到上游服务器的无效响应</td></tr>
+<tr><td>503</td><td>服务不可用</td><td>服务器目前无法使用</td></tr>
+<tr><td>504</td><td>网关超时</td><td>服务器作为网关或代理，没有及时从上游服务器接收到请求</td></tr>
+<tr><td>505</td><td>HTTP 版本不支持</td><td>服务器不支持请求中使用的 HTTP 协议版本</td></tr></tbody></table>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">响应头</h4>
+<p class="content-text">响应头,包含了服务器对请求的应答信息,如 Content-Type、Server、Set-Cookie等。下面简要说明一些常用的响应头信息。</p>
+<p class="content-text list-like"><strong class="term-label">Date:</strong>用于标识响应产生的时间。</p>
+<p class="content-text list-like"><strong class="term-label">Last-Modified:</strong>用于指定资源的最后修改时间。</p>
+<p class="content-text list-like"><strong class="term-label">Content-Encoding:</strong>用于指定响应内容的编码。</p>
+<p class="content-text list-like"><strong class="term-label">Server:</strong>包含服务器的信息,例如名称、版本号等。</p>
+<p class="content-text list-like"><strong class="term-label">Content-Type:</strong>文档类型,指定返回的数据是什么类型,如 text/html 代表返回 HTML 文档, application/x-javascript 代表返回 JavaScript 文件, image/jpeg 代表返回图片。</p>
+<p class="content-text list-like"><strong class="term-label">Set-Cookie:</strong>设置Cookie。响应头中的 Set-Cookie 用于告诉浏览器需要将此内容放在 Cookie 中,下次请求时将 Cookie 携带上。</p>
+<p class="content-text list-like"><strong class="term-label">Expires:</strong>用于指定响应的过期时间, 可以让代理服务器或浏览器将加载的内容更新到缓存中。当再次访问相同的内容时,就可以直接从缓存中加载,达到降低服务器负载、缩短加载时间的目的。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">响应体</h4>
+<p class="content-text">响应体,这可以说是最关键的部分了,响应的正文数据都存在于响应体中,例如请求网页时,响应体就是网页的HTML代码;请求一张图片时,响应体就是图片的二进制数据。我们做爬虫请求网页时,要解析的内容就是响应体,如图1-7所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_7.jpg" alt="图1-7 响应体内容" loading="lazy"><figcaption>图1-7 响应体内容</figcaption></figure>
+<p class="content-text">在浏览器开发者工具中单击 Preview,就可以看到网页的源代码,也就是响应体的内容,这是爬虫的解析目标。在做爬虫时,我们主要通过响应体得到网页的源代码、JSON数据等,然后从中提取相应内容。</p>
+<p class="content-text">本节我们了解了HTTP的基本原理,大概了解了访问网页时产生的请求和响应过程。读者需要好好掌握本节涉及的知识点,在后面分析网页请求时会经常用到这些内容。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. HTTP 2.0</h3>
+<p class="content-text">前面我们也提到了,HTTP协议从2015年起发布了2.0版本,相比HTTP 1.1 来说,HTTP 2.0 变得更快、更简单、更稳定。HTTP2.0在传输层做了很多优化,它的主要目标是通过支持完整的请求与响应复用来减少延迟,并通过有效压缩HTTP请求头字段的方式将协议开销降至最低,同时增加对请求优先级和服务器推送的支持,这些优化一笔勾销了HTTP 1.1为做传输优化想出的一系列“歪招”。</p>
+<p class="content-text">有读者这时候可能会问,为什么不叫HTTP 1.2而叫 HTTP 2.0呢?因为HTTP 2.0 内部实现了新的二进制分帧层,没法与之前HTTP1.x的服务器和客户端兼容,所以直接修改主版本号为2.0。</p>
+<p class="content-text">下面我们就来了解一下HTTP 2.0相比HTTP 1.1来说,做了哪些优化。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">二进制分帧层</h4>
+<p class="content-text">HTTP 2.0 所有性能增强的核心就在于这个新的二进制分帧层。在HTTP 1.x中,不管是请求(Request)还是响应(Response),它们都是用文本格式传输的,其头部(Headers)、实体(Body)之间也是用文本换行符分隔开的。HTTP2.0对其做了优化,将文本格式修改为了二进制格式,使得解析起来更加高效。同时将请求和响应数据分割为更小的帧,并采用二进制编码。</p>
+<p class="content-text">所以这里就引入了几个新的概念。</p>
+<p class="content-text list-like"><strong class="term-label">帧:</strong>只存在于HTTP 2.0中的概念,是数据通信的最小单位。比如一个请求被分为了请求头帧(Request Headers Frame)和请求体/数据帧(Request Data Frame)。</p>
+<p class="content-text list-like"><strong class="term-label">数据流:</strong>一个虚拟通道,可以承载双向的消息,每个流都有一个唯一的整数 ID来标识。</p>
+<p class="content-text list-like"><strong class="term-label">消息:</strong>与逻辑请求或响应消息对应的完整的一系列帧。</p>
+<p class="content-text">在HTTP 2.0中,同域名下的所有通信都可以在单个连接上完成,该连接可以承载任意数量的双向数据流。数据流是用于承载双向消息的,每条消息都是一条逻辑 HTTP消息(例如请求或响应),它可以包含一个或多个帧。</p>
+<p class="content-text">简而言之,HTTP2.0将HTTP协议通信分解为二进制编码帧的交换,这些帧对应着特定数据流中的消息,所有这些都在一个TCP连接内复用,这是HTTP 2.0 协议所有其他功能和性能优化的基础。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">多路复用</h4>
+<p class="content-text">在HTTP1.x中,如果客户端想发起多个并行请求以提升性能,则必须使用多个TCP连接，而且浏</p>
+<p class="content-text">览器为了控制资源,还会对单个域名有6~8个TCP连接请求的限制。但在HTTP2.0中,由于有了二进制分帧技术的加持,HTTP 2.0 不用再以 TCP连接的方式去实现多路并行了,客户端和服务器可以将HTTP消息分解为互不依赖的帧,然后交错发送,最后再在另一端把它们重新组装起来,达到以下效果。</p>
+<p class="content-text list-like">并行交错地发送多个请求,请求之间互不影响。</p>
+<p class="content-text list-like">并行交错地发送多个响应,响应之间互不干扰。</p>
+<p class="content-text list-like">使用一个连接并行发送多个请求和响应。</p>
+<p class="content-text list-like">不必再为绕过HTTP 1.x 限制而做很多工作。</p>
+<p class="content-text list-like">消除不必要的延迟和提高现有网络容量的利用率,从而减少页面加载时间。</p>
+<p class="content-text">这样一来,整个数据传输性能就有了极大提升。</p>
+<p class="content-text list-like">同域名只需要占用一个TCP连接,使用一个连接并行发送多个请求和响应,消除了多个TCP连接带来的延时和内存消耗。</p>
+<p class="content-text list-like">并行交错地发送多个请求和响应,而且它们之间互不影响。</p>
+<p class="content-text list-like">在HTTP2.0中,每个请求都可以带一个31位的优先值,0表示最高优先级,数值越大优先级越低。有了这个优先值,客户端和服务器就可以在处理不同的流时采取不同的策略了,以最优的方式发送流、消息和帧。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">流控制</h4>
+<p class="content-text">流控制是一种阻止发送方向接收方发送大量数据的机制,以免超出后者的需求或处理能力。可以理解为,接收方太繁忙了,来不及处理收到的消息了,但是发送方还在一直大量发送消息,这样就会出现一些问题。比如,客户端请求了一个具有较高优先级的大型视频流,但是用户已经暂停观看视频了,客户端现在希望暂停或限制从服务器的传输,以免提取和缓冲不必要的数据。再比如,一个代理服务器可能具有较快的下游连接和较慢的上游连接,并且也希望调节下游连接传输数据的速度以匹配上游连接的速度,从而控制其资源利用率等。</p>
+<p class="content-text">HTTP是基于TCP实现的,虽然TCP原生有流控制机制,但是由于HTTP2.0数据流在一个TCP连接内复用,TCP 流控制既不够精细,也无法提供必要的应用级API来调节各个数据流的传输。</p>
+<p class="content-text">为了解决这一问题,HTTP2.0提供了一组简单的构建块,这些构建块允许客户端和服务器实现它们自己的数据流和连接级流控制。</p>
+<p class="content-text list-like">流控制具有方向性。每个接收方都可以根据自身需要选择为每个数据流和整个连接设置任意的窗口大小。</p>
+<p class="content-text list-like">流控制的窗口大小是动态调整的。每个接收方都可以公布其初始连接和数据流流控制窗口(以字节为单位),当发送方发出 DATA 帧时窗口减小,在接收方发出 WINDOW_UPDATE 帧时窗口增大。</p>
+<p class="content-text list-like">流控制无法停用。建立HTTP2.0连接后,客户端将与服务器交换 SETTINGS 帧,这会在两个方向上设置流控制窗口。流控制窗口的默认值设为65535字节,但是接收方可以设置一个较大的最大窗口大小(23-1字节),并在接收到任意数据时通过发送 WINDOW_UPDATE 帧来维持这一大小。</p>
+<p class="content-text list-like">由此可见,HTTP 2.0 提供了简单的构建块,实现了自定义策略来灵活地调节资源使用和分配逻辑,同时提升了网页应用的实际性能和感知性能。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">服务端推送</h4>
+<p class="content-text">HTTP 2.0 新增的另一个强大的功能是:服务器可以对一个客户端请求发送多个响应。换句话说,除了对最初请求的响应外,服务器还可以向客户端推送额外资源,而无须客户端明确地请求。</p>
+<p class="content-text">如果某些资源客户端是一定会请求的,这时就可以采取服务端推送的技术,在客户端发起一次请求后,提前给客户端推送必要的资源,这样就可以减少一点延迟时间。如图1-8所示,服务端接收到</p>
+<p class="content-text">HTML 相关的请求时可以主动把JS和CSS文件推送给客户端,而不需要等到客户端解析HTML时发送这些请求。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_8.jpg" alt="图1-8 服务端推送" loading="lazy"><figcaption>图1-8 服务端推送</figcaption></figure>
+<p class="content-text">服务端可以主动推送,客户端也有权利选择是否接收。如果服务端推送的资源已经被浏览器缓存过,浏览器可以通过发送RST_STREAM 帧来拒收。</p>
+<p class="content-text">另外,主动推送也遵守同源策略,即服务器不能随便将第三方资源推送给客户端,而必须是经过服务器和客户端双方确认才行,这样也能保证一定的安全性。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">HTTP 2.0 发展现状</h4>
+<p class="content-text">HTTP 2.0的普及是一件任重而道远的事情,一些主流的网站现在已经支持HTTP 2.0了,主流浏览器现在都已经实现了对HTTP2.0的支持,但总体上,目前大部分网站依然以HTTP1.1为主。</p>
+<p class="content-text">另外,一些编程语言的库还没有完全支持HTTP2.0,比如对于Python来说,hyper、httpx 等库已经支持了 HTTP2.0,但广泛使用的 requests 库依然只支持HTTP 1.1。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 总结</h3>
+<p class="content-text">本节介绍了关于HTTP的一些基础知识,内容不少,需要好好掌握,这些知识对于后面我们编写和理解网络爬虫有非常大的帮助。</p>
+<p class="content-text">本节的内容多数为概念介绍,部分内容参考如下资料。</p>
+<p class="content-text list-like">《HTTP 权威指南》一书。</p>
+<p class="content-text list-like">维基百科上 HTTP相关的内容。</p>
+<p class="content-text list-like">百度百科上 HTTP相关的内容。</p>
+<p class="content-text list-like">MDN Web Docs 上关于HTTP的介绍。</p>
+<p class="content-text list-like">Google 开发者文档中关于 HTTP2的介绍。</p>
+<p class="content-text list-like">Fun Debug 平台上的博客文章“一文读懂 HTTP/2及HTTP/3特性”。</p>
+<p class="content-text list-like">知乎上的文章“一文读懂 HTTP/2 特性”。</p>
+</section>
+<div class="section-heading" id="section-1"><h2>1.2 Web 网页基础</h2></div>
+<p class="content-text">用浏览器访问不同的网站时,呈现的页面各不相同,你有没有想过为何会这样呢?本节我们就来了解一下网页的组成、结构和节点等内容。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 网页的组成</h3>
+<p class="content-text">网页可以分为三大部分——HTML、CSS 和 JavaScript。如果把网页比作一个人,那么 HTML 相当于骨架、JavaScript 相当于肌肉、CSS 相当于皮肤,这三者结合起来才能形成一个完善的网页。下面我们分别介绍一下这三部分的功能。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">HTML</h4>
+<p class="content-text">HTML (Hypertext Markup Language)中文翻译为超文本标记语言,但我们通常不会用中文翻译来称呼它,一般就叫HTML。</p>
+<p class="content-text">HTML 是一种用来描述网页的语言。网页包括文字、按钮、图片和视频等各种复杂的元素,其基础架构就是HTML。网页通过不同类型的标签来表示不同类型的元素,如用 img 标签表示图片、用video 标签表示视频、用p标签表示段落,这些标签之间的布局常由布局标签 div 嵌套组合而成,各种标签通过不同的排列和嵌套形成最终的网页框架。</p>
+<p class="content-text">那HTML长什么样子呢?我们可以随意打开一个网站,比如淘宝网首页,然后单击鼠标右键选择“检查元素”菜单或者按F12,即可打开浏览器开发者工具,接着切换到 Elements面板,这时候呈现的就是淘宝网首页对应的HTML,它包含了一系列标签,浏览器解析这些标签后,便在网页中将它们渲染成一个个节点,这便形成了我们平常看到的网页。比如在图1-9中可以看到一个输入框就对应一个input 标签,可以用于输入文字。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-09.jpg" alt="淘宝网网页源码" loading="lazy"><figcaption>淘宝网网页源码</figcaption></figure>
+<p class="content-text">不同标签对应不同的功能,这些标签定义的节点相互嵌套和组合形成了复杂的层次关系,就形成了网页的架构。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">CSS</h4>
+<p class="content-text">HTML 定义了网页的架构,但是只有HTML 的页面布局并不美观,有可能只是节点元素的简单排列。为了让网页更好看一些,可以借助CSS来实现。</p>
+<p class="content-text">CSS,全称叫作 Cascading Style Sheets,即层叠样式表。“层叠”是指当 HTML 中引用了多个样式文件,并且样式发生冲突时,浏览器能够按照层叠顺序处理这些样式。“样式”指的是网页中的文字大小、颜色、元素间距、排列等格式。CSS是目前唯一的网页页面排版样式标准,有了它的帮助,页面才会变得更为美观。</p>
+<p class="content-text">在图1-9中,Styles 面板呈现的就是一系列CSS样式,我们摘抄一段:</p>
+<pre class="code-block"><code>#head_wrapper.s-ps-islite .s-p-top {
+position: absolute;
+bottom: 40px;
+width: 100%;
+height: 181px;
+}</code></pre>
+<p class="content-text">这就是一个 CSS样式。大括号前面是一个 CSS 选择器,此选择器的意思是首先选中 id为head_wrapper 且 class为s-ps-islite 的节点,然后选中此节点内部的class为s-p-top 的节点。大括号的内部就是一条条样式规则,position 指定了这个节点的布局方式为绝对布局,bottom指定节点的下边距为40像素,width指定了宽度为100%,表示占满父节点,height 则指定了节点的高度。也就是说,我们将位置、宽度、高度等样式配置统一写成这样的形式,然后用大括号括起来,接着在开头加上CSS 选择器,这就代表这个样式对CSS选择器选中的节点生效,节点就会根据此样式来展示了。</p>
+<p class="content-text">在网页中,一般会统一定义整个网页的样式规则,并写入CSS文件中(其后缀为css)。在HTML中,只需要用link 标签即可引入写好的CSS文件,这样整个页面就会变得美观、优雅。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">JavaScript</h4>
+<p class="content-text">JavaScript 简称JS,是一种脚本语言。HTML和CSS组合使用,提供给用户的只是一种静态信息,缺乏交互性。我们在网页里还可能会看到一些交互和动画效果,如下载进度条、提示框、轮播图等,这通常就是 JavaScript 的功劳。JavaScript的出现使得用户与信息之间不只是一种浏览与显示的关系,还实现了一种实时、动态、交互的页面功能。</p>
+<p class="content-text">JavaScript 通常也是以单独的文件形式加载的,后缀为js,在HTML中通过 script 标签即可引入,例如:</p>
+<pre class="code-block"><code>&lt;script src=&quot;jquery-2.1.0.js&quot;&gt;&lt;/script&gt;</code></pre>
+<p class="content-text">综上所述,HTML 定义了网页的内容和结构,CSS 描述了网页的样式,JavaScript 定义了网页的行为。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 网页的结构</h3>
+<p class="content-text">我们首先用例子来感受一下HTML的基本结构。新建一个文本文件,名称叫作 test.html,内容如下:</p>
+<pre class="code-block"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;title&gt;This is a Demo&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;container&quot;&gt;
+&lt;div class=&quot;wrapper&quot;&gt;
+&lt;h2 class=&quot;title&quot;&gt;Hello World&lt;/h2&gt;
+&lt;p class=&quot;text&quot;&gt;Hello, this is a paragraph.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p class="content-text">这就是一个最简单的HTML实例。开头用 DOCTYPE 定义了文档类型,其次最外层是html标签,代码最后有对应的结束标签表示闭合。html标签内部是 head 标签和 body标签,分别代表网页头和网页体,它们同样需要结束标签。head 标签内定义了一些对页面的配置和引用,上述代码中的&lt;meta charset=&quot;UTF-8&quot;&gt;指定了网页的编码为UTF-8。</p>
+<p class="content-text">title 标签则定义了网页的标题,标题会显示在网页的选项卡中,不会显示在正文中。body 标签</p>
+<p class="content-text">内的内容是要在网页正文中显示的。div标签定义了网页中的区块,此处区块的id 是 container, id是一个非常常用的属性,其内容在网页中是唯一的,通过它可以获取这个区块。然后在此区块内又有一个div标签,它的class为wrapper,这也是一个非常常用的属性,经常与CSS配合使用来设定样式。然后此区块内部又有一个h2 标签,代表一个二级标题;另外还有一个p标签,代表一个段落。若想在网页中呈现某些内容,直接把内容写入h2 标签和p标签中间即可,这两者也有各自的class属性。</p>
+<p class="content-text">将代码保存后,双击该文件在浏览器中打开,可以看到如图1-10所示的内容。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_10.jpg" alt="图1-10 运行结果" loading="lazy"><figcaption>图1-10 运行结果</figcaption></figure>
+<p class="content-text">可以看到,选项卡上显示 This is a Demo 字样,这是我们在 head 标签中的title 里定义的文字。网页正文则是由 body 标签内部定义的各个元素生成的,可以看到这里显示了二级标题和段落。</p>
+<p class="content-text">这个实例便是网页的一般结构。一个网页的标准形式是html标签内嵌套 head 标签和 body 标签,head 标签内定义网页的配置和引用,body 标签内定义网页的正文。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 节点树及节点间的关系</h3>
+<p class="content-text">在HTML中,所有标签定义的内容都是节点,这些节点构成一个HTML节点树,也叫HTML DOM树。</p>
+<p class="content-text">先来看一下什么是DOM。DOM是W3C(万维网联盟)的标准,英文全称是Document Object Model,即文档对象模型。它定义了访问HTML 和XML文档的标准。根据W3C的HTML DOM 标准, HTML 文档中的所有内容都是节点。</p>
+<p class="content-text">■整个网站文档是一个文档节点。</p>
+<p class="content-text list-like">每个html标签对应一个根节点,即上例中的html标签,它属于一个根节点。</p>
+<p class="content-text list-like">节点内的文本是文本节点,比如a节点代表一个超链接,它内部的文本也被认为是一个文本节点。</p>
+<p class="content-text list-like">每个节点的属性是属性节点,比如a节点有一个href属性,它就是一个属性节点。</p>
+<p class="content-text list-like">注释是注释节点,在HTML中有特殊的语法会被解析为注释,它也会对应一个节点。</p>
+<p class="content-text">因此,HTML DOM将HTML 文档视作树结构,这种结构被称为节点树,如图1-11所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_11.jpg" alt="图1-11 节点树" loading="lazy"><figcaption>图1-11 节点树</figcaption></figure>
+<p class="content-text">通过 HTML DOM,节点树中的所有节点均可通过 JavaScript 访问,所有 HTML 节点元素均可被修改、创建或删除。</p>
+<p class="content-text">节点树中的节点彼此拥有层级关系。我们常用父(parent)、子(child)和兄弟(sibling)等术语描述这些关系。父节点拥有子节点,同级的子节点被称为兄弟节点。</p>
+<p class="content-text">在节点树中,顶端节点称为根(root)。除了根节点之外,每个节点都有父节点,同时可拥有任意数量的子节点或兄弟节点。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_12.jpg" alt="图1-12 节点树及树中节点间的关系" loading="lazy"><figcaption>图1-12 节点树及树中节点间的关系</figcaption></figure>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 选择器</h3>
+<p class="content-text">我们知道,网页由一个个节点组成,CSS 选择器会为不同的节点设置不同的样式规则,那么怎样定位节点呢?</p>
+<p class="content-text">在 CSS 中,使用 CSS 选择器来定位节点。例如,“网页的结构”一节的例子中 div 节点的 id 为container,那么这个节点就可以表示为 #container,其中以 # 开头代表选择 id,其后紧跟的是 id 的名称。如果想选择 class 为 wrapper 的节点,则可以使用 .wrapper,这里以 . 开头代表选择 class,其后紧跟的是 class 的名称。除了这两种,还有一种选择方式,就是根据标签名,例如想选择二级标题,直接用 h2 即可。这些是最常用的三种方式,分别是根据 id、class、标签名选择,请牢记它们的写法。</p>
+<p class="content-text">另外,CSS 选择器还支持嵌套选择,利用空格把各个选择器分隔开便可以代表嵌套关系,如</p>
+<pre class="code-block"><code>#container .wrapper p 代表先选择 id 为 container 的节点,然后选择其内部 class 为 wrapper 的</code></pre>
+<p class="content-text">节点,再进一步选择该节点内部的 p 节点。要是各个选择器之间不加空格,则代表并列关系,如div#container .wrapper p.text 代表先选择 id 为 container 的 div 节点,然后选择其内部 class 为wrapper 的节点,再进一步选择这个节点内部的 class 为 text 的 p 节点。这就是 CSS 选择器,其筛选功能还是非常强大的。</p>
+<p class="content-text">我们可以在浏览器中测试 CSS 选择器的效果,依然还是打开浏览器的开发者工具,然后按快捷键Ctrl+F (如果你用的是 Mac,则是 Command+F),这时候左下角便会出现一个搜索框。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_13.jpg" alt="图1-13 搜索节点" loading="lazy"><figcaption>图1-13 搜索节点</figcaption></figure>
+<p class="content-text">这时候我们输入.title就是选中了class为title的节点,该节点会被选中并在网页中高亮显示,如图1-14所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_14.jpg" alt="图1-14 节点搜索结果" loading="lazy"><figcaption>图1-14 节点搜索结果</figcaption></figure>
+<p class="content-text">输入 div#container .wrapper p.text 就逐层选中了 id为 container 的节点中 class为wrapper 的节点中的p节点,如图1-15所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_15.jpg" alt="图1-15 节点搜索结果" loading="lazy"><figcaption>图1-15 节点搜索结果</figcaption></figure>
+<p class="content-text">CSS 选择器还有一些其他语法规则,具体如表1-5所示。</p>
+<p class="table-caption">表1-5 CSS 选择器的其他语法规则</p>
+<table class="content-table"><thead><tr><th>选择器</th><th>例子</th><th>例子描述</th></tr></thead><tbody><tr><td>.class</td><td>.intro</td><td>选择 class=&quot;intro&quot;的所有节点</td></tr>
+<tr><td>#id</td><td>#firstname</td><td>选择 id=&quot;firstname&quot;的所有节点</td></tr>
+<tr><td>*</td><td>*</td><td>选择所有节点</td></tr>
+<tr><td>element</td><td>p</td><td>选择所有p节点</td></tr></tbody></table>
+<p class="content-text">(续)</p>
+<table class="content-table"><thead><tr><th>选择器</th><th>例子</th><th>例子描述</th></tr></thead><tbody><tr><td>element,element</td><td>div,p</td><td>选择所有 div 节点和所有 p 节点</td></tr>
+<tr><td>element element</td><td>div p</td><td>选择 div 节点内部的所有 p 节点</td></tr>
+<tr><td>element&gt;element</td><td>div&gt;p</td><td>选择父节点为 div 节点的所有 p 节点</td></tr>
+<tr><td>element+element</td><td>div+p</td><td>选择紧接在 div 节点之后的所有 p 节点</td></tr>
+<tr><td>[attribute]</td><td>[target]</td><td>选择带有 target 属性的所有节点</td></tr>
+<tr><td>[attribute=value]</td><td>[target=blank]</td><td>选择 target=&quot;blank&quot; 的所有节点</td></tr>
+<tr><td>[attribute~=value]</td><td>[title~=flower]</td><td>选择 title 属性包含单词 flower 的所有节点</td></tr>
+<tr><td>:link</td><td>a:link</td><td>选择所有未被访问的链接</td></tr>
+<tr><td>:visited</td><td>a:visited</td><td>选择所有已被访问的链接</td></tr>
+<tr><td>:active</td><td>a:active</td><td>选择活动链接</td></tr>
+<tr><td>:hover</td><td>a:hover</td><td>选择鼠标指针位于其上的链接</td></tr>
+<tr><td>:focus</td><td>input:focus</td><td>选择获得焦点的 input 节点</td></tr>
+<tr><td>::first-letter</td><td>p::first-letter</td><td>选择每个 p 节点的首字母</td></tr>
+<tr><td>::first-line</td><td>p::first-line</td><td>选择每个 p 节点的首行</td></tr>
+<tr><td>:first-child</td><td>p:first-child</td><td>选择属于父节点的第一个子节点的所有 p 节点</td></tr>
+<tr><td>::before</td><td>p::before</td><td>在每个 p 节点的内容之前插入内容</td></tr>
+<tr><td>::after</td><td>p::after</td><td>在每个 p 节点的内容之后插入内容</td></tr>
+<tr><td>:lang(language)</td><td>p:lang(it)</td><td>选择带有以 it 开头的 lang 属性值的所有 p 节点</td></tr>
+<tr><td>element1~element2</td><td>p~ul</td><td>选择前面有 p 节点的所有 ul 节点</td></tr>
+<tr><td>[attribute^=value]</td><td>a[src^=&quot;https&quot;]</td><td>选择 src 属性值以 https 开头的所有 a 节点</td></tr>
+<tr><td>[attribute$=value]</td><td>a[src$=&quot;.pdf&quot;]</td><td>选择 src 属性值以 .pdf 结尾的所有 a 节点</td></tr>
+<tr><td>[attribute*=value]</td><td>a[src*=&quot;abc&quot;]</td><td>选择 src 属性值中包含 abc 子串的所有 a 节点</td></tr>
+<tr><td>:first-of-type</td><td>p:first-of-type</td><td>选择属于对应父节点的首个 p 节点的所有 p 节点</td></tr>
+<tr><td>:last-of-type</td><td>p:last-of-type</td><td>选择属于对应父节点的最后一个 p 节点的所有 p 节点</td></tr>
+<tr><td>:only-of-type</td><td>p:only-of-type</td><td>选择属于对应父节点的唯一 p 节点的所有 p 节点</td></tr>
+<tr><td>:only-child</td><td>p:only-child</td><td>选择属于对应父节点的唯一子节点的所有 p 节点</td></tr>
+<tr><td>:nth-child(n)</td><td>p:nth-child(2)</td><td>选择属于对应父节点的第二个子节点的所有 p 节点</td></tr>
+<tr><td>:nth-last-child(n)</td><td>p:nth-last-child(2)</td><td>同上, 不过是从最后一个子节点开始计数</td></tr>
+<tr><td>:nth-of-type(n)</td><td>p:nth-of-type(2)</td><td>选择属于对应父节点的第二个 p 节点的所有节点</td></tr>
+<tr><td>:nth-last-of-type(n)</td><td>p:nth-last-of-type(2)</td><td>同上, 不过是从最后一个子节点开始计数</td></tr>
+<tr><td>:last-child</td><td>p:last-child</td><td>选择属于对应父节点的最后一个子节点的所有节点</td></tr>
+<tr><td>:root</td><td>:root</td><td>选择文档的根节点</td></tr>
+<tr><td>:empty</td><td>p:empty</td><td>选择没有子节点的所有 p 节点(包括文本节点)</td></tr>
+<tr><td>:target</td><td>#news:target</td><td>选择当前活动的 #news 节点</td></tr>
+<tr><td>:enabled</td><td>input:enabled</td><td>选择每个启用的 input 节点</td></tr>
+<tr><td>:disabled</td><td>input:disabled</td><td>选择每个禁用的 input 节点</td></tr>
+<tr><td>:checked</td><td>input:checked</td><td>选择每个被选中的 input 节点</td></tr>
+<tr><td>:not(selector)</td><td>:not</td><td>选择非 p 节点的所有节点</td></tr>
+<tr><td>::selection</td><td>::selection</td><td>选择被用户选取的节点部分</td></tr></tbody></table>
+<p class="content-text">另外,还有一种比较常用的选择器 XPath,这种选择方式后面会详细介绍。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 总结</h3>
+<p class="content-text">本节介绍了网页的结构和节点间的关系,了解了这些内容,我们才能有更加清晰的思路去解析和提取网页内容。</p>
+<p class="content-text">本节部分内容参考如下资料。</p>
+<p class="content-text">MDN Web Docs 上关于 HTTP、JavaScript 的介绍。</p>
+<p class="content-text">W3School 上关于 HTML DOM 节点、CSS 选择器的介绍。</p>
+<p class="content-text list-like">维基百科上HTTP相关的介绍。</p>
+</section>
+<div class="section-heading" id="section-2"><h2>1.3 爬虫的基本原理</h2></div>
+<p class="content-text">若是把互联网比作一张大网,爬虫(即网络爬虫)便是在网上爬行的蜘蛛。把网中的节点比作一个个网页,那么蜘蛛爬到一个节点处就相当于爬虫访问了一个页面,获取了其信息。可以把网页与网页之间的链接关系比作节点间的连线,蜘蛛通过一个节点后,顺着节点连线继续爬行,到达下一个节点,意味着爬虫可以通过网页之间的链接关系继续获取后续的网页,当整个网站涉及的页面全部被爬虫访问到后,网站的数据就被抓取下来了。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 爬虫概述</h3>
+<p class="content-text">简单点讲,爬虫就是获取网页并提取和保存信息的自动化程序,下面概要介绍一下。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">获取网页</h4>
+<p class="content-text">爬虫的工作首先是获取网页,这里就是获取网页的源代码。源代码里包含网页的部分有用信息,所以只要获取源代码,就可以从中提取想要的信息了。</p>
+<p class="content-text">1.1 节讲了请求和响应的概念,向网站的服务器发送一个请求,服务器返回的响应体便是网页源代码。所以最关键的部分是构造一个请求并发送给服务器,然后接收到响应并对其进行解析,这个流程如何实现呢?总不能手动截取网页源码吧?不用担心,Python 提供了许多库,可以帮助我们实现这个流程,如urllib、requests等,我们可以用这些库完成 HTTP请求操作。除此之外,请求和响应都可以用类库提供的数据结构来表示,因此得到响应之后只需要解析数据结构中的body部分,即可得到网页的源代码,这样我们便可以用程序来实现获取网页的过程了。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">提取信息</h4>
+<p class="content-text">获取网页的源代码后,接下来就是分析源代码,从中提取我们想要的数据。首先,最通用的提取方法是采用正则表达式,这是一个万能的方法,注意构造正则表达式的过程比较复杂且容易出错。</p>
+<p class="content-text">另外,由于网页结构具有一定的规则,所以还有一些库是根据网页节点属性、CSS 选择器或 XPath来提取网页信息的,如Beautiful Soup、pyquery、lxml等。使用这些库,可以高效地从源代码中提取网页信息,如节点的属性、文本值等。</p>
+<p class="content-text">提取信息是爬虫非常重要的一个工作,它可以使杂乱的数据变得条理清晰,以便后续处理和分析数据。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">保存数据</h4>
+<p class="content-text">提取信息后,我们一般会将提取到的数据保存到某处以便后续使用。保存数据的形式多种多样,可以简单保存为TXT文本或JSON文本,也可以保存到数据库,如 MySQL 和 MongoDB等,还可保</p>
+<p class="content-text">存至远程服务器,如借助SFTP进行操作等。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">自动化程序</h4>
+<p class="content-text">自动化程序的意思是爬虫可以代替人来完成上述操作。我们当然可以手动提取网页中的信息,但是当量特别大或者想快速获取大量数据的时候,肯定还是借助程序快。爬虫就是代替我们完成爬取工作的自动化程序,它可以在爬取过程中进行各种异常处理、错误重试等操作,确保爬取持续高效地运行。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 能爬怎样的数据</h3>
+<p class="content-text">网页中存在各种各样的信息,最常见的便是常规网页,这些网页对应着HTML代码,而最常抓取的便是HTML 源代码。</p>
+<p class="content-text">另外,可能有些网页返回的不是HTML代码,而是一个JSON字符串(其中API接口大多采用这样的形式),这种格式的数据方便传输和解析。爬虫同样可以抓取这些数据,而且数据提取会更加方便。</p>
+<p class="content-text">网页中还包含各种二进制数据,如图片、视频和音频等。利用爬虫,我们可以将这些二进制数据抓取下来,然后保存成对应的文件名。</p>
+<p class="content-text">除了上述数据,网页中还有各种扩展名文件,如CSS、JavaScript 和配置文件等。这些文件其实最普通,只要在浏览器里面可以访问到,就可以抓取下来。</p>
+<p class="content-text">上述内容其实都有各自对应的URL, URL 基于HTTP或HTTPS协议,只要是这种数据,爬虫都可以抓取。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. JavaScript 渲染的页面</h3>
+<p class="content-text">有时候,我们在用 urllib 或 requests 抓取网页时,得到的源代码和在浏览器中实际看到的不一样。</p>
+<p class="content-text">这是一个非常常见的问题。现在有越来越多的网页是采用Ajax、前端模块化工具构建的,可能整个网页都是由 JavaScript 渲染出来的,也就是说原始的HTML代码就是一个空壳,例如:</p>
+<pre class="code-block"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;title&gt;This is a Demo&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;container&quot;&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;script src=&quot;app.js&quot;&gt;&lt;/script&gt;
+&lt;/html&gt;</code></pre>
+<p class="content-text">这个实例中,body 节点里面只有一个id 为 container 的节点,需要注意在 body 节点后引入了app.js,它负责整个网站的渲染。</p>
+<p class="content-text">在浏览器中打开这个页面时,首先会加载这个HTML内容,接着浏览器会发现其中引入了一个app.js文件,便去请求这个文件。获取该文件后,执行其中的JavaScript代码,JavaScript 会改变 HTML中的节点,向其中添加内容,最后得到完整的页面。</p>
+<p class="content-text">在用 urllib 或 requests 等库请求当前页面时,我们得到的只是HTML代码,它不会继续加载JavaScript 文件,我们也就无法看到完整的页面内容。</p>
+<p class="content-text">这也解释了为什么有时我们得到的源代码和在浏览器中看到的不一样。</p>
+<p class="content-text">对于这样的情况,我们可以分析源代码后台Ajax接口,也可使用Selenium、Splash、Pyppeteer、</p>
+<p class="content-text">Playwright 这样的库来模拟 JavaScript 渲染。</p>
+<p class="content-text">后面,我会详细介绍如何采集 JavaScript 渲染出来的网页。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 总结</h3>
+<p class="content-text">本节介绍了爬虫的一些基本原理,熟知这些原理可以使我们在后面编写爬虫时更加得心应手。</p>
+</section>
+<div class="section-heading" id="section-3"><h2>1.4 Session 和 Cookie</h2></div>
+<p class="content-text">在浏览网站的过程中,我们经常会遇到需要登录的情况,有些页面只有登录之后才可以访问。在登录之后可以连续访问很多次网站,但是有时候过一段时间就需要重新登录。还有一些网站,在打开浏览器时就自动登录了,而且在很长时间内都不会失效,这又是什么情况?其实这里面涉及 Session 和Cookie 的相关知识,本节就来揭开它们的神秘面纱。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 静态网页和动态网页</h3>
+<p class="content-text">在开始揭秘之前,我们需要先了解一下静态网页和动态网页的概念。还是使用“网页的结构”一节的实例代码,内容如下:</p>
+<pre class="code-block"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;title&gt;This is a Demo&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;container&quot;&gt;
+&lt;div class=&quot;wrapper&quot;&gt;
+&lt;h2 class=&quot;title&quot;&gt;Hello World&lt;/h2&gt;
+&lt;p class=&quot;text&quot;&gt;Hello, this is a paragraph.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p class="content-text">这是最基本的HTML代码,我们将其保存为一个.html文件,并把这个文件放在某台具有固定公网IP的主机上,在这台主机上安装 Apache 或 Nginx等服务器,然后该主机就可以作为服务器了,其他人可以通过访问服务器看到那个实例页面,这就搭建了一个最简单的网站。</p>
+<p class="content-text">这种网页的内容是由 HTML代码编写的,文字、图片等内容均通过写好的HTML代码来指定,这种页面叫作静态网页。静态网页加载速度快、编写简单,同时也存在很大的缺陷,如可维护性差、不能根据 URL 灵活多变地显示内容等。如果我们想给静态网页的URL传入一个name参数,让其在网页中显示出来,是无法做不到的。</p>
+<p class="content-text">于是动态网页应运而生,它可以动态解析 URL 中参数的变化,关联数据库并动态呈现不同的页面内容,非常灵活多变。我们现在看到的网站几乎都是动态网站,它们不再是一个简单的HTML页面,可能是由JSP、PHP、Python 等语言编写的,功能要比静态网页强大、丰富太多。此外,动态网站还可以实现用户登录和注册的功能。</p>
+<p class="content-text">回到1.4节开头提到的问题,很多页面是需要登录之后才可以查看的。按照一般的逻辑,输入用户名和密码登录网站,肯定是拿到了一种类似凭证的东西,有了这个凭证,才能保持登录状态,访问那些登录之后才能看得到的页面。</p>
+<p class="content-text">这种神秘的凭证到底是什么呢?其实它就是 Session 和 Cookie 共同产生的结果,下面我们来一探究竟。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 无状态 HTTP</h3>
+<p class="content-text">在了解 Session 和Cookie 之前,我们还需要了解HTTP自 之前,我们还需要了解HTTP的一个特点,叫作无状态。</p>
+<p class="content-text">HTTP 的无状态是指 HTTP 协议对事务处理是没有记忆能力的,或者说服务器并不知道客户端处于什么状态。客户端向服务器发送请求后,服务器解析此请求,然后返回对应的响应,服务器负责完成这个过程,而且这个过程是完全独立的,服务器不会记录前后状态的变化,也就是缺少状态记录。</p>
+<p class="content-text">这意味着之后如果需要处理前面的信息,客户端就必须重传,导致需要额外传递一些重复请求,才能获取后续响应,这种效果显然不是我们不想要的。为了保持前后状态,肯定不能让客户端将前面的请求全部重传一次,这太浪费资源了,对于需要用户登录的页面来说,更是棘手。</p>
+<p class="content-text">这时,两种用于保持HTTP连接状态的技术出现了,分别是 Session 和 Cookie。Session 在服务端,也就是网站的服务器,用来保存用户的 Session 信息;Cookie 在客户端,也可以理解为在浏览器端,有了 Cookie,浏览器在下次访问相同网页时就会自动附带上它,并发送给服务器,服务器通过识别Cookie 鉴定出是哪个用户在访问,然后判断此用户是否处于登录状态,并返回对应的响应。</p>
+<p class="content-text">可以这样理解,Cookie 里保存着登录的凭证,客户端在下次请求时只需要将其携带上,就不必重新输入用户名、密码等信息重新登录了。</p>
+<p class="content-text">因此在爬虫中,处理需要先登录才能访问的页面时,我们一般会直接将登录成功后获取的Cookie放在请求头里面直接请求,而不重新模拟登录。</p>
+<p class="content-text">好了,了解 Session 和 Cookie的概念之后,再来详细剖析它们的原理。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. Session</h3>
+<p class="content-text">Session,中文称之为会话,其本义是指有始有终的一系列动作、消息。例如打电话时,从拿起电话拨号到挂断电话之间的一系列过程就可以称为一个 Session。</p>
+<p class="content-text">而在Web中,Session 对象用来存储特定用户 Session 所需的属性及配置信息。这样,当用户在应用程序的页面之间跳转时,存储在 Session 对象中的变量将不会丢失,会在整个用户 Session 中一直存在下去。当用户请求来自应用程序的页面时,如果该用户还没有 Session,那么 Web 服务器将自动创建一个 Session 对象。当Session 过期或被放弃后,服务器将终止该 Session</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. Cookie</h3>
+<p class="content-text">Cookie,指某些网站为了鉴别用户身份、进行 Session 跟踪而存储在用户本地终端上的数据。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">Session 维持</h4>
+<p class="content-text">那么,怎样利用 Cookie 保持状态呢?在客户端第一次请求服务器时,服务器会返回一个响应头中带有 Set-Cookie 字段的响应给客户端,这个字段用来标记用户。客户端浏览器会把 Cookie 保存起来,当下一次请求相同的网站时,把保存的Cookie 放到请求头中一起提交给服务器。Cookie 中携带着 Session ID 相关信息,服务器通过检查 Cookie 即可找到对应的Session,继而通过判断 Session 辨认用户状态。如果 Session 当前是有效的,就证明用户处于登录状态,此时服务器返回登录之后才可以查看的网页内容,浏览器再进行解析便可以看到。</p>
+<p class="content-text">反之,如果传给服务器的Cookie 是无效的,或者Session 已经过期了,客户端将不能继续访问页面,此时可能会收到错误的响应或者跳转到登录页面重新登录。</p>
+<p class="content-text">Cookie 和 Session需要配合,一个在客户端,一个在服务端,二者共同协作,就实现了登录控制。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">属性结构</h4>
+<p class="content-text">接下来,我们看看 Cookie 都包含哪些内容。这里以知乎为例,在浏览器开发者工具中打开</p>
+<p class="content-text">Application 选项卡,其中左侧有一部分叫 Storage, Storage 的最后一项即为 Cookies,将其点开,如图1-16所示。</p>
+<figure class="inline-figure"><img src="figures/ch01/fig-1_16.jpg" alt="图1-16 Cookie 列表" loading="lazy"><figcaption>图1-16 Cookie 列表</figcaption></figure>
+<p class="content-text">可以看到,列表里有很多条目,其中每个条目都可以称为一个Cookie条目。Cookie 具有如下几个属性。</p>
+<p class="content-text list-like"><strong class="term-label">Name:</strong>Cookie的名称。Cookie一旦创建,名称便不可更改。</p>
+<p class="content-text list-like"><strong class="term-label">Value:</strong>Cookie 的值。如果值为Unicode字符,则需要为字符编码。如果值为二进制数据,则需要使用 BASE64编码。</p>
+<p class="content-text list-like"><strong class="term-label">Domain:</strong>指定可以访问该 Cookie 的域名。例如设置 Domain 为.zhihu.com,表示所有以zhihu.com 结尾的域名都可以访问该Cookie。</p>
+<p class="content-text list-like"><strong class="term-label">Path:</strong>Cookie 的使用路径。如果设置为/path/,则只有路径为/path/的页面才可以访问该Cookie。如果设置为/,则本域名下的所有页面都可以访问该 Cookie。</p>
+<p class="content-text list-like"><strong class="term-label">Max-Age:</strong>Cookie失效的时间,单位为秒,常和Expires一起使用,通过此属性可以计算出 Cookie的有效时间。Max-Age 如果为正数,则表示 Cookie 在Max-Age 秒之后失效;如果为负数,则Cookie 在关闭浏览器时失效,而且浏览器不会以任何形式保存该 Cookie。</p>
+<p class="content-text list-like"><strong class="term-label">Size字段:</strong>Cookie的大小。</p>
+<p class="content-text list-like"><strong class="term-label">HTTP字段:</strong>Cookie的httponly属性。若此属性为true,则只有在HTTP Headers 中才会带有此 Cookie 的信息,而不能通过 document.cookie 来访问此 Cookie。</p>
+<p class="content-text list-like"><strong class="term-label">Secure:</strong>是否仅允许使用安全协议传输Cookie。安全协议有HTTPS和SSL等,使用这些协议在网络上传输数据之前会先将数据加密。其默认值为false。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">会话 Cookie 和持久 Cookie</h4>
+<p class="content-text">从表面意思来看,会话 Cookie 就是把 Cookie 放在浏览器内存里,关闭浏览器之后,Cookie 即失效;持久 Cookie 则会把 Cookie 保存到客户端的硬盘中,下次还可以继续使用,用于长久保持用户的登录状态。</p>
+<p class="content-text">严格来说,其实没有会话 Cookie 和持久 Cookie之分,只是Max-Age 或 Expires 字段决定了 Cookie失效的时间。</p>
+<p class="content-text">因此,一些持久化登录的网站实际上就是把 Cookie 的有效时间和 Session 有效期设置得比较长,</p>
+<p class="content-text">下次客户端再访问页面时仍然携带之前的 Cookie，就可以直接呈现登录状态。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 常见误区</h3>
+<p class="content-text">在谈论 Session 机制的时候，常会听到一种误解——只要关闭浏览器，Session 就消失了。可以想象一下生活中的会员卡，除非顾客主动对店家提出销卡，否则店家是绝对不会轻易删除顾客资料的。对 Session 来说，也一样，除非程序通知服务器删除一个 Session，否则服务器会一直保留。例如程序一般都是在我们做注销操作时才删除 Session。</p>
+<p class="content-text">但是当我们关闭浏览器时，浏览器不会主动在关闭之前通知服务器自己将要被关闭，所以服务器压根不会有机会知道浏览器已经关闭。之所以会产生上面的误解，是因为大部分网站使用会话 Cookie 来保存 Session ID 信息，而浏览器关闭后 Cookie 就消失了，等浏览器再次连接服务器时，也就无法找到原来的 Session 了。如果把服务器设置的 Cookie 保存到硬盘上，或者使用某种手段改写浏览器发出的 HTTP 请求头，把原来的 Cookie 发送给服务器，那么再次打开浏览器时，仍然能够找到原来的 Session ID，依旧保持登录状态。</p>
+<p class="content-text">而且恰恰是由于关闭浏览器不会导致 Session 被删除，因此需要服务器为 Session 设置一个失效时间，当距离客户端上一次使用 Session 的时间超过这个失效时间时，服务器才可以认为客户端已经停止了活动，并删除掉 Session 以节省存储空间。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 总结</h3>
+<p class="content-text">本节介绍了 Session 和 Cookie 的基本概念，这对后文进行网络爬虫的开发有很大的帮助，需要好好掌握。</p>
+<p class="content-text">本节涉及一些专业名词解释，部分内容参考如下资料。</p>
+<p class="content-text list-like">百度百科上 Session、Cookie 相关的介绍。</p>
+<p class="content-text list-like">维基百科上 HTTP Cookie 相关的介绍。</p>
+<p class="content-text list-like">“码迷”网站上的博客文章“Session 和几种状态保持方案理解”。</p>
+</section>
+<div class="section-heading" id="section-4"><h2>1.5 代理的基本原理</h2></div>
+<p class="content-text">在做爬虫的过程中经常会遇到一种情况，就是爬虫最初是正常运行、正常抓取数据的，一切看起来都是那么美好，然而一杯茶的工夫就出现了错误，例如 403 Forbidden，这时打开网页一看，可能会看到“您的 IP 访问频率太高”这样的提示。出现这种现象是因为网站采取了一些反爬虫措施。例如服务器会检测某个 IP 在单位时间内的请求次数，如果请求次数超过设定的阈值，就直接拒绝服务，并返回一些错误信息，可以称这种情况为封 IP。</p>
+<p class="content-text">既然服务器检测的是某个 IP 在单位时间内的请求次数，那么借助某种方式把我们的 IP 伪装一下，让服务器识别不出请求是由我们本机发起的，不就可以成功防止封 IP 了吗？</p>
+<p class="content-text">一种有效的伪装方式是使用代理，后面会详细说明代理的用法。在此之前，需要先了解代理的基本原理，它是怎样实现伪装 IP 的呢？</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 基本原理</h3>
+<p class="content-text">代理实际上就是指代理服务器，英文叫作 Proxy Server，功能是代网络用户取得网络信息。形象点说，代理是网络信息的中转站。当客户端正常请求一个网站时，是把请求发送给了 Web 服务器，Web 服务器再把响应传回给客户端。设置代理服务器，就是在客户端和服务器之间搭建一座桥，此时客户端并非直接向 Web 服务器发起请求，而是把请求发送给代理服务器，然后由代理服务器把请求发送给 Web 服务器，Web 服务器返回的响应也是由代理服务器转发给客户端的。这样客户端同样可以正</p>
+<p class="content-text">常访问网页,而且这个过程中 Web 服务器识别出的真实 IP 就不再是客户端的 IP 了,成功实现了 IP 伪装,这就是代理的基本原理。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 代理的作用</h3>
+<p class="content-text">代理有什么作用呢?我们可以简单列举如下。</p>
+<p class="content-text list-like">突破自身 IP 的访问限制,访问一些平时不能访问的站点。</p>
+<p class="content-text list-like">访问一些单位或团体的内部资源。比如,使用教育网内地址段的免费代理服务器,就可以下载和上传对教育网开放的各类 FTP,也可以查询、共享各类资料等。</p>
+<p class="content-text list-like">提高访问速度。通常,代理服务器会设置一个较大的硬盘缓冲区,当有外界的信息通过时,会同时将其保存到自己的缓冲区中,当其他用户访问相同的信息时,直接从缓冲区中取出信息,提高了访问速度。</p>
+<p class="content-text list-like">隐藏真实 IP。上网者可以通过代理隐藏自己的 IP,免受攻击。对于爬虫来说,使用代理就是为了隐藏自身 IP,防止自身的 IP 被封锁。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 爬虫代理</h3>
+<p class="content-text">对于爬虫来说,由于爬取速度过快,因此在爬取过程中可能会遇到同一个 IP 访问过于频繁的问题,此时网站会让我们输入验证码登录或者直接封锁 IP,这样会给爬取造成极大的不便。</p>
+<p class="content-text">使用代理隐藏真实的 IP,让服务器误以为是代理服务器在请求自己。这样在爬取过程中不断更换代理,就可以避免 IP 被封锁,达到很好的爬取效果。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 代理分类</h3>
+<p class="content-text">对代理进行分类时,既可以根据协议,也可以根据代理的匿名程度,这两种分类方式分别总结如下。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">根据协议区分</h4>
+<p class="content-text">根据代理的协议,代理可以分为如下几类。</p>
+<p class="content-text list-like"><strong class="term-label">FTP 代理服务器:</strong>主要用于访问 FTP 服务器,一般有上传、下载以及缓存功能,端口一般为 21、2121 等。</p>
+<p class="content-text list-like"><strong class="term-label">HTTP 代理服务器:</strong>主要用于访问网页,一般有内容过滤和缓存功能,端口一般为 80、8080、3128 等。</p>
+<p class="content-text list-like"><strong class="term-label">SSL/TLS 代理:</strong>主要用于访问加密网站,一般有 SSL 或 TLS 加密功能(最高支持 128 位加密强度),端口一般为 443。</p>
+<p class="content-text list-like"><strong class="term-label">RTSP 代理:</strong>主要用于 Realplayer 访问 Real 流媒体服务器,一般有缓存功能,端口一般为 554。</p>
+<p class="content-text list-like"><strong class="term-label">Telnet 代理:</strong>主要用于 Telnet 远程控制(黑客入侵计算机时常用于隐藏身份),端口一般为 23。</p>
+<p class="content-text list-like"><strong class="term-label">POP3/SMTP 代理:</strong>主要用于以 POP3/SMTP 方式收发邮件,一般有缓存功能,端口一般为110/25。</p>
+<p class="content-text list-like"><strong class="term-label">SOCKS 代理:</strong>只是单纯传递数据包,不关心具体协议和用法,所以速度快很多,一般有缓存功能,端口一般为 1080。SOCKS 代理协议又分为 SOCKS4 和 SOCKS5,SOCKS4 协议只支持TCP,SOCKS5 协议则支持 TCP 和 UDP,还支持各种身份验证机制、服务器端域名解析等。简单来说,SOCKS4 能做到的 SOCKS5 都能做到,但 SOCKS5 能做到的 SOCKS4 不一定做得到。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">根据匿名程度区分</h4>
+<p class="content-text">根据代理的匿名程度,代理可以分为如下几类。</p>
+<p class="content-text list-like"><strong class="term-label">高度匿名代理:</strong>高度匿名代理会将数据包原封不动地转发,在服务端看来似乎真的是一个普通客户端在访问,记录的IP 则是代理服务器的IP。</p>
+<p class="content-text list-like"><strong class="term-label">普通匿名代理:</strong>普通匿名代理会对数据包做一些改动,服务端可能会发现正在访问自己的是个代理服务器,并且有一定概率去追查客户端的真实IP。这里代理服务器通常会加入的HTTP头有HTTP_VIA和HTTP_X_FORWARDED_FOR。</p>
+<p class="content-text list-like"><strong class="term-label">透明代理:</strong>透明代理不但改动了数据包,还会告诉服务器客户端的真实IP。这种代理除了能用缓存技术提高浏览速度,用内容过滤提高安全性之外,并无其他显著作用,最常见的例子是内网中的硬件防火墙。</p>
+<p class="content-text list-like"><strong class="term-label">间谍代理:</strong>间谍代理是由组织或个人创建的代理服务器,用于记录用户传输的数据,然后对记录的数据进行研究、监控等。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 常见代理设置</h3>
+<p class="content-text">常见的代理设置如下。</p>
+<p class="content-text list-like">对于网上的免费代理,最好使用高度匿名代理,可以在使用前把所有代理都抓取下来筛选一下可用代理,也可以进一步维护一个代理池。</p>
+<p class="content-text list-like">使用付费代理服务。互联网上存在许多可以付费使用的代理商,质量要比免费代理好很多。</p>
+<p class="content-text list-like">ADSL拨号,拨一次号换一次IP,稳定性高,也是一种比较有效的封锁解决方案。</p>
+<p class="content-text list-like">蜂窝代理,即用4G或5G网卡等制作的代理。由于用蜂窝网络作为代理的情形较少,因此整体被封锁的概率会较低,但搭建蜂窝代理的成本是较高的。在后面,我们会详细介绍一些代理的使用方式。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 总结</h3>
+<p class="content-text">本文介绍了代理的相关知识,这对后文我们进行一些反爬绕过的实现有很大的帮助,同时也为后文的一些抓包操作打下了基础,需要好好理解。</p>
+<p class="content-text">本节涉及一些专业名词,部分内容参考如下资料。</p>
+<p class="content-text list-like">维基百科上代理服务器相关的内容。</p>
+<p class="content-text list-like">百度百科上代理相关的内容。</p>
+</section>
+<div class="section-heading" id="section-5"><h2>1.6 多线程和多进程的基本原理</h2></div>
+<p class="content-text">在一台计算机中,我们可以同时打开多个软件,例如同时浏览网页、听音乐、打字等,这是再正常不过的事情。但仔细想想,为什么计算机可以同时运行这么多软件呢?这就涉及计算机中的两个名词:多进程和多线程。</p>
+<p class="content-text">同样,在编写爬虫程序的时候,为了提高爬取效率,我们可能会同时运行多个爬虫任务,其中同样涉及多进程和多线程。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 多线程的含义</h3>
+<p class="content-text">说起多线程,就不得不先说什么是线程。说起线程,又不得不先说什么是进程。</p>
+<p class="content-text">进程可以理解为一个可以独立运行的程序单位,例如打开一个浏览器,就开启了一个浏览器进程;打开一个文本编辑器,就开启了一个文本编辑器进程。在一个进程中,可以同时处理很多事情,例如在浏览器进程中,可以在多个选项卡中打开多个页面,有的页面播放音乐,有的页面播放视频,有的网页播放动画,这些任务可以同时运行,互不干扰。为什么能做到同时运行这么多任务呢?这便引出了线程的概念,其实一个任务就对应一个线程。</p>
+<p class="content-text">进程就是线程的集合,进程是由一个或多个线程构成的,线程是操作系统进行运算调度的最小单位,是进程中的最小运行单元。以上面说的浏览器进程为例,其中的播放音乐就是一个线程,播放视频也是一个线程。当然,浏览器进程中还有很多其他线程在同时运行,这些线程并发或并行执行使得整个浏览器可以同时运行多个任务。</p>
+<p class="content-text">了解了线程的概念,多线程就很容易理解了。多线程就是一个进程中同时执行多个线程,上面的浏览器进程就是典型的多线程。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 并发和并行</h3>
+<p class="content-text">说到多进程和多线程,不得不再介绍两个名词——并发和并行。我们知道,在计算机中运行一个程序,底层是通过处理器运行一条条指令来实现的。</p>
+<p class="content-text">处理器同一时刻只能执行一条指令,并发(concurrency)是指多个线程对应的多条指令被快速轮换地执行。例如一个处理器,它先执行线程A的指令一段时间,再执行线程B的指令一段时间,然后再切回线程A执行一段时间。处理器执行指令的速度和切换线程的速度都非常快,人完全感知不到计算机在这个过程中还切换了多个线程的上下文,这使得多个线程从宏观上看起来是同时在运行。从微观上看,处理器连续不断地在多个线程之间切换和执行,每个线程的执行都一定会占用这个处理器的一个时间片段,因此同一时刻其实只有一个线程被执行。</p>
+<p class="content-text">并行(parallel)指同一时刻有多条指令在多个处理器上同时执行,这意味着并行必须依赖多个处理器。不论是从宏观还是微观上看,多个线程都是在同一时刻一起执行的。</p>
+<p class="content-text">并行只能存在于多处理器系统中,因此如果计算机处理器只有一个核,就不可能实现并行。而并发在单处理器和多处理器系统中都可以存在,因为仅靠一个核,就可以实现并发。</p>
+<p class="content-text">例如,系统处理器需要同时运行多个线程。如果系统处理器只有一个核,那它只能通过并发的方式来运行这些线程。而如果系统处理器有多个核,那么在一个核执行一个线程的同时,另一个核可以执行另一个线程,这样这两个线程就实现了并行执行。当然,其他线程也可能和另外的线程在同一个核上执行,它们之间就是并发执行。具体的执行方式,取决于操作系统如何调度。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 多线程适用场景</h3>
+<p class="content-text">在一个程序的进程中,有一些操作是比较耗时或者需要等待的,例如等待数据库查询结果的返回、等待网页的响应。这时如果使用单线程,处理器必须等这些操作完成之后才能继续执行其他操作,但在这个等待的过程中,处理器明显可以去执行其他操作。如果使用多线程,处理器就可以在某个线程处于等待态的时候,去执行其他线程,从而提高整体的执行效率。</p>
+<p class="content-text">很多情况和上述场景一样,线程在执行过程中需要等待。网络爬虫就是一个非常典型的例子,爬虫在向服务器发起请求之后,有一段时间必须等待服务器返回响应,这种任务就属于IO密集型任务。</p>
+<p class="content-text">对于这种任务,如果我们启用多线程,那么处理器就可以在某个线程等待的时候去处理其他线程,从而提高整体的爬取效率。</p>
+<p class="content-text">但并不是所有任务都属于IO密集型任务,还有一种任务叫作计算密集型任务,也可以称为CPU密集型任务。顾名思义,就是任务的运行一直需要处理器的参与。假设我们开启了多线程,处理器从一个计算密集型任务切换到另一个计算密集型任务,那么处理器将不会停下来,而是始终忙于计算,这样并不会节省整体的时间,因为需要处理的任务的计算总量是不变的。此时要是线程数目过多,反而还会在线程切换的过程中耗费更多时间,使得整体效率变低。</p>
+<p class="content-text">综上所述,如果任务不全是计算密集型任务,就可以使用多线程来提高程序整体的执行效率。尤其对于网络爬虫这种IO密集型任务,使用多线程能够大大提高程序整体的爬取效率。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 多进程的含义</h3>
+<p class="content-text">前文我们已经了解了进程的基本概念,进程(process)是具有一定独立功能的程序在某个数据集合上的一次运行活动,是系统进行资源分配和调度的一个独立单位。</p>
+<p class="content-text">顾名思义,多进程就是同时运行多个进程。由于进程就是线程的集合,而且进程是由一个或多个线程构成的,所以多进程意味着有大于等于进程数量的线程在同时运行。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. Python 中的多线程和多进程</h3>
+<p class="content-text">Python中GIL的限制导致不论是在单核还是多核条件下,同一时刻都只能运行——一个线程,这使得Python 多线程无法发挥多核并行的优势。</p>
+<p class="content-text">GIL 全称为 Global Interpreter Lock,意思是全局解释器锁,其设计之初是出于对数据安全的考虑。</p>
+<p class="content-text">在Python 多线程下,每个线程的执行方式分如下三步。</p>
+<p class="content-text list-like">获取GIL。</p>
+<p class="content-text list-like">执行对应线程的代码。</p>
+<p class="content-text list-like">释放GIL。可见,某个线程要想执行,必须先拿到GIL。我们可以把GIL看作通行证,并且在一个Python 进程中,GIL 只有一个。线程要是拿不到通行证,就不允许执行。这样会导致即使在多核条件下,一个Python 进程中的多个线程在同一时刻也只能执行一个。而对于多进程来说,每个进程都有属于自己的GIL,所以在多核处理器下,多进程的运行是不会受GIL影响的。也就是说,多进程能够更好地发挥多核优势。不过,对于爬虫这种IO密集型任务来说,多线程和多进程产生的影响差别并不大。但对于计算密集型任务来说,由于GIL的存在,Python多线程的整体运行效率在多核情况下可能反而比单核更低。而Python 的多进程相比多线程,运行效率在多核情况下比单核会有成倍提升。从整体来看,Python的多进程比多线程更有优势。所以,如果条件允许的话,尽量用多进程。值得注意的是,由于进程是系统进行资源分配和调度的一个独立单位,所以各进程之间的数据是无法共享的,如多个进程无法共享一个全局变量,进程之间的数据共享需要由单独的机制来实现。关于 Python 中多进程和多线程的具体用法,由于篇幅原因,这里不再展开介绍,请移步如下链接进行学习。</p>
+<p class="content-text list-like"><strong class="term-label">Python 多线程的用法:</strong>https://setup.scrape.center/python-threading。</p>
+<p class="content-text list-like"><strong class="term-label">Python 多进程的用法:</strong>https://setup.scrape.center/python-multiprocessing。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 总结</h3>
+<p class="content-text">本节介绍了多线程、多进程的基本知识,如果我们可以把多线程、多进程运用到爬虫中的话,爬虫的爬取效率将会大幅提升。</p>
+<p class="content-text">由于涉及一些专业名词,本节内容参考如下资料。</p>
+<p class="content-text list-like">百度百科上多线程、多进程相关的内容。</p>
+<p class="content-text list-like">Python 官方文档中 threading 相关的内容。</p>
+<p class="content-text list-like">Python 官方文档中 multiprocessing 相关的内容。</p>
+<p class="content-text list-like">博客园网站上的“多进程和多线程的概念”文章。</p>
+</section>
+      </article>
+      <nav class="chapter-nav">
+        <span></span>
+        <span></span>
+      </nav>
+    </main>
+  </div>
+  <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第1章 爬虫基础</footer>
+  <script src="../js/sidebar.js"></script>
+  <script>buildSidebarForChapter("ch01");</script>
+</body>
+</html>
