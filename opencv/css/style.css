@@ -786,8 +786,15 @@ a:hover {
     box-shadow: 4px 0 16px rgba(0,0,0,0.15);
   }
 
+  .layout {
+    display: block;
+  }
+
   .main-content {
     margin-left: 0;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
     padding: 24px 16px 40px;
   }
 
@@ -821,6 +828,21 @@ a:hover {
 
   .nav-sub li a {
     padding: 8px 14px 8px 32px;
+  }
+
+  .content-table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .page-nav {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .page-nav a {
+    max-width: none;
   }
 
   .overlay {

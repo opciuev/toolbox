@@ -1123,6 +1123,7 @@ h4.subsection-heading::before {
   .main-content {
     width: 100%;
     max-width: none;
+    min-width: 0;
     padding: 22px 16px 44px;
   }
 
@@ -1305,5 +1306,41 @@ h4.subsection-heading::before {
 @media (max-width: 360px) {
   .logo {
     display: none;
+  }
+
+  .ocr-content,
+  .ocr-content.preserve-lines {
+    padding: 24px 18px;
+  }
+
+  .content-table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .minor-section {
+    margin-left: 0;
+    padding-left: 12px;
+  }
+
+  .content-text.list-like {
+    margin-left: 0;
+  }
+
+  .ocr-content,
+  .content-text,
+  .code-block,
+  code {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .chapter-nav {
+    flex-direction: column;
+  }
+
+  .chapter-nav a {
+    max-width: none;
   }
 }
