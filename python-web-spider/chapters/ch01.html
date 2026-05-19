@@ -11,7 +11,7 @@
   <header class="header">
     <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
     <a href="../index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
-    <div class="header-right"><a href="../../index.html">工作台首页</a><a href="../index.html">章节首页</a></div>
+    <div class="header-right"><a href="../index.html">首页</a></div>
   </header>
   <div class="overlay" onclick="toggleSidebar()"></div>
   <div class="layout">
@@ -20,9 +20,7 @@
       <nav class="sidebar-nav" id="sidebar-nav"></nav>
     </aside>
     <main class="main-content">
-      <span class="chapter-badge">第1章</span>
       <h1 class="chapter-title">第1章 爬虫基础</h1>
-      <div class="chapter-meta">来源：01_第1章_爬虫基础.pdf · 共 28 页 · 完成</div>
       <article class="ocr-content">
 <p class="content-text">在写爬虫之前，我们还需要了解一些基础知识，如 HTTP 原理、网页的基础知识、爬虫的基本原理、Cookie 的基本原理、多进程和多线程的基本原理等，了解这些内容有助于我们更好地理解和编写网络爬虫相关的程序。</p>
 <p class="content-text">本章我们就对这些基础知识做一个简单的总结。</p>
@@ -36,7 +34,7 @@
 <figure class="inline-figure"><img src="figures/ch01/fig-1_1.jpg" alt="图1-1 URL、URN和URI关系图" loading="lazy"><figcaption>图1-1 URL、URN和URI关系图</figcaption></figure>
 <p class="content-text">在目前的互联网中，URN 使用得非常少，几乎所有的 URI 都是 URL，所以对于一般的网页链接，我们既可以称之为 URL，也可以称之为 URI，我个人习惯称 URL。</p>
 <p class="content-text">但 URL 也不是随便写的，它也是需要遵循一定格式规范的，基本的组成格式如下：</p>
-<pre class="code-block"><code>scheme://[username:password@]hostname[:port][/path][;parameters][?query][#fragment]</code></pre>
+<pre class="code-block" data-lang="text"><code>scheme://[username:password@]hostname[:port][/path][;parameters][?query][#fragment]</code></pre>
 <p class="content-text">其中，中括号包括的内容代表非必要部分，比如 https://www.baidu.com 这个 URL，这里就只包含了 scheme 和 hostname 两部分，没有 port、path、parameters、query、fragment。这里我们分别介绍一下几部分代表的含义和作用。</p>
 <p class="content-text list-like"><strong class="term-label">scheme:</strong>协议。常用的协议有 http、https、ftp 等，另外 scheme 也被常称作 protocol，二者都代表协议的意思。</p>
 <p class="content-text list-like"><strong class="term-label">username、password:</strong>用户名和密码。在某些情况下URL 需要提供用户名和密码才能访问,这时候可以把用户名和密码放在 host 前面。比如https://ssr3.scrape.center 这个URL需要用户名和密码才能访问,直接写为https://admin:admin@ssr3.scrape.center 则可以直接访问。</p>
@@ -234,8 +232,7 @@
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">多路复用</h4>
-<p class="content-text">在HTTP1.x中,如果客户端想发起多个并行请求以提升性能,则必须使用多个TCP连接，而且浏</p>
-<p class="content-text">览器为了控制资源,还会对单个域名有6~8个TCP连接请求的限制。但在HTTP2.0中,由于有了二进制分帧技术的加持,HTTP 2.0 不用再以 TCP连接的方式去实现多路并行了,客户端和服务器可以将HTTP消息分解为互不依赖的帧,然后交错发送,最后再在另一端把它们重新组装起来,达到以下效果。</p>
+<p class="content-text">在HTTP1.x中,如果客户端想发起多个并行请求以提升性能,则必须使用多个TCP连接，而且浏览器为了控制资源,还会对单个域名有6~8个TCP连接请求的限制。但在HTTP2.0中,由于有了二进制分帧技术的加持,HTTP 2.0 不用再以 TCP连接的方式去实现多路并行了,客户端和服务器可以将HTTP消息分解为互不依赖的帧,然后交错发送,最后再在另一端把它们重新组装起来,达到以下效果。</p>
 <p class="content-text list-like">并行交错地发送多个请求,请求之间互不影响。</p>
 <p class="content-text list-like">并行交错地发送多个响应,响应之间互不干扰。</p>
 <p class="content-text list-like">使用一个连接并行发送多个请求和响应。</p>
@@ -321,7 +318,7 @@ height: 181px;
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 网页的结构</h3>
 <p class="content-text">我们首先用例子来感受一下HTML的基本结构。新建一个文本文件,名称叫作 test.html,内容如下:</p>
-<pre class="code-block"><code>&lt;!DOCTYPE html&gt;
+<pre class="code-block" data-lang="html"><code>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;UTF-8&quot;&gt;
@@ -337,8 +334,7 @@ height: 181px;
 &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 <p class="content-text">这就是一个最简单的HTML实例。开头用 DOCTYPE 定义了文档类型,其次最外层是html标签,代码最后有对应的结束标签表示闭合。html标签内部是 head 标签和 body标签,分别代表网页头和网页体,它们同样需要结束标签。head 标签内定义了一些对页面的配置和引用,上述代码中的&lt;meta charset=&quot;UTF-8&quot;&gt;指定了网页的编码为UTF-8。</p>
-<p class="content-text">title 标签则定义了网页的标题,标题会显示在网页的选项卡中,不会显示在正文中。body 标签</p>
-<p class="content-text">内的内容是要在网页正文中显示的。div标签定义了网页中的区块,此处区块的id 是 container, id是一个非常常用的属性,其内容在网页中是唯一的,通过它可以获取这个区块。然后在此区块内又有一个div标签,它的class为wrapper,这也是一个非常常用的属性,经常与CSS配合使用来设定样式。然后此区块内部又有一个h2 标签,代表一个二级标题;另外还有一个p标签,代表一个段落。若想在网页中呈现某些内容,直接把内容写入h2 标签和p标签中间即可,这两者也有各自的class属性。</p>
+<p class="content-text">title 标签则定义了网页的标题,标题会显示在网页的选项卡中,不会显示在正文中。body 标签内的内容是要在网页正文中显示的。div标签定义了网页中的区块,此处区块的id 是 container, id是一个非常常用的属性,其内容在网页中是唯一的,通过它可以获取这个区块。然后在此区块内又有一个div标签,它的class为wrapper,这也是一个非常常用的属性,经常与CSS配合使用来设定样式。然后此区块内部又有一个h2 标签,代表一个二级标题;另外还有一个p标签,代表一个段落。若想在网页中呈现某些内容,直接把内容写入h2 标签和p标签中间即可,这两者也有各自的class属性。</p>
 <p class="content-text">将代码保存后,双击该文件在浏览器中打开,可以看到如图1-10所示的内容。</p>
 <figure class="inline-figure"><img src="figures/ch01/fig-1_10.jpg" alt="图1-10 运行结果" loading="lazy"><figcaption>图1-10 运行结果</figcaption></figure>
 <p class="content-text">可以看到,选项卡上显示 This is a Demo 字样,这是我们在 head 标签中的title 里定义的文字。网页正文则是由 body 标签内部定义的各个元素生成的,可以看到这里显示了二级标题和段落。</p>
@@ -364,9 +360,7 @@ height: 181px;
 <h3 class="subsection-heading numbered-heading">4. 选择器</h3>
 <p class="content-text">我们知道,网页由一个个节点组成,CSS 选择器会为不同的节点设置不同的样式规则,那么怎样定位节点呢?</p>
 <p class="content-text">在 CSS 中,使用 CSS 选择器来定位节点。例如,“网页的结构”一节的例子中 div 节点的 id 为container,那么这个节点就可以表示为 #container,其中以 # 开头代表选择 id,其后紧跟的是 id 的名称。如果想选择 class 为 wrapper 的节点,则可以使用 .wrapper,这里以 . 开头代表选择 class,其后紧跟的是 class 的名称。除了这两种,还有一种选择方式,就是根据标签名,例如想选择二级标题,直接用 h2 即可。这些是最常用的三种方式,分别是根据 id、class、标签名选择,请牢记它们的写法。</p>
-<p class="content-text">另外,CSS 选择器还支持嵌套选择,利用空格把各个选择器分隔开便可以代表嵌套关系,如</p>
-<pre class="code-block"><code>#container .wrapper p 代表先选择 id 为 container 的节点,然后选择其内部 class 为 wrapper 的</code></pre>
-<p class="content-text">节点,再进一步选择该节点内部的 p 节点。要是各个选择器之间不加空格,则代表并列关系,如div#container .wrapper p.text 代表先选择 id 为 container 的 div 节点,然后选择其内部 class 为wrapper 的节点,再进一步选择这个节点内部的 class 为 text 的 p 节点。这就是 CSS 选择器,其筛选功能还是非常强大的。</p>
+<p class="content-text">另外,CSS 选择器还支持嵌套选择,利用空格把各个选择器分隔开便可以代表嵌套关系,如 <code class="inline-code">#container .wrapper p</code> 代表先选择 id 为 container 的节点,然后选择其内部 class 为 wrapper 的节点,再进一步选择该节点内部的 p 节点。要是各个选择器之间不加空格,则代表并列关系,如 <code class="inline-code">div#container .wrapper p.text</code> 代表先选择 id 为 container 的 div 节点,然后选择其内部 class 为wrapper 的节点,再进一步选择这个节点内部的 class 为 text 的 p 节点。这就是 CSS 选择器,其筛选功能还是非常强大的。</p>
 <p class="content-text">我们可以在浏览器中测试 CSS 选择器的效果,依然还是打开浏览器的开发者工具,然后按快捷键Ctrl+F (如果你用的是 Mac,则是 Command+F),这时候左下角便会出现一个搜索框。</p>
 <figure class="inline-figure"><img src="figures/ch01/fig-1_13.jpg" alt="图1-13 搜索节点" loading="lazy"><figcaption>图1-13 搜索节点</figcaption></figure>
 <p class="content-text">这时候我们输入.title就是选中了class为title的节点,该节点会被选中并在网页中高亮显示,如图1-14所示。</p>
@@ -483,8 +477,7 @@ height: 181px;
 <p class="content-text">在浏览器中打开这个页面时,首先会加载这个HTML内容,接着浏览器会发现其中引入了一个app.js文件,便去请求这个文件。获取该文件后,执行其中的JavaScript代码,JavaScript 会改变 HTML中的节点,向其中添加内容,最后得到完整的页面。</p>
 <p class="content-text">在用 urllib 或 requests 等库请求当前页面时,我们得到的只是HTML代码,它不会继续加载JavaScript 文件,我们也就无法看到完整的页面内容。</p>
 <p class="content-text">这也解释了为什么有时我们得到的源代码和在浏览器中看到的不一样。</p>
-<p class="content-text">对于这样的情况,我们可以分析源代码后台Ajax接口,也可使用Selenium、Splash、Pyppeteer、</p>
-<p class="content-text">Playwright 这样的库来模拟 JavaScript 渲染。</p>
+<p class="content-text">对于这样的情况,我们可以分析源代码后台Ajax接口,也可使用Selenium、Splash、Pyppeteer、Playwright 这样的库来模拟 JavaScript 渲染。</p>
 <p class="content-text">后面,我会详细介绍如何采集 JavaScript 渲染出来的网页。</p>
 </section>
 <section class="numbered-section">
@@ -543,8 +536,7 @@ height: 181px;
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">属性结构</h4>
-<p class="content-text">接下来,我们看看 Cookie 都包含哪些内容。这里以知乎为例,在浏览器开发者工具中打开</p>
-<p class="content-text">Application 选项卡,其中左侧有一部分叫 Storage, Storage 的最后一项即为 Cookies,将其点开,如图1-16所示。</p>
+<p class="content-text">接下来,我们看看 Cookie 都包含哪些内容。这里以知乎为例,在浏览器开发者工具中打开 Application 选项卡,其中左侧有一部分叫 Storage, Storage 的最后一项即为 Cookies,将其点开,如图1-16所示。</p>
 <figure class="inline-figure"><img src="figures/ch01/fig-1_16.jpg" alt="图1-16 Cookie 列表" loading="lazy"><figcaption>图1-16 Cookie 列表</figcaption></figure>
 <p class="content-text">可以看到,列表里有很多条目,其中每个条目都可以称为一个Cookie条目。Cookie 具有如下几个属性。</p>
 <p class="content-text list-like"><strong class="term-label">Name:</strong>Cookie的名称。Cookie一旦创建,名称便不可更改。</p>
@@ -584,8 +576,7 @@ height: 181px;
 <p class="content-text">一种有效的伪装方式是使用代理，后面会详细说明代理的用法。在此之前，需要先了解代理的基本原理，它是怎样实现伪装 IP 的呢？</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 基本原理</h3>
-<p class="content-text">代理实际上就是指代理服务器，英文叫作 Proxy Server，功能是代网络用户取得网络信息。形象点说，代理是网络信息的中转站。当客户端正常请求一个网站时，是把请求发送给了 Web 服务器，Web 服务器再把响应传回给客户端。设置代理服务器，就是在客户端和服务器之间搭建一座桥，此时客户端并非直接向 Web 服务器发起请求，而是把请求发送给代理服务器，然后由代理服务器把请求发送给 Web 服务器，Web 服务器返回的响应也是由代理服务器转发给客户端的。这样客户端同样可以正</p>
-<p class="content-text">常访问网页,而且这个过程中 Web 服务器识别出的真实 IP 就不再是客户端的 IP 了,成功实现了 IP 伪装,这就是代理的基本原理。</p>
+<p class="content-text">代理实际上就是指代理服务器，英文叫作 Proxy Server，功能是代网络用户取得网络信息。形象点说，代理是网络信息的中转站。当客户端正常请求一个网站时，是把请求发送给了 Web 服务器，Web 服务器再把响应传回给客户端。设置代理服务器，就是在客户端和服务器之间搭建一座桥，此时客户端并非直接向 Web 服务器发起请求，而是把请求发送给代理服务器，然后由代理服务器把请求发送给 Web 服务器，Web 服务器返回的响应也是由代理服务器转发给客户端的。这样客户端同样可以正常访问网页,而且这个过程中 Web 服务器识别出的真实 IP 就不再是客户端的 IP 了,成功实现了 IP 伪装,这就是代理的基本原理。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 代理的作用</h3>
@@ -692,7 +683,7 @@ height: 181px;
       </article>
       <nav class="chapter-nav">
         <span></span>
-        <span></span>
+        <a href="ch02.html">第2章 基本库的使用 &rarr;</a>
       </nav>
     </main>
   </div>

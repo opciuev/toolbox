@@ -12,8 +12,8 @@ const chapters = [
     title: `第2章 基本库的使用`,
     file: `ch02.html`,
     label: `第2章`,
-    status: `pending`,
-    sections: []
+    status: `completed`,
+    sections: [`2.1 urllib 的使用`, `2.2 requests 的使用`, `2.3 正则表达式`, `2.4 httpx 的使用`, `2.5 基础爬虫案例实战`]
   },
   {
     id: `ch03`,
@@ -181,6 +181,9 @@ function buildSidebar(currentChapterId, basePath = "chapters/") {
     </div>`;
   }).join("");
   setupSectionHighlight();
+  setupCodeCopyButtons();
+  setupBackToTopButton();
+  setupSiteSearch();
 }
 
 function buildSidebarForChapter(currentChapterId) {
@@ -188,38 +191,84 @@ function buildSidebarForChapter(currentChapterId) {
 }
 
 function setupSectionHighlight() {
-  const links = Array.from(document.querySelectorAll(".nav-sub a[data-section-id]"));
-  const sections = links
-    .map((link) => document.getElementById(link.dataset.sectionId))
-    .filter(Boolean);
-  if (!links.length || !sections.length) return;
+  const links = Array.from(document.querySelectorAll(".nav-sub a[data-section-id]"))
+    .filter((link) => (link.getAttribute("href") || "").startsWith("#"));
+  const sectionLinks = links
+    .map((link) => ({ link, section: document.getElementById(link.dataset.sectionId) }))
+    .filter((item) => item.section);
+  if (!links.length || !sectionLinks.length) return;
 
-  const activate = (sectionId) => {
+  let activeSectionId = "";
+  let ticking = false;
+
+  const getScrollTop = () => (
+    window.scrollY ||
+    document.documentElement.scrollTop ||
+    document.body.scrollTop ||
+    0
+  );
+
+  const getCurrentSectionId = () => {
+    const marker = getScrollTop() + 120;
+    let current = sectionLinks[0].section.id;
+    for (const item of sectionLinks) {
+      if (item.section.offsetTop <= marker) {
+        current = item.section.id;
+      } else {
+        break;
+      }
+    }
+
+    const doc = document.documentElement;
+    const bottomGap = doc.scrollHeight - (getScrollTop() + window.innerHeight);
+    if (bottomGap <= 4) {
+      current = sectionLinks[sectionLinks.length - 1].section.id;
+    }
+    return current;
+  };
+
+  const keepActiveLinkVisible = (link) => {
+    const sidebar = document.querySelector(".sidebar");
+    if (!sidebar) return;
+    const linkRect = link.getBoundingClientRect();
+    const sidebarRect = sidebar.getBoundingClientRect();
+    if (linkRect.top < sidebarRect.top + 16 || linkRect.bottom > sidebarRect.bottom - 16) {
+      link.scrollIntoView({ block: "nearest" });
+    }
+  };
+
+  const activate = (sectionId, scrollNav = false) => {
+    if (!sectionId || sectionId === activeSectionId) return;
+    activeSectionId = sectionId;
     links.forEach((link) => {
       const isActive = link.dataset.sectionId === sectionId;
       link.classList.toggle("active", isActive);
-      if (isActive) {
-        link.scrollIntoView({ block: "nearest" });
+      if (isActive && scrollNav) {
+        keepActiveLinkVisible(link);
       }
+    });
+  };
+
+  const updateFromScroll = () => {
+    activate(getCurrentSectionId(), true);
+  };
+
+  const scheduleUpdate = () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => {
+      ticking = false;
+      updateFromScroll();
     });
   };
 
   const activateFromHash = () => {
     const id = window.location.hash.replace("#", "");
-    if (id) activate(id);
-  };
-
-  const activateFromScroll = () => {
-    const offset = 96;
-    let current = sections[0];
-    for (const section of sections) {
-      if (section.getBoundingClientRect().top <= offset) {
-        current = section;
-      } else {
-        break;
-      }
+    if (id && sectionLinks.some((item) => item.section.id === id)) {
+      activate(id, true);
+    } else {
+      updateFromScroll();
     }
-    activate(current.id);
   };
 
   links.forEach((link) => {
@@ -230,10 +279,298 @@ function setupSectionHighlight() {
   });
 
   window.addEventListener("hashchange", activateFromHash);
-  window.addEventListener("scroll", activateFromScroll, { passive: true });
+  window.addEventListener("scroll", scheduleUpdate, { passive: true });
+  document.addEventListener("scroll", scheduleUpdate, { passive: true });
+  window.addEventListener("resize", scheduleUpdate);
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(scheduleUpdate, {
+      rootMargin: "-20% 0px -70% 0px",
+      threshold: [0, 1]
+    });
+    sectionLinks.forEach((item) => observer.observe(item.section));
+  }
   if (window.location.hash) {
     activateFromHash();
   } else {
-    activateFromScroll();
+    updateFromScroll();
   }
+  window.setTimeout(updateFromScroll, 120);
+  window.setInterval(updateFromScroll, 250);
+}
+
+function getCodeBlockCopyText(block) {
+  const clone = block.cloneNode(true);
+  clone.querySelectorAll(".code-copy-button, .line-num").forEach((el) => el.remove());
+  return clone.textContent.replace(/^\n+|\s+$/g, "");
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function setupCodeCopyButtons() {
+  document.querySelectorAll(".code-block, .result-block").forEach((block) => {
+    if (block.querySelector(".code-copy-button")) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "code-copy-button";
+    button.textContent = "复制";
+    button.setAttribute("aria-label", "复制代码");
+    button.addEventListener("click", async () => {
+      try {
+        await copyTextToClipboard(getCodeBlockCopyText(block));
+        button.textContent = "已复制";
+        button.classList.add("copied");
+        window.setTimeout(() => {
+          button.textContent = "复制";
+          button.classList.remove("copied");
+        }, 1400);
+      } catch (err) {
+        button.textContent = "复制失败";
+        window.setTimeout(() => {
+          button.textContent = "复制";
+        }, 1400);
+      }
+    });
+
+    block.appendChild(button);
+  });
+}
+
+function getSearchLinkPrefix() {
+  return window.location.pathname.includes("/chapters/") ? "" : "chapters/";
+}
+
+function getSearchIndexPath() {
+  return window.location.pathname.includes("/chapters/") ? "../js/search-index.json" : "js/search-index.json";
+}
+
+function normalizeSearchText(text) {
+  return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function escapeSearchHtml(text) {
+  return text.replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[char]));
+}
+
+function makeSearchSnippet(text, query) {
+  const haystack = text.toLowerCase();
+  const needle = query.toLowerCase();
+  const index = haystack.indexOf(needle);
+
+  if (index < 0) {
+    return text.slice(0, 110) + (text.length > 110 ? "..." : "");
+  }
+
+  const start = Math.max(0, index - 42);
+  const end = Math.min(text.length, index + query.length + 68);
+  const prefix = start > 0 ? "..." : "";
+  const suffix = end < text.length ? "..." : "";
+  return prefix + text.slice(start, end) + suffix;
+}
+
+async function buildSearchIndex() {
+  const response = await fetch(getSearchIndexPath());
+  if (!response.ok) {
+    throw new Error(`Search index request failed: ${response.status}`);
+  }
+
+  const entries = await response.json();
+  return entries.map((entry) => ({
+    ...entry,
+    sections: entry.sections || [],
+    sectionTexts: entry.sectionTexts || [],
+    normalized: normalizeSearchText([
+      entry.title || "",
+      (entry.sections || []).join(" "),
+      entry.text || "",
+    ].join(" ")),
+  }));
+}
+
+function findEntrySectionAnchor(entry, query) {
+  const needle = normalizeSearchText(query);
+  for (const section of entry.sectionTexts || []) {
+    if (normalizeSearchText(section.text || "").includes(needle)) {
+      return section.id || "";
+    }
+  }
+  return "";
+}
+
+function renderSearchResults(container, entries, query) {
+  const normalizedQuery = normalizeSearchText(query);
+
+  if (!normalizedQuery) {
+    container.innerHTML = "";
+    container.classList.remove("show");
+    return;
+  }
+
+  const terms = normalizedQuery.split(" ").filter(Boolean);
+  const matches = entries
+    .map((entry) => {
+      const titleText = normalizeSearchText(entry.title || "");
+      const sectionText = normalizeSearchText((entry.sections || []).join(" "));
+      const score = terms.reduce((total, term) => {
+        let next = total;
+        if (titleText.includes(term)) next += 20;
+        if (sectionText.includes(term)) next += 8;
+        if ((entry.normalized || "").includes(term)) next += 1;
+        return next;
+      }, 0);
+      return { entry, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.entry.id.localeCompare(b.entry.id))
+    .slice(0, 12);
+
+  if (!matches.length) {
+    container.innerHTML = '<div class="site-search-empty">没有找到相关内容</div>';
+    container.classList.add("show");
+    return;
+  }
+
+  const linkPrefix = getSearchLinkPrefix();
+  container.innerHTML = matches.map(({ entry }) => {
+    const anchor = findEntrySectionAnchor(entry, query);
+    const href = `${linkPrefix}${entry.file}${anchor ? "#" + anchor : ""}`;
+    const snippet = makeSearchSnippet(entry.text || "", query);
+
+    return `
+      <a class="site-search-result" href="${href}">
+        <strong>${escapeSearchHtml(entry.title || "")}</strong>
+        <span>${escapeSearchHtml(snippet)}</span>
+      </a>
+    `;
+  }).join("");
+  container.classList.add("show");
+}
+
+function setupSiteSearch() {
+  const headerRight = document.querySelector(".header-right");
+  if (!headerRight || headerRight.querySelector(".site-search")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "site-search";
+  wrapper.innerHTML = `
+    <input class="site-search-input" type="search" placeholder="搜索知识点..." aria-label="搜索 Python 爬虫教程内容" autocomplete="off">
+    <div class="site-search-results" role="listbox"></div>
+  `;
+  headerRight.prepend(wrapper);
+
+  const input = wrapper.querySelector(".site-search-input");
+  const results = wrapper.querySelector(".site-search-results");
+  let searchIndexPromise = null;
+  let debounceTimer = null;
+
+  const ensureSearchIndex = () => {
+    searchIndexPromise ||= buildSearchIndex();
+    return searchIndexPromise;
+  };
+
+  const warmSearchIndex = () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => ensureSearchIndex(), { timeout: 2000 });
+      return;
+    }
+    window.setTimeout(() => ensureSearchIndex(), 600);
+  };
+
+  input.addEventListener("input", () => {
+    window.clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(async () => {
+      const query = input.value.trim();
+      if (!query) {
+        renderSearchResults(results, [], "");
+        return;
+      }
+
+      results.innerHTML = '<div class="site-search-empty">正在检索...</div>';
+      results.classList.add("show");
+
+      try {
+        const index = await ensureSearchIndex();
+        renderSearchResults(results, index, query);
+      } catch (err) {
+        results.innerHTML = '<div class="site-search-empty">搜索索引加载失败</div>';
+        results.classList.add("show");
+      }
+    }, 160);
+  });
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      input.value = "";
+      renderSearchResults(results, [], "");
+      input.blur();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!wrapper.contains(event.target)) {
+      results.classList.remove("show");
+    }
+  });
+
+  warmSearchIndex();
+}
+
+function setupBackToTopButton() {
+  if (document.querySelector(".back-to-top")) return;
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "back-to-top";
+  button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>`;
+  button.setAttribute("aria-label", "回到顶部");
+  button.setAttribute("title", "回到顶部");
+
+  const update = () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    button.classList.toggle("show", scrollTop > 320);
+  };
+
+  button.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  window.addEventListener("scroll", update, { passive: true });
+  document.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  document.body.appendChild(button);
+  update();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setupBackToTopButton();
+    setupSiteSearch();
+  }, { once: true });
+} else {
+  setupBackToTopButton();
+  setupSiteSearch();
 }

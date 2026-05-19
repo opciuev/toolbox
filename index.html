@@ -217,9 +217,63 @@
         }
 
         @media (max-width: 640px) {
-            .hero h1 { font-size: 2rem; }
-            .entry-card { padding: 1.4rem 1.2rem; }
-            .card-icon { font-size: 2rem; margin-right: 1rem; }
+            .page {
+                justify-content: flex-start;
+                padding: 2.4rem 1.1rem;
+                gap: 2rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+                line-height: 1.15;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+            }
+
+            .entries {
+                gap: 1rem;
+            }
+
+            .entry-card {
+                min-height: 0;
+                padding: 1.25rem 1rem;
+                border-radius: 16px;
+            }
+
+            .card-icon {
+                width: 2.4rem;
+                margin-right: 0.9rem;
+                font-size: 2rem;
+                text-align: center;
+            }
+
+            .card-title {
+                font-size: 1.12rem;
+                line-height: 1.3;
+                word-break: keep-all;
+                overflow-wrap: anywhere;
+            }
+
+            .card-desc {
+                font-size: 0.8rem;
+                line-height: 1.55;
+            }
+
+            .card-arrow {
+                margin-left: 0.75rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .card-arrow {
+                display: none;
+            }
+
+            .card-icon {
+                margin-right: 0.75rem;
+            }
         }
     </style>
 </head>
