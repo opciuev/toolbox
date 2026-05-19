@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第 22 章 影像分割使用分水岭演算法 - OpenCV 教程</title>
+  <title>第 22 章 图像分割使用分水岭演算法 - OpenCV 教程</title>
   <link rel="stylesheet" href="../css/style.css?v=20260422">
 </head>
 <body>
@@ -29,11 +29,11 @@
 
     <main class="main-content">
       <span class="chapter-badge">第 22 章</span>
-      <h1 class="chapter-title">影像分割使用分水岭演算法</h1>
+      <h1 class="chapter-title">图像分割使用分水岭演算法</h1>
       <div class="chapter-meta">本章共 6 个小节 · 分水岭演算法 · distanceTransform() · connectedComponents() · watershed()</div>
 
       <div class="chapter-intro">
-        前面的章节介绍了阈值、形态学、影像检测、边缘侦测、轮廓侦测等技术。本章说明当目标彼此紧邻或重叠时，如何使用分水岭演算法将影像切分成多个独立区域。
+        前面的章节介绍了阈值、形态学、图像检测、边缘侦测、轮廓侦测等技术。本章说明当目标彼此紧邻或重叠时，如何使用分水岭演算法将图像切分成多个独立区域。
       </div>
 
       <div class="section-heading" id="section-0">
@@ -42,7 +42,7 @@
       </div>
 
       <p class="content-text">
-        前面的章节笔者介绍了 <strong>阈值</strong>、<strong>形态学</strong>、<strong>影像检测</strong>、<strong>边缘侦测</strong>、<strong>轮廓侦测</strong> 等技术，我们可以很容易取得单一影像的轮廓。假设有两个影像内容如下：
+        前面的章节笔者介绍了 <strong>阈值</strong>、<strong>形态学</strong>、<strong>图像检测</strong>、<strong>边缘侦测</strong>、<strong>轮廓侦测</strong> 等技术，我们可以很容易取得单一图像的轮廓。假设有两个图像内容如下：
       </p>
 
       <div class="result-box-image">
@@ -51,10 +51,10 @@
       </div>
 
       <p class="content-text">
-        如果使用前面所学的知识想要取得上述影像，在轮廓取得过程会得到单一轮廓，而不是我们期待的多个硬币个别的轮廓。
+        如果使用前面所学的知识想要取得上述图像，在轮廓取得过程会得到单一轮廓，而不是我们期待的多个硬币个别的轮廓。
       </p>
 
-      <p class="code-title">程式实例 ch22_1.py：使用 <code>coin1.jpg</code> 影像，获得紧邻硬币的轮廓影像。</p>
+      <p class="code-title">程式实例 ch22_1.py：使用 <code>coin1.jpg</code> 图像，获得紧邻硬币的轮廓图像。</p>
       <div class="code-block"># ch22_1.py
 import cv2
 import numpy as np
@@ -81,12 +81,12 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        上述执行结果验证了紧邻硬币会产生一个轮廓，这一章将介绍分割紧邻硬币的影像为独立轮廓的方法，所使用的是 <strong>Image Segmentation with Watershed Algorithm</strong>，中文可以翻译为分水岭演算法执行影像分割。
+        上述执行结果验证了紧邻硬币会产生一个轮廓，这一章将介绍分割紧邻硬币的图像为独立轮廓的方法，所使用的是 <strong>Image Segmentation with Watershed Algorithm</strong>，中文可以翻译为分水岭演算法执行图像分割。
       </p>
 
       <h3>22-2-1 认识分水岭演算法</h3>
       <p class="content-text">
-        分水岭演算法的基础观念是将影像视为地形表面，其中高强度像素值代表山峰或是丘陵，低强度像素值代表山谷。
+        分水岭演算法的基础观念是将图像视为地形表面，其中高强度像素值代表山峰或是丘陵，低强度像素值代表山谷。
       </p>
       <p class="content-text">
         当开始用不同颜色的水（标签）填充每个孤立的山谷（局部最小值），随著水位上升，来自不同山谷的不同颜色的水会开始融合。为了避免不同颜色的水融合，我们可以在水汇集的位置建立障碍，然后继续灌水和建立障碍，直到所有山峰都在水下，最后建立的障碍就是分水岭线，因此可以得到整个分割的结果。
@@ -94,12 +94,12 @@ cv2.destroyAllWindows()</div>
 
       <h3>22-2-2 OpenCV 官方推荐网页</h3>
       <p class="content-text">
-        有关分水岭演算法的动态影像细节，OpenCV 官网推荐了法国巴黎高等矿业科技大学的 CMM 实验室网页。本小节的影像内容主要取材自该网页。
+        有关分水岭演算法的动态图像细节，OpenCV 官网推荐了法国巴黎高等矿业科技大学的 CMM 实验室网页。本小节的图像内容主要取材自该网页。
       </p>
 
       <div class="result-box-image">
-        <img src="images/ch22/ch22_03_topographic_surface.png" alt="分水岭初始影像与地形表面示意">
-        <div class="caption">左图是一幅影像，右图是将影像视作地形表面。影像内容取材自 https://people.cmm.minesparis.psl.eu/users/beucher/wtshed.html</div>
+        <img src="images/ch22/ch22_03_topographic_surface.png" alt="分水岭初始图像与地形表面示意">
+        <div class="caption">左图是一幅图像，右图是将图像视作地形表面。图像内容取材自 https://people.cmm.minesparis.psl.eu/users/beucher/wtshed.html</div>
       </div>
 
       <div class="result-box-image">
@@ -108,12 +108,12 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="result-box-image">
-        <img src="images/ch22/ch22_05_gray_steps.png" alt="均匀灰阶影像的分水岭步骤">
-        <div class="caption">编号意义：1 原始影像、2 梯度影像、3 梯度影像的分水岭、4 最后的影像轮廓。</div>
+        <img src="images/ch22/ch22_05_gray_steps.png" alt="均匀灰阶图像的分水岭步骤">
+        <div class="caption">编号意义：1 原始图像、2 梯度图像、3 梯度图像的分水岭、4 最后的图像轮廓。</div>
       </div>
 
       <p class="content-text">
-        有时在执行时，因为梯度影像的杂讯或局部不规则性，可能会产生过度分割。为了避免这个现象，可以标记部分淹没的影像区域，这些被标记的区域就会被分割在同一区。
+        有时在执行时，因为梯度图像的杂讯或局部不规则性，可能会产生过度分割。为了避免这个现象，可以标记部分淹没的图像区域，这些被标记的区域就会被分割在同一区。
       </p>
 
       <div class="result-box-image">
@@ -132,10 +132,10 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        如果影像内的物件是独立的，例如所有硬币彼此独立没有相邻，可以使用第 12-1 节所述的腐蚀（Erosion）操作获得所有硬币的轮廓。可是如果硬币紧邻在一起或部分重叠，例如 <code>coin1.jpg</code> 或 <code>coin2.jpg</code>，则无法使用腐蚀操作获得所有硬币轮廓。
+        如果图像内的物件是独立的，例如所有硬币彼此独立没有相邻，可以使用第 12-1 节所述的腐蚀（Erosion）操作获得所有硬币的轮廓。可是如果硬币紧邻在一起或部分重叠，例如 <code>coin1.jpg</code> 或 <code>coin2.jpg</code>，则无法使用腐蚀操作获得所有硬币轮廓。
       </p>
       <p class="content-text">
-        这时需要使用 <code>distanceTransform()</code>，中文可译为距离变换函数。此函数功能是计算二值影像的前景图案内任一点（非零像素值点）到最近背景图案点（零像素值点）的距离。如果输出位置是 0，代表这是背景点；如果用影像显示输出，越亮的点代表距离越远。分水岭演算法的第一步就是取得影像的距离变换函数资讯。
+        这时需要使用 <code>distanceTransform()</code>，中文可译为距离变换函数。此函数功能是计算二值图像的前景图案内任一点（非零像素值点）到最近背景图案点（零像素值点）的距离。如果输出位置是 0，代表这是背景点；如果用图像显示输出，越亮的点代表距离越远。分水岭演算法的第一步就是取得图像的距离变换函数资讯。
       </p>
 
       <div class="code-syntax">dst = distanceTransform(src, distanceType, maskSize, dstType)</div>
@@ -145,8 +145,8 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>dst</code></td><td>目标影像，长宽和 <code>src</code> 相同，是 8 位元或 32 位元浮点数。</td></tr>
-          <tr><td><code>src</code></td><td>输入影像，此影像格式是 8 位元的二值影像。</td></tr>
+          <tr><td><code>dst</code></td><td>目标图像，长宽和 <code>src</code> 相同，是 8 位元或 32 位元浮点数。</td></tr>
+          <tr><td><code>src</code></td><td>输入图像，此图像格式是 8 位元的二值图像。</td></tr>
           <tr><td><code>distanceType</code></td><td>计算距离的整数资料类型参数，可以参考下表。</td></tr>
           <tr><td><code>maskSize</code></td><td>遮罩大小，可以参考下表。</td></tr>
           <tr><td><code>dstType</code></td><td>可选参数，预设是 <code>CV_32F</code>。</td></tr>
@@ -204,15 +204,15 @@ dst = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
 # 读者也可以更改下列 0.7 为其他值，会影响前景大小
 ret, sure_fg = cv2.threshold(dst, 0.7 * dst.max(), 255, 0)      # 前景图案
 plt.subplot(131)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(rgb_src)
 plt.axis("off")
 plt.subplot(132)
-plt.title("距离变换影像")
+plt.title("距离变换图像")
 plt.imshow(dst)
 plt.axis("off")
 plt.subplot(133)
-plt.title("阈值化影像")
+plt.title("阈值化图像")
 plt.imshow(sure_fg)
 plt.axis("off")
 plt.show()</div>
@@ -221,7 +221,7 @@ plt.show()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch22/ch22_08_distance_result_07.png" alt="ch22_2.py distanceTransform 阈值 0.7 执行结果">
-          <div class="caption">阈值化影像图是第 19 列设定 <code>0.7*dst.max()</code> 的结果。</div>
+          <div class="caption">阈值化图像图是第 19 列设定 <code>0.7*dst.max()</code> 的结果。</div>
         </div>
       </div>
 
@@ -240,7 +240,7 @@ plt.show()</div>
       </div>
 
       <p class="content-text">
-        前景影像是确定了前景区域，在程式 <code>ch22_2.py</code> 第 19 列的 <code>sure_fg</code> 就是确定的前景。下一步是找出确定的背景图案，可以使用形态学的膨胀（Dilate）观念让前景放大，这时前景以外的区域就是背景，而且所获得的背景一定小于实际背景。这个背景就是确定背景，假设使用 <code>sure_bg</code> 表示。
+        前景图像是确定了前景区域，在程式 <code>ch22_2.py</code> 第 19 列的 <code>sure_fg</code> 就是确定的前景。下一步是找出确定的背景图案，可以使用形态学的膨胀（Dilate）观念让前景放大，这时前景以外的区域就是背景，而且所获得的背景一定小于实际背景。这个背景就是确定背景，假设使用 <code>sure_bg</code> 表示。
       </p>
 
       <div class="code-block">sure_bg = cv2.dilate(opening, kernel, iterations=2)</div>
@@ -276,15 +276,15 @@ sure_bg = cv2.dilate(opening, kernel, iterations=2)
 unknown = cv2.subtract(sure_bg, sure_fg)
 
 plt.subplot(141)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(rgb_src)
 plt.axis("off")
 plt.subplot(142)
-plt.title("距离变换影像")
+plt.title("距离变换图像")
 plt.imshow(dst)
 plt.axis("off")
 plt.subplot(143)
-plt.title("阈值化影像")
+plt.title("阈值化图像")
 plt.imshow(sure_fg)
 plt.axis("off")
 plt.subplot(144)
@@ -307,7 +307,7 @@ plt.show()</div>
       </div>
 
       <p class="content-text">
-        现在我们知道硬币区、背景区和整个影像，下一步是建立标记。这时需要使用 <code>connectedComponents()</code> 函数。此函数会用 0 标记背景，其他物件则从 1、2、... 开始标记，不同的数字代表不同的连通区域。
+        现在我们知道硬币区、背景区和整个图像，下一步是建立标记。这时需要使用 <code>connectedComponents()</code> 函数。此函数会用 0 标记背景，其他物件则从 1、2、... 开始标记，不同的数字代表不同的连通区域。
       </p>
 
       <div class="code-syntax">ret, labels = cv2.connectedComponents(image)</div>
@@ -318,8 +318,8 @@ plt.show()</div>
         </thead>
         <tbody>
           <tr><td><code>ret</code></td><td>函数回传的标记数量。</td></tr>
-          <tr><td><code>labels</code></td><td>影像上每一个像素的标记，不同数字代表不同的连通区域。</td></tr>
-          <tr><td><code>image</code></td><td>输入影像，这是 8 位元需要标记的影像。</td></tr>
+          <tr><td><code>labels</code></td><td>图像上每一个像素的标记，不同数字代表不同的连通区域。</td></tr>
+          <tr><td><code>image</code></td><td>输入图像，这是 8 位元需要标记的图像。</td></tr>
         </tbody>
       </table>
 
@@ -352,7 +352,7 @@ unknown = cv2.subtract(sure_bg, sure_fg)
 # 标记区
 ret, markers = cv2.connectedComponents(sure_fg)
 plt.subplot(131)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(rgb_src)
 plt.axis("off")
 plt.subplot(132)
@@ -369,7 +369,7 @@ plt.show()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch22/ch22_11_markers_result.png" alt="ch22_4.py 标记区执行结果">
-          <div class="caption">左图是原始影像，中图是未知区域，右图是标记区。</div>
+          <div class="caption">左图是原始图像，中图是未知区域，右图是标记区。</div>
         </div>
       </div>
 
@@ -445,16 +445,16 @@ plt.show()</div>
       </div>
 
       <p class="content-text">
-        完成先前的准备工作后，最后一步就是使用 OpenCV 的 <code>watershed()</code> 完成影像分割。函数语法如下：
+        完成先前的准备工作后，最后一步就是使用 OpenCV 的 <code>watershed()</code> 完成图像分割。函数语法如下：
       </p>
 
       <div class="code-syntax">markers = cv2.watershed(img, markers)</div>
 
       <p class="content-text">
-        上述 <code>img</code> 是原始读取的彩色影像，<code>markers</code> 是标记的结果，边界区域将被标记为 <code>-1</code>。
+        上述 <code>img</code> 是原始读取的彩色图像，<code>markers</code> 是标记的结果，边界区域将被标记为 <code>-1</code>。
       </p>
 
-      <p class="code-title">程式实例 ch22_6.py：完成分水岭分割影像。</p>
+      <p class="code-title">程式实例 ch22_6.py：完成分水岭分割图像。</p>
       <div class="code-block"># ch22_6.py
 import cv2
 import numpy as np
@@ -490,7 +490,7 @@ dst = rgb_src.copy()
 markers = cv2.watershed(dst, markers)
 dst[markers == -1] = [255, 0, 0]        # 使用红色显示
 plt.subplot(121)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(rgb_src)
 plt.axis("off")
 plt.subplot(122)
@@ -513,7 +513,7 @@ plt.show()</div>
           <p>1. 请自行练习堆叠硬币，然后试著用分水岭演算法做分割，下列是笔者的执行结果。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch22/ch22_14_exercise_result.png" alt="第 22 章习题硬币分水岭分割结果">
-            <div class="caption">左图是原始影像，右图是分割结果。</div>
+            <div class="caption">左图是原始图像，右图是分割结果。</div>
           </div>
         </div>
       </div>
@@ -528,7 +528,7 @@ plt.show()</div>
           <a href="ch23.html">
             <div>
               <div class="nav-label">下一章 &rarr;</div>
-              <div class="nav-title">第 23 章 影像提取</div>
+              <div class="nav-title">第 23 章 图像提取</div>
             </div>
           </a>
       </div>
@@ -536,7 +536,7 @@ plt.show()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

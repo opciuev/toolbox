@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,7 +33,7 @@
       <div class="chapter-meta">本章共 4 个小节 · 模板匹配的基础观念 · 模板匹配函数 matchTemplate() · 单模板匹配 · 多模板匹配</div>
 
       <div class="chapter-intro">
-        模板匹配是将模板影像在原始影像中移动遍历，逐一比较每个位置的相似程度。OpenCV 提供 <code>matchTemplate()</code> 函数，可以用不同匹配方法找出单一目标或多目标。
+        模板匹配是将模板图像在原始图像中移动遍历，逐一比较每个位置的相似程度。OpenCV 提供 <code>matchTemplate()</code> 函数，可以用不同匹配方法找出单一目标或多目标。
       </div>
 
       <div class="section-heading" id="section-0">
@@ -42,26 +42,26 @@
       </div>
 
       <p class="content-text">
-        假设原始影像是 A，模板影像是 B，在执行模板匹配时先决条件是 A 影像必须大于或等于 B 影像。所谓的模板匹配，是指将 B 影像在 A 影像中移动遍历，完成匹配的方法。
+        假设原始图像是 A，模板图像是 B，在执行模板匹配时先决条件是 A 图像必须大于或等于 B 图像。所谓的模板匹配，是指将 B 图像在 A 图像中移动遍历，完成匹配的方法。
       </p>
 
       <div class="result-box">
-        <span class="result-box-header">模板影像与原始影像</span>
+        <span class="result-box-header">模板图像与原始图像</span>
         <div class="result-box-image">
-          <img src="images/ch20/ch20_01_template_matching_concept.png" alt="模板影像在原始影像中移动进行匹配的示意图">
-          <div class="caption">模板影像在原始影像中横向、纵向移动，逐一比较。参考原书第 20-2 页。</div>
+          <img src="images/ch20/ch20_01_template_matching_concept.png" alt="模板图像在原始图像中移动进行匹配的示意图">
+          <div class="caption">模板图像在原始图像中横向、纵向移动，逐一比较。参考原书第 20-2 页。</div>
         </div>
       </div>
 
       <p class="content-text">
-        假设原始影像的宽和高分别用 <code>W</code> 和 <code>H</code> 代表，模板影像的宽和高分别用 <code>w</code> 和 <code>h</code> 代表。模板影像在往右移的匹配中必须比较 <code>W - w + 1</code> 次。
+        假设原始图像的宽和高分别用 <code>W</code> 和 <code>H</code> 代表，模板图像的宽和高分别用 <code>w</code> 和 <code>h</code> 代表。模板图像在往右移的匹配中必须比较 <code>W - w + 1</code> 次。
       </p>
 
       <div class="result-box">
         <span class="result-box-header">比较次数示意</span>
         <div class="result-box-image">
           <img src="images/ch20/ch20_02_result_matrix_size_grid.png" alt="W、H、w、h 与匹配结果矩阵大小示意">
-          <div class="caption">影像宽度是 5、模板宽度是 2 时，横向比较次数为 <code>5 - 2 + 1 = 4</code>。参考原书第 20-4 页。</div>
+          <div class="caption">图像宽度是 5、模板宽度是 2 时，横向比较次数为 <code>5 - 2 + 1 = 4</code>。参考原书第 20-4 页。</div>
         </div>
       </div>
 
@@ -76,7 +76,7 @@
 
       <h3>20-2-1 认识匹配函数 matchTemplate()</h3>
       <p class="content-text">
-        OpenCV 提供了 <code>matchTemplate()</code> 函数，可以让我们在一个较大的影像中找寻模板影像。这个函数的语法如下。
+        OpenCV 提供了 <code>matchTemplate()</code> 函数，可以让我们在一个较大的图像中找寻模板图像。这个函数的语法如下。
       </p>
 
       <div class="code-syntax">result = cv2.matchTemplate(image, templ, method, mask)</div>
@@ -87,8 +87,8 @@
         </thead>
         <tbody>
           <tr><td><code>result</code></td><td>比较结果的阵列。</td></tr>
-          <tr><td><code>image</code></td><td>原始影像。</td></tr>
-          <tr><td><code>templ</code></td><td>模板影像。</td></tr>
+          <tr><td><code>image</code></td><td>原始图像。</td></tr>
+          <tr><td><code>templ</code></td><td>模板图像。</td></tr>
           <tr><td><code>method</code></td><td>搜寻匹配程度的方法，有 6 个可能方法。</td></tr>
           <tr><td><code>mask</code></td><td>模板使用的遮罩，需与 <code>templ</code> 有相同大小；也可以直接使用预设值。</td></tr>
         </tbody>
@@ -101,16 +101,16 @@
         <tbody>
           <tr><td><code>cv2.TM_SQDIFF</code></td><td>平方差匹配法，完全匹配时值是 0，匹配越差值越大。</td></tr>
           <tr><td><code>cv2.TM_SQDIFF_NORMED</code></td><td>归一化平方差匹配法。</td></tr>
-          <tr><td><code>cv2.TM_CCORR</code></td><td>相关匹配法，将模板影像与输入影像相乘，数值越大匹配越好；如果是 0 表示匹配最差。</td></tr>
+          <tr><td><code>cv2.TM_CCORR</code></td><td>相关匹配法，将模板图像与输入图像相乘，数值越大匹配越好；如果是 0 表示匹配最差。</td></tr>
           <tr><td><code>cv2.TM_CCORR_NORMED</code></td><td>归一化相关匹配法。</td></tr>
-          <tr><td><code>cv2.TM_CCOEFF</code></td><td>相关系数匹配法，采用相关匹配法对模板减去均值的结果和原始影像减去均值结果进行匹配。1 表示最好匹配，0 表示没有相关，-1 表示最差匹配。</td></tr>
+          <tr><td><code>cv2.TM_CCOEFF</code></td><td>相关系数匹配法，采用相关匹配法对模板减去均值的结果和原始图像减去均值结果进行匹配。1 表示最好匹配，0 表示没有相关，-1 表示最差匹配。</td></tr>
           <tr><td><code>cv2.TM_CCOEFF_NORMED</code></td><td>归一化相关系数匹配法。</td></tr>
         </tbody>
       </table>
 
       <h3>20-2-2 模板匹配结果</h3>
       <p class="content-text">
-        假设原始影像的宽和高分别用 <code>W</code> 和 <code>H</code> 代表，模板影像的宽和高分别用 <code>w</code> 和 <code>h</code> 代表。函数 <code>matchTemplate()</code> 的回传值是一个矩阵，矩阵大小是 <code>(H - h + 1, W - w + 1)</code>。
+        假设原始图像的宽和高分别用 <code>W</code> 和 <code>H</code> 代表，模板图像的宽和高分别用 <code>w</code> 和 <code>h</code> 代表。函数 <code>matchTemplate()</code> 的回传值是一个矩阵，矩阵大小是 <code>(H - h + 1, W - w + 1)</code>。
       </p>
 
       <p class="code-title">程序实例 ch20_1.py：使用 <code>TM_SQDIFF</code> 方法，了解 <code>matchTemplate()</code> 函数的回传结果</p>
@@ -118,14 +118,14 @@
 import cv2
 
 src = cv2.imread("macau_hotel.jpg", cv2.IMREAD_COLOR)
-cv2.imshow("Src", src)                         # 显示原始影像
+cv2.imshow("Src", src)                         # 显示原始图像
 H, W = src.shape[:2]
-print(f"原始影像高 H = {H}, 宽 W = {W}")
+print(f"原始图像高 H = {H}, 宽 W = {W}")
 
 templ = cv2.imread("head.jpg")
-cv2.imshow("Temp1", templ)                     # 显示模板影像
+cv2.imshow("Temp1", templ)                     # 显示模板图像
 h, w = templ.shape[:2]
-print(f"模板影像高 h = {h}, 宽 w = {w}")
+print(f"模板图像高 h = {h}, 宽 w = {w}")
 
 result = cv2.matchTemplate(src, templ, cv2.TM_SQDIFF)
 print(f"result大小 = {result.shape}")
@@ -136,8 +136,8 @@ cv2.destroyAllWindows()</div>
 
       <div class="result-box chapter-output-pre">
         <span class="result-box-header">执行结果</span>
-        <div class="result-box-content result-output">原始影像高 H = 462, 宽 W = 621
-模板影像高 h = 45, 宽 w = 51
+        <div class="result-box-content result-output">原始图像高 H = 462, 宽 W = 621
+模板图像高 h = 45, 宽 w = 51
 result大小 = (418, 571)
 阵列内容
 [[33817698. 339... 341... ...]
@@ -147,7 +147,7 @@ result大小 = (418, 571)
       </div>
 
       <p class="content-text">
-        上述程序列出了原始影像与模板影像的高与宽，以及结果 <code>result</code> 的矩阵大小。读者可以验证公式：<code>H - h + 1 = 462 - 45 + 1 = 418</code>，<code>W - w + 1 = 621 - 51 + 1 = 571</code>。
+        上述程序列出了原始图像与模板图像的高与宽，以及结果 <code>result</code> 的矩阵大小。读者可以验证公式：<code>H - h + 1 = 462 - 45 + 1 = 418</code>，<code>W - w + 1 = 621 - 51 + 1 = 571</code>。
       </p>
 
       <div class="section-heading" id="section-2">
@@ -156,7 +156,7 @@ result大小 = (418, 571)
       </div>
 
       <p class="content-text">
-        所谓的单模板匹配是指模板影像数量有一个。这时可能会有一个、二个或更多个与模板相类似的原始影像。如果只针对一个最相似当作结果，称为单目标匹配；如果要将所有相类似的做匹配，则称多目标匹配，将在 20-4 节说明。
+        所谓的单模板匹配是指模板图像数量有一个。这时可能会有一个、二个或更多个与模板相类似的原始图像。如果只针对一个最相似当作结果，称为单目标匹配；如果要将所有相类似的做匹配，则称多目标匹配，将在 20-4 节说明。
       </p>
 
       <h3>20-3-1 回顾 minMaxLoc() 函数</h3>
@@ -172,7 +172,7 @@ result大小 = (418, 571)
 
       <h3>20-3-2 单模板匹配的实例</h3>
 
-      <p class="code-title">程序实例 ch20_2.py：原始影像是 <code>shapes.jpg</code>，模板影像是 <code>heart.jpg</code>，找出最匹配的图案，同时加上外框</p>
+      <p class="code-title">程序实例 ch20_2.py：原始图像是 <code>shapes.jpg</code>，模板图像是 <code>heart.jpg</code>，找出最匹配的图案，同时加上外框</p>
       <p class="content-text">
         这个实例使用 <code>TM_SQDIFF_NORMED</code> 归一化平方差匹配法，所以回传数值会小于 1.0。<code>TM_SQDIFF_NORMED</code> 完全匹配时值是 0，匹配越差值越接近 1。
       </p>
@@ -181,10 +181,10 @@ result大小 = (418, 571)
 import cv2
 
 src = cv2.imread("shapes.jpg", cv2.IMREAD_COLOR)
-cv2.imshow("Src", src)                         # 显示原始影像
+cv2.imshow("Src", src)                         # 显示原始图像
 templ = cv2.imread("heart.jpg", cv2.IMREAD_COLOR)
-cv2.imshow("Temp1", templ)                     # 显示模板影像
-height, width = templ.shape[:2]                # 获得模板影像的高与宽
+cv2.imshow("Temp1", templ)                     # 显示模板图像
+height, width = templ.shape[:2]                # 获得模板图像的高与宽
 
 # 使用 cv2.TM_SQDIFF_NORMED 执行模板匹配
 result = cv2.matchTemplate(src, templ, cv2.TM_SQDIFF_NORMED)
@@ -213,10 +213,10 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="result-box">
-        <span class="result-box-header">模板影像与原始影像</span>
+        <span class="result-box-header">模板图像与原始图像</span>
         <div class="result-box-image">
-          <img src="images/ch20/ch20_03_shapes_template_source.png" alt="heart.jpg 模板影像与 shapes.jpg 原始影像">
-          <div class="caption">模板影像是心型，原始影像中含多种图形。参考原书第 20-7 页。</div>
+          <img src="images/ch20/ch20_03_shapes_template_source.png" alt="heart.jpg 模板图像与 shapes.jpg 原始图像">
+          <div class="caption">模板图像是心型，原始图像中含多种图形。参考原书第 20-7 页。</div>
         </div>
       </div>
 
@@ -234,7 +234,7 @@ import cv2
 
 src = cv2.imread("g5.jpg", cv2.IMREAD_COLOR)
 templ = cv2.imread("face1.jpg", cv2.IMREAD_COLOR)
-height, width = templ.shape[:2]                # 获得模板影像的高与宽
+height, width = templ.shape[:2]                # 获得模板图像的高与宽
 
 # 使用 cv2.TM_SQDIFF_NORMED 执行模板匹配
 result = cv2.matchTemplate(src, templ, cv2.TM_SQDIFF_NORMED)
@@ -255,20 +255,20 @@ cv2.destroyAllWindows()</div>
         </div>
       </div>
 
-      <h3>20-3-3 找出比较接近的影像</h3>
+      <h3>20-3-3 找出比较接近的图像</h3>
       <p class="content-text">
-        有时候会有一系列照片，读者可以想成有多张原始影像，然后要找出哪一张影像与模板影像比较接近。
+        有时候会有一系列照片，读者可以想成有多张原始图像，然后要找出哪一张图像与模板图像比较接近。
       </p>
 
-      <p class="code-title">程序实例 ch20_4.py：使用 2 张原始影像 <code>knight0.jpg</code>、<code>knight1.jpg</code> 与模板影像 <code>knight.jpg</code> 比较，最后输出比较接近的影像</p>
+      <p class="code-title">程序实例 ch20_4.py：使用 2 张原始图像 <code>knight0.jpg</code>、<code>knight1.jpg</code> 与模板图像 <code>knight.jpg</code> 比较，最后输出比较接近的图像</p>
       <div class="code-block"># ch20_4.py
 import cv2
 
-src = []                                      # 建立原始影像阵列
+src = []                                      # 建立原始图像阵列
 src1 = cv2.imread("knight0.jpg", cv2.IMREAD_COLOR)
-src.append(src1)                              # 加入原始影像串列
+src.append(src1)                              # 加入原始图像串列
 src2 = cv2.imread("knight1.jpg", cv2.IMREAD_COLOR)
-src.append(src2)                              # 加入原始影像串列
+src.append(src2)                              # 加入原始图像串列
 templ = cv2.imread("knight.jpg", cv2.IMREAD_COLOR)
 
 # 使用 cv2.TM_SQDIFF_NORMED 执行模板匹配
@@ -293,27 +293,27 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <div class="result-box">
-        <span class="result-box-header">骑士影像比较</span>
+        <span class="result-box-header">骑士图像比较</span>
         <div class="result-box-image">
-          <img src="images/ch20/ch20_06_knight_template_sources.png" alt="knight.jpg 模板与 knight0.jpg、knight1.jpg 两张原始影像">
-          <div class="caption">程序使用两张原始影像与一张模板影像比较。参考原书第 20-9 页。</div>
+          <img src="images/ch20/ch20_06_knight_template_sources.png" alt="knight.jpg 模板与 knight0.jpg、knight1.jpg 两张原始图像">
+          <div class="caption">程序使用两张原始图像与一张模板图像比较。参考原书第 20-9 页。</div>
         </div>
       </div>
 
       <h3>20-3-4 多目标匹配的实例</h3>
       <p class="content-text">
-        本节主题是原始影像有多个图案与模板影像相同，然后必须找出所有相同的图案。这里使用 <code>TM_CCOEFF_NORMED</code>，完全相同的图案回传值是 1，匹配越差值越接近 -1。
+        本节主题是原始图像有多个图案与模板图像相同，然后必须找出所有相同的图案。这里使用 <code>TM_CCOEFF_NORMED</code>，完全相同的图案回传值是 1，匹配越差值越接近 -1。
       </p>
 
-      <p class="code-title">程序实例 ch20_5.py：一个原始影像有多张图案与模板影像相同，逐列 row、逐行 col 找出值大于 0.95 的图案</p>
+      <p class="code-title">程序实例 ch20_5.py：一个原始图像有多张图案与模板图像相同，逐列 row、逐行 col 找出值大于 0.95 的图案</p>
       <div class="code-block"># ch20_5.py
 import cv2
 
 src = cv2.imread("mutishapes.jpg", cv2.IMREAD_COLOR)
-cv2.imshow("Src", src)                         # 显示原始影像
+cv2.imshow("Src", src)                         # 显示原始图像
 templ = cv2.imread("heart.jpg", cv2.IMREAD_COLOR)
-cv2.imshow("Temp1", templ)                     # 显示模板影像
-height, width = templ.shape[:2]                # 获得模板影像的高与宽
+cv2.imshow("Temp1", templ)                     # 显示模板图像
+height, width = templ.shape[:2]                # 获得模板图像的高与宽
 
 # 使用 cv2.TM_CCOEFF_NORMED 执行模板匹配
 result = cv2.matchTemplate(src, templ, cv2.TM_CCOEFF_NORMED)
@@ -338,7 +338,7 @@ cv2.destroyAllWindows()</div>
 
       <h3>20-3-5 在地图搜寻山脉</h3>
       <p class="content-text">
-        下列是百度地图，其中山脉符号可以当作模板影像，地图可以视作原始影像。程序可以将所有山脉圈起来。
+        下列是百度地图，其中山脉符号可以当作模板图像，地图可以视作原始图像。程序可以将所有山脉圈起来。
       </p>
 
       <p class="code-title">程序实例 ch20_6.py：将山脉用红色框起来</p>
@@ -347,7 +347,7 @@ import cv2
 
 src = cv2.imread("baidu.jpg", cv2.IMREAD_COLOR)
 templ = cv2.imread("mountain_mark.jpg", cv2.IMREAD_COLOR)
-h, w = templ.shape[:2]                         # 获得模板影像的高与宽
+h, w = templ.shape[:2]                         # 获得模板图像的高与宽
 
 # 使用 cv2.TM_CCOEFF_NORMED 执行模板匹配
 result = cv2.matchTemplate(src, templ, cv2.TM_CCOEFF_NORMED)
@@ -366,7 +366,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">山脉模板与地图</span>
         <div class="result-box-image">
           <img src="images/ch20/ch20_08_mountain_mark_source.png" alt="mountain_mark.jpg 山脉模板与 baidu.jpg 地图">
-          <div class="caption">下方左图是山脉符号模板，右图是地图原始影像。参考原书第 20-12 页。</div>
+          <div class="caption">下方左图是山脉符号模板，右图是地图原始图像。参考原书第 20-12 页。</div>
         </div>
       </div>
 
@@ -380,7 +380,7 @@ cv2.destroyAllWindows()</div>
 
       <h3>20-3-6 计算距离最近的机场</h3>
       <p class="content-text">
-        此节实例是计算从地图中心点 <code>(450, 180)</code>，约在青年公园，然后找出最近的机场。原始影像可以看到桃园中正机场与台北松山机场。
+        此节实例是计算从地图中心点 <code>(450, 180)</code>，约在青年公园，然后找出最近的机场。原始图像可以看到桃园中正机场与台北松山机场。
       </p>
 
       <p class="code-title">程序实例 ch20_7.py：计算与输出到机场的距离，以及将比较近的距离绘制蓝色线</p>
@@ -393,7 +393,7 @@ start_y = 180                                      # 目前位置 y
 src = cv2.imread("airport.jpg", cv2.IMREAD_COLOR)
 templ = cv2.imread("airport_mark.jpg", cv2.IMREAD_COLOR)
 dst = cv2.circle(src, (start_x, start_y), 10, (255, 0, 0), -1)
-h, w = templ.shape[:2]                             # 获得模板影像的高与宽
+h, w = templ.shape[:2]                             # 获得模板图像的高与宽
 
 # 使用 cv2.TM_CCOEFF_NORMED 执行模板匹配
 ul_x = []                                          # 最佳匹配左上角串列 x
@@ -444,7 +444,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        所谓的多模板匹配就是原始影像有多个，但是模板影像也有多个。处理这类问题可以建立一个匹配函数，然后用 <code>for</code> 循环将所读取的模板影像送入匹配函数，再将匹配成功的影像存入指定串列。
+        所谓的多模板匹配就是原始图像有多个，但是模板图像也有多个。处理这类问题可以建立一个匹配函数，然后用 <code>for</code> 循环将所读取的模板图像送入匹配函数，再将匹配成功的图像存入指定串列。
       </p>
 
       <p class="code-title">程序实例 ch20_8.py：多模板匹配的应用，所有匹配成功的模板使用绿色框框起来</p>
@@ -500,7 +500,7 @@ cv2.destroyAllWindows()</div>
             <img src="images/ch20/ch20_ex02_all_mountains.png" alt="第 20 章习题 2 列出所有山脉参考结果">
             <div class="caption">参考原书第 20-16 页。</div>
           </div>
-          <p>3. 有一个匹配影像 <code>university.jpg</code> 与原始影像 <code>map.jpg</code>，请将大学用红色圈起来，同时列出此地图区域大学的数量。</p>
+          <p>3. 有一个匹配图像 <code>university.jpg</code> 与原始图像 <code>map.jpg</code>，请将大学用红色圈起来，同时列出此地图区域大学的数量。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch20/ch20_ex03_university.png" alt="第 20 章习题 3 在地图中圈出大学并列出数量参考结果">
             <div class="caption">参考原书第 20-17 页。</div>
@@ -517,7 +517,7 @@ cv2.destroyAllWindows()</div>
           <a href="ch19.html">
             <div>
               <div class="nav-label">&larr; 上一章</div>
-              <div class="nav-title">第 19 章 直方图均衡化：增强影像对比度</div>
+              <div class="nav-title">第 19 章 直方图均衡化：增强图像对比度</div>
             </div>
           </a>
           <a href="ch21.html">
@@ -531,7 +531,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

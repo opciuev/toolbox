@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第 24 章 影像修复 - 抢救蒙娜丽莎的微笑 - OpenCV 教学</title>
+  <title>第 24 章 图像修复 - 抢救蒙娜丽莎的微笑 - OpenCV 教学</title>
   <link rel="stylesheet" href="../css/style.css?v=20260422">
 </head>
 <body>
@@ -29,19 +29,19 @@
 
     <main class="main-content">
       <span class="chapter-badge">第 24 章</span>
-      <h1 class="chapter-title">影像修复 - 抢救蒙娜丽莎的微笑</h1>
-      <div class="chapter-meta">本章共 3 个小节 · 影像修复演算法 · inpaint() · INPAINT_NS · INPAINT_TELEA</div>
+      <h1 class="chapter-title">图像修复 - 抢救蒙娜丽莎的微笑</h1>
+      <div class="chapter-meta">本章共 3 个小节 · 图像修复演算法 · inpaint() · INPAINT_NS · INPAINT_TELEA</div>
 
       <div class="chapter-intro">
-        实体照片放在家中久了，上面可能会有污点、或笔触，在人工修复时，最多又能用白色取代黑点之类，这一章主要是讲解应该如何使用 OpenCV + Python 做影像修复。OpenCV 的影像修复主要观念是使用相邻的像素值代替坏标记，让坏标记看起来和就像是影像内容。
+        实体照片放在家中久了，上面可能会有污点、或笔触，在人工修复时，最多又能用白色取代黑点之类，这一章主要是讲解应该如何使用 OpenCV + Python 做图像修复。OpenCV 的图像修复主要观念是使用相邻的像素值代替坏标记，让坏标记看起来和就像是图像内容。
       </div>
 
       <div class="section-heading" id="section-0">
         <span class="section-number">24-1</span>
-        <h2>影像修复的演算法</h2>
+        <h2>图像修复的演算法</h2>
       </div>
 
-      <p class="content-text">OpenCV 所提供的修复影像方法有 2 个。</p>
+      <p class="content-text">OpenCV 所提供的修复图像方法有 2 个。</p>
 
       <h3>24-1-1 Navier-Stokes 演算法</h3>
       <p class="content-text">
@@ -62,7 +62,7 @@
       <div class="result-box-content result-output">An Image Inpainting Technique Based on the Fast Marching Method</div>
 
       <p class="content-text">
-        这个方法使用快速行进法（Fast Marching Method，简称 FMM），建构与维护形成窄轮廓的像素列表。这个方法在考虑要修复的影像区域，从区域边界开始，然后向区域内部逐渐填充所有内容。
+        这个方法使用快速行进法（Fast Marching Method，简称 FMM），建构与维护形成窄轮廓的像素列表。这个方法在考虑要修复的图像区域，从区域边界开始，然后向区域内部逐渐填充所有内容。
       </p>
 
       <p class="content-text">
@@ -81,11 +81,11 @@
 
       <div class="section-heading" id="section-1">
         <span class="section-number">24-2</span>
-        <h2>影像修复的函数 inpaint()</h2>
+        <h2>图像修复的函数 inpaint()</h2>
       </div>
 
       <p class="content-text">
-        OpenCV 有关修复影像的方法，基本上是采用 24-1 节所述的方法，然后将方法封装在 <code>inpaint()</code> 函数内，这个函数的语法如下：
+        OpenCV 有关修复图像的方法，基本上是采用 24-1 节所述的方法，然后将方法封装在 <code>inpaint()</code> 函数内，这个函数的语法如下：
       </p>
 
       <div class="code-syntax">dst = cv2.inpaint(src, mask, inpaintRadius, flags)</div>
@@ -97,8 +97,8 @@
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>dst</code></td><td>修复结果影像。</td></tr>
-          <tr><td><code>src</code></td><td>可以是 8 位元的单通道或是 3 通道影像。</td></tr>
+          <tr><td><code>dst</code></td><td>修复结果图像。</td></tr>
+          <tr><td><code>src</code></td><td>可以是 8 位元的单通道或是 3 通道图像。</td></tr>
           <tr><td><code>mask</code></td><td>遮罩，表示要修复的区域。</td></tr>
           <tr><td><code>inpaintRadius</code></td><td>考虑要修复点的圆形半径区域。</td></tr>
           <tr><td><code>flags</code></td><td>可以参考下表。</td></tr>
@@ -137,15 +137,15 @@ lisa_rgb = cv2.cvtColor(lisa, cv2.COLOR_BGR2RGB)    # 将BGR转RGB
 mask_rgb = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)    # 将BGR转RGB
 dst_rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)      # 将BGR转RGB
 plt.subplot(131)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(lisa_rgb)
 plt.axis('off')
 plt.subplot(132)
-plt.title("遮罩影像")
+plt.title("遮罩图像")
 plt.imshow(mask_rgb)
 plt.axis('off')
 plt.subplot(133)
-plt.title("影像修复结果")
+plt.title("图像修复结果")
 plt.imshow(dst_rgb)
 plt.axis('off')
 plt.show()</div>
@@ -154,7 +154,7 @@ plt.show()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch24/ch24_01_ns_result.png" alt="ch24_1.py 使用 INPAINT_NS 修复蒙娜丽莎的微笑">
-          <div class="caption">原始影像、遮罩影像与使用 <code>INPAINT_NS</code> 修复后的影像。</div>
+          <div class="caption">原始图像、遮罩图像与使用 <code>INPAINT_NS</code> 修复后的图像。</div>
         </div>
       </div>
 
@@ -175,15 +175,15 @@ lisa_rgb = cv2.cvtColor(lisa, cv2.COLOR_BGR2RGB)    # 将BGR转RGB
 mask_rgb = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)    # 将BGR转RGB
 dst_rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)      # 将BGR转RGB
 plt.subplot(131)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(lisa_rgb)
 plt.axis('off')
 plt.subplot(132)
-plt.title("遮罩影像")
+plt.title("遮罩图像")
 plt.imshow(mask_rgb)
 plt.axis('off')
 plt.subplot(133)
-plt.title("影像修复结果")
+plt.title("图像修复结果")
 plt.imshow(dst_rgb)
 plt.axis('off')
 plt.show()</div>
@@ -192,22 +192,22 @@ plt.show()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch24/ch24_02_telea_result.png" alt="ch24_2.py 使用 INPAINT_TELEA 修复蒙娜丽莎的微笑">
-          <div class="caption">原始影像、遮罩影像与使用 <code>INPAINT_TELEA</code> 修复后的影像。</div>
+          <div class="caption">原始图像、遮罩图像与使用 <code>INPAINT_TELEA</code> 修复后的图像。</div>
         </div>
       </div>
 
       <div class="note-box">
         <span class="note-icon">注</span>
-        <span>上述 ch24_1.py 笔者是用像素值 255 的红色（Red）色彩，ch24_2.py 是用像素值 255 的白色（Red、Green、Blue）色彩，所以可以很容易取得遮罩影像。第 7 列就是二值化处理取得遮罩影像的第一步，第 9 列和第 10 列则是适度增加遮罩宽度，最后达到影像修复的目的。<br><br>如果使用非接近 255 像素值的色彩污染影像，则会比较困难取得遮罩影像。</span>
+        <span>上述 ch24_1.py 笔者是用像素值 255 的红色（Red）色彩，ch24_2.py 是用像素值 255 的白色（Red、Green、Blue）色彩，所以可以很容易取得遮罩图像。第 7 列就是二值化处理取得遮罩图像的第一步，第 9 列和第 10 列则是适度增加遮罩宽度，最后达到图像修复的目的。<br><br>如果使用非接近 255 像素值的色彩污染图像，则会比较困难取得遮罩图像。</span>
       </div>
 
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 分别使用 <code>INPAINT_NS</code> 和 <code>INPAINT_TELEA</code> 演算法修复 <code>jkError.jpg</code> 影像。</p>
+          <p>1. 分别使用 <code>INPAINT_NS</code> 和 <code>INPAINT_TELEA</code> 演算法修复 <code>jkError.jpg</code> 图像。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
-            <img src="images/ch24/ch24_03_exercise_result.png" alt="分别使用 INPAINT_NS 和 INPAINT_TELEA 修复 jkError.jpg 影像">
-            <div class="caption">习题参考图：原始影像、遮罩影像、NS 修复与 TELEA 修复结果。</div>
+            <img src="images/ch24/ch24_03_exercise_result.png" alt="分别使用 INPAINT_NS 和 INPAINT_TELEA 修复 jkError.jpg 图像">
+            <div class="caption">习题参考图：原始图像、遮罩图像、NS 修复与 TELEA 修复结果。</div>
           </div>
         </div>
       </div>
@@ -216,7 +216,7 @@ plt.show()</div>
           <a href="ch23.html">
             <div>
               <div class="nav-label">&larr; 上一章</div>
-              <div class="nav-title">第 23 章 影像提取</div>
+              <div class="nav-title">第 23 章 图像提取</div>
             </div>
           </a>
           <a href="ch25.html">
@@ -230,7 +230,7 @@ plt.show()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

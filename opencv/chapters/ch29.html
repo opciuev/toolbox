@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -53,19 +53,19 @@
       <p class="content-text">要辨识的人脸必须有相同的大小。当读者要用人脸相片做测试时，可以使用 <code>ch28_1.py</code> 先将人脸撷取储存。</p>
 
       <h3 class="subsection-title">29-1-1 LBPH 原理解说</h3>
-      <p class="content-text">这是一个从影像提取局部特征的方法，起源于 2D 纹理分析。基本思维是将每个像素点与其相邻的像素点做比较，然后构成影像点的局部结构。方法以像素点中心的强度当作阈值，并对其相邻的像素点设定值。</p>
+      <p class="content-text">这是一个从图像提取局部特征的方法，起源于 2D 纹理分析。基本思维是将每个像素点与其相邻的像素点做比较，然后构成图像点的局部结构。方法以像素点中心的强度当作阈值，并对其相邻的像素点设定值。</p>
       <p class="content-text">如果相邻像素点的强度大于或等于阈值，相邻像素点值是 1；如果相邻像素点的强度小于阈值，相邻像素点值是 0。</p>
       <div class="result-box-image">
         <img src="images/ch29/ch29_01_lbp_threshold.png" alt="LBPH 以中心像素为阈值，将相邻像素二值化并转换成十进制">
         <div class="caption">使用 3×3 的像素区域时，中心像素点周围有 8 个相邻像素点；图中二值序列可换算成十进制值 19。</div>
       </div>
-      <p class="content-text">只要对影像所有其他像素点用相同方式处理，就可以得到影像的特征图，这个特征图的直方图又称 LBPH 直方图。</p>
+      <p class="content-text">只要对图像所有其他像素点用相同方式处理，就可以得到图像的特征图，这个特征图的直方图又称 LBPH 直方图。</p>
       <p class="content-text">固定的相邻区域无法对规模不同的细节进行编码，因此可以使用圆形相邻区域观念。在可变半径内，可以有任意数量的相邻点。</p>
       <div class="result-box-image">
         <img src="images/ch29/ch29_02_lbp_circular_neighbors.png" alt="LBPH 圆形相邻区域示意图">
         <div class="caption">例如左图可用 (4, 1) 表示，右图可用 (8, 2) 表示；无法精确取得像素点时，可使用插值法处理。</div>
       </div>
-      <p class="content-text">至于影像辨识，可以用计算两个直方图的距离当作影像的差异，最常用的是欧几里德距离。影像比对结果值越小，代表彼此越相似。</p>
+      <p class="content-text">至于图像辨识，可以用计算两个直方图的距离当作图像的差异，最常用的是欧几里德距离。图像比对结果值越小，代表彼此越相似。</p>
 
       <h3 class="subsection-title">29-1-2 LBP 函数解说</h3>
       <p class="content-text">OpenCV 提供 3 个函数执行人脸辨识：<code>face.LBPHFaceRecognizer_create()</code> 建立 LBPH 人脸辨识物件；<code>recognizer.train()</code> 训练人脸辨识；<code>recognizer.predict()</code> 执行人脸辨识。</p>
@@ -89,8 +89,8 @@
       <table class="param-table">
         <thead><tr><th>参数</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><code>src</code></td><td>用来学习的人脸影像，也可以称是人脸影像样本。</td></tr>
-          <tr><td><code>labels</code></td><td>人脸影像样本对应的标签。</td></tr>
+          <tr><td><code>src</code></td><td>用来学习的人脸图像，也可以称是人脸图像样本。</td></tr>
+          <tr><td><code>labels</code></td><td>人脸图像样本对应的标签。</td></tr>
         </tbody>
       </table>
 
@@ -99,14 +99,14 @@
       <table class="param-table">
         <thead><tr><th>项目</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><code>src</code></td><td>需要辨识的人脸影像。</td></tr>
+          <tr><td><code>src</code></td><td>需要辨识的人脸图像。</td></tr>
           <tr><td><code>label</code></td><td>与样本匹配最高的标签索引值。</td></tr>
           <tr><td><code>confidence</code></td><td>匹配度评分。如果是 0 代表完全相同；大于 0 但是小于 50，代表匹配程度可以接受；如果大于 80，代表匹配程度比较差。</td></tr>
         </tbody>
       </table>
 
       <h3 class="subsection-title">29-1-3 简单的人脸辨识程式实作</h3>
-      <p class="content-text">这一节将对下列人脸影像做辨识。最左边是待辨识的脸 <code>face.jpg</code>，然后有 2 组人脸，分别是 hung 和 star。在实务上建议至少建立 10 组人脸当作样本人脸，未来辨识度会更精确。</p>
+      <p class="content-text">这一节将对下列人脸图像做辨识。最左边是待辨识的脸 <code>face.jpg</code>，然后有 2 组人脸，分别是 hung 和 star。在实务上建议至少建立 10 组人脸当作样本人脸，未来辨识度会更精确。</p>
       <div class="result-box-image">
         <img src="images/ch29/ch29_03_face_samples.png" alt="ch29_1 数据夹的人脸样本与待辨识 face.jpg">
       </div>
@@ -238,16 +238,16 @@ Confidence =  53.96</div>
 
       <h3 class="subsection-title">29-2-1 Eigenfaces 原理解说</h3>
       <p class="content-text">这个演算法主要考量并非人脸所有部分对于人脸识别同等重要。事实上，当我们看一个人时，通常会用此人的独特特征识别此人，例如前额、眼睛、鼻子、口部、脸颊。也就是说，可以关注哪些区域有最大的变化，例如从前额到眼睛、从眼睛到鼻子、从鼻子到嘴巴的变化。</p>
-      <p class="content-text">在应用 Eigenfaces 时，主要观念是将所有人的所有训练影像当作一个整体。方法是将每一个人脸用降维方式处理成一维向量。如果人脸影像宽与高皆是 m，可以展开成 m×m 的一维向量。</p>
+      <p class="content-text">在应用 Eigenfaces 时，主要观念是将所有人的所有训练图像当作一个整体。方法是将每一个人脸用降维方式处理成一维向量。如果人脸图像宽与高皆是 m，可以展开成 m×m 的一维向量。</p>
       <div class="result-box-image">
-        <img src="images/ch29/ch29_06_eigen_vector.png" alt="Eigenfaces 将人脸影像展开为一维向量">
+        <img src="images/ch29/ch29_06_eigen_vector.png" alt="Eigenfaces 将人脸图像展开为一维向量">
       </div>
       <p class="content-text">然后尝试提取相关和有用的部分，同时抛弃其余部分，这些有用的部分称为主成份。所谓主成份在人脸识别中也可以称为高变化区域、有用特征或方差。</p>
       <div class="result-box-image">
-        <img src="images/ch29/ch29_07_eigenfaces_components.png" alt="OpenCV 文件中的 Eigenfaces 主成份影像示例">
-        <div class="caption">影像来源在原书中标注为 OpenCV 文件：docs.opencv.org 的 face tutorial。</div>
+        <img src="images/ch29/ch29_07_eigenfaces_components.png" alt="OpenCV 文件中的 Eigenfaces 主成份图像示例">
+        <div class="caption">图像来源在原书中标注为 OpenCV 文件：docs.opencv.org 的 face tutorial。</div>
       </div>
-      <p class="content-text">每当有新的影像时，Eigenfaces 会从新的影像中提取主成份，将这些主成份与训练数据集的元素列做比较，找出最匹配，并回传最匹配的关联标签。</p>
+      <p class="content-text">每当有新的图像时，Eigenfaces 会从新的图像中提取主成份，将这些主成份与训练数据集的元素列做比较，找出最匹配，并回传最匹配的关联标签。</p>
 
       <h3 class="subsection-title">29-2-2 Eigenfaces 函数解说</h3>
       <p class="content-text">OpenCV 提供 3 个函数执行人脸辨识：<code>face.EigenFaceRecognizer_create()</code> 建立 Eigenfaces 人脸辨识物件；<code>recognizer.train()</code> 训练人脸辨识；<code>recognizer.predict()</code> 执行人脸辨识。</p>
@@ -260,7 +260,7 @@ Confidence =  53.96</div>
           <tr><td><code>threshold</code></td><td>可选参数，人脸辨识时使用的阈值，建议使用预设值。</td></tr>
         </tbody>
       </table>
-      <p class="content-text"><code>recognizer.train(src, labels)</code> 的 <code>src</code> 是用来学习的人脸影像样本，<code>labels</code> 是对应标签。<code>recognizer.predict(src)</code> 会回传 <code>label</code> 与 <code>confidence</code>。Eigenfaces 的匹配度评分值范围在 0～20000 之间，如果是 0 代表完全相同；大于 0 但小于 5000，代表匹配程度可以接受。</p>
+      <p class="content-text"><code>recognizer.train(src, labels)</code> 的 <code>src</code> 是用来学习的人脸图像样本，<code>labels</code> 是对应标签。<code>recognizer.predict(src)</code> 会回传 <code>label</code> 与 <code>confidence</code>。Eigenfaces 的匹配度评分值范围在 0～20000 之间，如果是 0 代表完全相同；大于 0 但小于 5000，代表匹配程度可以接受。</p>
 
       <h3 class="subsection-title">29-2-3 简单的人脸辨识程式实作</h3>
       <div class="code-title">程式实例 ch29_4.py：使用 Eigenfaces 方法，重新设计 ch29_1.py 执行人脸辨识。</div>
@@ -303,7 +303,7 @@ Confidence = 2198.34</div>
 
       <h3 class="subsection-title">29-3-1 Fisherfaces 原理解说</h3>
       <p class="content-text">主成份分析（PCA）是 Eigenfaces 方法的核心，这个方法会一次查看所有人的所有训练脸，并从这些人中找到主成份，最后从这些组合提取主成份。这个方法关注的不是一个人的特征，而是代表训练数据所有人的特征。</p>
-      <p class="content-text">这个方法的缺点是具有急剧变化的影像，例如光线变化，不是有用的人脸特征，但可能会主导其余影像。Fisherfaces 演算法不是提取代表所有人脸的有用特征，而是提取区分一个人与其他人的有用特征，所以可防止一个人的特征成为主导。</p>
+      <p class="content-text">这个方法的缺点是具有急剧变化的图像，例如光线变化，不是有用的人脸特征，但可能会主导其余图像。Fisherfaces 演算法不是提取代表所有人脸的有用特征，而是提取区分一个人与其他人的有用特征，所以可防止一个人的特征成为主导。</p>
 
       <h3 class="subsection-title">29-3-2 Fisherfaces 函数解说</h3>
       <p class="content-text">OpenCV 提供 3 个函数执行人脸辨识：<code>face.FisherFaceRecognizer_create()</code> 建立 Fisherfaces 人脸辨识物件；<code>recognizer.train()</code> 训练人脸辨识；<code>recognizer.predict()</code> 执行人脸辨识。</p>
@@ -316,7 +316,7 @@ Confidence = 2198.34</div>
           <tr><td><code>threshold</code></td><td>可选参数，人脸辨识时使用的阈值，建议使用预设值。</td></tr>
         </tbody>
       </table>
-      <p class="content-text"><code>recognizer.train(src, labels)</code> 用于训练，其中 <code>src</code> 是人脸影像样本，<code>labels</code> 是样本对应标签。<code>recognizer.predict(src)</code> 用于执行辨识，回传 <code>label</code> 与 <code>confidence</code>。匹配度评分值范围与 Eigenfaces 方法相同，为 0～20000；0 代表完全相同，大于 0 但是小于 5000 代表匹配程度可以接受。</p>
+      <p class="content-text"><code>recognizer.train(src, labels)</code> 用于训练，其中 <code>src</code> 是人脸图像样本，<code>labels</code> 是样本对应标签。<code>recognizer.predict(src)</code> 用于执行辨识，回传 <code>label</code> 与 <code>confidence</code>。匹配度评分值范围与 Eigenfaces 方法相同，为 0～20000；0 代表完全相同，大于 0 但是小于 5000 代表匹配程度可以接受。</p>
 
       <h3 class="subsection-title">29-3-3 简单的人脸辨识程式实作</h3>
       <div class="code-title">程式实例 ch29_5.py：使用 Fisherfaces 方法，重新设计 ch29_4.py 执行人脸辨识。</div>
@@ -359,7 +359,7 @@ Confidence = 592.36</div>
 
       <h3 class="subsection-title">29-4-1 建立与训练人脸资料库：ch29_6.py</h3>
       <p class="content-text"><code>ch29_6.py</code> 程式在执行时可以建立人脸资料库，可以由不同人登入多次建立人脸资料库。如果应用在公司系统，可以让系统建立每个员工的人脸资料库。</p>
-      <p class="content-text">程式执行时会要求输入英文名字，这个英文名字未来会建立在 <code>ch29_6</code> 资料夹下，然后系统会开始建立 5 张人脸影像。每个人所需的人脸样本数可以在第 7 列使用变量 <code>total</code> 设定，所以读者可以更改所要的人脸数。在建立人脸样本时，Python Shell 视窗会显示目前所拍摄的影像。</p>
+      <p class="content-text">程式执行时会要求输入英文名字，这个英文名字未来会建立在 <code>ch29_6</code> 资料夹下，然后系统会开始建立 5 张人脸图像。每个人所需的人脸样本数可以在第 7 列使用变量 <code>total</code> 设定，所以读者可以更改所要的人脸数。在建立人脸样本时，Python Shell 视窗会显示目前所拍摄的图像。</p>
       <div class="result-box-image">
         <img src="images/ch29/ch29_08_project_shell_folder.png" alt="ch29_6.py 建立员工人脸资料库的 Shell 输出与 ch29_6 资料夹">
       </div>
@@ -387,21 +387,21 @@ if os.path.exists("ch29_6\\" + name):
     print("此名字的人脸资料已经存在")
 else:
     os.mkdir("ch29_6\\" + name)
-    num = 1                                                 # 影像编号
+    num = 1                                                 # 图像编号
     cap = cv2.VideoCapture(0)                               # 开启摄影机
     while cap.isOpened():                                   # 摄影机有开启就执行回圈
-        ret, img = cap.read()                               # 读取影像
+        ret, img = cap.read()                               # 读取图像
         faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                  minNeighbors=3, minSize=(20, 20))
         for (x, y, w, h) in faces:
             cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)  # 蓝色框住人脸
-        cv2.imshow("Photo", img)                            # 显示影像在 OpenCV 视窗
+        cv2.imshow("Photo", img)                            # 显示图像在 OpenCV 视窗
         key = cv2.waitKey(200)
-        if ret == True:                                     # 读取影像如果成功
+        if ret == True:                                     # 读取图像如果成功
             imageCrop = img[y:y+h, x:x+w]                   # 裁切
             imageResize = cv2.resize(imageCrop, (160, 160)) # 重设大小
             faceName = "ch29_6\\" + name + "\\" + name + str(num) + ".jpg"
-            cv2.imwrite(faceName, imageResize)              # 储存人脸影像
+            cv2.imwrite(faceName, imageResize)              # 储存人脸图像
             if num &gt;= total:                                # 拍指定人脸数后才终止
                 break
             if num &lt;= total:
@@ -460,12 +460,12 @@ names = f.readline().split(",")                               # 将姓名存放�
 cap = cv2.VideoCapture(0)
 
 while cap.isOpened():                                         # 如果开启摄影机成功
-    ret, img = cap.read()                                     # 读取影像
+    ret, img = cap.read()                                     # 读取图像
     faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
              minNeighbors=3, minSize=(20, 20))
     for (x, y, w, h) in faces:
         cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2) # 蓝色框住人脸
-    cv2.imshow("Face", img)                                   # 显示影像
+    cv2.imshow("Face", img)                                   # 显示图像
     k = cv2.waitKey(200)                                      # 0.2 秒读键盘一次
     if ret == True:
         if k == ord("a") or k == ord("A"):                    # 按 a 或 A 键
@@ -521,7 +521,7 @@ else:
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

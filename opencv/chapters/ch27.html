@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,7 +33,7 @@
       <div class="chapter-meta">Cascade Classifier · Haar-like Features · OpenCV Haarcascades XML · 人脸、眼睛、身体、猫脸与车牌侦测</div>
 
       <div class="chapter-intro">
-        人脸辨识是计算机技术的一种，这个技术可以测出人脸在影像中的位置，同时也可以找出多个人脸，在检测过程中基本上会忽略背景或其他物体。OpenCV 有提供一系列训练测试过的资源档，这些资源档可以让我们用很简单的指令完成人脸、眼睛、身形、上半身、下半身、猫脸、车牌等检测。
+        人脸辨识是计算机技术的一种，这个技术可以测出人脸在图像中的位置，同时也可以找出多个人脸，在检测过程中基本上会忽略背景或其他物体。OpenCV 有提供一系列训练测试过的资源档，这些资源档可以让我们用很简单的指令完成人脸、眼睛、身形、上半身、下半身、猫脸、车牌等检测。
       </div>
 
       <div class="result-box-image">
@@ -46,7 +46,7 @@
         <h2>物件侦测原理</h2>
       </div>
 
-      <p class="content-text">在正式进入 AI 视觉的热门主题人脸辨识前，首先要判断目前的影像是否存在人脸，当影像存在人脸后，才可以更进一步分析此人脸是谁。</p>
+      <p class="content-text">在正式进入 AI 视觉的热门主题人脸辨识前，首先要判断目前的图像是否存在人脸，当图像存在人脸后，才可以更进一步分析此人脸是谁。</p>
 
       <h3>27-1-1 阶层分类器原理</h3>
       <p class="content-text">Cascade Classifier 可以翻译为阶层式分类器，或是称级联分类器。这个分类器的基本原理是使用排除法，从简单开始逐步排除不符合的检测样本，经过多次检测后，最后所得到的符合我们所选的样本，又称此为正样本。</p>
@@ -58,16 +58,16 @@
       </div>
 
       <h3>27-1-2 Haar 特征缘由</h3>
-      <p class="content-text">Haar-like features 中文翻译是哈尔特征，这是用于物体辨识的数位影像特征，这个名称是来自匈牙利科学家 Alfred Haar。基础原理是使用遮罩（mask）在影像内滑动，同时计算特征值。</p>
-      <p class="content-text">OpenCV 所支援的层次式分类器所采用的演算法是 2001 年 Paul Viola 和 Michael Jones 的论文 <code>Rapid Object Detection using a Boosted Cascade of Simple Features</code>。这是一种机器学习的演算法，阶层函数是从大量的正样本影像和负样本影像中训练出来，然后用来检测其他影像的物件。</p>
+      <p class="content-text">Haar-like features 中文翻译是哈尔特征，这是用于物体辨识的数位图像特征，这个名称是来自匈牙利科学家 Alfred Haar。基础原理是使用遮罩（mask）在图像内滑动，同时计算特征值。</p>
+      <p class="content-text">OpenCV 所支援的层次式分类器所采用的演算法是 2001 年 Paul Viola 和 Michael Jones 的论文 <code>Rapid Object Detection using a Boosted Cascade of Simple Features</code>。这是一种机器学习的演算法，阶层函数是从大量的正样本图像和负样本图像中训练出来，然后用来检测其他图像的物件。</p>
 
       <h3>27-1-3 哈尔特征原理</h3>
-      <p class="content-text">现在假设使用人脸识别为例，最初需要大量的正样本影像（人脸影像）和负样本影像（没有人脸的影像）训练分类器，计算特征值的方法采用下列 Haar 特征说明。</p>
+      <p class="content-text">现在假设使用人脸识别为例，最初需要大量的正样本图像（人脸图像）和负样本图像（没有人脸的图像）训练分类器，计算特征值的方法采用下列 Haar 特征说明。</p>
       <div class="result-box-image">
         <img src="images/ch27/ch27_02_haar_features.png" alt="Haar 边界、线条与四矩形特征">
         <div class="caption">Edge Features、Line Features、Four-rectangle Features 的示意。</div>
       </div>
-      <p class="content-text">每个特征点计算方式是黑色（书中使用蓝色绘制）部分像素总和减去白色部分的像素总和。假设一张影像使用 24 x 24 的感兴趣区块也会产生超过 160000 个特征值。为了解决这个庞大的计算，Paul Viola 和 Michael Jones 导入积分影像的观念，不论影像多大，会将特征值的计算减到只有涉及 4 个像素点的操作。</p>
+      <p class="content-text">每个特征点计算方式是黑色（书中使用蓝色绘制）部分像素总和减去白色部分的像素总和。假设一张图像使用 24 x 24 的感兴趣区块也会产生超过 160000 个特征值。为了解决这个庞大的计算，Paul Viola 和 Michael Jones 导入积分图像的观念，不论图像多大，会将特征值的计算减到只有涉及 4 个像素点的操作。</p>
       <div class="result-box-image">
         <img src="images/ch27/ch27_03_haar_face_features.png" alt="OpenCV 官方网站 Haar 特征套用在人脸的示意图">
         <div class="caption">图片来源：OpenCV 官方网站。书中用此图说明眼睛区域通常比鼻子和脸颊区域更暗。</div>
@@ -138,7 +138,7 @@
       </ul>
 
       <h3>27-4-2 基础脸形侦测程式</h3>
-      <p class="content-text">这一节的目的是可以让程式使用 OpenCV 将影像档案的人脸标记出来，首先可以使用 <code>CascadeClassifier()</code> 类别下载侦测脸形的分类器资源档。</p>
+      <p class="content-text">这一节的目的是可以让程式使用 OpenCV 将图像档案的人脸标记出来，首先可以使用 <code>CascadeClassifier()</code> 类别下载侦测脸形的分类器资源档。</p>
       <div class="code-block">pictPath = r'C:\opencv\data\haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)</div>
       <p class="content-text">接著需要使用辨识物件启动 <code>detectMultiScale()</code> 方法，语法如下：</p>
@@ -148,24 +148,24 @@ face_cascade = cv2.CascadeClassifier(pictPath)</div>
           <tr><th>参数</th><th>意义</th></tr>
         </thead>
         <tbody>
-          <tr><td>img</td><td>要辨识的影像档案。</td></tr>
+          <tr><td>img</td><td>要辨识的图像档案。</td></tr>
           <tr><td>scaleFactor</td><td>若没有指定一般是 1.1，主要是指在特征比对中，图像比例的缩小倍数；必须大于 1.0。</td></tr>
           <tr><td>minNeighbors</td><td>每个区块的特征皆会比对，设定多少个特征数达到才算匹配成功，预设值是 3。</td></tr>
           <tr><td>minSize</td><td>可选参数，最小辨识区块，小于此将被忽略。</td></tr>
           <tr><td>maxSize</td><td>可选参数，最大的辨识区块，大于此将被忽略。</td></tr>
         </tbody>
       </table>
-      <p class="content-text">最常见的是设定前 3 个参数，例如下列表示影像物件是 <code>img</code>，<code>scaleFactor</code> 是 1.1，<code>minNeighbors</code> 是 3。</p>
+      <p class="content-text">最常见的是设定前 3 个参数，例如下列表示图像物件是 <code>img</code>，<code>scaleFactor</code> 是 1.1，<code>minNeighbors</code> 是 3。</p>
       <div class="code-block">faces = face_cascade.detectMultiScale(img, 1.1, 3)</div>
       <p class="content-text">上述执行成功后的回传值是 <code>faces</code> 串列，串列的元素是元组（tuple），每个元组内有 4 组数字分别代表脸部左上角的 x 轴座标、y 轴座标、脸部的宽 w 和脸部的高 h。我们可以用 <code>len(faces)</code> 获得找到几张脸。</p>
 
-      <div class="code-title">程式实例 ch27_1.py：标示影像中的人脸与找到的人脸数量</div>
+      <div class="code-title">程式实例 ch27_1.py：标示图像中的人脸与找到的人脸数量</div>
       <div class="code-block"># ch27_1.py
 import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("jk.jpg")                      # 读取影像
+img = cv2.imread("jk.jpg")                      # 读取图像
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20))
 # 标注右下角底色是黄色
@@ -178,7 +178,7 @@ cv2.putText(img, "Finding " + str(len(faces)) + " face",
 # 将人脸框起来，由于有可能找到好几个脸所以用回圈绘出来
 for (x,y,w,h) in faces:
     cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)  # 蓝色框住人脸
-cv2.imshow("Face", img)                              # 显示影像
+cv2.imshow("Face", img)                              # 显示图像
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
@@ -190,13 +190,13 @@ cv2.destroyAllWindows()</div>
         </div>
       </div>
 
-      <div class="code-title">程式实例 ch27_2.py：使用 g5.jpg 辨识多张人脸的影像</div>
+      <div class="code-title">程式实例 ch27_2.py：使用 g5.jpg 辨识多张人脸的图像</div>
       <div class="code-block"># ch27_2.py
 import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("g5.jpg")                      # 读取影像
+img = cv2.imread("g5.jpg")                      # 读取图像
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20))
 cv2.rectangle(img, (img.shape[1]-140, img.shape[0]-20),
@@ -214,7 +214,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch27/ch27_07_face_group.png" alt="ch27_2.py 侦测多人脸">
-          <div class="caption">多人脸影像执行结果，右下角标示 <code>Finding 5 face</code>。</div>
+          <div class="caption">多人脸图像执行结果，右下角标示 <code>Finding 5 face</code>。</div>
         </div>
       </div>
       <p class="content-text">当然使用上述偶尔也会出现辨识不是太完美的情况，可以参考下一节实例。</p>
@@ -226,7 +226,7 @@ cv2.destroyAllWindows()</div>
         <div class="caption">图片来源维基百科：Solvay conference 1927。</div>
       </div>
 
-      <div class="code-title">程式实例 ch27_3.py：使用 solvay1927.jpg 影像侦测人脸</div>
+      <div class="code-title">程式实例 ch27_3.py：使用 solvay1927.jpg 图像侦测人脸</div>
       <div class="code-block"># ch27_3.py
 import cv2
 
@@ -299,7 +299,7 @@ cv2.destroyAllWindows()</div>
       <div class="code-title">程式实例 ch27_4_1.py：设定 maxSize=(50,50)</div>
       <div class="code-block">pictPath = r'C:\opencv\data\haarcascade_frontalface_alt.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("solvay1927.jpg")              # 读取影像
+img = cv2.imread("solvay1927.jpg")              # 读取图像
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20),
                                       maxSize=(50,50))</div>
@@ -307,7 +307,7 @@ faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
       <div class="code-title">程式实例 ch27_5.py：使用 haarcascade_frontalface_alt2.xml</div>
       <div class="code-block">pictPath = r'C:\opencv\data\haarcascade_frontalface_alt2.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("solvay1927.jpg")              # 读取影像
+img = cv2.imread("solvay1927.jpg")              # 读取图像
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20),
                                       maxSize=(50,50))</div>
@@ -345,7 +345,7 @@ cv2.destroyAllWindows()</div>
       <div class="code-title">程式实例 ch27_6_1.py：使用 s_1927.jpg 档案重新设计 ch27_4.py</div>
       <div class="code-block">pictPath = r'C:\opencv\data\haarcascade_frontalface_alt.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("s_1927.jpg")                  # 读取影像
+img = cv2.imread("s_1927.jpg")                  # 读取图像
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.02,
                                       minNeighbors = 3, minSize=(20,20))</div>
       <div class="result-box">
@@ -365,7 +365,7 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_profileface.xml'
 face_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("s_1927.jpg")                  # 读取影像
+img = cv2.imread("s_1927.jpg")                  # 读取图像
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.3,
                                       minNeighbors = 4, minSize=(20,20))</div>
       <div class="result-box">
@@ -381,7 +381,7 @@ faces = face_cascade.detectMultiScale(img, scaleFactor=1.3,
         <h2>路人侦测</h2>
       </div>
 
-      <p class="content-text">虽然特征档案使用的英文是 fullbody，可以翻译为身体，这个分类器笔者感觉更类似追踪路人，因为近距离的影像无法侦测，远距离的影像比较可以侦测。</p>
+      <p class="content-text">虽然特征档案使用的英文是 fullbody，可以翻译为身体，这个分类器笔者感觉更类似追踪路人，因为近距离的图像无法侦测，远距离的图像比较可以侦测。</p>
 
       <h3>27-6-1 路人侦测</h3>
       <p class="content-text">路人侦测的分类器档案是 <code>haarcascade_fullbody.xml</code>。</p>
@@ -391,13 +391,13 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_fullbody.xml'
 body_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("people1.jpg")                 # 读取影像
+img = cv2.imread("people1.jpg")                 # 读取图像
 bodies = body_cascade.detectMultiScale(img, scaleFactor=1.1,
                                        minNeighbors = 3, minSize=(20,20))
 # 标注身体
 for (x,y,w,h) in bodies:
     cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2)  # 蓝色框住身体
-cv2.imshow("Body", img)                              # 显示影像
+cv2.imshow("Body", img)                              # 显示图像
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
@@ -415,7 +415,7 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_fullbody.xml'
 body_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("people2.jpg")                 # 读取影像
+img = cv2.imread("people2.jpg")                 # 读取图像
 bodies = body_cascade.detectMultiScale(img, scaleFactor=1.1,
                                        minNeighbors = 3, minSize=(20,20))
 for (x,y,w,h) in bodies:
@@ -472,7 +472,7 @@ pictPath1 = r'C:\opencv\data\haarcascade_frontalface_default.xml'
 pictPath2 = r'C:\opencv\data\haarcascade_eye.xml'
 
 face_cascade = cv2.CascadeClassifier(pictPath1)  # 建立人脸物件
-img = cv2.imread("jk.jpg")                       # 读取影像
+img = cv2.imread("jk.jpg")                       # 读取图像
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # 侦测人脸
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
@@ -487,7 +487,7 @@ for (x,y,w,h) in faces:
 # 将双眼框起来，由于有可能找到好几个眼睛所以用回圈绘出来
 for (x,y,w,h) in eyes:
     cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0),2) # 绿色框住眼睛
-cv2.imshow("Face", img)                              # 显示影像
+cv2.imshow("Face", img)                              # 显示图像
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
@@ -538,7 +538,7 @@ pictPath1 = r'C:\opencv\data\haarcascade_frontalface_default.xml'
 pictPath2 = r'C:\opencv\data\haarcascade_lefteye_2splits.xml'
 
 face_cascade = cv2.CascadeClassifier(pictPath1)  # 建立人脸物件
-img = cv2.imread("jk.jpg")                       # 读取影像
+img = cv2.imread("jk.jpg")                       # 读取图像
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 faces = face_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20))
@@ -597,13 +597,13 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_frontalcatface.xml'
 cat_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("cat1.jpg")                   # 读取影像
+img = cv2.imread("cat1.jpg")                   # 读取图像
 faces = cat_cascade.detectMultiScale(img, scaleFactor=1.1,
                                      minNeighbors = 3, minSize=(20,20))
 # 将猫脸框起来，由于有可能找到好几个脸所以用回圈绘出来
 for (x,y,w,h) in faces:
     cv2.rectangle(img, (x,y), (x+w,y+h),(255,0,0),2) # 蓝色框住猫脸
-cv2.imshow("Face", img)                             # 显示影像
+cv2.imshow("Face", img)                             # 显示图像
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
@@ -615,13 +615,13 @@ cv2.destroyAllWindows()</div>
         </div>
       </div>
 
-      <div class="code-title">程式实例 ch27_16.py：侦测多数猫的影像</div>
+      <div class="code-title">程式实例 ch27_16.py：侦测多数猫的图像</div>
       <div class="code-block"># ch27_16.py
 import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_frontalcatface.xml'
 cat_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("cat2.jpg")                   # 读取影像
+img = cv2.imread("cat2.jpg")                   # 读取图像
 faces = cat_cascade.detectMultiScale(img, scaleFactor=1.1,
                                      minNeighbors = 9, minSize=(20,20))
 for (x,y,w,h) in faces:
@@ -653,13 +653,13 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_russian_plate_number.xml'
 car_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("car.jpg")                    # 读取影像
+img = cv2.imread("car.jpg")                    # 读取图像
 plates = car_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20))
 # 将车牌框起来，由于有可能找到好几个脸所以用回圈绘出来
 for (x,y,w,h) in plates:
     cv2.rectangle(img, (x,y),(x+w,y+h),(255,0,0),2) # 蓝色框住车牌
-cv2.imshow("Car Plate", img)                        # 显示影像
+cv2.imshow("Car Plate", img)                        # 显示图像
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
@@ -677,7 +677,7 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_russian_plate_number.xml'
 car_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("car1.jpg")                   # 读取影像
+img = cv2.imread("car1.jpg")                   # 读取图像
 plates = car_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20))
 for (x,y,w,h) in plates:
@@ -700,7 +700,7 @@ import cv2
 
 pictPath = r'C:\opencv\data\haarcascade_russian_plate_number.xml'
 car_cascade = cv2.CascadeClassifier(pictPath)  # 建立辨识物件
-img = cv2.imread("car2.jpg")                   # 读取影像
+img = cv2.imread("car2.jpg")                   # 读取图像
 plates = car_cascade.detectMultiScale(img, scaleFactor=1.1,
                                       minNeighbors = 3, minSize=(20,20))
 for (x,y,w,h) in plates:
@@ -713,12 +713,12 @@ cv2.destroyAllWindows()</div>
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 请使用 <code>g4.jpg</code> 影像执行人脸辨识，你可能会获得有瑕疵的结果，请输出此影像。</p>
+          <p>1. 请使用 <code>g4.jpg</code> 图像执行人脸辨识，你可能会获得有瑕疵的结果，请输出此图像。</p>
           <div class="result-box-image">
             <img src="images/ch27/ch27_24_exercise_faces.png" alt="习题一 人脸辨识示例">
           </div>
           <p>2. 请自行调整上述实例程式，让辨识成功。</p>
-          <p>3. 请使用 <code>dogcat.jpg</code> 影像辨识猫脸，请自行设计与调整参数，请调整到可以辨识 2 只猫脸。</p>
+          <p>3. 请使用 <code>dogcat.jpg</code> 图像辨识猫脸，请自行设计与调整参数，请调整到可以辨识 2 只猫脸。</p>
           <div class="result-box-image">
             <img src="images/ch27/ch27_25_exercise_dogcat.png" alt="习题三 猫脸辨识示例">
           </div>
@@ -748,7 +748,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

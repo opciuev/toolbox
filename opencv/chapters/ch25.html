@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -596,12 +596,12 @@ After repeat =
       <div class="result-box-image">
         <img src="images/ch25/ch25_12_digits_dataset.png" alt="OpenCV digits.png 手写数字资料集">
       </div>
-      <p class="content-text">如果局部放大影像可以看到下列内容：</p>
+      <p class="content-text">如果局部放大图像可以看到下列内容：</p>
       <div class="result-box-image">
-        <img src="images/ch25/ch25_13_digits_zoom.png" alt="digits.png 局部放大影像">
+        <img src="images/ch25/ch25_13_digits_zoom.png" alt="digits.png 局部放大图像">
       </div>
       <p class="content-text">
-        如果读者看到上述影像模糊，建议可以开启在萤幕检视，可以很清楚看到上述影像。如果要将上述当作训练和测试数据，可以将上述影像拆解为 5000 个数字影像，影像中每个数字是由 20×20 的像素组成。如果我们将数字影像展开，可以得到 1×400 的一维阵列，这个就是我们的特征数据集，也就是所有数字像素点的灰阶值。
+        如果读者看到上述图像模糊，建议可以开启在萤幕检视，可以很清楚看到上述图像。如果要将上述当作训练和测试数据，可以将上述图像拆解为 5000 个数字图像，图像中每个数字是由 20×20 的像素组成。如果我们将数字图像展开，可以得到 1×400 的一维阵列，这个就是我们的特征数据集，也就是所有数字像素点的灰阶值。
       </p>
       <p class="code-title">程式实例 ch25_12.py：使用 k=5 的 KNN 演算法，使用 digits.png 的前 2500 个当作样本训练数据，使用后 2500 个手写数字当作测试数据，最后列出后 2500 个手写数字辨识成功率。</p>
       <div class="code-block"># ch25_12.py
@@ -611,7 +611,7 @@ import numpy as np
 img = cv2.imread("digits.png")
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# 将 digits 拆成 5000 张，20×20 的数字影像
+# 将 digits 拆成 5000 张，20×20 的数字图像
 cells = [np.hsplit(row, 100) for row in np.vsplit(gray, 50)]
 
 # 将 cells 转成 50×100×20×20 的阵列
@@ -641,7 +641,7 @@ print(f"测试数据辨识成功率 = {accuracy}")</div>
 
       <h3>25-5-2 储存训练和分类数据</h3>
       <p class="content-text">
-        当我们成功的训练手写数字辨识的资料后，可以将训练数据 train 和分类数据 train_labels 储存，未来我们要执行一般数字影像辨识时，就可以拿出来使用。储存方式是使用 np.savez() 函数，此函数用法如下：
+        当我们成功的训练手写数字辨识的资料后，可以将训练数据 train 和分类数据 train_labels 储存，未来我们要执行一般数字图像辨识时，就可以拿出来使用。储存方式是使用 np.savez() 函数，此函数用法如下：
       </p>
       <div class="code-syntax">np.savez("name.npz", train=train, train_labels=train_labels)</div>
       <p class="content-text">上述第 1 个参数 name.npz 是所储存的名称，读者可以自订，第 2 个和第 3 个则是分别设定储存训练资料和分类数据。</p>
@@ -680,7 +680,7 @@ np.savez("knn_digit.npz", train=train, train_labels=train_labels)</div>
       <div class="code-block">with np.load("knn_digit.npz") as data:
     train = data["train"]
     train_labels = data["train_labels"]</div>
-      <p class="code-title">程式实例 ch25_14.py：执行 8.png 影像测试，同时回应执行结果。</p>
+      <p class="code-title">程式实例 ch25_14.py：执行 8.png 图像测试，同时回应执行结果。</p>
       <div class="code-block"># ch25_14.py
 import cv2
 import numpy as np
@@ -690,7 +690,7 @@ with np.load("knn_digit.npz") as data:
     train = data["train"]
     train_labels = data["train_labels"]
 
-# 读取数字影像
+# 读取数字图像
 test_img = cv2.imread("8.png", cv2.IMREAD_GRAYSCALE)
 cv2.imshow("img", test_img)
 img = cv2.resize(test_img, (20, 20)).reshape((1, 400))
@@ -713,7 +713,7 @@ print(f"识别的数字是 = {int(result[0,0])}")</div>
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 请建立 0-9 共 10 张影像，然后使用 ch25_14.py 做测试，下列是笔者使用 3.png 测试的结果。</p>
+          <p>1. 请建立 0-9 共 10 张图像，然后使用 ch25_14.py 做测试，下列是笔者使用 3.png 测试的结果。</p>
           <div class="result-box">
             <span class="result-box-header">执行结果</span>
             <div class="result-box-content result-output">识别的数字是 = 3</div>
@@ -728,7 +728,7 @@ print(f"识别的数字是 = {int(result[0,0])}")</div>
           <a href="ch24.html">
             <div>
               <div class="nav-label">&larr; 上一章</div>
-              <div class="nav-title">第 24 章 影像修复</div>
+              <div class="nav-title">第 24 章 图像修复</div>
             </div>
           </a>
           <a href="ch26.html">
@@ -742,7 +742,7 @@ print(f"识别的数字是 = {int(result[0,0])}")</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

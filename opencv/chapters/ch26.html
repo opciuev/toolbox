@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,7 +33,7 @@
       <div class="chapter-meta">VideoCapture 类别 · VideoWriter 类别 · 播放影片 · 读取摄影功能属性</div>
 
       <div class="chapter-intro">
-        本章介绍 OpenCV 与摄影机、影片档案相关的基本操作，包含读取摄影镜头影像、储存影片、播放影片，以及读取或设定摄影功能的属性。
+        本章介绍 OpenCV 与摄影机、影片档案相关的基本操作，包含读取摄影镜头图像、储存影片、播放影片，以及读取或设定摄影功能的属性。
       </div>
 
       <div class="section-heading" id="section-1">
@@ -42,7 +42,7 @@
       </div>
 
       <p class="content-text">
-        一般计算机通常在屏幕上方内建摄影机，也可能另外连接外部摄影机。OpenCV 提供摄影功能，可以读取并显示摄影机镜头的影像内容。
+        一般计算机通常在屏幕上方内建摄影机，也可能另外连接外部摄影机。OpenCV 提供摄影功能，可以读取并显示摄影机镜头的图像内容。
       </p>
 
       <h3>26-1-1 VideoCapture</h3>
@@ -63,9 +63,9 @@
         如果摄影功能开启成功，<code>isOpened()</code> 回传 <code>True</code>；如果失败则回传 <code>False</code>。
       </p>
 
-      <h3>26-1-3 读取摄影镜头的影像内容</h3>
+      <h3>26-1-3 读取摄影镜头的图像内容</h3>
       <p class="content-text">
-        摄影机可以撷取影片，所以可以说影片是由一系列影像组成。<code>VideoCapture</code> 类别提供 <code>read()</code> 函数读取影像。
+        摄影机可以撷取影片，所以可以说影片是由一系列图像组成。<code>VideoCapture</code> 类别提供 <code>read()</code> 函数读取图像。
       </p>
       <div class="code-syntax">retval, frame = capture.read()</div>
       <table class="param-table">
@@ -73,13 +73,13 @@
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>retval</code></td><td>如果读取影像成功回传 <code>True</code>，否则回传 <code>False</code>。</td></tr>
-          <tr><td><code>frame</code></td><td>如果读取影像成功，<code>frame</code> 可以显示回传的结果，可使用 <code>imshow()</code> 显示影像。</td></tr>
+          <tr><td><code>retval</code></td><td>如果读取图像成功回传 <code>True</code>，否则回传 <code>False</code>。</td></tr>
+          <tr><td><code>frame</code></td><td>如果读取图像成功，<code>frame</code> 可以显示回传的结果，可使用 <code>imshow()</code> 显示图像。</td></tr>
         </tbody>
       </table>
       <div class="note-box">
         <span class="note-icon">注</span>
-        <span>在摄影术语中，通常将单一影像称为帧（Frame）。</span>
+        <span>在摄影术语中，通常将单一图像称为帧（Frame）。</span>
       </div>
 
       <h3>26-1-4 关闭摄影功能</h3>
@@ -92,15 +92,15 @@
 ...
 capture.release()</div>
 
-      <h3>26-1-5 读取影像的基础实例</h3>
-      <p class="code-title">程序实例 ch26_1.py：读取影像的基础实例，执行时会开启一个 Frame 视窗显示摄影机录制的影像，按 Esc 键结束程序。</p>
+      <h3>26-1-5 读取图像的基础实例</h3>
+      <p class="code-title">程序实例 ch26_1.py：读取图像的基础实例，执行时会开启一个 Frame 视窗显示摄影机录制的图像，按 Esc 键结束程序。</p>
       <div class="code-block"># ch26_1.py
 import cv2
 
 capture = cv2.VideoCapture(0)          # 初始化摄影功能
 while(capture.isOpened()):
-    ret, frame = capture.read()        # 读取摄影镜头的影像
-    cv2.imshow('Frame', frame)         # 显示摄影镜头的影像
+    ret, frame = capture.read()        # 读取摄影镜头的图像
+    cv2.imshow('Frame', frame)         # 显示摄影镜头的图像
     c = cv2.waitKey(1)                 # 等待时间 1 毫秒 ms
     if c == 27:                        # 按 Esc 键，结束
         break
@@ -109,21 +109,21 @@ cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
-          <img src="images/ch26/ch26_01_read_frame.png" alt="ch26_1.py 读取摄影机影像的执行结果">
+          <img src="images/ch26/ch26_01_read_frame.png" alt="ch26_1.py 读取摄影机图像的执行结果">
         </div>
       </div>
 
-      <p class="code-title">程序实例 ch26_2.py：重新设计 ch26_1.py，显示 2 个视窗，一个显示彩色影像，另一个显示灰阶影像。</p>
+      <p class="code-title">程序实例 ch26_2.py：重新设计 ch26_1.py，显示 2 个视窗，一个显示彩色图像，另一个显示灰阶图像。</p>
       <div class="code-block"># ch26_2.py
 import cv2
 
 capture = cv2.VideoCapture(0)          # 初始化摄影功能
 while(capture.isOpened()):
-    ret, frame = capture.read()        # 读取摄影镜头的影像
-    cv2.imshow('Frame', frame)         # 显示彩色影像
+    ret, frame = capture.read()        # 读取摄影镜头的图像
+    cv2.imshow('Frame', frame)         # 显示彩色图像
     # 转灰阶显示
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.imshow('Gray Frame', gray_frame)   # 显示灰阶影像
+    cv2.imshow('Gray Frame', gray_frame)   # 显示灰阶图像
     c = cv2.waitKey(1)                 # 等待时间 1 毫秒 ms
     if c == 27:                        # 按 Esc 键，结束
         break
@@ -132,12 +132,12 @@ cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
-          <img src="images/ch26/ch26_02_gray_frame.png" alt="ch26_2.py 同时显示彩色与灰阶摄影机影像">
+          <img src="images/ch26/ch26_02_gray_frame.png" alt="ch26_2.py 同时显示彩色与灰阶摄影机图像">
         </div>
       </div>
 
-      <h3>26-1-6 影像翻转</h3>
-      <p class="content-text">OpenCV 的 <code>flip()</code> 函数可以执行影像翻转，语法如下：</p>
+      <h3>26-1-6 图像翻转</h3>
+      <p class="content-text">OpenCV 的 <code>flip()</code> 函数可以执行图像翻转，语法如下：</p>
       <div class="code-syntax">new_image = cv2.flip(image, flipCode)</div>
       <table class="param-table">
         <thead>
@@ -149,14 +149,14 @@ cv2.destroyAllWindows()</div>
           <tr><td><code>-1</code></td><td>水平垂直翻转</td></tr>
         </tbody>
       </table>
-      <p class="code-title">程序实例 ch26_3.py：影像水平翻转。</p>
+      <p class="code-title">程序实例 ch26_3.py：图像水平翻转。</p>
       <div class="code-block"># ch26_3.py
 import cv2
 
 capture = cv2.VideoCapture(0)          # 初始化摄影功能
 while(capture.isOpened()):
-    ret, frame = capture.read()        # 读取摄影镜头的影像
-    cv2.imshow('Frame', frame)         # 显示彩色影像
+    ret, frame = capture.read()        # 读取摄影镜头的图像
+    cv2.imshow('Frame', frame)         # 显示彩色图像
 
     h_frame = cv2.flip(frame, 1)       # 水平翻转
     cv2.imshow('Flip Frame', h_frame)  # 显示水平翻转
@@ -168,13 +168,13 @@ cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
-          <img src="images/ch26/ch26_03_flip_frame.png" alt="ch26_3.py 摄影机影像水平翻转结果">
+          <img src="images/ch26/ch26_03_flip_frame.png" alt="ch26_3.py 摄影机图像水平翻转结果">
         </div>
       </div>
 
-      <h3>26-1-7 保存某一瞬间的影像</h3>
+      <h3>26-1-7 保存某一瞬间的图像</h3>
       <p class="content-text">
-        可以使用 OpenCV 的 <code>imwrite()</code> 函数保存摄影期间某一瞬间的影像，也就是将特定时刻的影像储存为图档。
+        可以使用 OpenCV 的 <code>imwrite()</code> 函数保存摄影期间某一瞬间的图像，也就是将特定时刻的图像储存为图档。
       </p>
       <p class="code-title">程序实例 ch26_4.py：按 Enter 键时，保存当前帧并写入 <code>mypict.png</code>。</p>
       <div class="code-block"># ch26_4.py
@@ -182,8 +182,8 @@ import cv2
 
 capture = cv2.VideoCapture(0)          # 初始化摄影功能
 while(capture.isOpened()):
-    ret, frame = capture.read()        # 读取摄影镜头的影像
-    cv2.imshow('Frame', frame)         # 显示摄影镜头的影像
+    ret, frame = capture.read()        # 读取摄影镜头的图像
+    cv2.imshow('Frame', frame)         # 显示摄影镜头的图像
 
     c = cv2.waitKey(1)                 # 等待时间 1 毫秒 ms
     if c == 13:                        # 按 Enter 键
@@ -207,7 +207,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        如果要记录摄影机所拍摄的内容，可以使用 <code>VideoWriter</code> 类别将影像保存为影片档案。
+        如果要记录摄影机所拍摄的内容，可以使用 <code>VideoWriter</code> 类别将图像保存为影片档案。
       </p>
 
       <h3>26-2-1 VideoWriter 类别</h3>
@@ -249,7 +249,7 @@ video_out = cv2.VideoWriter('out.avi', fourcc, 20.0, (640, 480))</div>
       <div class="code-syntax">video_out.write(frame)</div>
 
       <h3>26-2-4 保存动态影片实例</h3>
-      <p class="code-title">程序实例 ch26_5.py：将动态影像保存，储存为 <code>out26_5.avi</code>。</p>
+      <p class="code-title">程序实例 ch26_5.py：将动态图像保存，储存为 <code>out26_5.avi</code>。</p>
       <div class="code-block"># ch26_5.py
 import cv2
 
@@ -262,7 +262,7 @@ while(capture.isOpened()):
     ret, frame = capture.read()
     if ret:
         video_out.write(frame)         # 写入影片对象
-        cv2.imshow('frame', frame)     # 显示摄影镜头影像
+        cv2.imshow('frame', frame)     # 显示摄影镜头图像
         c = cv2.waitKey(1)             # 等待时间 1 毫秒 ms
         if c == 27:                    # 按 Esc 键结束
             break
@@ -462,8 +462,8 @@ import cv2
 
 capture = cv2.VideoCapture(0)          # 初始化摄影功能
 while(capture.isOpened()):
-    ret, frame = capture.read()        # 读取摄影镜头的影像
-    cv2.imshow('Frame', frame)         # 显示摄影镜头的影像
+    ret, frame = capture.read()        # 读取摄影镜头的图像
+    cv2.imshow('Frame', frame)         # 显示摄影镜头的图像
     width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)    # 宽度
     height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)  # 高度
     c = cv2.waitKey(1)                 # 等待时间 1 毫秒 ms
@@ -519,8 +519,8 @@ capture = cv2.VideoCapture(0)          # 初始化摄影功能
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)   # 设定宽度
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)   # 设定高度
 while(capture.isOpened()):
-    ret, frame = capture.read()        # 读取摄影镜头的影像
-    cv2.imshow('Frame', frame)         # 显示摄影镜头的影像
+    ret, frame = capture.read()        # 读取摄影镜头的图像
+    cv2.imshow('Frame', frame)         # 显示摄影镜头的图像
     c = cv2.waitKey(1)                 # 等待时间 1 毫秒 ms
     if c == 27:                        # 按 Esc 键
         break
@@ -626,7 +626,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

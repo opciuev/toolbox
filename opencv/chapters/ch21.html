@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,7 +33,7 @@
       <div class="chapter-meta">本章共 4 个小节 · 数据座标轴转换 · 傅立叶基础理论 · 使用 Numpy 执行傅立叶变换 · 使用 OpenCV 完成傅立叶变换</div>
 
       <div class="chapter-intro">
-        在影像处理中，我们可以将影像区分为空间域和频率域。至今所有影像处理皆是在空间域处理。这一章介绍傅立叶变换：这是一种将影像从空间域转换到频率域的方法；然后可以在频率域内进行影像处理；最后再使用逆傅立叶运算将影像从频率域转换回空间域。
+        在图像处理中，我们可以将图像区分为空间域和频率域。至今所有图像处理皆是在空间域处理。这一章介绍傅立叶变换：这是一种将图像从空间域转换到频率域的方法；然后可以在频率域内进行图像处理；最后再使用逆傅立叶运算将图像从频率域转换回空间域。
       </div>
 
       <div class="section-heading" id="section-0">
@@ -273,7 +273,7 @@ plt.show()</div>
 
       <h3>21-3-1 实作傅立叶变换</h3>
       <p class="content-text">
-        Numpy 模组所提供的傅立叶变换函数如下，下列函数主要是将影像从空间域转成频率域。
+        Numpy 模组所提供的傅立叶变换函数如下，下列函数主要是将图像从空间域转成频率域。
       </p>
 
       <div class="code-syntax">f = np.fft.fft2(src, s=None, axes=(-2, -1))</div>
@@ -283,7 +283,7 @@ plt.show()</div>
           <tr><th>参数 / 返回值</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>输入影像或阵列；在本章实例中是灰阶影像。</td></tr>
+          <tr><td><code>src</code></td><td>输入图像或阵列；在本章实例中是灰阶图像。</td></tr>
           <tr><td><code>s</code></td><td>整数序列，输出阵列的大小；如果省略，则输出大小与输入大小一致。</td></tr>
           <tr><td><code>axes</code></td><td>整数轴；如果省略，则使用最后 2 个轴。</td></tr>
           <tr><td><code>f</code></td><td>回传值，这是含复数的阵列（complex ndarray）。</td></tr>
@@ -291,7 +291,7 @@ plt.show()</div>
       </table>
 
       <p class="content-text">
-        影像经过上述傅立叶变换函数处理后，可以得到频率域图；但是 0 频率分量的中心位置会出现在左上角，通常需要使用 <code>np.fft.fftshift()</code> 将 0 频率分量的中心位置移到中间。
+        图像经过上述傅立叶变换函数处理后，可以得到频率域图；但是 0 频率分量的中心位置会出现在左上角，通常需要使用 <code>np.fft.fftshift()</code> 将 0 频率分量的中心位置移到中间。
       </p>
 
       <div class="code-syntax">fshift = np.fft.fftshift(f)</div>
@@ -302,7 +302,7 @@ plt.show()</div>
 
       <div class="code-syntax">fimg = 20 * np.log(np.abs(fshift))</div>
 
-      <p class="code-title">程式实例 ch21_6.py：使用傅立叶变换，绘制 jk.jpg 影像的频率域图，也称频谱图</p>
+      <p class="code-title">程式实例 ch21_6.py：使用傅立叶变换，绘制 jk.jpg 图像的频率域图，也称频谱图</p>
       <div class="code-block"># ch21_6.py
 import cv2
 import numpy as np
@@ -316,7 +316,7 @@ spectrum = 20 * np.log(np.abs(fshift))          # 转成频谱
 
 plt.subplot(121)                                # 绘制左边原图
 plt.imshow(src, cmap="gray")                    # 灰阶显示
-plt.title("原始影像")
+plt.title("原始图像")
 plt.axis("off")                                 # 不显示座标轴
 plt.subplot(122)                                # 绘制右边频谱图
 plt.imshow(spectrum, cmap="gray")               # 灰阶显示
@@ -327,16 +327,16 @@ plt.show()</div>
       <div class="result-box">
         <span class="result-box-header">频谱图</span>
         <div class="result-box-image">
-          <img src="images/ch21/ch21_09_numpy_fft_jk.png" alt="ch21_6.py jk.jpg 原始影像与频谱图">
+          <img src="images/ch21/ch21_09_numpy_fft_jk.png" alt="ch21_6.py jk.jpg 原始图像与频谱图">
           <div class="caption">越靠近中心频率越低；灰阶值越高，频谱图越亮，代表该频率的讯号振幅越大。</div>
         </div>
       </div>
 
       <div class="result-box">
-        <span class="result-box-header">不同影像的傅立叶变换</span>
+        <span class="result-box-header">不同图像的傅立叶变换</span>
         <div class="result-box-image">
-          <img src="images/ch21/ch21_10_numpy_fft_shapes.png" alt="ch21_6_1.py 与 ch21_6_2.py 转换不同形状影像的结果">
-          <div class="caption">分别是 ch21_6_1.py 与 ch21_6_2.py 转换不同影像的结果。</div>
+          <img src="images/ch21/ch21_10_numpy_fft_shapes.png" alt="ch21_6_1.py 与 ch21_6_2.py 转换不同形状图像的结果">
+          <div class="caption">分别是 ch21_6_1.py 与 ch21_6_2.py 转换不同图像的结果。</div>
         </div>
       </div>
 
@@ -355,7 +355,7 @@ spectrum = 20 * np.log(np.abs(f))               # 转成频谱</div>
 
       <h3>21-3-2 逆傅立叶变换</h3>
       <p class="content-text">
-        可以使用傅立叶变换切换到频率域，也可以使用逆傅立叶运算将频谱图切换回原始影像。Numpy 模组的 <code>np.fft.ifftshift()</code> 是 <code>np.fft.fftshift()</code> 的逆运算，可以将频率 0 的中心位置移回左上角。
+        可以使用傅立叶变换切换到频率域，也可以使用逆傅立叶运算将频谱图切换回原始图像。Numpy 模组的 <code>np.fft.ifftshift()</code> 是 <code>np.fft.fftshift()</code> 的逆运算，可以将频率 0 的中心位置移回左上角。
       </p>
 
       <div class="code-syntax">ifshift = np.fft.ifftshift(fshift)</div>
@@ -382,29 +382,29 @@ src_back = np.abs(src_tmp)                      # 取绝对值
 
 plt.subplot(121)                                # 绘制左边原图
 plt.imshow(src, cmap="gray")                    # 灰阶显示
-plt.title("原始影像")
+plt.title("原始图像")
 plt.axis("off")
 plt.subplot(122)                                # 绘制右边逆运算图
 plt.imshow(src_back, cmap="gray")               # 灰阶显示
-plt.title("逆变换影像")
+plt.title("逆变换图像")
 plt.axis("off")
 plt.show()</div>
 
       <div class="result-box">
         <span class="result-box-header">逆变换结果</span>
         <div class="result-box-image">
-          <img src="images/ch21/ch21_12_numpy_inverse.png" alt="ch21_7.py 原始影像与逆变换影像">
+          <img src="images/ch21/ch21_12_numpy_inverse.png" alt="ch21_7.py 原始图像与逆变换图像">
         </div>
       </div>
 
       <h3>21-3-3 高频讯号与低频讯号</h3>
       <p class="content-text">
-        一幅影像使用傅立叶转为频率域后，可以将讯号分成高频讯号与低频讯号。高频讯号：如果振幅在短时间内变化很快，就可以称为高频讯号，影像通常会在图案边缘或噪音处产生高频讯号。低频讯号：如果振幅在短时间内变化不大，就可以称为低频讯号。
+        一幅图像使用傅立叶转为频率域后，可以将讯号分成高频讯号与低频讯号。高频讯号：如果振幅在短时间内变化很快，就可以称为高频讯号，图像通常会在图案边缘或噪音处产生高频讯号。低频讯号：如果振幅在短时间内变化不大，就可以称为低频讯号。
       </p>
 
       <h3>21-3-4 高通滤波器与低通滤波器</h3>
       <p class="content-text">
-        在频率域中，可以设计高通滤波器与低通滤波器。高通滤波器让高频讯号通过，可增强影像细节；低通滤波器让低频讯号通过，可去除噪音，但也会抑制影像边缘讯息并造成影像模糊。
+        在频率域中，可以设计高通滤波器与低通滤波器。高通滤波器让高频讯号通过，可增强图像细节；低通滤波器让低频讯号通过，可去除噪音，但也会抑制图像边缘讯息并造成图像模糊。
       </p>
 
       <div class="code-syntax">rows, cols = image.shape
@@ -416,7 +416,7 @@ row, col = rows // 2, cols // 2</div>
 
       <div class="code-syntax">fshift[row-30:row+30, col-30:col+30] = 0</div>
 
-      <p class="code-title">程式实例 ch21_8.py：使用 snow.jpg 影像，使用高通滤波器观念重新设计 ch21_7.py</p>
+      <p class="code-title">程式实例 ch21_8.py：使用 snow.jpg 图像，使用高通滤波器观念重新设计 ch21_7.py</p>
       <div class="code-block"># ch21_8.py
 import cv2
 import numpy as np
@@ -429,7 +429,7 @@ f = np.fft.fft2(src)                            # 转成频率域
 fshift = np.fft.fftshift(f)                     # 0 频率分量移至中心
 
 # 高通滤波器
-rows, cols = src.shape                          # 取得影像外形
+rows, cols = src.shape                          # 取得图像外形
 row, col = rows // 2, cols // 2                 # rows, cols 的中心
 fshift[row-30:row+30, col-30:col+30] = 0        # 低频率分量设为 0
 
@@ -439,15 +439,15 @@ src_tmp = np.fft.ifft2(ifshift)                 # 逆傅立叶
 src_back = np.abs(src_tmp)                      # 取绝对值
 
 plt.subplot(131)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(src, cmap="gray")
 plt.axis("off")
 plt.subplot(132)
 plt.imshow(src_back, cmap="gray")
-plt.title("高通滤波灰阶影像")
+plt.title("高通滤波灰阶图像")
 plt.axis("off")
 plt.subplot(133)
-plt.title("高通滤波影像")
+plt.title("高通滤波图像")
 plt.imshow(src_back)
 plt.axis("off")
 plt.show()</div>
@@ -474,7 +474,7 @@ plt.show()</div>
           <tr><th>参数 / 返回值</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>输入影像或阵列；这是灰阶影像，不过使用前必须先转换为 <code>np.float32</code> 格式。</td></tr>
+          <tr><td><code>src</code></td><td>输入图像或阵列；这是灰阶图像，不过使用前必须先转换为 <code>np.float32</code> 格式。</td></tr>
           <tr><td><code>flags</code></td><td>转换标记，建议使用 <code>DFT_COMPLEX_OUTPUT</code>。</td></tr>
           <tr><td><code>dft</code></td><td>回传值是含复数的阵列，具有 2 个通道：一个是实数部分，另一个是虚数部分。</td></tr>
         </tbody>
@@ -533,7 +533,7 @@ dftshift = np.fft.fftshift(dft)                 # 0 频率分量移至中心
 spectrum = 20 * np.log(cv2.magnitude(dftshift[:, :, 0], dftshift[:, :, 1]))
 
 plt.subplot(121)
-plt.title("原始影像")
+plt.title("原始图像")
 plt.imshow(src, cmap="gray")
 plt.axis("off")
 plt.subplot(122)
@@ -545,7 +545,7 @@ plt.show()</div>
       <div class="result-box">
         <span class="result-box-header">OpenCV dft() 结果</span>
         <div class="result-box-image">
-          <img src="images/ch21/ch21_14_opencv_dft.png" alt="ch21_9.py OpenCV dft() 原始影像与频谱图">
+          <img src="images/ch21/ch21_14_opencv_dft.png" alt="ch21_9.py OpenCV dft() 原始图像与频谱图">
         </div>
       </div>
 
@@ -556,7 +556,7 @@ plt.show()</div>
 
       <div class="code-syntax">dst = cv2.idft(src, flags)</div>
 
-      <p class="code-title">程式实例 ch21_10.py：使用 shape2.jpg 影像，绘制这个影像和频谱图，最后执行逆运算绘制此影像</p>
+      <p class="code-title">程式实例 ch21_10.py：使用 shape2.jpg 图像，绘制这个图像和频谱图，最后执行逆运算绘制此图像</p>
       <div class="code-block"># ch21_10.py
 import cv2
 import numpy as np
@@ -577,7 +577,7 @@ dst = cv2.magnitude(tmp[:, :, 0], tmp[:, :, 1])
 
 plt.subplot(131)
 plt.imshow(src, cmap="gray")
-plt.title("原始影像shape2.jpg")
+plt.title("原始图像shape2.jpg")
 plt.axis("off")
 plt.subplot(132)
 plt.imshow(spectrum, cmap="gray")
@@ -585,14 +585,14 @@ plt.title("频谱图")
 plt.axis("off")
 plt.subplot(133)
 plt.imshow(dst, cmap="gray")
-plt.title("逆傅立叶影像")
+plt.title("逆傅立叶图像")
 plt.axis("off")
 plt.show()</div>
 
       <div class="result-box">
         <span class="result-box-header">OpenCV 逆傅立叶结果</span>
         <div class="result-box-image">
-          <img src="images/ch21/ch21_15_opencv_inverse.png" alt="ch21_10.py shape2.jpg 频谱图与逆傅立叶影像">
+          <img src="images/ch21/ch21_15_opencv_inverse.png" alt="ch21_10.py shape2.jpg 频谱图与逆傅立叶图像">
         </div>
       </div>
 
@@ -605,7 +605,7 @@ plt.show()</div>
         <span class="result-box-header">低通滤波器观念</span>
         <div class="result-box-image">
           <img src="images/ch21/ch21_16_lowpass_concept.png" alt="低通滤波器遮罩与频谱运算图解">
-          <div class="caption">先建立一个与原始影像相同大小的影像，像素值先设为 0，然后建立遮罩区，将此遮罩区设为 1。</div>
+          <div class="caption">先建立一个与原始图像相同大小的图像，像素值先设为 0，然后建立遮罩区，将此遮罩区设为 1。</div>
         </div>
       </div>
 
@@ -615,7 +615,7 @@ mask = np.zeros((rows, cols, 2), np.uint8)
 mask[row-30:row+30, col-30:col+30] = 1
 result = dftshift * mask</div>
 
-      <p class="code-title">程式实例 ch21_11.py：使用 OpenCV 建立低通滤波器的实例，这个实例可以看到影像的边缘讯息变弱，所以造成影像模糊</p>
+      <p class="code-title">程式实例 ch21_11.py：使用 OpenCV 建立低通滤波器的实例，这个实例可以看到图像的边缘讯息变弱，所以造成图像模糊</p>
       <div class="code-block"># ch21_11.py
 import cv2
 import numpy as np
@@ -628,7 +628,7 @@ dft = cv2.dft(np.float32(src), flags=cv2.DFT_COMPLEX_OUTPUT)
 dftshift = np.fft.fftshift(dft)                 # 0 频率分量移至中心
 
 # 低通滤波器
-rows, cols = src.shape                          # 取得影像外形
+rows, cols = src.shape                          # 取得图像外形
 row, col = rows // 2, cols // 2                 # rows, cols 的中心
 mask = np.zeros((rows, cols, 2), np.uint8)
 mask[row-30:row+30, col-30:col+30] = 1          # 低频率分量设为 1
@@ -640,15 +640,15 @@ src_back = cv2.magnitude(src_tmp[:, :, 0], src_tmp[:, :, 1])
 
 plt.subplot(131)
 plt.imshow(src, cmap="gray")
-plt.title("原始影像")
+plt.title("原始图像")
 plt.axis("off")
 plt.subplot(132)
 plt.imshow(src_back, cmap="gray")
-plt.title("低通滤波灰阶影像")
+plt.title("低通滤波灰阶图像")
 plt.axis("off")
 plt.subplot(133)
 plt.imshow(src_back)
-plt.title("低通滤波影像")
+plt.title("低通滤波图像")
 plt.axis("off")
 plt.show()</div>
 
@@ -662,9 +662,9 @@ plt.show()</div>
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 使用 <code>lena.jpg</code> 代入 <code>ch21_8.py</code>，体会不同影像的感觉。</p>
-          <p>2. 使用 <code>lena.jpg</code> 影像和 Numpy 模组，设计低通滤波灰阶影像和低通滤波影像。</p>
-          <p>3. 使用 <code>lena.jpg</code> 影像和 OpenCV 模组，设计高通滤波灰阶影像和高通滤波影像。</p>
+          <p>1. 使用 <code>lena.jpg</code> 代入 <code>ch21_8.py</code>，体会不同图像的感觉。</p>
+          <p>2. 使用 <code>lena.jpg</code> 图像和 Numpy 模组，设计低通滤波灰阶图像和低通滤波图像。</p>
+          <p>3. 使用 <code>lena.jpg</code> 图像和 OpenCV 模组，设计高通滤波灰阶图像和高通滤波图像。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch21/ch21_18_exercises.png" alt="第 21 章习题参考结果">
           </div>
@@ -689,7 +689,7 @@ plt.show()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

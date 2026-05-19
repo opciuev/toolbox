@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -44,7 +44,7 @@
 
       <h3>12-1-1 理论基础</h3>
       <p class="content-text">
-        腐蚀会让白色前景区域缩小。以二值图像为例，当结构元素覆盖在影像上时，只有内核覆盖区域都满足前景条件，中心位置才保留为白色；
+        腐蚀会让白色前景区域缩小。以二值图像为例，当结构元素覆盖在图像上时，只有内核覆盖区域都满足前景条件，中心位置才保留为白色；
         否则会被腐蚀成黑色。因此腐蚀可以消除小白点、断开细连接线，也会让物体边界向内收缩。
       </p>
 
@@ -64,7 +64,7 @@
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>来源影像，常见为二值图。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像，常见为二值图。</td></tr>
           <tr><td><code>kernel</code></td><td>结构元素，可用 Numpy 阵列或 <code>getStructuringElement()</code> 产生。</td></tr>
           <tr><td><code>anchor</code></td><td>锚点位置，默认 <code>(-1, -1)</code> 表示内核中心。</td></tr>
           <tr><td><code>iterations</code></td><td>执行次数，默认 1；次数越多，腐蚀越明显。</td></tr>
@@ -132,7 +132,7 @@ cv2.imshow("after erosion", dst)
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
 
-      <p class="code-title">程序实例 ch12_4.py：彩色影像腐蚀</p>
+      <p class="code-title">程序实例 ch12_4.py：彩色图像腐蚀</p>
       <div class="code-block"># ch12_4.py
 import cv2
 import numpy as np
@@ -147,7 +147,7 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
 
       <p class="content-text">
-        <code>ch12_3.py</code> 将腐蚀用于带噪声的二值图，观察小白点被移除；<code>ch12_4.py</code> 把同样观念用在彩色影像上，
+        <code>ch12_3.py</code> 将腐蚀用于带噪声的二值图，观察小白点被移除；<code>ch12_4.py</code> 把同样观念用在彩色图像上，
         可以看到暗色区域扩大、亮色区域缩小。
       </p>
 
@@ -158,8 +158,8 @@ cv2.destroyAllWindows()</div>
           <div class="caption">腐蚀可去除部分小型白色噪声，参考原书第 <strong>12-5</strong> 页。</div>
         </div>
         <div class="result-box-image">
-          <img src="images/ch12/ch12_erosion_color_result.jpg" alt="ch12_4.py 彩色影像腐蚀结果">
-          <div class="caption">彩色影像执行腐蚀后的比较，参考原书第 <strong>12-6</strong> 页。</div>
+          <img src="images/ch12/ch12_erosion_color_result.jpg" alt="ch12_4.py 彩色图像腐蚀结果">
+          <div class="caption">彩色图像执行腐蚀后的比较，参考原书第 <strong>12-6</strong> 页。</div>
         </div>
       </div>
 
@@ -249,7 +249,7 @@ cv2.imshow("after dilation 5 x 5", dst2)
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
 
-      <p class="code-title">程序实例 ch12_8.py：彩色影像膨胀</p>
+      <p class="code-title">程序实例 ch12_8.py：彩色图像膨胀</p>
       <div class="code-block"># ch12_8.py
 import cv2
 import numpy as np
@@ -264,7 +264,7 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
 
       <p class="content-text">
-        <code>ch12_7.py</code> 使用字母图观察 3x3 与 5x5 膨胀核的差异；<code>ch12_8.py</code> 把彩色影像的腐蚀程序改写为膨胀程序，
+        <code>ch12_7.py</code> 使用字母图观察 3x3 与 5x5 膨胀核的差异；<code>ch12_8.py</code> 把彩色图像的腐蚀程序改写为膨胀程序，
         可看到亮色区域扩张。
       </p>
 
@@ -367,8 +367,8 @@ cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">开运算彩色图结果</span>
         <div class="result-box-image">
-          <img src="images/ch12/ch12_opening_night_result.png" alt="ch12_10.py 开运算处理彩色影像">
-          <div class="caption">彩色图也可做形态学处理，效果取决于内核大小和影像内容，参考原书第 <strong>12-14</strong> 页。</div>
+          <img src="images/ch12/ch12_opening_night_result.png" alt="ch12_10.py 开运算处理彩色图像">
+          <div class="caption">彩色图也可做形态学处理，效果取决于内核大小和图像内容，参考原书第 <strong>12-14</strong> 页。</div>
         </div>
       </div>
 
@@ -543,7 +543,7 @@ cv2.destroyAllWindows()</div>
         </div>
         <div class="result-box-image">
           <img src="images/ch12/ch12_gradient_city_result.jpg" alt="ch12_17.py 城市图形态学梯度结果">
-          <div class="caption">城市影像的形态学梯度结果，参考原书第 <strong>12-19</strong> 页。</div>
+          <div class="caption">城市图像的形态学梯度结果，参考原书第 <strong>12-19</strong> 页。</div>
         </div>
       </div>
 
@@ -553,8 +553,8 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        顶帽运算是原始影像减去开运算结果，常用来提取比结构元素小、且比周围区域更亮的局部特征。
-        如果影像中存在细亮线或小亮点，顶帽运算可以把这些细节凸显出来。
+        顶帽运算是原始图像减去开运算结果，常用来提取比结构元素小、且比周围区域更亮的局部特征。
+        如果图像中存在细亮线或小亮点，顶帽运算可以把这些细节凸显出来。
       </p>
 
       <div class="code-syntax">dst = cv2.morphologyEx(src, cv2.MORPH_TOPHAT, kernel)</div>
@@ -599,7 +599,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        黑帽运算是闭运算结果减去原始影像，常用来提取比结构元素小、且比周围区域更暗的局部特征。
+        黑帽运算是闭运算结果减去原始图像，常用来提取比结构元素小、且比周围区域更暗的局部特征。
         它和顶帽运算互补：顶帽找亮细节，黑帽找暗细节。
       </p>
 
@@ -714,22 +714,22 @@ cv2.destroyAllWindows()</div>
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 使用原书指定影像，练习腐蚀与膨胀，并比较矩形、椭圆形、十字形结构元素对轮廓的影响。</p>
+          <p>1. 使用原书指定图像，练习腐蚀与膨胀，并比较矩形、椭圆形、十字形结构元素对轮廓的影响。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch12/ch12_exercise_ref_1.png" alt="第 12 章习题 1 参考结果">
             <div class="caption">习题 1 参考结果。</div>
           </div>
-          <p>2. 使用原书指定影像，执行开运算或闭运算，观察小噪点、细线和空洞的变化。</p>
+          <p>2. 使用原书指定图像，执行开运算或闭运算，观察小噪点、细线和空洞的变化。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch12/ch12_exercise_ref_2.png" alt="第 12 章习题 2 参考结果">
             <div class="caption">习题 2 参考结果。</div>
           </div>
-          <p>3. 对寺庙影像执行 <code>MORPH_GRADIENT</code>，观察形态学梯度抽出的边界。</p>
+          <p>3. 对寺庙图像执行 <code>MORPH_GRADIENT</code>，观察形态学梯度抽出的边界。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
-            <img src="images/ch12/ch12_exercise_temple_gradient.jpg" alt="第 12 章寺庙影像形态学梯度习题参考结果">
+            <img src="images/ch12/ch12_exercise_temple_gradient.jpg" alt="第 12 章寺庙图像形态学梯度习题参考结果">
             <div class="caption">习题 3 参考图，参考原书第 <strong>12-24</strong> 页。</div>
           </div>
-          <p>4. 对书本影像执行 <code>MORPH_BLACKHAT</code>，观察黑帽运算抽出的暗色细节。</p>
+          <p>4. 对书本图像执行 <code>MORPH_BLACKHAT</code>，观察黑帽运算抽出的暗色细节。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch12/ch12_exercise_book_blackhat.jpg" alt="第 12 章书本黑帽运算习题参考结果">
             <div class="caption">习题 4 参考图，参考原书第 <strong>12-25</strong> 页。</div>
@@ -741,13 +741,13 @@ cv2.destroyAllWindows()</div>
         <a href="ch11.html">
           <div>
             <div class="nav-label">&larr; 上一章</div>
-            <div class="nav-title">第 11 章 删除影像杂讯</div>
+            <div class="nav-title">第 11 章 删除图像杂讯</div>
           </div>
         </a>
         <a href="ch13.html">
           <div>
             <div class="nav-label">下一章 &rarr;</div>
-            <div class="nav-title">第 13 章 影像梯度与边缘侦测</div>
+            <div class="nav-title">第 13 章 图像梯度与边缘侦测</div>
           </div>
         </a>
       </div>
@@ -755,7 +755,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,12 +33,12 @@
       <div class="chapter-meta">本章共 9 个小节 · 宽高比 · 极点 · Extent · Solidity · 等效直径 · 遮罩 · 最小值最大值 · 均值标准差 · 方向</div>
 
       <div class="chapter-intro">
-        这一章介绍找到轮廓后，能够进一步计算的常用特征。前一章已经说明如何取得轮廓、外接矩形、凸包、拟合椭圆等资料，本章继续使用这些结果，说明如何计算宽高比、轮廓极点、轮廓面积比例、像素坐标资讯、影像像素统计，以及方向角等资讯。
+        这一章介绍找到轮廓后，能够进一步计算的常用特征。前一章已经说明如何取得轮廓、外接矩形、凸包、拟合椭圆等资料，本章继续使用这些结果，说明如何计算宽高比、轮廓极点、轮廓面积比例、像素坐标资讯、图像像素统计，以及方向角等资讯。
       </div>
 
       <div class="note-box">
         <span class="note-icon">共用流程</span>
-        <span>多数范例都会先读取影像、转灰阶、二值化，再用 <code>findContours()</code> 取得轮廓。代码中的图片名与原书保持一致，例如 <code>explode1.jpg</code>、<code>hand.jpg</code>、<code>forest.png</code>。</span>
+        <span>多数范例都会先读取图像、转灰阶、二值化，再用 <code>findContours()</code> 取得轮廓。代码中的图片名与原书保持一致，例如 <code>explode1.jpg</code>、<code>hand.jpg</code>、<code>forest.png</code>。</span>
       </div>
 
       <div class="section-heading" id="section-1">
@@ -47,7 +47,7 @@
       </div>
 
       <p class="content-text">
-        在 16-1-1 节说明过，使用 <code>boundingRect()</code> 函数可以将影像内的轮廓使用矩形框起来，同时回传值的元组格式是 <code>(x, y, w, h)</code>，将 <code>w</code>（width）除以 <code>h</code>（height）就可以得到轮廓的宽高比。
+        在 16-1-1 节说明过，使用 <code>boundingRect()</code> 函数可以将图像内的轮廓使用矩形框起来，同时回传值的元组格式是 <code>(x, y, w, h)</code>，将 <code>w</code>（width）除以 <code>h</code>（height）就可以得到轮廓的宽高比。
       </p>
 
       <div class="code-syntax">宽高比 = w(width) / h(height)</div>
@@ -297,7 +297,7 @@ cv2.destroyAllWindows()</div>
 
       <div class="code-syntax">Extent = 轮廓面积 / 矩形面积</div>
 
-      <p class="code-title">程序实例 ch17_8.py：计算 <code>explode1.jpg</code> 影像内轮廓面积与外接矩形的比值。</p>
+      <p class="code-title">程序实例 ch17_8.py：计算 <code>explode1.jpg</code> 图像内轮廓面积与外接矩形的比值。</p>
       <div class="code-block"># ch17_8.py
 import cv2
 
@@ -349,7 +349,7 @@ cv2.destroyAllWindows()</div>
 
       <div class="code-syntax">Solidity = 轮廓面积 / 凸包面积</div>
 
-      <p class="code-title">程序实例 ch17_9.py：计算 <code>explode1.jpg</code> 影像内轮廓面积与外接凸包形的比值。</p>
+      <p class="code-title">程序实例 ch17_9.py：计算 <code>explode1.jpg</code> 图像内轮廓面积与外接凸包形的比值。</p>
       <div class="code-block"># ch17_9.py
 import cv2
 
@@ -445,7 +445,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        经过前面的遮罩概念后，可以取得影像中轮廓的资讯，也可以取得轮廓影像像素点的坐标。在使用 <code>drawContours()</code> 函数时，如果将 <code>thickness</code> 设为 <code>-1</code>，可以获得实心轮廓，这个实心轮廓常作为后续处理时的遮罩。
+        经过前面的遮罩概念后，可以取得图像中轮廓的资讯，也可以取得轮廓图像像素点的坐标。在使用 <code>drawContours()</code> 函数时，如果将 <code>thickness</code> 设为 <code>-1</code>，可以获得实心轮廓，这个实心轮廓常作为后续处理时的遮罩。
       </p>
 
       <h3>17-6-1 使用 Numpy 的阵列模组取得非 0 像素点坐标讯息</h3>
@@ -539,11 +539,11 @@ cv2.destroyAllWindows()</div>
         </thead>
         <tbody>
           <tr><td><code>idx</code></td><td>回传像素点的坐标讯息，格式是 <code>(column, row)</code>。</td></tr>
-          <tr><td><code>src</code></td><td>原始影像。</td></tr>
+          <tr><td><code>src</code></td><td>原始图像。</td></tr>
         </tbody>
       </table>
 
-      <p class="code-title">程序实例 ch17_14.py：从简单矩阵影像取得非 0 像素点坐标。</p>
+      <p class="code-title">程序实例 ch17_14.py：从简单矩阵图像取得非 0 像素点坐标。</p>
       <div class="code-block"># ch17_14.py
 import cv2
 import numpy as np
@@ -600,11 +600,11 @@ print(points2)</div>
 
       <div class="section-heading" id="section-7">
         <span class="section-number">17-7</span>
-        <h2>找寻影像物件最小值与最大值与他们的坐标</h2>
+        <h2>找寻图像物件最小值与最大值与他们的坐标</h2>
       </div>
 
       <p class="content-text">
-        轮廓特征中有一个很重要的观念，是找寻轮廓内部影像的最小值、最大值，以及它们的座标。OpenCV 提供 <code>minMaxLoc()</code> 函数处理这项问题。
+        轮廓特征中有一个很重要的观念，是找寻轮廓内部图像的最小值、最大值，以及它们的座标。OpenCV 提供 <code>minMaxLoc()</code> 函数处理这项问题。
       </p>
 
       <div class="code-syntax">minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(src, mask=mask)</div>
@@ -618,14 +618,14 @@ print(points2)</div>
           <tr><td><code>maxVal</code></td><td>最大值。</td></tr>
           <tr><td><code>minLoc</code></td><td>最小值坐标，格式是 <code>(column, row)</code>。</td></tr>
           <tr><td><code>maxLoc</code></td><td>最大值坐标，格式是 <code>(column, row)</code>。</td></tr>
-          <tr><td><code>image</code></td><td>单通道的影像。</td></tr>
+          <tr><td><code>image</code></td><td>单通道的图像。</td></tr>
           <tr><td><code>mask</code></td><td>可选参数。设定遮罩后，可以找寻此遮罩内的最大值、最小值与坐标。</td></tr>
         </tbody>
       </table>
 
       <h3>17-7-1 从阵列找最大值与最小值和他们的坐标</h3>
       <p class="content-text">
-        先将矩阵想成缩小版影像，从简单数值开始比较容易理解。
+        先将矩阵想成缩小版图像，从简单数值开始比较容易理解。
       </p>
 
       <p class="code-title">程序实例 ch17_16.py：使用 0 到 255 多随机数建立一个 3 x 5 矩阵，然后列出最大值、最小值元素与其坐标。</p>
@@ -641,12 +641,12 @@ minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img)
 print(f"最小值 = {minVal}, 位置 = {minLoc}")
 print(f"最大值 = {maxVal}, 位置 = {maxLoc}")</div>
 
-      <h3>17-7-2 影像实作与医学应用说明</h3>
+      <h3>17-7-2 图像实作与医学应用说明</h3>
       <p class="content-text">
-        原书以 <code>hand1.jpg</code> 手部影像为例，手掌上有黑点与白点。程序会使用遮罩找出手部影像内的最小灰阶值、最大灰阶值，以及它们的位置。
+        原书以 <code>hand1.jpg</code> 手部图像为例，手掌上有黑点与白点。程序会使用遮罩找出手部图像内的最小灰阶值、最大灰阶值，以及它们的位置。
       </p>
 
-      <p class="code-title">程序实例 ch17_17.py：使用 hand.jpg 侦测手部影像最大与最小像素值，同时列出坐标。</p>
+      <p class="code-title">程序实例 ch17_17.py：使用 hand.jpg 侦测手部图像最大与最小像素值，同时列出坐标。</p>
       <div class="code-block"># ch17_17.py
 import cv2
 import numpy as np
@@ -690,19 +690,19 @@ cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">minMaxLoc 与遮罩</span>
         <div class="result-box-image">
-          <img src="images/ch17/ch17_11_minmaxloc_mask.png" alt="ch17_17.py minMaxLoc 遮罩与手部影像结果">
-          <div class="caption">参考原书第 17-17 页，显示手部影像、遮罩、最小值与最大值标记。</div>
+          <img src="images/ch17/ch17_11_minmaxloc_mask.png" alt="ch17_17.py minMaxLoc 遮罩与手部图像结果">
+          <div class="caption">参考原书第 17-17 页，显示手部图像、遮罩、最小值与最大值标记。</div>
         </div>
       </div>
 
       <div class="section-heading" id="section-8">
         <span class="section-number">17-8</span>
-        <h2>计算影像的像素的均值与标准差</h2>
+        <h2>计算图像的像素的均值与标准差</h2>
       </div>
 
-      <h3>17-8-1 计算影像的像素均值</h3>
+      <h3>17-8-1 计算图像的像素均值</h3>
       <p class="content-text">
-        OpenCV 有提供 <code>mean()</code> 函数，可以计算影像像素的均值。
+        OpenCV 有提供 <code>mean()</code> 函数，可以计算图像像素的均值。
       </p>
 
       <div class="code-syntax">meanVal = cv2.mean(img, mask=mask)</div>
@@ -712,14 +712,14 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数 / 返回值</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>meanVal</code></td><td>回传影像各通道（BGR channel）的均值和 Alpha 透明度。</td></tr>
-          <tr><td><code>img</code></td><td>输入影像。</td></tr>
-          <tr><td><code>mask</code></td><td>可选参数，可以计算遮罩影像的均值。</td></tr>
+          <tr><td><code>meanVal</code></td><td>回传图像各通道（BGR channel）的均值和 Alpha 透明度。</td></tr>
+          <tr><td><code>img</code></td><td>输入图像。</td></tr>
+          <tr><td><code>mask</code></td><td>可选参数，可以计算遮罩图像的均值。</td></tr>
         </tbody>
       </table>
 
-      <h3>17-8-2 影像的像素均值简单实例</h3>
-      <p class="code-title">程序实例 ch17_18.py：计算一幅影像 <code>forest.png</code> 的像素均值。</p>
+      <h3>17-8-2 图像的像素均值简单实例</h3>
+      <p class="code-title">程序实例 ch17_18.py：计算一幅图像 <code>forest.png</code> 的像素均值。</p>
       <div class="code-block"># ch17_18.py
 import cv2
 
@@ -788,14 +788,14 @@ cv2.destroyAllWindows()</div>
       <div class="result-box">
         <span class="result-box-header">像素均值</span>
         <div class="result-box-image">
-          <img src="images/ch17/ch17_12_mean_hand.png" alt="ch17_18.py 到 ch17_20.py 影像像素均值结果">
-          <div class="caption">参考原书第 17-19 页，显示森林影像、手部遮罩与均值输出。</div>
+          <img src="images/ch17/ch17_12_mean_hand.png" alt="ch17_18.py 到 ch17_20.py 图像像素均值结果">
+          <div class="caption">参考原书第 17-19 页，显示森林图像、手部遮罩与均值输出。</div>
         </div>
       </div>
 
-      <h3>17-8-4 计算影像的像素标准差</h3>
+      <h3>17-8-4 计算图像的像素标准差</h3>
       <p class="content-text">
-        OpenCV 有提供 <code>meanStdDev()</code> 函数，可以计算影像像素的均值和标准差。
+        OpenCV 有提供 <code>meanStdDev()</code> 函数，可以计算图像像素的均值和标准差。
       </p>
 
       <div class="code-syntax">mean, std = cv2.meanStdDev(img, mask=mask)</div>
@@ -805,14 +805,14 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数 / 返回值</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>mean</code></td><td>回传影像各通道（BGR channel）的均值。</td></tr>
-          <tr><td><code>std</code></td><td>回传影像各通道（BGR channel）的标准差。</td></tr>
-          <tr><td><code>img</code></td><td>输入影像。</td></tr>
-          <tr><td><code>mask</code></td><td>可选参数，可以计算遮罩影像的均值和标准差。</td></tr>
+          <tr><td><code>mean</code></td><td>回传图像各通道（BGR channel）的均值。</td></tr>
+          <tr><td><code>std</code></td><td>回传图像各通道（BGR channel）的标准差。</td></tr>
+          <tr><td><code>img</code></td><td>输入图像。</td></tr>
+          <tr><td><code>mask</code></td><td>可选参数，可以计算遮罩图像的均值和标准差。</td></tr>
         </tbody>
       </table>
 
-      <p class="code-title">程序实例 ch17_21.py：计算 <code>forest.png</code> 影像的像素标准差。</p>
+      <p class="code-title">程序实例 ch17_21.py：计算 <code>forest.png</code> 图像的像素标准差。</p>
       <div class="code-block"># ch17_21.py
 import cv2
 
@@ -843,7 +843,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        在轮廓特征中，有一个观念是方向。在 16-1-4 节曾介绍 <code>fitEllipse()</code> 函数，这个函数可以将影像内的轮廓使用最佳化椭圆形包起来，同时在执行时会回传 <code>retval</code> 元组资料。
+        在轮廓特征中，有一个观念是方向。在 16-1-4 节曾介绍 <code>fitEllipse()</code> 函数，这个函数可以将图像内的轮廓使用最佳化椭圆形包起来，同时在执行时会回传 <code>retval</code> 元组资料。
       </p>
 
       <div class="code-syntax">(x, y)：椭圆中心点坐标。
@@ -855,15 +855,15 @@ angle：代表旋转角度。</div>
         <div class="exercise-box-content">
           <p>1. 列出 <code>hand.jpg</code> 手形的最左、最右、最上、最下点。同时最上点与最下点用黄色，最左点与最右点用绿色。注：需要使用不同的圆点，同时检测最外层轮廓。</p>
           <p>2. 计算 <code>cloud.jpg</code> 的宽高比和 Solidity，同时用红色描绘凸包、黄色描绘矩形框。</p>
-          <p>3. 计算 <code>eagle.jpg</code> 影像轮廓像素值的均值和标准差。</p>
-          <p>4. 使用 <code>minn.jpg</code> 影像，绘制绿色的影像轮廓，将此影像轮廓当作遮罩，计算此遮罩区域影像像素的均值和标准差。</p>
+          <p>3. 计算 <code>eagle.jpg</code> 图像轮廓像素值的均值和标准差。</p>
+          <p>4. 使用 <code>minn.jpg</code> 图像，绘制绿色的图像轮廓，将此图像轮廓当作遮罩，计算此遮罩区域图像像素的均值和标准差。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch17/ch17_13_orientation_ex1.png" alt="第 17 章习题 1 与 2 参考结果">
             <div class="caption">参考原书第 17-22 页，显示手形极点与云朵轮廓参考结果。</div>
           </div>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch17/ch17_14_orientation_ex3.png" alt="第 17 章习题 3 与 4 参考结果">
-            <div class="caption">参考原书第 17-23 页，显示 eagle 与 minn 影像练习输出。</div>
+            <div class="caption">参考原书第 17-23 页，显示 eagle 与 minn 图像练习输出。</div>
           </div>
         </div>
       </div>
@@ -886,7 +886,7 @@ angle：代表旋转角度。</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像处理与 AI 视觉学习笔记
+    OpenCV 图像处理与 AI 视觉学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

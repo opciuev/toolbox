@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -39,7 +39,7 @@
 
       <div class="note-box">
         <span class="note-icon">共用</span>
-        <span>本章多数程序都先读取影像、转灰阶、二值化，再用 <code>findContours()</code> 找轮廓，后续才进行拟合或测试。</span>
+        <span>本章多数程序都先读取图像、转灰阶、二值化，再用 <code>findContours()</code> 找轮廓，后续才进行拟合或测试。</span>
       </div>
 
       <div class="code-block">src = cv2.imread("image.jpg")
@@ -75,7 +75,7 @@ contours, hierarchy = cv2.findContours(
         </thead>
         <tbody>
           <tr><td><code>retval</code></td><td>返回 <code>(x, y, w, h)</code>，分别是左上角 x、y 坐标，以及矩形宽度与高度。</td></tr>
-          <tr><td><code>array</code></td><td>灰阶影像或轮廓。</td></tr>
+          <tr><td><code>array</code></td><td>灰阶图像或轮廓。</td></tr>
         </tbody>
       </table>
 
@@ -120,7 +120,7 @@ dst = cv2.rectangle(src, (x, y), (x + w, y + h), (0, 255, 255), 2)
 cv2.imshow("dst", dst)
 
 # ch16_3.py
-# 将 ch16_2.py 的来源影像改为 explode2.jpg，观察矩形面积变大的情况。
+# 将 ch16_2.py 的来源图像改为 explode2.jpg，观察矩形面积变大的情况。
 src = cv2.imread("explode2.jpg")</div>
 
       <div class="result-box">
@@ -208,7 +208,7 @@ dst = cv2.circle(src, center, radius, (0, 255, 255), 2)
 cv2.imshow("dst", dst)
 
 # ch16_6.py
-# 将来源影像改为 explode1.jpg，观察不同轮廓的圆形包围结果。</div>
+# 将来源图像改为 explode1.jpg，观察不同轮廓的圆形包围结果。</div>
 
       <div class="result-box">
         <span class="result-box-header">最小包围圆形</span>
@@ -346,7 +346,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">近似多边形</span>
         <div class="result-box-image">
           <img src="images/ch16/ch16_09_result_approx_eps3_15.png" alt="ch16_9.py approxPolyDP epsilon 3 与 15 执行结果">
-          <div class="caption">下列图分别是原始影像、<code>epsilon=3</code> 与 <code>epsilon=15</code> 的近似多边形，参考原书第 <strong>16-11</strong> 页。</div>
+          <div class="caption">下列图分别是原始图像、<code>epsilon=3</code> 与 <code>epsilon=15</code> 的近似多边形，参考原书第 <strong>16-11</strong> 页。</div>
         </div>
       </div>
 
@@ -477,7 +477,7 @@ for i in range(n):
         </div>
         <div class="result-box-image">
           <img src="images/ch16/ch16_13_result_hull_hand2.png" alt="ch16_13.py hand2 多个凸包执行结果">
-          <div class="caption">多轮廓影像可用循环逐一计算凸包，参考原书第 <strong>16-19</strong> 页。</div>
+          <div class="caption">多轮廓图像可用循环逐一计算凸包，参考原书第 <strong>16-19</strong> 页。</div>
         </div>
       </div>
 
@@ -688,14 +688,14 @@ dist_c = -1.0</div>
         <span class="result-box-header">measureDist=False</span>
         <div class="result-box-image">
           <img src="images/ch16/ch16_17_result_point_polygon_test_false.png" alt="ch16_17.py pointPolygonTest measureDist False 执行结果">
-          <div class="caption">影像画面与 <code>ch16_16.py</code> 相同，输出改为位置关系，参考原书第 <strong>16-24</strong> 页。</div>
+          <div class="caption">图像画面与 <code>ch16_16.py</code> 相同，输出改为位置关系，参考原书第 <strong>16-24</strong> 页。</div>
         </div>
       </div>
 
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 更改 <code>ch16_2.py</code>，不使用 <code>rectangle()</code> 函数建立最小矩形框，改为使用 Numpy 模块自行建立影像图，然后绘制最小矩形框。</p>
+          <p>1. 更改 <code>ch16_2.py</code>，不使用 <code>rectangle()</code> 函数建立最小矩形框，改为使用 Numpy 模块自行建立图像图，然后绘制最小矩形框。</p>
           <p>2. 使用 <code>explode4.jpg</code>，参考 <code>ch16_8.py</code> 绘制最小三角形包围，但必须使用 <code>for</code> 循环将三角形用红色线条连接。</p>
           <p>3. 使用 <code>hand3.jpg</code>，绘制凸包，同时列出所有轮廓的缺陷数量和凸缺陷。</p>
           <p>4. 使用 <code>mutstars.jpg</code>，绘制凸包，同时列出所有轮廓的缺陷数量和凸缺陷。</p>
@@ -728,7 +728,7 @@ dist_c = -1.0</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

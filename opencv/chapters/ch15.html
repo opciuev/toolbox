@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,18 +33,18 @@
       <div class="chapter-meta">本章共 6 个小节 · findContours · drawContours · hierarchy · moments · Hu 矩 · 形状匹配</div>
 
       <div class="chapter-intro">
-        边缘检测取得的边缘线有时并不连续。轮廓检测则进一步分析影像中可能的形状，定位形状并取得其特征，
-        例如质心、面积、周长和边界框。这些资料可用于后续的影像识别与形状匹配。
+        边缘检测取得的边缘线有时并不连续。轮廓检测则进一步分析图像中可能的形状，定位形状并取得其特征，
+        例如质心、面积、周长和边界框。这些资料可用于后续的图像识别与形状匹配。
       </div>
 
       <div class="section-heading" id="section-0">
         <span class="section-number">15-1</span>
-        <h2>影像内图形的轮廓</h2>
+        <h2>图像内图形的轮廓</h2>
       </div>
 
       <p class="content-text">
-        轮廓是影像内图形或外形的边缘线条。使用 <code>findContours()</code> 找轮廓前，通常需要先把彩色影像转为灰阶，
-        再做阈值处理得到黑白二值影像；也可以理解为在黑色影像中寻找白色物体。
+        轮廓是图像内图形或外形的边缘线条。使用 <code>findContours()</code> 找轮廓前，通常需要先把彩色图像转为灰阶，
+        再做阈值处理得到黑白二值图像；也可以理解为在黑色图像中寻找白色物体。
       </p>
 
       <h3>15-1-1 找寻图形轮廓 findContours()</h3>
@@ -56,9 +56,9 @@
           <tr><th>参数 / 返回值</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>contours</code></td><td>影像中找到的所有轮廓。资料类型是列表，列表元素是各轮廓的像素点坐标数组。</td></tr>
+          <tr><td><code>contours</code></td><td>图像中找到的所有轮廓。资料类型是列表，列表元素是各轮廓的像素点坐标数组。</td></tr>
           <tr><td><code>hierarchy</code></td><td>轮廓之间的层次关系。</td></tr>
-          <tr><td><code>image</code></td><td>8 位单通道影像。若来源是彩色影像，需要先转灰阶并二值化。</td></tr>
+          <tr><td><code>image</code></td><td>8 位单通道图像。若来源是彩色图像，需要先转灰阶并二值化。</td></tr>
           <tr><td><code>mode</code></td><td>轮廓检测模式，例如 <code>RETR_EXTERNAL</code>、<code>RETR_LIST</code>、<code>RETR_CCOMP</code>、<code>RETR_TREE</code>。</td></tr>
           <tr><td><code>method</code></td><td>轮廓近似方法，例如 <code>CHAIN_APPROX_NONE</code>、<code>CHAIN_APPROX_SIMPLE</code>、<code>CHAIN_APPROX_TC89_L1</code>。</td></tr>
         </tbody>
@@ -73,7 +73,7 @@
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src_image</code></td><td>要绘制轮廓的目标影像。函数会直接修改这张影像。</td></tr>
+          <tr><td><code>src_image</code></td><td>要绘制轮廓的目标图像。函数会直接修改这张图像。</td></tr>
           <tr><td><code>contours</code></td><td><code>findContours()</code> 得到的轮廓列表。</td></tr>
           <tr><td><code>contourIdx</code></td><td>要绘制的轮廓索引；设为 <code>-1</code> 表示绘制所有轮廓。</td></tr>
           <tr><td><code>color</code></td><td>BGR 格式轮廓颜色。</td></tr>
@@ -86,7 +86,7 @@
 
       <div class="section-heading" id="section-1">
         <span class="section-number">15-2</span>
-        <h2>绘制影像内图形轮廓的系列实例</h2>
+        <h2>绘制图像内图形轮廓的系列实例</h2>
       </div>
 
       <p class="content-text">
@@ -122,7 +122,7 @@ cv2.destroyAllWindows()</div>
         </div>
       </div>
 
-      <p class="code-title">程序实例 ch15_1-1.py：再次显示 src，观察 drawContours() 是否影响原始影像</p>
+      <p class="code-title">程序实例 ch15_1-1.py：再次显示 src，观察 drawContours() 是否影响原始图像</p>
       <div class="code-block"># ch15_1-1.py
 # 与 ch15_1.py 相同，但在绘制后再显示一次 src。
 dst = cv2.drawContours(src, contours, -1, (0, 255, 0), 5)
@@ -130,7 +130,7 @@ cv2.imshow("result", dst)
 cv2.imshow("src1", src)</div>
 
       <div class="result-box">
-        <span class="result-box-header">drawContours 会更新来源影像</span>
+        <span class="result-box-header">drawContours 会更新来源图像</span>
         <div class="result-box-image">
           <img src="images/ch15/ch15_1_1_find_contours_repeat_result.png" alt="ch15_1-1.py 再次显示 src 的结果">
           <div class="caption"><code>drawContours()</code> 执行后，等号左侧结果与原 <code>src</code> 内容都会显示轮廓，参考原书第 <strong>15-6</strong> 页。</div>
@@ -211,7 +211,7 @@ contours, hierarchy = cv2.findContours(
     cv2.CHAIN_APPROX_SIMPLE
 )</div>
 
-      <p class="code-title">程序实例 ch15_8.py：绘制一般影像轮廓</p>
+      <p class="code-title">程序实例 ch15_8.py：绘制一般图像轮廓</p>
       <div class="code-block"># ch15_8.py
 src = cv2.imread("lake.jpg")
 src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
@@ -236,10 +236,10 @@ dst = cv2.drawContours(mask, contours, -1, 0, -1)
 dst_result = cv2.bitwise_and(src, src, mask=dst)</div>
 
       <div class="result-box">
-        <span class="result-box-header">一般影像轮廓</span>
+        <span class="result-box-header">一般图像轮廓</span>
         <div class="result-box-image">
           <img src="images/ch15/ch15_10_lake_contours_result.png" alt="ch15_8 到 ch15_10 湖边建筑轮廓处理结果">
-          <div class="caption">这张截图对应 <code>ch15_8.py</code>：显示原始影像、二值影像与绿色轮廓结果；后续实例再用遮罩清除背景或保留背景，参考原书第 <strong>15-10</strong> 至 <strong>15-13</strong> 页。</div>
+          <div class="caption">这张截图对应 <code>ch15_8.py</code>：显示原始图像、二值图像与绿色轮廓结果；后续实例再用遮罩清除背景或保留背景，参考原书第 <strong>15-10</strong> 至 <strong>15-13</strong> 页。</div>
         </div>
       </div>
 
@@ -347,29 +347,29 @@ print(f"列印层级 \n {hierarchy}")</div>
 
       <div class="section-heading" id="section-3">
         <span class="section-number">15-4</span>
-        <h2>轮廓的特征：影像矩（Image moments）</h2>
+        <h2>轮廓的特征：图像矩（Image moments）</h2>
       </div>
 
       <p class="content-text">
-        轮廓的特征包括质心、面积、周长、边界框等。影像矩是一组统计参数，可记录像素所在位置与强度分布，
+        轮廓的特征包括质心、面积、周长、边界框等。图像矩是一组统计参数，可记录像素所在位置与强度分布，
         常用于比较轮廓与模式识别。
       </p>
 
       <div class="code-syntax">m = cv2.moments(array, binaryImage)</div>
 
       <p class="content-text">
-        基础影像矩可推导轮廓质心。若 <code>m00</code> 是零阶矩，则质心坐标为：
+        基础图像矩可推导轮廓质心。若 <code>m00</code> 是零阶矩，则质心坐标为：
       </p>
 
       <div class="code-syntax">cx = m10 / m00
 cy = m01 / m00</div>
 
-      <p class="code-title">程序实例 ch15_15.py：列印影像矩</p>
+      <p class="code-title">程序实例 ch15_15.py：列印图像矩</p>
       <div class="code-block"># ch15_15.py
 for i in range(len(contours)):
     M = cv2.moments(contours[i])
     print(f"轮廓面积 str({i}) = {M['m00']}")
-    print(f"影像矩 str({i}) = \n{M}")</div>
+    print(f"图像矩 str({i}) = \n{M}")</div>
 
       <p class="code-title">程序实例 ch15_16.py：绘制轮廓质心</p>
       <div class="code-block"># ch15_16.py
@@ -382,10 +382,10 @@ for c in contours:
 cv2.imshow("result", dst)</div>
 
       <div class="result-box">
-        <span class="result-box-header">影像矩与质心</span>
+        <span class="result-box-header">图像矩与质心</span>
         <div class="result-box-image">
-          <img src="images/ch15/ch15_15_area_moments_result.png" alt="ch15_15.py 列印轮廓面积和影像矩">
-          <div class="caption"><code>ch15_15.py</code> 逐一列印轮廓面积与影像矩，输出内容较长，保留截图的换行结构。</div>
+          <img src="images/ch15/ch15_15_area_moments_result.png" alt="ch15_15.py 列印轮廓面积和图像矩">
+          <div class="caption"><code>ch15_15.py</code> 逐一列印轮廓面积与图像矩，输出内容较长，保留截图的换行结构。</div>
         </div>
         <div class="result-box-image">
           <img src="images/ch15/ch15_16_centroid_result.png" alt="ch15_16.py 为每个轮廓绘制中心点">
@@ -532,19 +532,19 @@ print(f"Hausdorff distance = {distance}")</div>
 
       <div class="result-box">
         <span class="result-box-header">Hausdorff 距离</span>
-        <div class="result-box-content result-output">影像1和1比较 = 0.0
-影像0和1比较 = 12.206555366516113
-影像0和2比较 = 8.5440034866333</div>
+        <div class="result-box-content result-output">图像1和1比较 = 0.0
+图像0和1比较 = 12.206555366516113
+图像0和2比较 = 8.5440034866333</div>
         <div class="result-box-image">
           <img src="images/ch15/ch15_23_shape_context_result.png" alt="ch15_24.py Hausdorff Distance 执行结果">
-          <div class="caption"><code>ch15_24.py</code> 使用 Hausdorff 距离比较轮廓，相同影像距离为 0，形状越不同距离越大。</div>
+          <div class="caption"><code>ch15_24.py</code> 使用 Hausdorff 距离比较轮廓，相同图像距离为 0，形状越不同距离越大。</div>
         </div>
       </div>
 
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 参考 <code>ch15_3.py</code>，使用 <code>hw15_1.jpg</code> 影像，输出轮廓顺序改为输出黄色实心轮廓；并输出所有轮廓，同时中心标记蓝色点。</p>
+          <p>1. 参考 <code>ch15_3.py</code>，使用 <code>hw15_1.jpg</code> 图像，输出轮廓顺序改为输出黄色实心轮廓；并输出所有轮廓，同时中心标记蓝色点。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch15/ch15_exercise_01.jpg" alt="第 15 章习题 1 参考结果">
             <div class="caption">习题 1 参考图，参考原书第 <strong>15-37</strong> 页。</div>
@@ -561,7 +561,7 @@ print(f"Hausdorff distance = {distance}")</div>
             <img src="images/ch15/ch15_exercise_04_05.jpg" alt="第 15 章习题 4 至 5 参考结果">
             <div class="caption">习题 4 至 5 参考图，参考原书第 <strong>15-39</strong> 页。</div>
           </div>
-          <p>6. 使用 <code>myhand.jpg</code>，建立此影像的轮廓。</p>
+          <p>6. 使用 <code>myhand.jpg</code>，建立此图像的轮廓。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch15/ch15_exercise_05_06.jpg" alt="第 15 章习题 5 至 6 参考结果">
             <div class="caption">习题 5 至 6 参考图，参考原书第 <strong>15-40</strong> 页。</div>
@@ -573,7 +573,7 @@ print(f"Hausdorff distance = {distance}")</div>
         <a href="ch14.html">
           <div>
             <div class="nav-label">&larr; 上一章</div>
-            <div class="nav-title">第 14 章 影像金字塔</div>
+            <div class="nav-title">第 14 章 图像金字塔</div>
           </div>
         </a>
         <a href="ch16.html">
@@ -587,7 +587,7 @@ print(f"Hausdorff distance = {distance}")</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

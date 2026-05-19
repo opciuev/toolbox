@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -97,7 +97,7 @@ cv2.destroyAllWindows()</div>
       <p class="content-text">
         书中接着用 <code>ch4_2.py</code> 将 RGB 图像再转回 BGR，使用
         <code>cv2.COLOR_RGB2BGR</code>。<code>ch4_3.py</code> 进一步说明：
-        <code>COLOR_BGR2RGB</code> 与 <code>COLOR_RGB2BGR</code> 都是交换 B 与 R，因此在三通道影像上可视为同一种通道互换操作。
+        <code>COLOR_BGR2RGB</code> 与 <code>COLOR_RGB2BGR</code> 都是交换 B 与 R，因此在三通道图像上可视为同一种通道互换操作。
       </p>
 
       <p class="code-title">程序实例 ch4_2.py：将 RGB 图像转回 BGR 图像</p>
@@ -297,7 +297,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        <code>cv2.split()</code> 可以把多通道图像拆成多个单通道影像物件。BGR 图像拆分后会得到
+        <code>cv2.split()</code> 可以把多通道图像拆成多个单通道图像物件。BGR 图像拆分后会得到
         blue、green、red 三个通道；HSV 图像拆分后会得到 hue、saturation、value 三个通道。
       </p>
 
@@ -314,7 +314,7 @@ cv2.imshow("blue", blue)
 cv2.imshow("green", green)
 cv2.imshow("red", red)
 
-print(f"B通道影像属性 shape = {blue.shape}")
+print(f"B通道图像属性 shape = {blue.shape}")
 print("列印B通道内容")
 print(blue)
 
@@ -343,10 +343,10 @@ cv2.imshow("blue", blue)
 cv2.imshow("green", green)
 cv2.imshow("red", red)
 
-print(f"BGR 影像：{image.shape}")
-print(f"B通道影像：{blue.shape}")
-print(f"G通道影像：{green.shape}")
-print(f"R通道影像：{red.shape}")
+print(f"BGR 图像：{image.shape}")
+print(f"B通道图像：{blue.shape}")
+print(f"G通道图像：{green.shape}")
+print(f"R通道图像：{red.shape}")
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
@@ -378,7 +378,7 @@ cv2.imshow("blue", blue)
 cv2.imshow("green", green)
 cv2.imshow("red", red)
 
-print(f"BGR 影像：{image.shape}")
+print(f"BGR 图像：{image.shape}")
 print("B通道内容：")
 print(blue)
 print("G通道内容：")
@@ -601,7 +601,7 @@ cv2.imshow("The Image", image)
 
 bgra_image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
 b, g, r, a = cv2.split(bgra_image)
-print("列出转成含A通道影像物件后的alpha值")
+print("列出转成含A通道图像物件后的alpha值")
 print(a)
 
 a[:, :] = 32
@@ -638,7 +638,7 @@ cv2.imwrite("a128.png", a128_image)</div>
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
           <p>
-            1. 读取 <code>coffee.jpg</code>，使用 4 种方式显示影像，其中两项分别是 BGR 与 RGB，另外两项是 HSV 的
+            1. 读取 <code>coffee.jpg</code>，使用 4 种方式显示图像，其中两项分别是 BGR 与 RGB，另外两项是 HSV 的
             Saturation 通道与 Value 通道。
           </p>
 
@@ -713,7 +713,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

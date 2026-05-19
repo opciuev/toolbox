@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -33,7 +33,7 @@
       <div class="chapter-meta">霍夫变换的基础原理解说 · HoughLines() 函数 · HoughLinesP() 函数 · 霍夫圆环变换检测</div>
 
       <div class="chapter-intro">
-        霍夫变换可以将影像中的几何形状转换为参数空间中的点，再借由累加与投票找出最可能存在的直线或圆形。本章从直线的笛卡儿表示法说起，逐步进入 OpenCV 的直线与圆形检测函数，最后以车道线检测作为应用范例。
+        霍夫变换可以将图像中的几何形状转换为参数空间中的点，再借由累加与投票找出最可能存在的直线或圆形。本章从直线的笛卡儿表示法说起，逐步进入 OpenCV 的直线与圆形检测函数，最后以车道线检测作为应用范例。
       </div>
 
       <div class="result-box">
@@ -53,7 +53,7 @@
         霍夫变换（Hough Transform）最初是 1962 年由霍夫提出专利申请，专利名称是「辨识复杂图案的方法」（Method and Means for Recognizing Complex Patterns）。此方法的主要观念是任何一条直线可以用斜率（slope）和截距（intercept）表示，同时使用斜率和截距将一条直线参数化。
       </p>
       <p class="content-text">
-        现在广泛使用的霍夫变换，是 1972 年由 Richard Duda 和 Peter Hart 发明。经典的霍夫变换是侦测影像中的直线，之后的霍夫变换不仅能辨识直线，也可以辨识其他简单形状，例如圆形和椭圆形。1981 年 Dana H. Ballard 发表了 <em>Generalizing the Hough transform to detect arbitrary shapes</em>，自此电脑视觉领域开始流行应用霍夫变换；目前最流行的自动驾驶，也使用霍夫变换对行车的车道进行检测。
+        现在广泛使用的霍夫变换，是 1972 年由 Richard Duda 和 Peter Hart 发明。经典的霍夫变换是侦测图像中的直线，之后的霍夫变换不仅能辨识直线，也可以辨识其他简单形状，例如圆形和椭圆形。1981 年 Dana H. Ballard 发表了 <em>Generalizing the Hough transform to detect arbitrary shapes</em>，自此电脑视觉领域开始流行应用霍夫变换；目前最流行的自动驾驶，也使用霍夫变换对行车的车道进行检测。
       </p>
 
       <h3>18-1-1 认识笛卡儿座标与霍夫座标</h3>
@@ -113,7 +113,7 @@ b = -x1m + y1</div>
       </div>
 
       <p class="content-text">
-        OpenCV 提供了两种用于检测直线的霍夫变换函数，本节先说明基本版的 <code>HoughLines()</code>。这个函数需要输入二值影像，实务上常先将影像转为灰阶，再使用 Canny 做边缘侦测。
+        OpenCV 提供了两种用于检测直线的霍夫变换函数，本节先说明基本版的 <code>HoughLines()</code>。这个函数需要输入二值图像，实务上常先将图像转为灰阶，再使用 Canny 做边缘侦测。
       </p>
       <div class="code-syntax">lines = cv2.HoughLines(image, rho, theta, threshold)</div>
 
@@ -123,14 +123,14 @@ b = -x1m + y1</div>
         </thead>
         <tbody>
           <tr><td><code>lines</code></td><td>函数回传值，直线参数，格式是 <code>(ρ, θ)</code>，元素类型是 Numpy 阵列。</td></tr>
-          <tr><td><code>image</code></td><td>要辨识的影像，这是二值影像；建议先使用 Canny 边缘侦测。</td></tr>
+          <tr><td><code>image</code></td><td>要辨识的图像，这是二值图像；建议先使用 Canny 边缘侦测。</td></tr>
           <tr><td><code>rho</code></td><td>以像素为单位的距离 <code>ρ</code>，常将此值设为 <code>1</code>，表示检测所有可能的半径长度。</td></tr>
           <tr><td><code>theta</code></td><td>检测角度 <code>θ</code>，常将此值设为 <code>π/180</code>，表示检测所有可能的角度。</td></tr>
           <tr><td><code>threshold</code></td><td>阈值；如果此值越小，所检测的直线就会越多。</td></tr>
         </tbody>
       </table>
 
-      <p class="code-title">程式实例 ch18_1.py：使用 calendar.jpg 当作影像，然后 HoughLines() 函数检测此影像内的直线。</p>
+      <p class="code-title">程式实例 ch18_1.py：使用 calendar.jpg 当作图像，然后 HoughLines() 函数检测此图像内的直线。</p>
       <div class="code-block"># ch18_1.py
 import cv2
 import numpy as np
@@ -167,7 +167,7 @@ cv2.destroyAllWindows()</div>
         </div>
         <div class="result-box-image">
           <img src="images/ch18/ch18_page_08.png" alt="ch18_1.py HoughLines calendar 执行结果">
-          <div class="caption">原书第 18-8 页裁切：原始影像、Canny 边缘影像与 <code>HoughLines()</code> 检测结果。</div>
+          <div class="caption">原书第 18-8 页裁切：原始图像、Canny 边缘图像与 <code>HoughLines()</code> 检测结果。</div>
         </div>
       </div>
 
@@ -187,7 +187,7 @@ cv2.destroyAllWindows()</div>
         </thead>
         <tbody>
           <tr><td><code>lines</code></td><td>函数回传值，直线参数为 <code>(x1, y1)</code> 和 <code>(x2, y2)</code>，只要将两点连起来就构成直线。</td></tr>
-          <tr><td><code>image</code></td><td>要辨识的二值影像，建议先使用 Canny 边缘侦测。</td></tr>
+          <tr><td><code>image</code></td><td>要辨识的二值图像，建议先使用 Canny 边缘侦测。</td></tr>
           <tr><td><code>rho</code></td><td>以像素为单位的距离，常设为 <code>1</code>。</td></tr>
           <tr><td><code>theta</code></td><td>检测角度，常设为 <code>π/180</code>。</td></tr>
           <tr><td><code>threshold</code></td><td>阈值；如果此值越小，检测的直线会越多。</td></tr>
@@ -196,7 +196,7 @@ cv2.destroyAllWindows()</div>
         </tbody>
       </table>
 
-      <p class="code-title">程式实例 ch18_2.py：使用 lane.jpg 影像，设计仓库道路识别。</p>
+      <p class="code-title">程式实例 ch18_2.py：使用 lane.jpg 图像，设计仓库道路识别。</p>
       <div class="code-block"># ch18_2.py
 import cv2
 import numpy as np
@@ -224,7 +224,7 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()</div>
 
       <p class="content-text">
-        上述范例可用于简单道路识别。对于复杂的图，可能需要不断调整 <code>HoughLines()</code> 函数的 <code>threshold</code> 参数。实际应用不同影像时，必须适度调整 <code>HoughLinesP()</code> 的参数。
+        上述范例可用于简单道路识别。对于复杂的图，可能需要不断调整 <code>HoughLines()</code> 函数的 <code>threshold</code> 参数。实际应用不同图像时，必须适度调整 <code>HoughLinesP()</code> 的参数。
       </p>
 
       <p class="code-title">程式实例 ch18_3.py：无人驾驶汽车的道路检测。</p>
@@ -252,7 +252,7 @@ cv2.destroyAllWindows()</div>
       </p>
       <div class="note-box">
         <span class="note-icon">注</span>
-        <span>实际应用不同影像时，必须适度调整 <code>HoughLinesP()</code> 的参数。</span>
+        <span>实际应用不同图像时，必须适度调整 <code>HoughLinesP()</code> 的参数。</span>
       </div>
 
       <div class="result-box">
@@ -284,9 +284,9 @@ cv2.destroyAllWindows()</div>
         </thead>
         <tbody>
           <tr><td><code>circles</code></td><td>函数回传值，由圆中心点和半径所组成的 <code>numpy.ndarray</code> 阵列，格式是 <code>[(x1, y1, r1), (x2, y2, r2), ...]</code>。</td></tr>
-          <tr><td><code>image</code></td><td>要辨识的二值影像，需先二值化处理。</td></tr>
-          <tr><td><code>method</code></td><td>目前可以使用 <code>HOUGH_GRADIENT</code>，此方法先对影像执行 Canny 边缘检测，再使用 Sobel 演算法计算区域梯度并累加圆中心。</td></tr>
-          <tr><td><code>dp</code></td><td>累加器分辨率。例如 <code>dp=1</code> 时，累加器与输入影像有相同解析度；<code>dp=2</code> 时，累加器宽高为输入影像的一半。</td></tr>
+          <tr><td><code>image</code></td><td>要辨识的二值图像，需先二值化处理。</td></tr>
+          <tr><td><code>method</code></td><td>目前可以使用 <code>HOUGH_GRADIENT</code>，此方法先对图像执行 Canny 边缘检测，再使用 Sobel 演算法计算区域梯度并累加圆中心。</td></tr>
+          <tr><td><code>dp</code></td><td>累加器分辨率。例如 <code>dp=1</code> 时，累加器与输入图像有相同解析度；<code>dp=2</code> 时，累加器宽高为输入图像的一半。</td></tr>
           <tr><td><code>minDist</code></td><td>两个不同圆之间最小的距离。太小会将多个邻接圆检测为一个圆；太大则部分圆无法检测出来。</td></tr>
           <tr><td><code>param1</code></td><td>与 <code>method</code> 相关的高阈值，预设值是 100；一般低阈值是高阈值的一半。</td></tr>
           <tr><td><code>param2</code></td><td>与 <code>method</code> 相关的低阈值，预设值是 100。</td></tr>
@@ -296,10 +296,10 @@ cv2.destroyAllWindows()</div>
       </table>
 
       <p class="content-text">
-        使用这个函数时，为了降低影像噪音，建议可以先用 <code>medianBlur()</code> 去除影像杂质。
+        使用这个函数时，为了降低图像噪音，建议可以先用 <code>medianBlur()</code> 去除图像杂质。
       </p>
 
-      <p class="code-title">程式实例 ch18_4.py：有一个影像内含多个圆圈，这个程式会将半径大于 70 的圆圈起来。半径小于 70 或其他外形的物件则不理会。</p>
+      <p class="code-title">程式实例 ch18_4.py：有一个图像内含多个圆圈，这个程式会将半径大于 70 的圆圈起来。半径小于 70 或其他外形的物件则不理会。</p>
       <div class="code-block"># ch18_4.py
 import cv2
 import numpy as np
@@ -336,10 +336,10 @@ cv2.destroyAllWindows()</div>
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>习题 1：使用 <code>lane2.jpg</code>，扩充 <code>ch18_2.py</code>，建立仓库道路影像。</p>
+          <p>习题 1：使用 <code>lane2.jpg</code>，扩充 <code>ch18_2.py</code>，建立仓库道路图像。</p>
           <p>习题 2：请重新设计 <code>ch18_4.py</code>，将所有圆圈起来。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
-            <img src="images/ch18/ch18_page_13.png" alt="第 18 章习题 lane2 仓库道路影像">
+            <img src="images/ch18/ch18_page_13.png" alt="第 18 章习题 lane2 仓库道路图像">
             <div class="caption">原书第 18-13 页裁切：习题 1 的 <code>lane2.jpg</code> 仓库道路检测参考输出。</div>
           </div>
           <div class="result-box-image" style="padding:12px 0 0;">
@@ -367,7 +367,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意迈向 AI 视觉王者归来 · 网页化学习笔记
+    OpenCV 图像创意迈向 AI 视觉王者归来 · 网页化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

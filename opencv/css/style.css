@@ -240,6 +240,7 @@ a:hover {
 
 .nav-title-text {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .nav-group-title:hover {
@@ -276,9 +277,11 @@ a:hover {
   display: block;
   padding: 6px 20px 6px 40px;
   font-size: 13px;
+  line-height: 1.45;
   color: #666;
   transition: all 0.2s;
   border-left: 3px solid transparent;
+  overflow-wrap: anywhere;
 }
 
 .nav-sub li a:hover {
@@ -360,12 +363,16 @@ a:hover {
   border-radius: 4px;
   margin-right: 12px;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .section-heading h2 {
   font-size: 22px;
   font-weight: 700;
   color: #00838f;
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 /* Sub-section headings */
@@ -374,6 +381,8 @@ a:hover {
   font-weight: 700;
   color: #00838f;
   margin: 28px 0 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .subsection-heading::before {
@@ -792,6 +801,26 @@ a:hover {
 
   .section-heading h2 {
     font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .section-number {
+    margin-right: 4px;
+    padding: 3px 10px;
+  }
+
+  .subsection-heading {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .nav-sub li a {
+    padding: 8px 14px 8px 32px;
   }
 
   .overlay {

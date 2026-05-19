@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第 11 章 删除影像杂讯 - OpenCV 教程</title>
+  <title>第 11 章 删除图像杂讯 - OpenCV 教程</title>
   <link rel="stylesheet" href="../css/style.css?v=20260422">
 </head>
 <body class="chapter-output-pre">
@@ -29,15 +29,15 @@
 
     <main class="main-content">
       <span class="chapter-badge">第 11 章</span>
-      <h1 class="chapter-title">删除影像杂讯</h1>
-      <div class="chapter-meta">建立平滑影像需认识的名词 · 均值滤波器 · 方框滤波器 · 中值滤波器 · 高斯滤波器 · 双边滤波器 · 2D 滤波核</div>
+      <h1 class="chapter-title">删除图像杂讯</h1>
+      <div class="chapter-meta">建立平滑图像需认识的名词 · 均值滤波器 · 方框滤波器 · 中值滤波器 · 高斯滤波器 · 双边滤波器 · 2D 滤波核</div>
 
       <div class="chapter-intro">
-        建立平滑的影像，英文称为 Smoothing Images，这是计算机视觉中最基本的操作之一。一幅影像可能会有一些杂讯或噪音，经过平滑处理后可以降低噪音，或大幅消除杂讯。不过影像经过平滑处理后，伴随而来的可能是影像变得模糊，所以也称为 Blurring Images。影像处理专家有时也将影像平滑处理称为影像滤波，英文是 Images filtering。
+        建立平滑的图像，英文称为 Smoothing Images，这是计算机视觉中最基本的操作之一。一幅图像可能会有一些杂讯或噪音，经过平滑处理后可以降低噪音，或大幅消除杂讯。不过图像经过平滑处理后，伴随而来的可能是图像变得模糊，所以也称为 Blurring Images。图像处理专家有时也将图像平滑处理称为图像滤波，英文是 Images filtering。
       </div>
 
       <p class="content-text">
-        在建立平滑影像时，会产生两种效果：一是降低噪音，另一是产生模糊。本章介绍的 OpenCV 平滑函数可以分成线性滤波器和非线性滤波器两类。
+        在建立平滑图像时，会产生两种效果：一是降低噪音，另一是产生模糊。本章介绍的 OpenCV 平滑函数可以分成线性滤波器和非线性滤波器两类。
       </p>
       <ul class="content-list">
         <li>线性滤波器：均值滤波器 <code>blur()</code>、方框滤波器 <code>boxFilter()</code>、高斯滤波器 <code>GaussianBlur()</code>。</li>
@@ -46,7 +46,7 @@
 
       <div class="section-heading" id="section-0">
         <span class="section-number">11-1</span>
-        <h2>建立平滑影像需认识的名词</h2>
+        <h2>建立平滑图像需认识的名词</h2>
       </div>
 
       <h3>11-1-1 滤波核</h3>
@@ -65,19 +65,19 @@
         </tbody>
       </table>
 
-      <h3>11-1-2 影像噪音</h3>
+      <h3>11-1-2 图像噪音</h3>
       <p class="content-text">
-        细看影像时，有时可以发现某个像素与周围像素差异非常大，这个像素就是影像噪音，也称为影像杂讯。例如中心像素值是 <code>20</code>，而周围像素值介于 <code>147</code> 到 <code>155</code> 之间，中心点颜色明显比周围深，就可以判断它是噪音。
+        细看图像时，有时可以发现某个像素与周围像素差异非常大，这个像素就是图像噪音，也称为图像杂讯。例如中心像素值是 <code>20</code>，而周围像素值介于 <code>147</code> 到 <code>155</code> 之间，中心点颜色明显比周围深，就可以判断它是噪音。
       </p>
 
       <h3>11-1-3 删除噪音</h3>
       <p class="content-text">
-        当发现影像有噪音时，可以使用平滑处理或降噪处理，将异常像素修正为更接近周围像素的值。处理后，原本突兀的噪点会降低，影像整体看起来比较平滑。
+        当发现图像有噪音时，可以使用平滑处理或降噪处理，将异常像素修正为更接近周围像素的值。处理后，原本突兀的噪点会降低，图像整体看起来比较平滑。
       </p>
 
-      <h3>11-1-4 影像降噪处理的方法</h3>
+      <h3>11-1-4 图像降噪处理的方法</h3>
       <p class="content-text">
-        影像降噪处理的方法有许多，本章讲解下列常见方法。
+        图像降噪处理的方法有许多，本章讲解下列常见方法。
       </p>
       <ul class="content-list">
         <li>均值滤波器。</li>
@@ -94,7 +94,7 @@
       </div>
 
       <p class="content-text">
-        均值滤波器的英文是 Mean filter，是降低影像噪声的方法。直觉地说，就是删除影像中的杂讯。
+        均值滤波器的英文是 Mean filter，是降低图像噪声的方法。直觉地说，就是删除图像中的杂讯。
       </p>
 
       <h3>11-2-1 理论基础</h3>
@@ -107,7 +107,7 @@
 
       <h3>11-2-2 像素位于边界的考量</h3>
       <p class="content-text">
-        当像素位于影像边界时，滤波核有一部分会落在影像外。执行影像降噪时，常用的方法有两种：第一种是只取影像范围内实际存在的像素计算；第二种是扩展影像周围的像素，再用扩展后的影像进行计算。
+        当像素位于图像边界时，滤波核有一部分会落在图像外。执行图像降噪时，常用的方法有两种：第一种是只取图像范围内实际存在的像素计算；第二种是扩展图像周围的像素，再用扩展后的图像进行计算。
       </p>
 
       <h3>11-2-3 滤波核与卷积</h3>
@@ -115,7 +115,7 @@
         对于 <code>5 x 5</code> 均值滤波器而言，每个像素的权重相同，可以用一个每个元素都是 <code>1 / 25</code> 的矩阵表示权重。这个矩阵又称滤波核，有时候也称卷积核（Convolution kernel）。
       </p>
       <p class="content-text">
-        原始影像与滤波核相乘的动作称为卷积计算，简称卷积（Convolution）。滤波核的列数和行数通常设为相等，且值越大，结果影像越模糊。
+        原始图像与滤波核相乘的动作称为卷积计算，简称卷积（Convolution）。滤波核的列数和行数通常设为相等，且值越大，结果图像越模糊。
       </p>
 
       <h3>11-2-4 均值滤波器函数</h3>
@@ -131,8 +131,8 @@
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>dst</code></td><td>返回结果的影像，或称目标影像。</td></tr>
-          <tr><td><code>src</code></td><td>来源影像，或称原始影像。</td></tr>
+          <tr><td><code>dst</code></td><td>返回结果的图像，或称目标图像。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像，或称原始图像。</td></tr>
           <tr><td><code>ksize</code></td><td>滤波核大小，格式是 <code>(高度, 宽度)</code>。由于需要计算核心像素值，建议使用奇数，例如 <code>3 x 3</code>、<code>5 x 5</code>。</td></tr>
           <tr><td><code>anchor</code></td><td>可选参数，滤波核的锚点。默认值是 <code>(-1, -1)</code>，表示锚点在滤波核中心。</td></tr>
           <tr><td><code>borderType</code></td><td>可选参数，边界样式，建议使用默认值。</td></tr>
@@ -159,12 +159,12 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch11/ch11_blur_hung_compare_01.png" alt="ch11_1.py 3x3、5x5、7x7 均值滤波结果">
-          <div class="caption">原始影像与不同大小均值滤波核的结果，参考原书第 <strong>11-8</strong> 页。</div>
+          <div class="caption">原始图像与不同大小均值滤波核的结果，参考原书第 <strong>11-8</strong> 页。</div>
         </div>
       </div>
 
       <p class="content-text">
-        从执行结果可以看到，脸部杂讯变得比较弱。因为原始影像的杂质颗粒较大，使用 <code>3 x 3</code> 滤波核时，得到的是让杂讯变弱的效果；使用 <code>5 x 5</code> 与 <code>7 x 7</code> 滤波核时，降噪效果更好，但整体影像也会更模糊。
+        从执行结果可以看到，脸部杂讯变得比较弱。因为原始图像的杂质颗粒较大，使用 <code>3 x 3</code> 滤波核时，得到的是让杂讯变弱的效果；使用 <code>5 x 5</code> 与 <code>7 x 7</code> 滤波核时，降噪效果更好，但整体图像也会更模糊。
       </p>
 
       <p class="code-title">程式实例 ch11_2.py：使用 29 x 29 滤波核观察执行结果</p>
@@ -183,7 +183,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch11/ch11_blur_hung_compare_02.png" alt="ch11_2.py 29x29 均值滤波结果">
-          <div class="caption">使用 <code>29 x 29</code> 滤波核时，影像会产生强烈模糊，参考原书第 <strong>11-9</strong> 页。</div>
+          <div class="caption">使用 <code>29 x 29</code> 滤波核时，图像会产生强烈模糊，参考原书第 <strong>11-9</strong> 页。</div>
         </div>
       </div>
 
@@ -198,7 +198,7 @@ cv2.destroyAllWindows()</div>
 
       <h3>11-3-1 理论基础</h3>
       <p class="content-text">
-        以 <code>3 x 3</code> 滤波核为例，如果采用滤波核像素值的加总平均，则卷积计算所得到的结果与均值滤波器相同。若没有执行归一化，则只执行滤波核内像素加总，数值可能超过 <code>255</code>，输出影像会变得很亮，甚至接近白色。
+        以 <code>3 x 3</code> 滤波核为例，如果采用滤波核像素值的加总平均，则卷积计算所得到的结果与均值滤波器相同。若没有执行归一化，则只执行滤波核内像素加总，数值可能超过 <code>255</code>，输出图像会变得很亮，甚至接近白色。
       </p>
 
       <h3>11-3-2 方框滤波器函数</h3>
@@ -214,8 +214,8 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>来源影像。</td></tr>
-          <tr><td><code>ddepth</code></td><td>输出影像深度，若设为 <code>-1</code>，表示与来源影像相同。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像。</td></tr>
+          <tr><td><code>ddepth</code></td><td>输出图像深度，若设为 <code>-1</code>，表示与来源图像相同。</td></tr>
           <tr><td><code>ksize</code></td><td>滤波核大小。</td></tr>
           <tr><td><code>anchor</code></td><td>锚点，默认 <code>(-1, -1)</code>。</td></tr>
           <tr><td><code>normalize</code></td><td>是否正规化。默认 <code>True</code>；若为 <code>False</code>，只执行加总。</td></tr>
@@ -223,7 +223,7 @@ cv2.destroyAllWindows()</div>
         </tbody>
       </table>
 
-      <p class="code-title">程式实例 ch11_2_1.py：使用方框滤波器处理影像</p>
+      <p class="code-title">程式实例 ch11_2_1.py：使用方框滤波器处理图像</p>
       <div class="code-block"># ch11_2_1.py
 import cv2
 
@@ -243,7 +243,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch11/ch11_mean_gaussian_compare.png" alt="ch11_2_1.py boxFilter 结果">
-          <div class="caption">未正规化的方框滤波会把邻域值累加，核变大后影像更容易变亮，参考原书第 <strong>11-12</strong> 页。</div>
+          <div class="caption">未正规化的方框滤波会把邻域值累加，核变大后图像更容易变亮，参考原书第 <strong>11-12</strong> 页。</div>
         </div>
       </div>
 
@@ -253,7 +253,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        中值滤波器的英文是 Median filter，也是降低影像噪音非常好的方法。
+        中值滤波器的英文是 Median filter，也是降低图像噪音非常好的方法。
       </p>
 
       <h3>11-4-1 理论基础</h3>
@@ -274,7 +274,7 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>来源影像。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像。</td></tr>
           <tr><td><code>ksize</code></td><td>滤波核大小，必须是大于 1 的奇数，例如 <code>3</code>、<code>5</code>、<code>7</code>。</td></tr>
         </tbody>
       </table>
@@ -342,7 +342,7 @@ cv2.destroyAllWindows()</div>
         在均值滤波器中，滤波核内每个像素权重相同；高斯滤波器的滤波核不再全部是 1，也就是权重值不再全部相同。滤波核中心附近的像素较重要，外围像素影响较小。
       </p>
       <p class="content-text">
-        进行高斯滤波器计算时，同样是将原始影像与滤波核执行卷积计算。实际应用中，高斯滤波器的滤波核可以有不同高度与宽度，但是 OpenCV 使用时通常会指定奇数大小。
+        进行高斯滤波器计算时，同样是将原始图像与滤波核执行卷积计算。实际应用中，高斯滤波器的滤波核可以有不同高度与宽度，但是 OpenCV 使用时通常会指定奇数大小。
       </p>
 
       <h3>11-5-2 高斯滤波器函数</h3>
@@ -358,7 +358,7 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>来源影像。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像。</td></tr>
           <tr><td><code>ksize</code></td><td>滤波核大小，宽度和高度应为正奇数。</td></tr>
           <tr><td><code>sigmaX</code></td><td>X 方向的标准差，若设为 0，系统会依滤波核大小自动计算。</td></tr>
           <tr><td><code>sigmaY</code></td><td>Y 方向的标准差，若省略或设为 0，会与 <code>sigmaX</code> 相同。</td></tr>
@@ -386,7 +386,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch11/ch11_gaussian_hung_compare.png" alt="ch11_5.py GaussianBlur 执行结果">
-          <div class="caption">高斯滤波可以平滑噪声，滤波核越大影像越模糊，参考原书第 <strong>11-19</strong> 页。</div>
+          <div class="caption">高斯滤波可以平滑噪声，滤波核越大图像越模糊，参考原书第 <strong>11-19</strong> 页。</div>
         </div>
       </div>
 
@@ -396,7 +396,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        前面几节的均值滤波器、方框滤波器、中值滤波器和高斯滤波器，都可以降低噪音，不过也会让影像边界变得模糊。双边滤波器的特色是可以降低噪音，同时尽量保留边缘。
+        前面几节的均值滤波器、方框滤波器、中值滤波器和高斯滤波器，都可以降低噪音，不过也会让图像边界变得模糊。双边滤波器的特色是可以降低噪音，同时尽量保留边缘。
       </p>
 
       <h3>11-6-1 理论基础</h3>
@@ -404,7 +404,7 @@ cv2.destroyAllWindows()</div>
         双边滤波器在计算某一个像素的新值时，会同时考虑距离与色彩讯息。距离越近的像素权重越大；像素值越接近的像素权重也越大。如果某个邻近像素与中心像素的颜色差异太大，它的权重会被降低，因此边界比较容易被保留下来。
       </p>
 
-      <p class="code-title">程式实例 ch11_6.py：使用均值滤波器与高斯滤波器处理黑白影像</p>
+      <p class="code-title">程式实例 ch11_6.py：使用均值滤波器与高斯滤波器处理黑白图像</p>
       <div class="code-block"># ch11_6.py
 import cv2
 
@@ -425,12 +425,12 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch11/ch11_2d_kernel_compare.png" alt="ch11_6.py 均值滤波与高斯滤波边缘比较">
-          <div class="caption">均值滤波与高斯滤波处理边缘影像的比较，参考原书第 <strong>11-21</strong> 页。</div>
+          <div class="caption">均值滤波与高斯滤波处理边缘图像的比较，参考原书第 <strong>11-21</strong> 页。</div>
         </div>
       </div>
 
       <p class="content-text">
-        从边缘影像可以观察到，均值滤波和高斯滤波都会让边界产生模糊。如果相同影像使用双边滤波器，边缘影像可以较好地被保留下来。
+        从边缘图像可以观察到，均值滤波和高斯滤波都会让边界产生模糊。如果相同图像使用双边滤波器，边缘图像可以较好地被保留下来。
       </p>
 
       <h3>11-6-2 双边滤波器函数</h3>
@@ -446,7 +446,7 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>来源影像。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像。</td></tr>
           <tr><td><code>d</code></td><td>滤波时每个像素邻域的直径。</td></tr>
           <tr><td><code>sigmaColor</code></td><td>色彩空间的标准差。值越大，色彩差异越大的像素也会互相影响。</td></tr>
           <tr><td><code>sigmaSpace</code></td><td>坐标空间的标准差。值越大，距离较远的像素也会互相影响。</td></tr>
@@ -454,7 +454,7 @@ cv2.destroyAllWindows()</div>
         </tbody>
       </table>
 
-      <p class="code-title">程式实例 ch11_7.py：相同影像使用均值、高斯和双边滤波器处理</p>
+      <p class="code-title">程式实例 ch11_7.py：相同图像使用均值、高斯和双边滤波器处理</p>
       <div class="code-block"># ch11_7.py
 import cv2
 
@@ -474,7 +474,7 @@ cv2.destroyAllWindows()</div>
         <span class="result-box-header">执行结果</span>
         <div class="result-box-image">
           <img src="images/ch11/ch11_bilateral_compare.png" alt="ch11_7.py bilateralFilter 执行结果">
-          <div class="caption">双边滤波可以降低噪音，同时影像边缘较清晰，参考原书第 <strong>11-23</strong> 页。</div>
+          <div class="caption">双边滤波可以降低噪音，同时图像边缘较清晰，参考原书第 <strong>11-23</strong> 页。</div>
         </div>
       </div>
 
@@ -484,7 +484,7 @@ cv2.destroyAllWindows()</div>
       </div>
 
       <p class="content-text">
-        除了使用 OpenCV 内建滤波函数，也可以自行定义滤波核，然后使用设定好的滤波核执行降低影像噪音的工作。OpenCV 使用 <code>filter2D()</code> 执行自定义滤波核。
+        除了使用 OpenCV 内建滤波函数，也可以自行定义滤波核，然后使用设定好的滤波核执行降低图像噪音的工作。OpenCV 使用 <code>filter2D()</code> 执行自定义滤波核。
       </p>
       <div class="syntax-box">
         <div class="syntax-title">语法</div>
@@ -495,8 +495,8 @@ cv2.destroyAllWindows()</div>
           <tr><th>参数</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>src</code></td><td>来源影像。</td></tr>
-          <tr><td><code>ddepth</code></td><td>输出影像深度，若设为 <code>-1</code> 表示与来源影像相同。</td></tr>
+          <tr><td><code>src</code></td><td>来源图像。</td></tr>
+          <tr><td><code>ddepth</code></td><td>输出图像深度，若设为 <code>-1</code> 表示与来源图像相同。</td></tr>
           <tr><td><code>kernel</code></td><td>自定义滤波核。</td></tr>
           <tr><td><code>anchor</code></td><td>锚点，默认在滤波核中心。</td></tr>
           <tr><td><code>delta</code></td><td>计算结果加上的常数值。</td></tr>
@@ -530,13 +530,13 @@ cv2.destroyAllWindows()</div>
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
           <p>1. 请扩充 <code>ch11_3.py</code>，观察中值滤波器的操作，建立 <code>5 x 5</code> 的矩阵，从左上到右下对角线建立较大的噪音值，然后观察排序后的中值。</p>
-          <p>2. 使用中值滤波器和高斯滤波器，以相同大小的 <code>3 x 3</code> 滤波核，对 <code>antar.jpg</code> 执行降噪处理，最后列出原始影像、中值滤波器与高斯滤波器处理结果影像。</p>
+          <p>2. 使用中值滤波器和高斯滤波器，以相同大小的 <code>3 x 3</code> 滤波核，对 <code>antar.jpg</code> 执行降噪处理，最后列出原始图像、中值滤波器与高斯滤波器处理结果图像。</p>
           <p>3. 重新设计 <code>ch11_6.py</code>，但是将高斯滤波器改为双边滤波器，同时比较 <code>3 x 3</code> 和 <code>7 x 7</code> 滤波核、均值滤波器与双边滤波器的执行结果。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch11/ch11_exercise_01_03.jpg" alt="第 11 章习题 1 至 3 参考结果">
             <div class="caption">习题 1 至 3 参考图，参考原书第 <strong>11-26</strong> 页。</div>
           </div>
-          <p>4. 使用 <code>unistar.jpg</code> 影像重新设计 <code>ch11_7.py</code>，但是将滤波直径改为 <code>9</code>，同时列出执行结果。</p>
+          <p>4. 使用 <code>unistar.jpg</code> 图像重新设计 <code>ch11_7.py</code>，但是将滤波直径改为 <code>9</code>，同时列出执行结果。</p>
           <div class="result-box-image" style="padding:12px 0 0;">
             <img src="images/ch11/ch11_exercise_compare_01.png" alt="第 11 章习题 4 参考结果">
             <div class="caption">习题 4 参考图，参考原书第 <strong>11-27</strong> 页。</div>
@@ -562,7 +562,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意应用 AI 视觉专题 互动化学习笔记
+    OpenCV 图像创意应用 AI 视觉专题 互动化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>

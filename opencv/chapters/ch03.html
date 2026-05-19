@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -35,7 +35,7 @@
 
       <div class="chapter-intro">
         Python 的列表和元组可以表示一维或多维资料，但是在大量数值运算时，执行速度与系统资源会成为问题。
-        Numpy 是 Numerical Python 的缩写，常用于科学运算、影像处理与人工智能。OpenCV 读取的灰阶图、彩色图和视频画面，都可以看成 Numpy 的多维阵列；每一个数值就是影像中的像素资料。因此，在进入 OpenCV 影像处理前，需要先熟悉 Numpy 阵列的基本操作。
+        Numpy 是 Numerical Python 的缩写，常用于科学运算、图像处理与人工智能。OpenCV 读取的灰阶图、彩色图和视频画面，都可以看成 Numpy 的多维阵列；每一个数值就是图像中的像素资料。因此，在进入 OpenCV 图像处理前，需要先熟悉 Numpy 阵列的基本操作。
       </div>
 
       <div class="section-heading" id="section-0">
@@ -45,7 +45,7 @@
 
       <p class="content-text">
         Numpy 所建立的阵列资料型态称为 <code>ndarray</code>，也就是 n-dimension array，表示 n 维阵列。
-        例如一维阵列、二维阵列、三维阵列，都属于 <code>ndarray</code> 的范畴。OpenCV 的影像资料在 Python 中也以 <code>ndarray</code> 表示。
+        例如一维阵列、二维阵列、三维阵列，都属于 <code>ndarray</code> 的范畴。OpenCV 的图像资料在 Python 中也以 <code>ndarray</code> 表示。
       </p>
       <p class="content-text">
         ndarray 与 Python 一般列表不同，主要特性如下：
@@ -55,7 +55,7 @@
         <li>阵列内元素的资料型态相同。</li>
       </ul>
       <p class="content-text">
-        因为阵列大小固定且元素型态一致，Numpy 可以用更有效率的方式储存与运算资料。在处理影像时，这一点非常重要。
+        因为阵列大小固定且元素型态一致，Numpy 可以用更有效率的方式储存与运算资料。在处理图像时，这一点非常重要。
       </p>
 
       <div class="section-heading" id="section-1">
@@ -64,7 +64,7 @@
       </div>
 
       <p class="content-text">
-        Numpy 支援多种资料型态。OpenCV 影像最常见的是 <code>uint8</code>，也就是 8 位元无符号整数，可表示 0 到 255 的像素值。
+        Numpy 支援多种资料型态。OpenCV 图像最常见的是 <code>uint8</code>，也就是 8 位元无符号整数，可表示 0 到 255 的像素值。
       </p>
 
       <table class="content-table">
@@ -220,25 +220,51 @@ array([1.1, 2.3, 3.6])</pre></div>
 
       <h3>3-3-3 使用 array() 函数建立多维阵列</h3>
       <p class="content-text">
-        如果传入巢状列表，或指定 <code>ndmin</code>，可以建立二维或多维阵列。
+        如果传入嵌套列表（列表里面再放列表），或指定 <code>ndmin</code>，可以建立二维或多维阵列。
       </p>
 
       <div class="example-box">
         <div class="example-title">ch3_1.py：建立二维与三维阵列</div>
         <div class="code-block">import numpy as np
 
-x1 = np.array([1, 2, 3], ndmin=2)
-x2 = np.array([1, 2, 3], ndmin=3)
-print(x1)
-print(x2)</div>
-        <div class="result-box-image">
-          <img src="images/ch03/ch3_1_result.png" alt="ch3_1.py 执行结果">
-          <div class="caption">ch3_1.py 执行结果</div>
+row1 = [1, 2, 3]
+arr1 = np.array(row1, ndmin=2)
+print(f"阵列维度 = {arr1.ndim}")
+print(f"阵列外型 = {arr1.shape}")
+print(f"阵列大小 = {arr1.size}")
+print("阵列内容")
+print(arr1)
+print("-" * 70)
+row2 = [4, 5, 6]
+arr2 = np.array([row1, row2], ndmin=2)
+print(f"阵列维度 = {arr2.ndim}")
+print(f"阵列外型 = {arr2.shape}")
+print(f"阵列大小 = {arr2.size}")
+print("阵列内容")
+print(arr2)</div>
+        <div class="result-box">
+          <div class="result-title">执行结果</div>
+          <pre>阵列维度 = 2
+阵列外型 = (1, 3)
+阵列大小 = 3
+阵列内容
+[[1 2 3]]
+----------------------------------------------------------------------
+阵列维度 = 2
+阵列外型 = (2, 3)
+阵列大小 = 6
+阵列内容
+[[1 2 3]
+ [4 5 6]]</pre>
+        </div>
+        <div class="note-box">
+          <span class="note-icon">注</span>
+          <span>原书标题写“建立二维和三维阵列”，但本例代码与执行结果均为二维阵列；三维阵列会在后续 axis 小节继续说明。</span>
         </div>
       </div>
 
       <div class="example-box">
-        <div class="example-title">ch3_2.py：使用巢状列表建立二维阵列</div>
+        <div class="example-title">ch3_2.py：使用嵌套列表建立二维阵列</div>
         <div class="code-block">import numpy as np
 
 x = np.array([[1, 2, 3], [4, 5, 6]])
@@ -285,9 +311,13 @@ print(x2)</div>
         <div class="result-box"><div class="result-title">执行结果</div><pre>[0. 0. 0.]
 [[0 0 0]
  [0 0 0]]</pre></div>
+        <div class="note-box">
+          <span class="note-icon">注</span>
+          <span><code>np.zeros(3)</code> 没有指定 <code>dtype</code> 时，NumPy 默认使用浮点数类型，所以输出为 <code>[0. 0. 0.]</code>，这里的 <code>0.</code> 等同于 <code>0.0</code>。NumPy 打印阵列时，元素之间通常用空格分隔，不会像 Python 列表一样显示逗号。</span>
+        </div>
       </div>
       <p class="content-text">
-        在 OpenCV 中，像素值为 0 的影像会呈现黑色，因此 <code>zeros()</code> 常用于建立黑色影像或初始化空白影像资料。
+        在 OpenCV 中，像素值为 0 的图像会呈现黑色，因此 <code>zeros()</code> 常用于建立黑色图像或初始化空白图像资料。
       </p>
 
       <h3>3-3-5 使用 ones() 建立内容是 1 的多维阵列</h3>
@@ -308,7 +338,7 @@ print(x2)</div>
  [1 1 1]]</pre></div>
       </div>
       <p class="content-text">
-        若要建立白色影像，可将 <code>ones()</code> 建立的阵列乘以 255。
+        若要建立白色图像，可将 <code>ones()</code> 建立的阵列乘以 255。
       </p>
       <div class="example-box">
         <div class="example-title">ch3_5_1.py：建立全白资料</div>
@@ -607,7 +637,7 @@ x2 = [9 2 3]</pre></div>
 
       <h3>3-4-5 使用 copy() 函数复制阵列</h3>
       <p class="content-text">
-        <code>copy()</code> 也可以复制阵列，常用于影像处理。先复制原图，再对复制图执行处理，可以保留原始影像。
+        <code>copy()</code> 也可以复制阵列，常用于图像处理。先复制原图，再对复制图执行处理，可以保留原始图像。
       </p>
       <div class="syntax-box">
         <div class="syntax-title">语法</div>
@@ -787,7 +817,7 @@ x[:, 4] =
 [ 4  9 14]</pre></div>
       </div>
       <p class="content-text">
-        <code>x[:, 4:]</code> 取出的仍是二维阵列；<code>x[:, 4]</code> 取出的是一维阵列。是否保留维度会影响后续影像处理时的资料形状。
+        <code>x[:, 4:]</code> 取出的仍是二维阵列；<code>x[:, 4]</code> 取出的是一维阵列。是否保留维度会影响后续图像处理时的资料形状。
       </p>
 
       <div class="example-box">
@@ -817,7 +847,7 @@ IndexError: index 4 is out of bounds for axis 0 with size 2</pre></div>
 
       <h3>3-6-1 使用 vstack() 垂直合并阵列</h3>
       <p class="content-text">
-        <code>vstack()</code> 可以将多个阵列依垂直方向合并。在影像处理中，可用于将影像上下拼接。
+        <code>vstack()</code> 可以将多个阵列依垂直方向合并。在图像处理中，可用于将图像上下拼接。
       </p>
       <div class="syntax-box">
         <div class="syntax-title">语法</div>
@@ -841,7 +871,7 @@ print(x)</div>
 
       <h3>3-6-2 使用 hstack() 水平合并阵列</h3>
       <p class="content-text">
-        <code>hstack()</code> 可以将多个阵列依水平方向合并。在影像处理中，可用于将影像左右拼接。
+        <code>hstack()</code> 可以将多个阵列依水平方向合并。在图像处理中，可用于将图像左右拼接。
       </p>
       <div class="syntax-box">
         <div class="syntax-title">语法</div>
@@ -866,7 +896,7 @@ print(x)</div>
       <div class="exercise-box">
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
-          <p>1. 使用 <code>huang.jpg</code> 影像，将影像水平合并，最后输出合并结果。</p>
+          <p>1. 使用 <code>huang.jpg</code> 图像，将图像水平合并，最后输出合并结果。</p>
           <div class="code-block">import cv2
 import numpy as np
 
@@ -880,7 +910,7 @@ cv2.destroyAllWindows()</div>
             <div class="caption">习题 1 参考结果</div>
           </div>
 
-          <p style="margin-top:18px;">2. 使用 <code>flower1.jpg</code> 影像，将影像合并成 4 张排列的结果。</p>
+          <p style="margin-top:18px;">2. 使用 <code>flower1.jpg</code> 图像，将图像合并成 4 张排列的结果。</p>
           <div class="code-block">import cv2
 import numpy as np
 
@@ -901,7 +931,7 @@ cv2.destroyAllWindows()</div>
         <a href="ch02.html">
           <div>
             <div class="nav-label">&larr; 上一章</div>
-            <div class="nav-title">第 2 章 认识影像表示方法</div>
+            <div class="nav-title">第 2 章 认识图像表示方法</div>
           </div>
         </a>
         <a href="ch04.html">
@@ -916,7 +946,7 @@ cv2.destroyAllWindows()</div>
   </div>
 
   <footer class="footer">
-    OpenCV 影像创意应用 AI 视觉专题 互动化学习笔记
+    OpenCV 图像创意应用 AI 视觉专题 互动化学习笔记
   </footer>
 
   <script src="../js/sidebar.js"></script>
