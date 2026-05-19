@@ -190,6 +190,79 @@ function buildSidebarForChapter(currentChapterId) {
   buildSidebar(currentChapterId, "");
 }
 
+function scrollToHashTarget() {
+  const query = new URLSearchParams(window.location.search).get("q") || "";
+  const target = query ? findSearchHitTarget(query) : getHashElement();
+  if (!target) return;
+
+  const scroll = () => target.scrollIntoView({ block: "start" });
+  document.querySelectorAll(".search-hit").forEach((el) => el.classList.remove("search-hit"));
+  if (query) target.classList.add("search-hit");
+  window.requestAnimationFrame(scroll);
+  window.setTimeout(scroll, 120);
+  window.setTimeout(scroll, 420);
+}
+
+function getHashElement() {
+  if (!window.location.hash) return null;
+  const targetId = decodeURIComponent(window.location.hash.slice(1));
+  return document.getElementById(targetId);
+}
+
+function getSearchScope() {
+  const hashTarget = getHashElement();
+  if (!hashTarget) return document.querySelector(".main-content") || document.body;
+
+  const nodes = [];
+  let node = hashTarget;
+  while (node) {
+    nodes.push(node);
+    node = node.nextElementSibling;
+    if (node && node.classList.contains("section-heading")) break;
+  }
+
+  return nodes;
+}
+
+function getSearchableBlocks(scope) {
+  const selector = [
+    ".section-heading",
+    ".subsection-heading",
+    ".content-text",
+    ".note-box",
+    ".content-table",
+    ".code-block",
+    ".result-block",
+    ".inline-figure",
+    ".table-caption",
+  ].join(", ");
+
+  const nodes = Array.isArray(scope)
+    ? scope.flatMap((node) => [
+        ...(node.matches && node.matches(selector) ? [node] : []),
+        ...Array.from(node.querySelectorAll(selector)),
+      ])
+    : Array.from(scope.querySelectorAll(selector));
+
+  return nodes.filter((node, index, array) => (
+    node.textContent &&
+    node.textContent.trim() &&
+    array.indexOf(node) === index
+  ));
+}
+
+function findSearchHitTarget(query) {
+  const needle = normalizeSearchText(query);
+  if (!needle) return getHashElement();
+
+  const scopedBlocks = getSearchableBlocks(getSearchScope());
+  const scopedHit = scopedBlocks.find((node) => normalizeSearchText(node.textContent || "").includes(needle));
+  if (scopedHit) return scopedHit;
+
+  const pageBlocks = getSearchableBlocks(document.querySelector(".main-content") || document.body);
+  return pageBlocks.find((node) => normalizeSearchText(node.textContent || "").includes(needle)) || getHashElement();
+}
+
 function setupSectionHighlight() {
   const links = Array.from(document.querySelectorAll(".nav-sub a[data-section-id]"))
     .filter((link) => (link.getAttribute("href") || "").startsWith("#"));
@@ -291,6 +364,7 @@ function setupSectionHighlight() {
   }
   if (window.location.hash) {
     activateFromHash();
+    scrollToHashTarget();
   } else {
     updateFromScroll();
   }
@@ -355,8 +429,8 @@ function getSearchLinkPrefix() {
   return window.location.pathname.includes("/chapters/") ? "" : "chapters/";
 }
 
-function getSearchIndexPath() {
-  return window.location.pathname.includes("/chapters/") ? "../js/search-index.json" : "js/search-index.json";
+function getChapterFetchPrefix() {
+  return window.location.pathname.includes("/chapters/") ? "" : "chapters/";
 }
 
 function normalizeSearchText(text) {
@@ -389,33 +463,73 @@ function makeSearchSnippet(text, query) {
   return prefix + text.slice(start, end) + suffix;
 }
 
-async function buildSearchIndex() {
-  const response = await fetch(getSearchIndexPath());
-  if (!response.ok) {
-    throw new Error(`Search index request failed: ${response.status}`);
-  }
-
-  const entries = await response.json();
-  return entries.map((entry) => ({
-    ...entry,
-    sections: entry.sections || [],
-    sectionTexts: entry.sectionTexts || [],
-    normalized: normalizeSearchText([
-      entry.title || "",
-      (entry.sections || []).join(" "),
-      entry.text || "",
-    ].join(" ")),
-  }));
+function extractSearchText(doc) {
+  const main = doc.querySelector(".main-content") || doc.body;
+  const clone = main.cloneNode(true);
+  clone.querySelectorAll("script, style, .chapter-nav, .code-copy-button, .back-to-top").forEach((el) => el.remove());
+  return clone.textContent.replace(/\s+/g, " ").trim();
 }
 
-function findEntrySectionAnchor(entry, query) {
-  const needle = normalizeSearchText(query);
-  for (const section of entry.sectionTexts || []) {
-    if (normalizeSearchText(section.text || "").includes(needle)) {
-      return section.id || "";
+function extractSectionTexts(doc) {
+  const headings = Array.from(doc.querySelectorAll(".section-heading[id]"));
+  return headings.map((heading) => {
+    const title = (heading.textContent || "").replace(/\s+/g, " ").trim();
+    let text = title;
+    let node = heading.nextElementSibling;
+    while (node && !node.classList.contains("section-heading")) {
+      text += " " + (node.textContent || "");
+      node = node.nextElementSibling;
     }
-  }
-  return "";
+    return {
+      id: heading.id,
+      title,
+      text: text.replace(/\s+/g, " ").trim(),
+    };
+  });
+}
+
+function makeFallbackSearchEntry(chapter) {
+  const text = [chapter.title, ...(chapter.sections || [])].join(" ");
+  return {
+    id: chapter.id,
+    title: chapter.title,
+    file: chapter.file,
+    sections: chapter.sections || [],
+    sectionTexts: (chapter.sections || []).map((section, index) => ({ id: `section-${index}`, title: section, text: section })),
+    text,
+    normalized: normalizeSearchText(text),
+  };
+}
+
+async function buildSearchIndex() {
+  const parser = new DOMParser();
+  const pathPrefix = getChapterFetchPrefix();
+  const completedChapters = chapters.filter((chapter) => readyChapters.has(chapter.id));
+  const entries = await Promise.all(completedChapters.map(async (chapter) => {
+    try {
+      const response = await fetch(pathPrefix + chapter.file);
+      if (!response.ok) return makeFallbackSearchEntry(chapter);
+
+      const markup = await response.text();
+      const doc = parser.parseFromString(markup, "text/html");
+      const text = extractSearchText(doc);
+      const sectionTexts = extractSectionTexts(doc);
+
+      return {
+        id: chapter.id,
+        title: chapter.title,
+        file: chapter.file,
+        sections: chapter.sections || [],
+        sectionTexts,
+        text,
+        normalized: normalizeSearchText([chapter.title, (chapter.sections || []).join(" "), text].join(" ")),
+      };
+    } catch (err) {
+      return makeFallbackSearchEntry(chapter);
+    }
+  }));
+
+  return entries;
 }
 
 function renderSearchResults(container, entries, query) {
@@ -424,47 +538,60 @@ function renderSearchResults(container, entries, query) {
   if (!normalizedQuery) {
     container.innerHTML = "";
     container.classList.remove("show");
-    return;
+    return [];
   }
 
   const terms = normalizedQuery.split(" ").filter(Boolean);
   const matches = entries
-    .map((entry) => {
-      const titleText = normalizeSearchText(entry.title || "");
-      const sectionText = normalizeSearchText((entry.sections || []).join(" "));
-      const score = terms.reduce((total, term) => {
-        let next = total;
-        if (titleText.includes(term)) next += 20;
-        if (sectionText.includes(term)) next += 8;
-        if ((entry.normalized || "").includes(term)) next += 1;
-        return next;
-      }, 0);
-      return { entry, score };
+    .flatMap((entry) => {
+      const sectionTexts = (entry.sectionTexts && entry.sectionTexts.length)
+        ? entry.sectionTexts
+        : [{ id: "", title: "", text: entry.text || "" }];
+      return sectionTexts.map((section) => {
+        const chapterTitle = normalizeSearchText(entry.title || "");
+        const sectionTitle = normalizeSearchText(section.title || "");
+        const sectionText = normalizeSearchText(section.text || "");
+        const score = terms.reduce((total, term) => {
+          let next = total;
+          if (sectionTitle.includes(term)) next += 40;
+          if (chapterTitle.includes(term)) next += 12;
+          if (sectionText.includes(term)) next += 4;
+          return next;
+        }, 0);
+        return { entry, section, score };
+      });
     })
     .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || a.entry.id.localeCompare(b.entry.id))
+    .sort((a, b) => (
+      b.score - a.score ||
+      a.entry.id.localeCompare(b.entry.id) ||
+      (a.section.id || "").localeCompare(b.section.id || "")
+    ))
     .slice(0, 12);
 
   if (!matches.length) {
     container.innerHTML = '<div class="site-search-empty">没有找到相关内容</div>';
     container.classList.add("show");
-    return;
+    return [];
   }
 
   const linkPrefix = getSearchLinkPrefix();
-  container.innerHTML = matches.map(({ entry }) => {
-    const anchor = findEntrySectionAnchor(entry, query);
-    const href = `${linkPrefix}${entry.file}${anchor ? "#" + anchor : ""}`;
-    const snippet = makeSearchSnippet(entry.text || "", query);
+  container.innerHTML = matches.map(({ entry, section }, index) => {
+    const searchParam = `?q=${encodeURIComponent(query)}`;
+    const anchor = section.id ? `#${section.id}` : "";
+    const href = `${linkPrefix}${entry.file}${searchParam}${anchor}`;
+    const snippet = makeSearchSnippet(section.text || entry.text || "", query);
+    const title = section.title ? `${entry.title} · ${section.title}` : entry.title;
 
     return `
-      <a class="site-search-result" href="${href}">
-        <strong>${escapeSearchHtml(entry.title || "")}</strong>
+      <a class="site-search-result" href="${href}" data-result-index="${index}">
+        <strong>${escapeSearchHtml(title || "")}</strong>
         <span>${escapeSearchHtml(snippet)}</span>
       </a>
     `;
   }).join("");
   container.classList.add("show");
+  return matches;
 }
 
 function setupSiteSearch() {
@@ -474,12 +601,16 @@ function setupSiteSearch() {
   const wrapper = document.createElement("div");
   wrapper.className = "site-search";
   wrapper.innerHTML = `
-    <input class="site-search-input" type="search" placeholder="搜索知识点..." aria-label="搜索 Python 爬虫教程内容" autocomplete="off">
+    <div class="site-search-bar">
+      <input class="site-search-input" type="search" placeholder="搜索知识点..." aria-label="搜索 Python 爬虫教程内容" autocomplete="off">
+      <button class="site-search-clear" type="button" aria-label="清空搜索" title="清空搜索">&times;</button>
+    </div>
     <div class="site-search-results" role="listbox"></div>
   `;
   headerRight.prepend(wrapper);
 
   const input = wrapper.querySelector(".site-search-input");
+  const clearButton = wrapper.querySelector(".site-search-clear");
   const results = wrapper.querySelector(".site-search-results");
   let searchIndexPromise = null;
   let debounceTimer = null;
@@ -497,34 +628,52 @@ function setupSiteSearch() {
     window.setTimeout(() => ensureSearchIndex(), 600);
   };
 
+  const updateClearButton = () => {
+    const hasQuery = Boolean(input.value.trim());
+    clearButton.disabled = !hasQuery;
+    clearButton.classList.toggle("show", hasQuery);
+  };
+
+  const resetSearch = () => {
+    input.value = "";
+    renderSearchResults(results, [], "");
+    updateClearButton();
+  };
+
   input.addEventListener("input", () => {
+    updateClearButton();
     window.clearTimeout(debounceTimer);
     debounceTimer = window.setTimeout(async () => {
       const query = input.value.trim();
       if (!query) {
-        renderSearchResults(results, [], "");
+        resetSearch();
         return;
       }
 
       results.innerHTML = '<div class="site-search-empty">正在检索...</div>';
       results.classList.add("show");
 
-      try {
-        const index = await ensureSearchIndex();
-        renderSearchResults(results, index, query);
-      } catch (err) {
-        results.innerHTML = '<div class="site-search-empty">搜索索引加载失败</div>';
-        results.classList.add("show");
-      }
+      const index = await ensureSearchIndex();
+      renderSearchResults(results, index, query);
     }, 160);
   });
 
   input.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      input.value = "";
-      renderSearchResults(results, [], "");
+      resetSearch();
       input.blur();
+    } else if (event.key === "Enter") {
+      const active = results.querySelector(".site-search-result.active") || results.querySelector(".site-search-result");
+      if (active) {
+        event.preventDefault();
+        active.click();
+      }
     }
+  });
+
+  clearButton.addEventListener("click", () => {
+    resetSearch();
+    input.focus();
   });
 
   document.addEventListener("click", (event) => {
@@ -533,6 +682,16 @@ function setupSiteSearch() {
     }
   });
 
+  results.addEventListener("click", (event) => {
+    const link = event.target.closest(".site-search-result");
+    if (!link) return;
+    results.classList.remove("show");
+    if (link.hash && link.pathname === window.location.pathname) {
+      window.setTimeout(scrollToHashTarget, 0);
+    }
+  });
+
+  updateClearButton();
   warmSearchIndex();
 }
 
@@ -569,8 +728,10 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setupBackToTopButton();
     setupSiteSearch();
+    scrollToHashTarget();
   }, { once: true });
 } else {
   setupBackToTopButton();
   setupSiteSearch();
+  scrollToHashTarget();
 }

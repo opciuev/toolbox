@@ -64,31 +64,90 @@ a:hover {
 
 .site-search {
   position: relative;
+  flex: 0 1 360px;
   width: min(34vw, 360px);
 }
 
-.site-search-input {
-  width: 100%;
-  height: 34px;
+.site-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 2px 5px 2px 13px;
   border: 1px solid rgba(255, 255, 255, 0.36);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.site-search-bar:focus-within {
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
+}
+
+.site-search-input {
+  flex: 1 1 auto;
+  min-width: 96px;
+  height: 30px;
+  border: 0;
+  background: transparent;
   color: #fff;
-  padding: 0 14px;
+  padding: 0;
   outline: none;
   font: 14px/1.4 "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.site-search-input::-webkit-search-cancel-button {
+  display: none;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .site-search-input::placeholder {
   color: rgba(255, 255, 255, 0.78);
 }
 
-.site-search-input:focus {
-  background: #fff;
-  border-color: #fff;
+.site-search-bar:focus-within .site-search-input {
   color: #1f2933;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
+}
+
+.site-search-bar:focus-within .site-search-input::placeholder {
+  color: #98a2b3;
+}
+
+.site-search-clear {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, opacity 0.16s;
+  visibility: hidden;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.site-search-clear.show {
+  visibility: visible;
+}
+
+.site-search-bar:focus-within .site-search-clear {
+  color: #344054;
+}
+
+.site-search-clear:not(:disabled):hover {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.site-search-clear:disabled {
+  opacity: 0.38;
+  cursor: default;
 }
 
 .site-search-results {
@@ -447,6 +506,24 @@ a:hover {
   line-height: 2.12;
   letter-spacing: 0.025em;
   text-indent: 2em;
+}
+
+.content-text,
+.note-box,
+.content-table,
+.code-block,
+.result-block,
+.inline-figure,
+.table-caption,
+.subsection-heading {
+  scroll-margin-top: 78px;
+}
+
+.search-hit {
+  border-radius: 6px;
+  outline: 3px solid rgba(14, 116, 144, 0.24);
+  background-color: rgba(236, 254, 255, 0.72);
+  transition: background-color 0.2s ease, outline-color 0.2s ease;
 }
 
 .content-text.list-like {
@@ -989,12 +1066,17 @@ h4.subsection-heading::before {
   }
 
   .header-right {
-    flex: 1 1 142px;
-    min-width: 120px;
+    flex: 1 1 250px;
+    min-width: 0;
     margin-left: 0;
   }
 
   .header-right a {
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .header-right > a {
     display: none;
     white-space: nowrap;
     font-size: 13px;
@@ -1002,6 +1084,7 @@ h4.subsection-heading::before {
 
   .site-search {
     width: 100%;
+    min-width: 0;
   }
 
   .site-search-results {
@@ -1164,7 +1247,7 @@ h4.subsection-heading::before {
   }
 
   .logo {
-    flex: 0 1 112px;
+    flex: 0 1 94px;
     font-size: 15px;
   }
 
@@ -1174,13 +1257,29 @@ h4.subsection-heading::before {
 
   .header-right {
     flex: 1 1 auto;
-    min-width: 132px;
+    min-width: 0;
+  }
+
+  .site-search-bar {
+    min-height: 32px;
+    gap: 2px;
+    padding: 2px 3px 2px 9px;
   }
 
   .site-search-input {
-    height: 32px;
-    padding: 0 11px;
+    min-width: 62px;
+    height: 28px;
     font-size: 13px;
+  }
+
+  .site-search-clear {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+  }
+
+  .site-search-clear {
+    font-size: 20px;
   }
 
   .main-content {
@@ -1200,5 +1299,11 @@ h4.subsection-heading::before {
 
   .chapter-title {
     font-size: 22px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo {
+    display: none;
   }
 }
