@@ -44,5 +44,9 @@ Thumbs.db
 *.tmp
 *.temp
 
+# 本地图片审计输出
+opencv/tools/image-audit*/
+opencv/tools/image-backups/
+
 # Vercel
 .vercel
