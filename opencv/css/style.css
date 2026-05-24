@@ -836,6 +836,19 @@ a:hover {
     overflow-x: auto;
   }
 
+  .code-block {
+    white-space: pre-wrap;
+  }
+
+  .code-block,
+  .code-syntax,
+  .result-box-content,
+  code {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   .page-nav {
     flex-direction: column;
     gap: 12px;
