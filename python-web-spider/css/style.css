@@ -190,6 +190,15 @@ a:hover {
   line-height: 1.4;
 }
 
+.site-search-match {
+  display: block;
+  margin-bottom: 3px;
+  color: #0f5060;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
 .site-search-result span,
 .site-search-empty {
   display: block;
@@ -277,6 +286,11 @@ a:hover {
 .nav-status.completed {
   color: #166534;
   background: #dcfce7;
+}
+
+.nav-status.partial {
+  color: #854d0e;
+  background: #fef9c3;
 }
 
 .nav-status.pending {
@@ -387,6 +401,15 @@ a:hover {
   box-shadow: none;
 }
 
+.chapter-card.partial {
+  border-color: #facc15;
+  background: #fffdf3;
+}
+
+.chapter-card.partial:hover {
+  border-color: #ca8a04;
+}
+
 .card-label,
 .chapter-badge {
   display: inline-block;
@@ -410,6 +433,11 @@ a:hover {
 .status-pill.completed {
   color: #166534;
   background: #dcfce7;
+}
+
+.status-pill.partial {
+  color: #854d0e;
+  background: #fef9c3;
 }
 
 .status-pill.pending {
@@ -664,6 +692,29 @@ h4.subsection-heading::before {
 .note-text {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.source-gap-notice {
+  max-width: 900px;
+  margin: 0 auto 18px;
+  padding: 14px 18px;
+  color: #713f12;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 5px solid #d97706;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.source-gap-notice strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #854d0e;
+}
+
+.source-gap-notice p {
+  margin: 0;
 }
 
 .ocr-content {
@@ -1123,7 +1174,6 @@ h4.subsection-heading::before {
   .main-content {
     width: 100%;
     max-width: none;
-    min-width: 0;
     padding: 22px 16px 44px;
   }
 
@@ -1159,6 +1209,13 @@ h4.subsection-heading::before {
     max-width: none;
     padding: 22px 18px 30px;
     border-radius: 6px;
+  }
+
+  .source-gap-notice {
+    max-width: none;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    font-size: 14px;
   }
 
   .content-text,
@@ -1306,41 +1363,5 @@ h4.subsection-heading::before {
 @media (max-width: 360px) {
   .logo {
     display: none;
-  }
-
-  .ocr-content,
-  .ocr-content.preserve-lines {
-    padding: 24px 18px;
-  }
-
-  .content-table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
-  .minor-section {
-    margin-left: 0;
-    padding-left: 12px;
-  }
-
-  .content-text.list-like {
-    margin-left: 0;
-  }
-
-  .ocr-content,
-  .content-text,
-  .code-block,
-  code {
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-  .chapter-nav {
-    flex-direction: column;
-  }
-
-  .chapter-nav a {
-    max-width: none;
   }
 }
