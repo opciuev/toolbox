@@ -638,13 +638,13 @@ cv2.imwrite("a128.png", a128_image)</div>
         <span class="exercise-box-header">习题</span>
         <div class="exercise-box-content">
           <p>
-            1. 读取 <code>coffee.jpg</code>，使用 4 种方式显示图像，其中两项分别是 BGR 与 RGB，另外两项是 HSV 的
+            1. 读取 <code>night.png</code>，使用 4 种方式显示图像，其中两项分别是 BGR 与 RGB，另外两项是 HSV 的
             Saturation 通道与 Value 通道。
           </p>
 
           <div class="code-block">import cv2
 
-image = cv2.imread("coffee.jpg")
+image = cv2.imread("night.png")
 cv2.imshow("BGR", image)
 
 rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
