@@ -293,6 +293,11 @@ a:hover {
   background: #fef9c3;
 }
 
+.nav-status.review {
+  color: #92400e;
+  background: #fef3c7;
+}
+
 .nav-status.pending {
   color: #92400e;
   background: #fef3c7;
@@ -344,7 +349,7 @@ a:hover {
 
 .main-content {
   width: calc(100% - 292px);
-  max-width: 1280px;
+  max-width: none;
   min-width: 0;
   margin-left: 292px;
   padding: 30px 40px 56px;
@@ -410,6 +415,15 @@ a:hover {
   border-color: #ca8a04;
 }
 
+.chapter-card.review {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.chapter-card.review:hover {
+  border-color: #d97706;
+}
+
 .card-label,
 .chapter-badge {
   display: inline-block;
@@ -440,6 +454,11 @@ a:hover {
   background: #fef9c3;
 }
 
+.status-pill.review {
+  color: #92400e;
+  background: #fef3c7;
+}
+
 .status-pill.pending {
   color: #92400e;
   background: #fef3c7;
@@ -457,37 +476,11 @@ a:hover {
 }
 
 .chapter-title {
-  margin: 0 0 16px;
+  max-width: 900px;
+  margin: 0 auto 16px;
   color: #12313f;
   font-size: 28px;
   line-height: 1.35;
-}
-
-.pdf-pages {
-  display: grid;
-  gap: 18px;
-}
-
-.pdf-page {
-  margin: 0;
-  padding: 12px;
-  background: #fff;
-  border: 1px solid #d8e1e8;
-  border-radius: 8px;
-  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
-}
-
-.pdf-page img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.pdf-page figcaption {
-  padding: 8px 2px 0;
-  color: #6b7c86;
-  font-size: 12px;
-  text-align: right;
 }
 
 .section-heading {
@@ -692,6 +685,7 @@ h4.subsection-heading::before {
 .note-text {
   flex: 1 1 auto;
   min-width: 0;
+  white-space: pre-line;
 }
 
 .source-gap-notice {
@@ -736,13 +730,37 @@ h4.subsection-heading::before {
 }
 
 .ocr-content.preserve-lines .content-text {
-  white-space: normal;
+  white-space: pre-line;
   font-size: 16px;
   line-height: 1.95;
   padding-left: 0;
-  text-indent: 2em;
+  text-indent: 0;
   letter-spacing: 0;
   margin-bottom: 16px;
+}
+
+.ocr-content.preserve-lines .numbered-section {
+  margin-left: 0;
+}
+
+.ocr-content.preserve-lines .numbered-section > .numbered-heading {
+  padding: 0 0 8px;
+  color: #263238;
+  border-left: 0;
+  border-bottom-color: #d8e1e8;
+}
+
+.ocr-content.preserve-lines .numbered-section > .content-text {
+  text-indent: 0;
+}
+
+.ocr-content.preserve-lines .minor-section {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.ocr-content.preserve-lines .minor-section > .subsection-heading {
+  margin-left: 0;
 }
 
 .ocr-content.preserve-lines .content-text.list-like {
@@ -975,37 +993,6 @@ h4.subsection-heading::before {
 .table-caption {
   color: #0f5060;
   font-weight: 700;
-}
-
-.source-pages {
-  margin-top: 28px;
-}
-
-.source-pages summary {
-  cursor: pointer;
-  color: #0f5060;
-  font-weight: 700;
-}
-
-.text-extract {
-  margin-top: 28px;
-  padding: 16px;
-  background: #fff;
-  border: 1px solid #d8e1e8;
-  border-radius: 8px;
-}
-
-.text-extract summary {
-  cursor: pointer;
-  color: #0f5060;
-  font-weight: 700;
-}
-
-.text-extract pre {
-  max-height: 520px;
-  overflow: auto;
-  white-space: pre-wrap;
-  font: 13px/1.7 "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
 }
 
 .chapter-nav {

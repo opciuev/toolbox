@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>第2章 基本库的使用 - Python3 网络爬虫开发实战 第2版</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="../css/style.css?v=20260525-search-context-only">
+  <link rel="stylesheet" href="../css/style.css?v=20260605-text-indent">
 </head>
 <body>
   <header class="header">
@@ -36,9 +36,9 @@
 <div class="section-heading" id="section-0"><h2>2.1 urllib 的使用</h2></div>
 <p class="content-text">首先介绍一个 Python 库，叫作 urllib，利用它就可以实现 HTTP 请求的发送，而且不需要关心 HTTP 协议本身甚至更底层的实现，
 我们要做的是指定请求的 URL、请求头、请求体等信息。
-此外 urllib 还可以把服务器返回的响应转化为 Python 对象，我们通过该对象便可以方便地获取响应的相关信息，如响应状态码、响应头、响应体等。</p>
-<div class="note-box"><span class="note-icon">注</span><div class="note-text">在 Python 2 中，有 urllib 和 urllib2 两个库来实现 HTTP 请求的发送。</div></div>
-<p class="content-text">而在 Python 3 中，urllib2 库已经不存在了，统一为了 urllib。
+此外 urllib 还可以把服务器返回的响应转化为 Python 对象，我们通过该对象便可以方便地获取响应的相关信息，如响应状态码、响应头、响应体等。
+<strong>注意</strong> 在 Python 2 中，有 urllib 和 urllib2 两个库来实现 HTTP 请求的发送。
+而在 Python 3 中，urllib2 库已经不存在了，统一为了 urllib。
 首先，我们了解一下 urllib 库的使用方法，它是 Python 内置的 HTTP 请求库，也就是说不需要额外安装，可直接使用。
 urllib 库包含如下 4 个模块。</p>
 <p class="content-text list-like"><strong class="term-label">request:</strong>这是最基本的 HTTP 请求模块，可以模拟请求的发送。就像在浏览器里输入网址然后按下回车一样，只需要给库方法传入 URL 以及额外的参数，就可以模拟实现发送请求的过程了。</p>
@@ -2032,8 +2032,8 @@ print(response.http_version)</code></pre>
 <p class="content-text">这里我们输出了 response 变量的 http_version 属性，这是 requests 中不存在的属性，其结果可能为:
 <code class="inline-code">&quot;HTTP/1.0&quot;, &quot;HTTP/1.1&quot;, &quot;HTTP/2&quot;</code>。
 这里输出的 http_version 属性值是 HTTP/2，代表使用了 HTTP/2.0 协议传输。</p>
-<div class="note-box"><span class="note-icon">注</span><div class="note-text">在客户端的 httpx 上启用对 HTTP/2.0 的支持并不意味着请求和响应都将通过 HTTP/2.0 传输，这得客户端和服务端都支持 HTTP/2.0 才行。</div></div>
-<p class="content-text">如果客户端连接到仅支持 HTTP/1.1 的服务器，那么它也需要改用 HTTP/1.1。</p>
+<div class="note-box"><span class="note-icon">注</span><div class="note-text">在客户端的 httpx 上启用对 HTTP/2.0 的支持并不意味着请求和响应都将通过 HTTP/2.0 传输，这得客户端和服务端都支持 HTTP/2.0 才行。
+如果客户端连接到仅支持 HTTP/1.1 的服务器，那么它也需要改用 HTTP/1.1。</div></div>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 支持异步请求</h3>
@@ -2402,7 +2402,7 @@ if __name__ == &#x27;__main__&#x27;:
     </main>
   </div>
   <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第2章 基本库的使用</footer>
-  <script src="../js/sidebar.js?v=20260525-search-context-only"></script>
+  <script src="../js/sidebar.js?v=20260605-text-indent"></script>
   <script>buildSidebarForChapter("ch02");</script>
 </body>
 </html>

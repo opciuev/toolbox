@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第5章 Ajax数据爬取 - Python3 网络爬虫开发实战 第2版</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/style.css?v=20260605-text-indent">
+</head>
+<body>
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
+    <div class="header-right"><a href="../index.html">首页</a></div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <h1 class="chapter-title">第5章 Ajax数据爬取</h1>
+
+      <article class="ocr-content preserve-lines">
+<p class="content-text">　　有时我们用 requests 抓取页面得到的结果，可能和在浏览器中看到的不一样：在浏览器中可以看
+到正常显示的页面数据，而使用 requests 得到的结果中并没有这些数据。这是因为 requests 获取的都
+是原始 HTML 文档，而浏览器中的页面是 JavaScript 处理数据后生成的结果，这些数据有多种来源：
+可能是通过 Ajax 加载的，可能是包含在 HTML 文档中的，也可能是经过 JavaScript 和特定算法计算后
+生成的。</p>
+<p class="content-text">　　对于第一种来源，数据加载是一种异步加载方式，原始页面最初不会包含某些数据，当原始页面
+加载完后，会再向服务器请求某个接口获取数据，然后数据才会经过处理从而呈现在网页上，这其实
+是发送了一个 Ajax 请求。</p>
+<p class="content-text">　　按照 Web 的发展趋势来看，这种形式的页面越来越多。甚至网页的原始 HTML 文档不会包含任
+何数据，数据都是通过 Ajax 统一加载后呈现出来的，这样使得 Web 开发可以做到前后端分离，减小
+服务器直接渲染页面带来的压力。</p>
+<p class="content-text">　　所以如果遇到这样的页面，直接利用 requests 等库来抓取原始 HTML 文档，是无法获取有效数据
+的，这时需要分析网页后台向接口发送的 Ajax 请求。如果可以用 requests 模拟 Ajax 请求，就可以成
+功抓取页面数据了。</p>
+<p class="content-text">　　所以，本章我们的主要目的是了解什么是 Ajax，以及如何分析和抓取 Ajax 请求。</p>
+<div class="section-heading" id="section-0"><h2>5.1 什么是 Ajax</h2></div>
+<p class="content-text">Ajax，全称为 Asynchronous JavaScript and XML，即异步的 JavaScript 和 XML。它不是一门编程
+语言，而是利用 JavaScript 在保证页面不被刷新、页面链接不改变的情况下与服务器交换数据并更新
+部分网页内容的技术。</p>
+<p class="content-text">　　对于传统的网页，如果想更新其内容，就必须刷新整个页面，但有了 Ajax，可以在页面不被全部
+刷新的情况下更新。这个过程实际上是页面在后台与服务器进行了数据交互，获取数据之后，再利用
+JavaScript 改变网页，这样网页内容就会更新了。</p>
+<p class="content-text">　　可以到 W3School 上体验几个实例感受一下：http://www.w3school.com.cn/ajax/ajax_xmlhttprequest_send.asp。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 实例引入</h3>
+<p class="content-text">　　浏览网页的时候，我们会发现很多网页都有“下滑查看更多”的选项。拿微博来说，以我的主页
+（https://m.weibo.cn/u/2830678474）为例，一直下滑，可以发现下滑几条微博之后，再向下就没有了，
+转而会出现一个加载的动画，不一会儿下方就继续出现了新的微博内容，这个过程其实就是 Ajax 加
+载的过程，如图 5-1 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_1.jpg" alt="图5-1 页面加载过程" loading="lazy"><figcaption>图5-1 页面加载过程</figcaption></figure>
+<p class="content-text">　　能够看出，页面其实并没有整个刷新，
+这意味着页面的链接没有变化，但是网页
+中却多了新内容，也就是后面刷出来的新
+微博。这就是通过 Ajax 获取新数据并呈现
+的过程。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 基本原理</h3>
+<p class="content-text">　　初步了解了 Ajax 之后，我们接下来详
+细了解它的基本原理。从发送 Ajax 请求到
+网页更新的这个过程可以简单分为以下 3
+步——发送请求、解析内容、渲染网页。</p>
+<p class="content-text">　　下面分别详细介绍一下这几个过程。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">发送请求</h4>
+<p class="content-text">　　我们知道 JavaScript 可以实现页面的各种交互功能，Ajax 也不例外，它也是由 JavaScript 实现的，
+实现代码如下：</p>
+<pre class="code-block" data-lang="javascript"><code>var xmlhttp;
+if (window.XMLHttpRequest) {
+    xmlhttp=new XMLHttpRequest();
+} else {//code for IE6、IE5
+    xmlhttp=new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);
+}
+xmlhttp.onreadystatechange=function() {
+    if (xmlhttp.readyState==4 &amp;&amp; xmlhttp.status==200) {
+        document.getElementById(&quot;myDiv&quot;).innerHTML=xmlhttp.responseText;
+    }
+}
+xmlhttp.open(&quot;POST&quot;,&quot;/ajax/&quot;, true);
+xmlhttp.send();</code></pre>
+<p class="content-text">　　这是 JavaScript 对 Ajax 最底层的实现，实际上就是先新建一个 XMLHttpRequest 对象 xmlhttp，然
+后调用 onreadystatechange 属性设置监听，最后调用 open 和 send 方法向某个链接（也就是服务器）
+发送请求。前面用 Python 实现请求发送之后，可以得到响应结果，但这里的请求发送由 JavaScript 完
+成。由于设置了监听，所以当服务器返回响应时，onreadystatechange 对应的方法便会被触发，然后
+在这个方法里面解析响应内容即可。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">解析内容</h4>
+<p class="content-text">　　服务器返回响应之后，onreadystatechange 属性对应的方法就被触发了，此时利用 xmlhttp 的
+responseText 属性便可得到响应内容。这类似于 Python 中利用 requests 向服务器发起请求，然后得到
+响应的过程。返回内容可能是 HTML，可能是 JSON，接下来只需要在方法中用 JavaScript 进一步处
+理即可。如果是 JSON 的话，可以进行解析和转化。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">渲染网页</h4>
+<p class="content-text">JavaScript 有改变网页内容的能力，因此解析完响应内容之后，就可以调用 JavaScript 来基于解析
+完的内容对网页进行下一步处理了。例如，通过 document.getElementById().innerHTML 操作，可以更
+改某个元素内的源代码，这样网页显示的内容就改变了。这种操作也被称作 DOM 操作，即对网页文
+档进行操作，如更改、删除等。</p>
+<p class="content-text">　　上面“发送请求”部分，代码里的 document.getElementById(&quot;myDiv&quot;).innerHTML=xmlhttp.responseText
+便是将 ID 为 myDiv 的节点内部的 HTML 代码更改为了服务器返回的内容，这样 myDiv 元素内部便会</p>
+<p class="content-text">呈现服务器返回的新数据，对应的网页内容看上去就更新了。</p>
+<p class="content-text">　　我们观察到，网页更新的 3 个步骤其实都是由 JavaScript 完成的，它完成了整个请求、解析和渲
+染的过程。</p>
+<p class="content-text">　　再回想微博的下拉刷新，其实就是 JavaScript 向服务器发送了一个 Ajax 请求，然后获取新的微博
+数据，对其做解析，并渲染在网页中。</p>
+<p class="content-text">　　因此我们知道，真实的网页数据其实是一次次向服务器发送 Ajax 请求得到的，要想抓取这些数
+据，需要知道 Ajax 请求到底是怎么发送的、发往哪里、发了哪些参数。我们知道这些以后，不就可
+以用 Python 模拟发送操作，并获取返回数据了吗？</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 总结</h3>
+<p class="content-text">　　本节我们简单了解了 Ajax 请求的基本原理和带来的页面加载效果，下一节我们来介绍下怎么分
+析 Ajax 请求。</p>
+</section>
+<div class="section-heading" id="section-1"><h2>5.2 Ajax 分析方法</h2></div>
+<p class="content-text">　　这里还以之前的微博为例，我们知道下拉刷新的网页内容由 Ajax 加载而得，而且页面的链接没
+有发生变化，那么应该到哪里去查看这些 Ajax 请求呢？</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 分析案例</h3>
+<p class="content-text">　　此处还需要借助浏览器的开发者工具，下面以 Chrome 浏览器为例来介绍。</p>
+<p class="content-text">　　首先，用 Chrome 浏览器打开微博链接 https://m.weibo.cn/u/2830678474，然后在页面中单击鼠标
+右键，从弹出的快捷菜单中选择“检查”选项，此时便会弹出开发者工具，如图 5-2 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_2.jpg" alt="图5-2 开发者工具" loading="lazy"><figcaption>图5-2 开发者工具</figcaption></figure>
+<p class="content-text">　　前面也提到过，这里展示的就是页面加载过程中，浏览器与服务器之间发送请求和接收响应的所
+有记录。</p>
+<p class="content-text">　　事实上，Ajax 有其特殊的请求类型，叫作 xhr。在图 5-3 中，我们可以发现一个名称以 getIndex 开
+头的请求，其 Type 就为 xhr，意味着这就是一个 Ajax 请求。用鼠标单击这个请求，可以查看其详细
+信息。</p>
+<p class="content-text">　　从图 5-3 的右侧可以观察这个 Ajax 请求的 Request Headers、URL 和 Response Headers 等信息。其
+中 Request Headers 中有一个信息为 X-Requested-With:XMLHttpRequest，这就标记了此请求是 Ajax 请
+求，如图 5-4 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_3.jpg" alt="图5-3 一个 Ajax 请求的详细信息" loading="lazy"><figcaption>图5-3 一个 Ajax 请求的详细信息</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_4.jpg" alt="图5-4 X-Requested-With:XMLHttpRequest 标记" loading="lazy"><figcaption>图5-4 X-Requested-With:XMLHttpRequest 标记</figcaption></figure>
+<p class="content-text">　　随后单击一下 Preview，就能看到响应的内容，如图 5-5 所示。这些内容是 JSON 格式的，这里
+Chrome 为我们自动做了解析，单击左侧箭头即可展开和收起相应内容。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_5.jpg" alt="图5-5 响应的内容" loading="lazy"><figcaption>图5-5 响应的内容</figcaption></figure>
+<p class="content-text">　　经过观察可以发现，这里的返回结果是我的个人信息，如昵称、简介、头像等，这也是渲染个人主
+页所使用的数据。JavaScript 接收到这些数据之后，再执行相应的渲染方法，整个页面就渲染出来了。</p>
+<p class="content-text">另外，也可以切换到 Response 选项卡，从中观察真实的返回数据，如图 5-6 所示：</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_6.jpg" alt="图5-6 真实的返回数据" loading="lazy"><figcaption>图5-6 真实的返回数据</figcaption></figure>
+<p class="content-text">　　接下来，切回第一个请求，观察一下它的 Response 是什么，如图 5-7 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_7.jpg" alt="图5-7 第一个请求的 Response" loading="lazy"><figcaption>图5-7 第一个请求的 Response</figcaption></figure>
+<p class="content-text">　　这是最原始的链接 https://m.weibo.cn/u/2830678474 返回的结果，其代码只有不到 50 行，结构也
+非常简单，只是执行了一些 JavaScript 语句。</p>
+<p class="content-text">　　所以说，微博页面呈现给我们的真实数据并不是最原始的页面返回的，而是执行 JavaScript 后再
+次向后台发送 Ajax 请求，浏览器拿到服务器返回的数据后进一步渲染得到的。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 过滤请求</h3>
+<p class="content-text">　　利用 Chrome 开发者工具的筛选功能能够筛选出所有 Ajax 请求。在请求的上方有一层筛选栏，直
+接单击 XHR，之后下方显示的所有请求便都是 Ajax 请求了，如图 5-8 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_8.jpg" alt="图5-8 所有 Ajax 请求" loading="lazy"><figcaption>图5-8 所有 Ajax 请求</figcaption></figure>
+<p class="content-text">接下来，不断向上滑动微博页面，可以看到页面底部有一条条新的微博被刷出，开发者工具下方
+也出现了一个个新的 Ajax 请求，这样我们就可以捕获所有的 Ajax 请求了。</p>
+<p class="content-text">　　随意点开其中一个条目，都可以清楚地看到其 Request URL、Request Headers、Response Headers、
+Response Body 等内容，此时想要模拟 Ajax 请求的发送和数据的提取就非常简单了。</p>
+<p class="content-text">图 5-9 展示的内容便是我的某一页微博的列表信息。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_9.jpg" alt="图5-9 某一个 Ajax 请求的具体内容" loading="lazy"><figcaption>图5-9 某一个 Ajax 请求的具体内容</figcaption></figure>
+<p class="content-text">　　到现在为止，我们已经可以得到 Ajax 请求的详细信息了，接下来只需要用程序模拟这些 Ajax 请
+求，就可以轻松提取我们所需的信息。</p>
+</section>
+<div class="section-heading" id="section-2"><h2>5.3 Ajax 分析与爬取实战</h2></div>
+<p class="content-text">　　本节我们会结合一个实际的案例，来看一下 Ajax 分析和爬取页面的具体实现。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
+<p class="content-text">　　开始分析之前，需要做好如下准备工作。</p>
+<p class="content-text list-like">安装好 Python 3（最低为 3.6 版本），并成功运行 Python 3 程序。</p>
+<p class="content-text list-like">了解 Python HTTP 请求库 requests 的基本用法。</p>
+<p class="content-text list-like">了解 Ajax 基础知识和分析 Ajax 的基本方法。</p>
+<p class="content-text">　　以上内容在前面的章节中均有讲解，如尚未准备好，建议先熟悉一下这些内容。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 爬取目标</h3>
+<p class="content-text">　　本节我们以一个示例网站来试验一下 Ajax 的爬取，其链接为：https://spa1.scrape.center/，该
+示例网站的数据请求是通过 Ajax 完成的，页面的内容是通过 JavaScript 渲染出来的，页面如图 5-10
+所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_10.jpg" alt="图5-10 示例网站的页面" loading="lazy"><figcaption>图5-10 示例网站的页面</figcaption></figure>
+<p class="content-text">　　大家看着这个页面可能觉得似曾相识，这个网站不是第 2 章也列举过吗？其实不是一个网站。两
+个网站的后台实现逻辑和数据加载方式完全不同，只有最后呈现的样式是一样的。</p>
+<p class="content-text">　　这个网站同样支持翻页，可以单击页面最下方的页码来切换到下一页，如图 5-11 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_11.jpg" alt="图5-11 切换到第2页" loading="lazy"><figcaption>图5-11 切换到第2页</figcaption></figure>
+<p class="content-text">　　单击每部电影进入对应的详情页，这些页面的结构也是完全一样的，图 5-12 展示的是《迁徙的鸟》
+的详情页。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_12.jpg" alt="图5-12 电影的详情页页面" loading="lazy"><figcaption>图5-12 电影的详情页页面</figcaption></figure>
+<p class="content-text">　　此时我们需要爬取的数据和第 2 章也是相同的，包括电影的名称、封面、类别、上映日期、评分、
+剧情简介等信息。</p>
+<p class="content-text">　　本节我们需要完成的目标如下。</p>
+<p class="content-text list-like">分析页面数据的加载逻辑。</p>
+<p class="content-text list-like">用 requests 实现 Ajax 数据的爬取。</p>
+<p class="content-text list-like">将每部电影的数据分别保存到 MongoDB 数据库。</p>
+<p class="content-text">　　由于本节主要讲解 Ajax，所以数据存储和加速部分就不再展开详细实现了，主要是讲解 Ajax 分
+析和爬取的实现。</p>
+<p class="content-text">　　好，现在就开始吧。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 初步探索</h3>
+<p class="content-text">　　我们先尝试用之前的 requests 直接提取页面，看看会得到怎样的结果。用最简单的代码实现一下
+requests 获取网站首页源码的过程，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>import requests
+
+url = &#x27;https://spa1.scrape.center/&#x27;
+html = requests.get(url).text
+print(html)</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;!DOCTYPE html&gt;&lt;html lang=en&gt;&lt;head&gt;&lt;meta charset=utf-8&gt;&lt;meta http-equiv=X-UA-Compatible content=&quot;IE=edge&quot;&gt;
+&lt;meta name=viewport content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;link rel=icon href=/favicon.ico&gt;&lt;title&gt;
+Scrape | Movie&lt;/title&gt;&lt;link href=/css/chunk-700f70e1.1126d090.css rel=prefetch&gt;&lt;link href=/css/chunk-d1db5eda.
+0ff76b36.css rel=prefetch&gt;&lt;link href=/js/chunk-700f70e1.0548e2b4.js rel=prefetch&gt;&lt;link href=/js/chunk-
+d1db5eda.b564504d.js rel=prefetch&gt;&lt;link href=/css/app.ea9d802a.css rel=preload as=style&gt;&lt;link href=/js/app.
+1435ecd5.js rel=preload as=script&gt;&lt;link href=/js/chunk-vendors.77daf991.js rel=preload as=script&gt;&lt;link
+href=/css/app.ea9d802a.css rel=stylesheet&gt;&lt;/head&gt;&lt;body&gt;&lt;noscript&gt;&lt;strong&gt;We&#x27;re sorry but portal doesn&#x27;t work
+properly without JavaScript enabled. Please enable it to continue.&lt;/strong&gt;&lt;/noscript&gt;&lt;div id=app&gt;&lt;/div&gt;
+&lt;script src=/js/chunk-vendors.77daf991.js&gt;&lt;/script&gt;&lt;script src=/js/app.1435ecd5.js&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;</code></pre>
+<p class="content-text">　　可以看到，爬取结果就只有这么一点 HTML 内容，而我们在浏览器中打开这个网站，却能看到如
+图 5-13 所示的页面。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_13.jpg" alt="图5-13 在浏览器中打开示例网站呈现的页面" loading="lazy"><figcaption>图5-13 在浏览器中打开示例网站呈现的页面</figcaption></figure>
+<p class="content-text">　　在 HTML 中，我们只能看到源码引用的一些 JavaScript 和 CSS 文件，并没有观察到任何电影数据
+信息。</p>
+<p class="content-text">　　遇到这样的情况，说明我们看到的整个页面都是 JavaScript 渲染得到的，浏览器执行了 HTML 中
+引用的 JavaScript 文件，JavaScript 通过调用一些数据加载和页面渲染方法，才最终呈现了图 5-13 展
+示的结果。这些电影数据一般是通过 Ajax 加载的，JavaScript 在后台调用 Ajax 数据接口，得到数据之
+后，再对数据进行解析并渲染呈现出来，得到最终的页面。所以要想爬取这个页面，直接爬取 Ajax 接
+口，再获取数据就好了。</p>
+<p class="content-text">　　在 5.2 节，我们已经了解了 Ajax 分析的基本方法，下面一起分析一下 Ajax 接口的逻辑并实现数
+据爬取吧。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 爬取列表页</h3>
+<p class="content-text">　　首先分析列表页的 Ajax 接口逻辑，打开浏览器开发者工具，切换到 Network 面板，勾选 Preserve
+Log 并切换到 XHR 选项卡，如图 5-14 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_14.jpg" alt="图5-14 列表页的 Ajax 接口" loading="lazy"><figcaption>图5-14 列表页的 Ajax 接口</figcaption></figure>
+<p class="content-text">接着重新刷新页面，再单击第 2 页、第 3 页、第 4 页的按钮，这时可以观察到不仅页面上的数据
+发生了变化，开发者工具下方也监听到了几个 Ajax 请求。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_15.jpg" alt="图5-15 开发者工具监听到了几个 Ajax 请求" loading="lazy"><figcaption>图5-15 开发者工具监听到了几个 Ajax 请求</figcaption></figure>
+<p class="content-text">　　我们切换了 4 页，每次翻页也出现了对应的 Ajax 请求。可以点击查看其请求详情，观察请求 URL、
+参数和响应内容是怎样的，如图 5-16 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_16.jpg" alt="图5-16 任一 Ajax 请求的详情" loading="lazy"><figcaption>图5-16 任一 Ajax 请求的详情</figcaption></figure>
+<p class="content-text">　　这里我点开了最后一个结果，观察到其 Ajax 接口的请求 URL 为 https://spa1.scrape.center/api/movie/
+?limit=10&amp;offset=40，这里有两个参数：一个是 limit，这里是 10；一个是 offset，这里是 40。</p>
+<p class="content-text">观察多个 Ajax 接口的参数，我们可以总结出这么一个规律：limit 一直为 10，正好对应每页 10 条
+数据；offset 在依次变大，页数每加 1，offset 就加 10，因此其代表页面的数据偏移量。例如第 2 页
+的 offset 为 10 就代表跳过 10 条数据，返回从 11 条数据开始的内容，再加上 limit 的限制，最终页
+面呈现的就是第 11 条至第 20 条数据。</p>
+<p class="content-text">　　接着我们再观察一下响应内容，切换到 Preview 选项卡，结果如图 5-17 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_17.jpg" alt="图5-17 响应内容" loading="lazy"><figcaption>图5-17 响应内容</figcaption></figure>
+<p class="content-text">　　可以看到，结果就是一些 JSON 数据，其中有一个 results 字段，是一个列表，列表中每一个元
+素都是一个字典。观察一下字典的内容，里面正好可以看到对应电影数据的字段，如 name、alias、
+cover、categories。对比一下浏览器页面中的真实数据，会发现各项内容完全一致，而且这些数据已
+经非常结构化了，完全就是我们想要爬取的数据，真的是得来全不费工夫。</p>
+<p class="content-text">　　这样的话，我们只需要构造出所有页面的 Ajax 接口，就可以轻松获取所有列表页的数据了。</p>
+<p class="content-text">　　先定义一些准备工作，导入一些所需的库并定义一些配置，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>import requests
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format=&#x27;%(asctime)s - %(levelname)s: %(message)s&#x27;)
+
+INDEX_URL = &#x27;https://spa1.scrape.center/api/movie/?limit={limit}&amp;offset={offset}&#x27;</code></pre>
+<p class="content-text">　　这里我们引入了 requests 和 logging 库，并定义了 logging 的基本配置。接着定义了 INDEX_URL，
+这里把 limit 和 offset 预留出来变成占位符，可以动态传入参数构造一个完整的列表页 URL。</p>
+<p class="content-text">　　下面我们实现一下详情页的爬取。还是和原来一样，我们先定义一个通用的爬取方法，其代码
+如下：</p>
+<pre class="code-block" data-lang="python"><code>def scrape_api(url):
+    logging.info(&#x27;scraping %s...&#x27;, url)
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        logging.error(&#x27;get invalid status code %s while scraping %s&#x27;, response.status_code, url)
+    except requests.RequestException:
+        logging.error(&#x27;error occurred while scraping %s&#x27;, url, exc_info=True)</code></pre>
+<p class="content-text">这里我们定义了一个 scrape_api 方法，和之前不同的是，这个方法专门用来处理 JSON 接口。最
+后的 response 调用的是 json 方法，它可以解析响应内容并将其转化成 JSON 字符串。</p>
+<p class="content-text">　　接着在这个基础之上，定义一个爬取列表页的方法，其代码如下：</p>
+<pre class="code-block" data-lang="python"><code>LIMIT = 10
+
+def scrape_index(page):
+    url = INDEX_URL.format(limit=LIMIT, offset=LIMIT * (page - 1))
+    return scrape_api(url)</code></pre>
+<p class="content-text">　　这里我们定义了一个 scrape_index 方法，它接收一个参数 page，该参数代表列表页的页码。</p>
+<p class="content-text">scrape_index 方法中，先构造了一个 url，通过字符串的 format 方法，传入 limit 和 offset 的值。
+这里 limit 就直接使用了全局变量 LIMIT 的值；offset 则是动态计算的，计算方法是页码数减一再乘
+以 limit，例如第 1 页的 offset 就是 0，第 2 页的 offset 就是 10，以此类推。构造好 url 后，直接调
+用 scrape_api 方法并返回结果即可。</p>
+<p class="content-text">　　这样我们就完成了列表页的爬取，每次发送 Ajax 请求都会得到 10 部电影的数据信息。</p>
+<p class="content-text">　　由于这时爬取到的数据已经是 JSON 类型了，所以无须像之前那样去解析 HTML 代码来提取数
+据，爬到的数据已经是我们想要的结构化数据，因此解析这一步可以直接省略啦。</p>
+<p class="content-text">　　到此为止，我们能成功爬取列表页并提取电影列表信息了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 爬取详情页</h3>
+<p class="content-text">　　虽然我们已经可以拿到每一页的电影数据，但是这些数据实际上还缺少一些我们想要的信息，如
+剧情简介等信息，所以需要进一步进入详情页来获取这些内容。</p>
+<p class="content-text">　　单击任意一部电影，如《教父》，进入其详情页，可以发现此时的页面 URL 已经变成了 https://spa1.
+scrape.center/detail/40，页面也成功展示了《教父》详情页的信息，如图 5-18 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_18.jpg" alt="图5-18 《教父》详情页的信息" loading="lazy"><figcaption>图5-18 《教父》详情页的信息</figcaption></figure>
+<p class="content-text">另外，我们也可以观察到开发者工具中又出现了一个 Ajax 请求，其 URL 为 https://spa1.scrape.
+center/api/movie/40/，通过 Preview 选项卡也能看到 Ajax 请求对应的响应信息，如图 5-19 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_19.jpg" alt="图5-19 Ajax 请求对应的响应信息" loading="lazy"><figcaption>图5-19 Ajax 请求对应的响应信息</figcaption></figure>
+<p class="content-text">　　稍加观察就可以发现，Ajax 请求的 URL 后面有一个参数是可变的，这个参数是电影的 id，这
+里是 40，对应《教父》这部电影。</p>
+<p class="content-text">　　如果我们想要获取 id 为 50 的电影，只需要把 URL 最后的参数改成 50 即可，即 https://spa1.scrape.
+center/api/movie/50/，请求这个新的 URL 便能获取 id 为 50 的电影对应的数据了。</p>
+<p class="content-text">　　同样，响应结果也是结构化的 JSON 数据，其字段也非常规整，我们直接爬取即可。</p>
+<p class="content-text">　　现在，详情页的数据提取逻辑分析完了，怎么和列表页关联起来呢？电影 id 从哪里来呢？我们
+回过头看看列表页的接口返回数据，如图 5-20 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_20.jpg" alt="图5-20 列表页的接口返回数据" loading="lazy"><figcaption>图5-20 列表页的接口返回数据</figcaption></figure>
+<p class="content-text">　　可以看到，列表页原本的返回数据中就带有 id 这个字段，所以只需要拿列表页结果中的 id 来构
+造详情页的 Ajax 请求的 URL 就好了。</p>
+<p class="content-text">接着，我们就先定义一个详情页的爬取逻辑，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>DETAIL_URL = &#x27;https://spa1.scrape.center/api/movie/{id}&#x27;
+
+def scrape_detail(id):
+    url = DETAIL_URL.format(id=id)
+    return scrape_api(url)</code></pre>
+<p class="content-text">　　这里定义了一个 scrape_detail 方法，它接收一个参数 id。这里的实现也非常简单，先根据定义
+好的 DETAIL_URL 加 id 构造一个真实的详情页 Ajax 请求的 URL，再直接调用 scrape_api 方法传入这
+个 url 即可。</p>
+<p class="content-text">　　最后，我们定义一个总的调用方法，对以上方法串联调用，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>TOTAL_PAGE = 10
+
+def main():
+    for page in range(1, TOTAL_PAGE + 1):
+        index_data = scrape_index(page)
+        for item in index_data.get(&#x27;results&#x27;):
+            id = item.get(&#x27;id&#x27;)
+            detail_data = scrape_detail(id)
+            logging.info(&#x27;detail data %s&#x27;, detail_data)
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre>
+<p class="content-text">　　我们定义了一个 main 方法，该方法首先遍历获取页码 page，然后把 page 当作参数传递给
+scrape_index 方法，得到列表页的数据。接着遍历每个列表页的每个结果，获取每部电影的 id。之后
+把 id 当作参数传递给 scrape_detail 方法来爬取每部电影的详情数据，并将此数据赋值为
+detail_data，最后输出 detail_data 即可。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>2020-03-19 02:51:55,981 - INFO: scraping https://spa1.scrape.center/api/movie/?limit=10&amp;offset=0...
+2020-03-19 02:51:56,446 - INFO: scraping https://spa1.scrape.center/api/movie/1...
+2020-03-19 02:51:56,638 - INFO: detail data {&#x27;id&#x27;: 1, &#x27;name&#x27;: &#x27;霸王别姬&#x27;, &#x27;alias&#x27;: &#x27;Farewell My Concubine&#x27;,
+&#x27;cover&#x27;: &#x27;https://p0.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c&#x27;,
+&#x27;categories&#x27;: [&#x27;剧情&#x27;, &#x27;爱情&#x27;], &#x27;regions&#x27;: [&#x27;中国大陆&#x27;, &#x27;中国香港&#x27;], &#x27;actors&#x27;: [{&#x27;name&#x27;: &#x27;张国荣&#x27;,
+&#x27;role&#x27;: &#x27;程蝶衣&#x27;, ...}, ...], &#x27;directors&#x27;: [{&#x27;name&#x27;: &#x27;陈凯歌&#x27;, &#x27;image&#x27;: &#x27;https://p0.meituan.net/movie/
+8f9372252050095067e0e8d58ef3d939156407.jpg@128w_170h_1e_1c&#x27;}], &#x27;score&#x27;: 9.5, &#x27;rank&#x27;: 1, &#x27;minute&#x27;: 171,
+&#x27;drama&#x27;: &#x27;影片借一出《霸王别姬》的京戏，牵扯出三个人之间一段随时代风云变幻的爱恨情仇。段小楼（张丰毅饰）
+与程蝶衣（张国荣饰）是一对打小一起长大的师兄弟，...&#x27;, &#x27;photos&#x27;: [...], &#x27;published_at&#x27;: &#x27;1993-07-26&#x27;,
+&#x27;updated_at&#x27;: &#x27;2020-03-07T16:31:36.967843Z&#x27;}
+2020-03-19 02:51:56,640 - INFO: scraping https://spa1.scrape.center/api/movie/2...
+2020-03-19 02:51:56,813 - INFO: detail data {&#x27;id&#x27;: 2, &#x27;name&#x27;: &#x27;这个杀手不太冷&#x27;, &#x27;alias&#x27;: &#x27;Léon&#x27;, &#x27;cover&#x27;:
+&#x27;https://p1.meituan.net/movie/6bea9af4524dfbd0b668eaa7e187c3df767253.jpg@464w_644h_1e_1c&#x27;, &#x27;categories&#x27;:
+[&#x27;剧情&#x27;, &#x27;动作&#x27;, &#x27;犯罪&#x27;], &#x27;regions&#x27;: [&#x27;法国&#x27;], &#x27;actors&#x27;: [{&#x27;name&#x27;: &#x27;让·雷诺&#x27;, &#x27;role&#x27;: &#x27;莱昂 Leon&#x27;, ...},
+...], &#x27;directors&#x27;: [{&#x27;name&#x27;: &#x27;吕克·贝松&#x27;, &#x27;image&#x27;: &#x27;https://p0.meituan.net/movie/0e7d67e343bd332a
+71409328340028d40496.jpg@128w_170h_1e_1c&#x27;}], &#x27;score&#x27;: 9.5, &#x27;rank&#x27;: 3, &#x27;minute&#x27;: 110, &#x27;drama&#x27;: &#x27;里昂
+（让·雷诺饰）是名孤独的职业杀手，受人雇佣。一天，邻居家小姑娘马蒂尔德（纳塔丽·波特曼饰）敲开他的房门，
+要求在他那里暂避杀身之祸。...&#x27;, &#x27;photos&#x27;: [...], &#x27;published_at&#x27;: &#x27;1994-09-14&#x27;, &#x27;updated_at&#x27;:
+&#x27;2020-03-07T16:31:43.826235Z&#x27;}
+...</code></pre>
+<p class="content-text">　　由于内容较多，这里省略了部分内容。</p>
+<p class="content-text">　　可以看到，整个爬取工作已经完成了，这里会依次爬取每一个列表页的 Ajax 接口，然后依次爬
+取每部电影的详情页 Ajax 接口，并打印出每部电影的 Ajax 接口响应数据，而且都是 JSON 格式。至
+此，所有电影的详情数据，我们都爬取到啦。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 保存数据</h3>
+<p class="content-text">　　好，成功提取详情页信息之后，下一步就要把它们保存起来了。第 5 章我们学习了 MongoDB 的</p>
+<p class="content-text">相关操作，接下来我们就把数据保存到 MongoDB 吧。</p>
+<p class="content-text">　　保存之前，请确保自己有一个可以正常连接和使用的 MongoDB 数据库，这里我就以本地 localhost
+的 MongoDB 数据库为例来进行操作，其运行在 27017 端口上，无用户名和密码。</p>
+<p class="content-text">　　将数据导入 MongoDB 需要用到 PyMongo 这个库。接下来我们把它们引入一下，同时定义一下
+MongoDB 的连接配置，实现方式如下：</p>
+<pre class="code-block" data-lang="python"><code>MONGO_CONNECTION_STRING = &#x27;mongodb://localhost:27017&#x27;
+MONGO_DB_NAME = &#x27;movies&#x27;
+MONGO_COLLECTION_NAME = &#x27;movies&#x27;
+
+import pymongo
+client = pymongo.MongoClient(MONGO_CONNECTION_STRING)
+db = client[&#x27;movies&#x27;]
+collection = db[&#x27;movies&#x27;]</code></pre>
+<p class="content-text">　　这里我们先声明了几个变量，如下为对它们的介绍。</p>
+<p class="content-text list-like">MONGO_CONNECTION_STRING：MongoDB 的连接字符串，里面定义的是 MongoDB 的基本连接信
+  息，这里是 host、port，还可以定义用户名、密码等内容。</p>
+<p class="content-text list-like"><strong class="term-label">MONGO_DB_NAME：</strong>MongoDB 数据库的名称。</p>
+<p class="content-text list-like"><strong class="term-label">MONGO_COLLECTION_NAME：</strong>MongoDB 的集合名称。</p>
+<p class="content-text">　　然后用 MongoClient 声明了一个连接对象 client，并依次声明了存储数据的数据库和集合。</p>
+<p class="content-text">　　接下来，再实现一个将数据保存到 MongoDB 数据库的方法，实现代码如下：</p>
+<pre class="code-block" data-lang="python"><code>def save_data(data):
+    collection.update_one({
+        &#x27;name&#x27;: data.get(&#x27;name&#x27;)
+    }, {
+        &#x27;$set&#x27;: data
+    }, upsert=True)</code></pre>
+<p class="content-text">　　这里我们定义了一个 save_data 方法，它接收一个参数 data，也就是上一节提取的电影详情信
+息。这个方法里面，我们调用了 update_one 方法，其第一个参数是查询条件，即根据 name 进行查
+询；第二个参数是 data 对象本身，就是所有的数据，这里我们用 $set 操作符表示更新操作；第三个
+参数很关键，这里实际上是 upsert 参数，如果把它设置为 True，就可以实现存在即更新，不存在即
+插入的功能，更新时会参照第一个参数设置的 name 字段，所以这样可以防止数据库中出现同名的电
+影数据。</p>
+<p class="content-text">&gt; 注意 实际上电影可能有同名现象，但此处场景下的爬取数据没有同名情况，当然这里更重要的是
+&gt; 实现 MongoDB 的去重操作。</p>
+<p class="content-text">　　好的，接下来稍微改写一下 main 方法就好了，改写后如下：</p>
+<pre class="code-block" data-lang="python"><code>def main():
+    for page in range(1, TOTAL_PAGE + 1):
+        index_data = scrape_index(page)
+        for item in index_data.get(&#x27;results&#x27;):
+            id = item.get(&#x27;id&#x27;)
+            detail_data = scrape_detail(id)
+            logging.info(&#x27;detail data %s&#x27;, detail_data)
+            save_data(detail_data)
+            logging.info(&#x27;data saved successfully&#x27;)</code></pre>
+<p class="content-text">　　其实就是增加了对 save_data 方法的调用，并添加了一些日志信息。</p>
+<p class="content-text">重新运行，我们来看一下输出结果：</p>
+<pre class="code-block" data-lang="text"><code>2020-03-19 02:51:06,323 - INFO: scraping https://spa1.scrape.center/api/movie/?limit=10&amp;offset=0...
+2020-03-19 02:51:06,440 - INFO: scraping https://spa1.scrape.center/api/movie/1...
+2020-03-19 02:51:06,551 - INFO: detail data {&#x27;id&#x27;: 1, &#x27;name&#x27;: &#x27;霸王别姬&#x27;, &#x27;alias&#x27;: &#x27;Farewell My Concubine&#x27;,
+&#x27;cover&#x27;: &#x27;https://p0.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c&#x27;,
+&#x27;categories&#x27;: [&#x27;剧情&#x27;, &#x27;爱情&#x27;], &#x27;regions&#x27;: [&#x27;中国大陆&#x27;, &#x27;中国香港&#x27;], &#x27;actors&#x27;: [{&#x27;name&#x27;: &#x27;张国荣&#x27;, &#x27;role&#x27;:
+&#x27;程蝶衣&#x27;, &#x27;image&#x27;: &#x27;https://p0.meituan.net/movie/5de69a492dcbd3f4b014503d4e95d46c28837.jpg@128w_170h_
+1e_1c&#x27;}, ..., {&#x27;name&#x27;: &#x27;方征&#x27;, &#x27;role&#x27;: &#x27;嫖客&#x27;, &#x27;image&#x27;: &#x27;https://p1.meituan.net/movie/39687137b23bc
+9727b47fd24bdcc579b97618.jpg@128w_170h_1e_1c&#x27;}],
+&#x27;directors&#x27;: [{&#x27;name&#x27;: &#x27;陈凯歌&#x27;, &#x27;image&#x27;: &#x27;https://p0.meituan.net/movie/8f9372252050095067e0e8d58ef3d939156407.jpg@128w_170h_1e_1c&#x27;}],
+&#x27;score&#x27;: 9.5, &#x27;rank&#x27;: 1, &#x27;minute&#x27;: 171, &#x27;drama&#x27;: &#x27;影片借一出《霸王别姬》的京戏，牵扯出三个人之间一段随时代风云变幻的爱恨情仇。
+段小楼（张丰毅饰）与程蝶衣（张国荣饰）是一对打小一起长大的师兄弟，两人一个演生，一个饰旦，一向配合
+天衣无缝，尤其一出《霸王别姬》，更是誉满京城，为此，两人约定合演一辈子《霸王别姬》。但两人对戏剧与人生
+关系的理解有本质不同，段小楼深知戏非人生，程蝶衣则是人戏不分。段小楼在认为该成家立业之时迎娶了名妓菊仙
+（巩俐饰），致使程蝶衣认定菊仙是可耻的第三者，使段小楼做了叛徒，自此，三人围绕一出《霸王别姬》生出的
+爱恨情仇战开始随着时代风云的变迁不断升级，终酿成悲剧。&#x27;, &#x27;photos&#x27;: [&#x27;https://p0.meituan.net/movie/
+45be438368bb291e501dc523092f0ac8193424.jpg@106w_106h_1e_1c&#x27;, ..., &#x27;https://p0.meituan.net/movie/
+0d952107429db3029b64bf4f25bd762661696.jpg@106w_106h_1e_1c&#x27;], &#x27;published_at&#x27;: &#x27;1993-07-26&#x27;, &#x27;updated_at&#x27;:
+&#x27;2020-03-07T16:31:36.967843Z&#x27;}
+2020-03-19 02:51:06,583 - INFO: data saved successfully
+2020-03-19 02:51:06,583 - INFO: scraping https://spa1.scrape.center/api/movie/2...</code></pre>
+<p class="content-text">　　同样，由于输出内容较多，这里省略了部分内容。</p>
+<p class="content-text">　　可以看到，这里成功爬取到了数据，并且提示数据存储成功，没有任何报错信息。</p>
+<p class="content-text">　　接下来，我们使用 Robo 3T 连接 MongoDB 数据库看下爬取结果。由于我使用的是本地的 MongoDB，
+所以我直接在 Robo 3T 里面输入 localhost 的连接信息即可，这里请替换成自己的 MongoDB 连接信息，
+如图 5-21 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_21.jpg" alt="图5-21 输入 MongoDB 连接信息" loading="lazy"><figcaption>图5-21 输入 MongoDB 连接信息</figcaption></figure>
+<p class="content-text">　　连接之后，我们便可以在 movies 这个数据库中 movies 这个集合下看到刚才爬取的数据了，如
+图 5-22 所示。</p>
+<figure class="inline-figure"><img src="figures/ch05/fig-5_22.jpg" alt="图5-22 爬取的数据存入了数据库" loading="lazy"><figcaption>图5-22 爬取的数据存入了数据库</figcaption></figure>
+<p class="content-text">　　可以看到，数据就是以 JSON 格式存储的，一条数据对应一部电影的信息，各种嵌套关系也一目
+了然，同时第三列还标识出了数据类型。</p>
+<p class="content-text">　　这样就证明我们的数据成功存储到 MongoDB 里了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 总结</h3>
+<p class="content-text">　　本节我们通过一个案例体会了 Ajax 分析和爬取的基本流程，希望大家通过本节能够更加熟悉
+Ajax 分析和爬取的实现。</p>
+<p class="content-text">　　另外，我们也观察到，Ajax 接口返回的大部分是 JSON 数据，所以可以在一定程度上避免数据提
+取工作，这也减轻了一些工作量。</p>
+<p class="content-text">　　本节代码参见：https://github.com/Python3WebSpider/ScrapeSpa1。</p>
+</section>
+      </article>
+      <nav class="chapter-nav">
+        <a href="ch04.html">&larr; 第4章 数据的存储</a>
+        <a href="ch06.html">第6章 异步爬虫 &rarr;</a>
+      </nav>
+    </main>
+  </div>
+  <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第5章 Ajax数据爬取</footer>
+  <script src="../js/sidebar.js?v=20260605-text-indent"></script>
+  <script>buildSidebarForChapter("ch05");</script>
+</body>
+</html>

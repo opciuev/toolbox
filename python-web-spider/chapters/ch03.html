@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>第3章 网页数据的解析提取 - Python3 网络爬虫开发实战 第2版</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="../css/style.css?v=20260525-search-context-only">
+  <link rel="stylesheet" href="../css/style.css?v=20260605-text-indent">
 </head>
 <body>
   <header class="header">
@@ -27,308 +27,341 @@
       </div>
 
       <article class="ocr-content preserve-lines">
-<p class="content-text">上一章我们实现了一个最基本的爬虫,但提取页面信息时使用的是正则表达式,过程比较烦琐,而
-且万一有地方写错了,可能会导致匹配失败,所以使用正则表达式提取页面信息多少还是有些不方便。
-对于网页的节点来说,可以定义id、class或其他属性,而且节点之间还有层次关系,在网页中
-可以通过 XPath 或CSS 选择器来定位一个或多个节点。那么,在解析页面时,利用XPath或CSS选
-择器提取某个节点,然后调用相应方法获取该节点的正文内容或者属性,不就可以提取我们想要的任
-意信息了吗?
-在Python中,怎样实现上述操作呢?不用担心,相关的解析库非常多,其中比较强大的有lxml、
-Beautiful Soup、pyquery、parsel等。本章就来介绍这几个解析库的用法。有了它们,我们就不用再为
-正则表达式发愁,解析效率也会大大提高。</p>
+<p class="content-text">上一章我们实现了一个最基本的爬虫，但提取页面信息时使用的是正则表达式，过程比较烦琐，而
+且万一有地方写错了，可能会导致匹配失败，所以使用正则表达式提取页面信息多少还是有些不方便。</p>
+<p class="content-text">对于网页的节点来说，可以定义 id、class 或其他属性，而且节点之间还有层次关系，在网页中
+可以通过 XPath 或 CSS 选择器来定位一个或多个节点。那么，在解析页面时，利用 XPath 或 CSS 选
+择器提取某个节点，然后调用相应方法获取该节点的正文内容或者属性，不就可以提取我们想要的任
+意信息了吗？</p>
+<p class="content-text">在 Python 中，怎样实现上述操作呢？不用担心，相关的解析库非常多，其中比较强大的有 lxml、
+Beautiful Soup、pyquery、parsel 等。本章就来介绍这几个解析库的用法。有了它们，我们就不用再为
+正则表达式发愁，解析效率也会大大提高。</p>
 <div class="section-heading" id="section-0"><h2>3.1 XPath 的使用</h2></div>
-<p class="content-text">XPath 的全称是 XML Path Language,即XML 路径语言,用来在XML 文档中查找信息。它虽然
-最初是用来搜寻XML文档的,但同样适用于HTML 文档的搜索。
-所以在做爬虫时,我们完全可以使用XPath 实现相应的信息抽取。本节我们就介绍一下XPath 的
+<p class="content-text">XPath 的全称是 XML Path Language，即 XML 路径语言，用来在 XML 文档中查找信息。它虽然
+最初是用来搜寻 XML 文档的，但同样适用于 HTML 文档的搜索。</p>
+<p class="content-text">所以在做爬虫时，我们完全可以使用 XPath 实现相应的信息抽取。本节我们就介绍一下 XPath 的
 基本用法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. XPath 概览</h3>
-<p class="content-text">XPath 的选择功能十分强大,它提供了非常简洁明了的路径选择表达式。另外,它还提供了100多
-个内建函数,用于字符串、数值、时间的匹配以及节点、序列的处理等。几乎所有我们想要定位的节
-点,都可以用XPath 选择。
-XPath于1999年11月16日成为W3C标准,它被设计出来,供XSLT、XPointer 以及其他 XML解
+<p class="content-text">XPath 的选择功能十分强大，它提供了非常简洁明了的路径选择表达式。另外，它还提供了 100 多
+个内建函数，用于字符串、数值、时间的匹配以及节点、序列的处理等。几乎所有我们想要定位的节
+点，都可以用 XPath 选择。</p>
+<p class="content-text">XPath 于 1999 年 11 月 16 日成为 W3C 标准，它被设计出来，供 XSLT、XPointer 以及其他 XML 解
 析软件使用。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. XPath 常用规则</h3>
-<p class="content-text">表3-1列举了XPath的几个常用规则。</p>
-<p class="content-text">表3-1 XPath 的常用规则</p>
+<p class="content-text">表 3-1 列举了 XPath 的几个常用规则。</p>
+<p class="content-text">表 3-1 XPath 的常用规则</p>
 <table class="content-table"><thead><tr><th>表达式</th><th>描述</th></tr></thead><tbody><tr><td>`nodename`</td><td>选取此节点的所有子节点</td></tr>
 <tr><td>`/`</td><td>从当前节点选取直接子节点</td></tr>
 <tr><td>`//`</td><td>从当前节点选取子孙节点</td></tr>
 <tr><td>`.`</td><td>选取当前节点</td></tr>
 <tr><td>`..`</td><td>选取当前节点的父节点</td></tr>
 <tr><td>`@`</td><td>选取属性</td></tr></tbody></table>
-<p class="content-text">这里列出了 XPath的一个常用匹配规则,如下:</p>
-<pre class="code-block"><code>//title[@lang=&#x27;eng&#x27;]</code></pre>
-<p class="content-text">它代表选择所有名称为title,同时属性 lang 的值为eng的节点。
-后面会通过 Python的lxml库,利用XPath对HTML 进行解析。</p>
+<p class="content-text">这里列出了 XPath 的一个常用匹配规则，如下：</p>
+<pre class="code-block" data-lang="xpath"><code>//title[@lang=&#x27;eng&#x27;]</code></pre>
+<p class="content-text">它代表选择所有名称为 title，同时属性 lang 的值为 eng 的节点。</p>
+<p class="content-text">后面会通过 Python 的 lxml 库，利用 XPath 对 HTML 进行解析。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">使用lxml 库之前,首先要确保其已安装好。
-可以使用 pip3 来安装:</p>
-<pre class="code-block"><code>pip3 install lxml</code></pre>
-<p class="content-text">更详细的安装说明可以参考:https://setup.scrape.center/lxml。
-安装完成后,就可以进入接下来的学习了。</p>
+<p class="content-text">使用 lxml 库之前，首先要确保其已安装好。</p>
+<p class="content-text">可以使用 pip3 来安装：</p>
+<pre class="code-block" data-lang="console"><code>pip3 install lxml</code></pre>
+<p class="content-text">更详细的安装说明可以参考：https://setup.scrape.center/lxml。</p>
+<p class="content-text">安装完成后，就可以进入接下来的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 实例引入</h3>
-<p class="content-text">下面通过实例感受一下使用XPath 对网页进行解析的过程,相关代码如下:</p>
-<pre class="code-block" data-lang="python"><code>from 1xml import etree
-text = &quot;&quot;&quot;
+<p class="content-text">下面通过实例感受一下使用 XPath 对网页进行解析的过程，相关代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+text = &#x27;&#x27;&#x27;
 &lt;div&gt;
-&lt;ul&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
-&lt;/ul&gt;
+    &lt;ul&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;
-&quot;&quot;&quot;
+&#x27;&#x27;&#x27;
 html = etree.HTML(text)
 result = etree.tostring(html)
 print(result.decode(&#x27;utf-8&#x27;))</code></pre>
-<p class="content-text">这里首先导入lxml库的etree模块,然后声明了一段HTML文本,接着调用HTML类进行初始化,
-这样就成功构造了一个XPath 解析对象。此处需要注意一点,HTML 文本中的最后一个li 节点是没有闭合的,而etree 模块可以自动修正 HTML 文本。
-之后调用 tostring 方法即可输出修正后的HTML代码,但是结果是 bytes类型。于是利用decode
-方法将其转换成str类型,结果如下:</p>
+<p class="content-text">这里首先导入 lxml 库的 etree 模块，然后声明了一段 HTML 文本，接着调用 HTML 类进行初始化，
+这样就成功构造了一个 XPath 解析对象。此处需要注意一点，HTML 文本中的最后一个 li 节点是没
+有闭合的，而 etree 模块可以自动修正 HTML 文本。</p>
+<p class="content-text">之后调用 tostring 方法即可输出修正后的 HTML 代码，但是结果是 bytes 类型。于是利用 decode
+方法将其转换成 str 类型，结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;html&gt;&lt;body&gt;&lt;div&gt;
-&lt;ul&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
-&lt;/li&gt;&lt;/ul&gt;
+    &lt;ul&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
+    &lt;/li&gt;&lt;/ul&gt;
 &lt;/div&gt;
 &lt;/body&gt;&lt;/html&gt;</code></pre>
-<p class="content-text">可以看到,经过处理之后的li节点标签得以补全,并且自动添加了 body、html节点。
-另外,也可以不声明,直接读取文本文件进行解析,实例如下:</p>
-<pre class="code-block" data-lang="python"><code>from 1xml import etree
+<p class="content-text">可以看到，经过处理之后的 li 节点标签得以补全，并且自动添加了 body、html 节点。</p>
+<p class="content-text">另外，也可以不声明，直接读取文本文件进行解析，实例如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
 html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
-result
-= etree.tostring(html)
+result = etree.tostring(html)
 print(result.decode(&#x27;utf-8&#x27;))</code></pre>
-<p class="content-text">其中 test.html 的内容就是上面例子中的HTML代码,内容如下:</p>
+<p class="content-text">其中 test.html 的内容就是上面例子中的 HTML 代码，内容如下：</p>
 <pre class="code-block" data-lang="html"><code>&lt;div&gt;
-&lt;ul&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
-&lt;/ul&gt;
+    &lt;ul&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
-<p class="content-text">这次的输出结果略有不同,多了一个DOCTYPE 声明,不过对解析无任何影响,结果如下:</p>
+<p class="content-text">这次的输出结果略有不同，多了一个 DOCTYPE 声明，不过对解析无任何影响，结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/REC-html40/loose.dtd&quot;&gt;
 &lt;html&gt;&lt;body&gt;&lt;div&gt;
-&lt;ul&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
-&lt;/li&gt;&lt;/ul&gt;
+    &lt;ul&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
+    &lt;/li&gt;&lt;/ul&gt;
 &lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 所有节点</h3>
-<p class="content-text">我们一般会用以<code class="inline-code">//</code>开头的XPath规则,来选取所有符合要求的节点。这里还是以第一个实例中的HTML 文本为例,选取其中所有节点,实现代码如下:</p>
-<pre class="code-block" data-lang="python"><code>from 1xml import etree
-html
-etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
+<p class="content-text">我们一般会用以 <code class="inline-code">//</code> 开头的 XPath 规则，来选取所有符合要求的节点。这里还是以第一个实例中
+的 HTML 文本为例，选取其中所有节点，实现代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//*&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;Element html at 0x10510d9c8&gt;, &lt;Element body at 0x10510da08&gt;, &lt;Element div at 0x10510da48&gt;, &lt;Element ul at
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&lt;Element html at 0x10510d9c8&gt;, &lt;Element body at 0x10510da08&gt;, &lt;Element div at 0x10510da48&gt;, &lt;Element ul at
 0x10510da88&gt;, &lt;Element li at 0x10510dac8&gt;, &lt;Element a at 0x10510db48&gt;, &lt;Element li at 0x10510db88&gt;, &lt;Element
 a at 0x10510dbc8&gt;, &lt;Element li at 0x10510dc08&gt;, &lt;Element a at 0x10510db08&gt;, &lt;Element li at 0x10510dc48&gt;, &lt;Element
 a at 0x10510dc88&gt;, &lt;Element li at 0x10510dcc8&gt;, &lt;Element a at 0x10510dd08&gt;]</code></pre>
-<p class="content-text">这里使用<code class="inline-code">*</code>代表匹配所有节点,也就是获取整个HTML文本中的所有节点。从运行结果可以看到,返回形式是一个列表,其中每个元素是Element类型,类型后面跟着节点的名称,如<code class="inline-code">html</code>、<code class="inline-code">body</code>、<code class="inline-code">div</code>、<code class="inline-code">ul</code>、<code class="inline-code">li</code>、<code class="inline-code">a</code>等,所有节点都包含在了列表中。</p>
-<p class="content-text">当然,此处匹配也可以指定节点名称。例如想获取所有<code class="inline-code">li</code>节点,实例如下:</p>
-<pre class="code-block" data-lang="python"><code>from 1xml import etree
-html = etree.parse(&#x27;./test.html&#x27;, etree. HTMLParser())
+<p class="content-text">这里使用 <code class="inline-code">*</code> 代表匹配所有节点，也就是获取整个 HTML 文本中的所有节点。从运行结果可以看到，
+返回形式是一个列表，其中每个元素是 Element 类型，类型后面跟着节点的名称，如 html、body、div、
+ul、li、a 等，所有节点都包含在了列表中。</p>
+<p class="content-text">当然，此处匹配也可以指定节点名称。例如想获取所有 li 节点，实例如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li&#x27;)
 print(result)
 print(result[0])</code></pre>
-<p class="content-text">这里选取所有<code class="inline-code">li</code>节点,可以使用<code class="inline-code">//</code>,然后直接加上节点名称,调用时使用xpath 方法即可。
-运行结果如下:</p>
-<pre class="result-block"><code>[&lt;Element li at 0x105849208&gt;, &lt;Element li at 0x105849248&gt;, &lt;Element li at 0x105849288&gt;, &lt;
+<p class="content-text">这里选取所有 li 节点，可以使用 <code class="inline-code">//</code>，然后直接加上节点名称，调用时使用 xpath 方法即可。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&lt;Element li at 0x105849208&gt;, &lt;Element li at 0x105849248&gt;, &lt;Element li at 0x105849288&gt;, &lt;Element li at
 0x1058492c8&gt;, &lt;Element li at 0x105849308&gt;]
-&lt;Element li at 0x105849208&gt;
-0x105849288&gt;, &lt;Element li at</code></pre>
-<p class="content-text">可以看到,提取结果也是一个列表,其中每个元素都是Element 类型。要是想取出其中一个对象,可以直接用中括号加索引获取,如<code class="inline-code">[0]</code>。</p>
+&lt;Element li at 0x105849208&gt;</code></pre>
+<p class="content-text">可以看到，提取结果也是一个列表，其中每个元素都是 Element 类型。要是想取出其中一个对象，
+可以直接用中括号加索引获取，如 <code class="inline-code">[0]</code>。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 子节点</h3>
-<p class="content-text">通过<code class="inline-code">/</code> 或 <code class="inline-code">//</code> 即可查找元素的子节点或子孙节点。假如现在想选择<code class="inline-code">li</code>节点的所有直接子节点<code class="inline-code">a</code>,</p>
-<p class="content-text">则可以这样实现:
-from 1xml import etree</p>
-<pre class="code-block"><code>html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
+<p class="content-text">通过 <code class="inline-code">/</code> 或 <code class="inline-code">//</code> 即可查找元素的子节点或子孙节点。假如现在想选择 li 节点的所有直接子节点 a，</p>
+<p class="content-text">则可以这样实现：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li/a&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里通过追加/a的方式,选择了所有li节点的所有直接子节点a。其中//li用于选中所有li节
-点,/a用于选中li节点的所有直接子节点a。
-运行结果如下:</p>
-<pre class="result-block"><code>[&lt;Element a at 0x106ee8688&gt;, &lt;Element a at 0x106ee86c8&gt;, &lt;Element a at 0x106ee8708&gt;, &lt;Element a at 0x106ee8748&gt;,
+<p class="content-text">这里通过添加 <code class="inline-code">/a</code> 的方式，选择了所有 li 节点的所有直接子节点 a。其中 <code class="inline-code">//li</code> 用于选中所有 li 节
+点，<code class="inline-code">/a</code> 用于选中 li 节点的所有直接子节点 a。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&lt;Element a at 0x106ee8688&gt;, &lt;Element a at 0x106ee86c8&gt;, &lt;Element a at 0x106ee8708&gt;, &lt;Element a at 0x106ee8748&gt;,
 &lt;Element a at 0x106ee8788&gt;]</code></pre>
-<p class="content-text">上面的/用于选取节点的直接子节点,如果要获取节点的所有子孙节点,可以使用//。例如,要
-获取ul 节点下的所有子孙节点a,可以这样实现:
-from 1xml import etree</p>
-<pre class="code-block"><code>html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
+<p class="content-text">上面的 <code class="inline-code">/</code> 用于选取节点的直接子节点，如果要获取节点的所有子孙节点，可以使用 <code class="inline-code">//</code>。例如，要
+获取 ul 节点下的所有子孙节点 a，可以这样实现：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//ul//a&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果是相同的。
-但是如果这里用//ul/a,就无法获取任何结果了。因为/用于获取直接子节点,而ul节点下没
-有直接的子节点,只有li节点,所以无法获取任何匹配结果,代码如下:
-from 1xml import etree</p>
-<pre class="code-block"><code>html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
+<p class="content-text">运行结果是相同的。</p>
+<p class="content-text">但是如果这里用 <code class="inline-code">//ul/a</code>，就无法获取任何结果了。因为 <code class="inline-code">/</code> 用于获取直接子节点，而 ul 节点下没
+有直接的 a 子节点，只有 li 节点，所以无法获取任何匹配结果，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//ul/a&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:
-[]
-因此这里要注意/和//的区别,前者用于获取直接子节点,后者用于获取子孙节点。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[]</code></pre>
+<p class="content-text">因此这里要注意 <code class="inline-code">/</code> 和 <code class="inline-code">//</code> 的区别，前者用于获取直接子节点，后者用于获取子孙节点。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 父节点</h3>
-<p class="content-text">通过连续的/或//可以查找子节点或子孙节点,那么假如知道了子节点,怎样查找父节点呢?
-这可以用..实现。
-例如,首先选中 href属性为link4.html的a节点,然后获取其父节点,再获取父节点的class 属
-性,相关代码如下:
-from 1xml import etree</p>
-<pre class="code-block"><code>html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
+<p class="content-text">通过连续的 <code class="inline-code">/</code> 或 <code class="inline-code">//</code> 可以查找子节点或子孙节点，那么假如知道了子节点，怎样查找父节点呢？
+这可以用 <code class="inline-code">..</code> 实现。</p>
+<p class="content-text">例如，首先选中 href 属性为 link4.html 的 a 节点，然后获取其父节点，再获取父节点的 class 属
+性，相关代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//a[@href=&quot;link4.html&quot;]/../@class&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:
-[&#x27;item-1&#x27;]
-检查一下结果发现,这正是我们获取的目标li节点的class属性。
-也可以通过 parent::获取父节点,代码如下:
-from 1xml import etree</p>
-<pre class="result-block"><code>html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;item-1&#x27;]</code></pre>
+<p class="content-text">检查一下结果发现，这正是我们获取的目标 li 节点的 class 属性。</p>
+<p class="content-text">也可以通过 <code class="inline-code">parent::</code> 获取父节点，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//a[@href=&quot;link4.html&quot;]/parent::*/@class&#x27;)
 print(result)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 属性匹配</h3>
-<p class="content-text">在选取节点的时候，还可以使用@符号实现属性过滤。例如，要选取 class 属性为item-0的li节点，可以这样实现:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">在选取节点的时候，还可以使用 <code class="inline-code">@</code> 符号实现属性过滤。例如，要选取 class 属性为 item-0 的 li 节
+点，可以这样实现：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
 html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li[@class=&quot;item-0&quot;]&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里通过加入<code class="inline-code">[@class=&quot;item-o&quot;]</code>，限制了节点的class 属性为item-0。HTML文本中符合这个条件的li节点有两个，所以结果应该返回两个元素。结果如下:</p>
-<pre class="result-block"><code>`&lt;Element li at 0x10a399288&gt;, &lt;Element li at 0x10a3992c8&gt;`</code></pre>
+<p class="content-text">这里通过加入 <code class="inline-code">[@class=&quot;item-0&quot;]</code>，限制了节点的 class 属性为 item-0。HTML 文本中符合这个条
+件的 li 节点有两个，所以结果应该返回两个元素。结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&lt;Element li at 0x10a399288&gt;, &lt;Element li at 0x10a3992c8&gt;]</code></pre>
 <p class="content-text">可见，匹配结果正是两个，至于是不是正确的那两个，后面再验证。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 文本获取</h3>
-<p class="content-text">用XPath 中的text方法可以获取节点中的文本，接下来尝试获取前面li节点中的文本，相关代码如下:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">用 XPath 中的 text 方法可以获取节点中的文本，接下来尝试获取前面 li 节点中的文本，相关代
+码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
 html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li[@class=&quot;item-0&quot;]/text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;\n\n&#x27;]</code></pre>
-<p class="content-text">奇怪的是，我们没有获取任何文本，只获取了一个换行符，这是为什么呢?因为xpath中 text方法的前面是<code class="inline-code">/</code>，而<code class="inline-code">/</code>的含义是选取直接子节点，很明显li的直接子节点都是a节点，文本都是在a节点内部的，所以这里匹配到的结果就是被修正的li节点内部的换行符，因为自动修正的li节点的尾标签换行了。</p>
-<p class="content-text">即选中的是这两个节点:</p>
-<pre class="code-block"><code>&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;\n    &#x27;]</code></pre>
+<p class="content-text">奇怪的是，我们没有获取任何文本，只获取了一个换行符，这是为什么呢？因为 xpath 中 text 方
+法的前面是 <code class="inline-code">/</code>，而 <code class="inline-code">/</code> 的含义是选取直接子节点，很明显 li 的直接子节点都是 a 节点，文本都是在 a 节
+点内部的，所以这里匹配到的结果就是被修正的 li 节点内部的换行符，因为自动修正的 li 节点的尾
+标签换行了。</p>
+<p class="content-text">即选中的是这两个节点：</p>
+<pre class="code-block" data-lang="html"><code>&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
 &lt;/li&gt;</code></pre>
-<p class="content-text">其中一个节点因为自动修正，li节点的尾标签在添加的时候换行了，所以提取文本得到的唯一结果就是li节点的尾标签和a节点的尾标签之间的换行符。</p>
-<p class="content-text">因此，如果想获取li 节点内部的文本，就有两种方式，一种是先选取a节点再获取文本，另一种是使用<code class="inline-code">//</code>。接下来，我们看下两种方式的区别。</p>
-<p class="content-text">先选取a节点，再获取文本的代码如下:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">其中一个节点因为自动修正，li 节点的尾标签在添加的时候换行了，所以提取文本得到的唯一结
+果就是 li 节点的尾标签和 a 节点的尾标签之间的换行符。</p>
+<p class="content-text">因此，如果想获取 li 节点内部的文本，就有两种方式，一种是先选取 a 节点再获取文本，另一
+种是使用 <code class="inline-code">//</code>。接下来，我们看下两种方式的区别。</p>
+<p class="content-text">先选取 a 节点，再获取文本的代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
 html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li[@class=&quot;item-0&quot;]/a/text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;first item&#x27;, &#x27;fifth item&#x27;]</code></pre>
-<p class="content-text">可以看到，这里有两个返回值，内容都是class 属性为item-o的li节点的文本，这也印证了前面属性匹配的结果是正确的。</p>
-<p class="content-text">这种方式下，我们是逐层选取的，先选取li节点，然后利用<code class="inline-code">/</code>选取其直接子节点a，再选取节点</p>
-<p class="content-text">a的文本,得到的两个结果恰好是符合我们预期的。
-再来看一下使用 //能够获取什么样的结果,代码如下:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;, &#x27;fifth item&#x27;]</code></pre>
+<p class="content-text">可以看到，这里有两个返回值，内容都是 class 属性为 item-0 的 li 节点的文本，这也印证了前
+面属性匹配的结果是正确的。</p>
+<p class="content-text">这种方式下，我们是逐层选取的，先选取 li 节点，然后利用 <code class="inline-code">/</code> 选取其直接子节点 a，再选取节点</p>
+<p class="content-text">a 的文本，得到的两个结果恰好是符合我们预期的。</p>
+<p class="content-text">再来看一下使用 <code class="inline-code">//</code> 能够获取什么样的结果，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
 html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li[@class=&quot;item-0&quot;]//text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;first item&#x27;, &#x27;fifth item&#x27;, &#x27;\n &#x27;]</code></pre>
-<p class="content-text">不出所料,这里的返回结果是三个。可想而知,这里选取的是所有子孙节点的文本,其中前两个是li的子节点a内部的文本,另外一个是最后一个li节点内部的文本,即换行符。
-由此,要想获取子孙节点内部的所有文本,可以直接使用//加text方法的方式,这样能够保证获取最全面的文本信息,但是可能会夹杂一些换行符等特殊字符。如果想获取某些特定子孙节点下的所有文本,则可以先选取特定的子孙节点,再调用 text 方法获取其内部的文本,这样可以保证获取的结果是整洁的。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;, &#x27;fifth item&#x27;, &#x27;\n    &#x27;]</code></pre>
+<p class="content-text">不出所料，这里的返回结果是三个。可想而知，这里选取的是所有子孙节点的文本，其中前两个
+是 li 的子节点 a 内部的文本，另外一个是最后一个 li 节点内部的文本，即换行符。</p>
+<p class="content-text">由此，要想获取子孙节点内部的所有文本，可以直接使用 <code class="inline-code">//</code> 加 text 方法的方式，这样能够保证
+获取最全面的文本信息，但是可能会夹杂一些换行符等特殊字符。如果想获取某些特定子孙节点下的
+所有文本，则可以先选取特定的子孙节点，再调用 text 方法获取其内部的文本，这样可以保证获取
+的结果是整洁的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 属性获取</h3>
-<p class="content-text">我们已经可以用text 方法获取节点内部文本,那么节点属性该怎样获取呢?其实依然可以用@符号。例如,通过如下代码获取所有li节点下所有a节点的 href 属性:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">我们已经可以用 text 方法获取节点内部文本，那么节点属性该怎样获取呢？其实依然可以用 <code class="inline-code">@</code> 符
+号。例如，通过如下代码获取所有 li 节点下所有 a 节点的 href 属性：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+
 html = etree.parse(&#x27;./test.html&#x27;, etree.HTMLParser())
 result = html.xpath(&#x27;//li/a/@href&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里通过@href 获取节点的 href属性。注意,此处和属性匹配的方法不同,属性匹配是用中括号加属性名和值来限定某个属性,如[@href=&quot;link1.html&quot;],此处的@href是指获取节点的某个属性,二者需要做好区分。
-运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;link1.html&#x27;, &#x27;link2.html&#x27;, &#x27;link3.html&#x27;, &#x27;link4.html&#x27;, &#x27;link5.html&#x27;]</code></pre>
-<p class="content-text">可以看到,我们成功获取了所有li节点下a节点的href属性,并以列表形式返回了它们。</p>
+<p class="content-text">这里通过 <code class="inline-code">@href</code> 获取节点的 href 属性。注意，此处和属性匹配的方法不同，属性匹配是用中括号
+加属性名和值来限定某个属性，如 <code class="inline-code">[@href=&quot;link1.html&quot;]</code>，此处的 <code class="inline-code">@href</code> 是指获取节点的某个属性，
+二者需要做好区分。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;link1.html&#x27;, &#x27;link2.html&#x27;, &#x27;link3.html&#x27;, &#x27;link4.html&#x27;, &#x27;link5.html&#x27;]</code></pre>
+<p class="content-text">可以看到，我们成功获取了所有 li 节点下 a 节点的 href 属性，并以列表形式返回了它们。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">11. 属性多值匹配</h3>
-<p class="content-text">有时候,某些节点的某个属性可能有多个值,例如:</p>
-<pre class="code-block"><code>from 1xml import etree
-text =
+<p class="content-text">有时候，某些节点的某个属性可能有多个值，例如：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+text = &#x27;&#x27;&#x27;
 &lt;li class=&quot;li li-first&quot;&gt;&lt;a href=&quot;link.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
-...
-html etree.HTML(text)
+&#x27;&#x27;&#x27;
+html = etree.HTML(text)
 result = html.xpath(&#x27;//li[@class=&quot;li&quot;]/a/text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里 HTML 文本中li节点的class 属性就有两个值:li和li-first。此时如果还用之前的属性匹配获取节点,就无法进行了,运行结果如下:</p>
-<pre class="result-block"><code>[]</code></pre>
-<p class="content-text">这种情况需要用到 contains 方法,于是代码可以改写如下:</p>
-<pre class="code-block"><code>from 1xml import etree
-text =</code></pre>
-<pre class="code-block"><code>&lt;li class=&quot;li li-first&quot;&gt;&lt;a href=&quot;link.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+<p class="content-text">这里 HTML 文本中 li 节点的 class 属性就有两个值：li 和 li-first。此时如果还用之前的属性
+匹配获取节点，就无法进行了，运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[]</code></pre>
+<p class="content-text">这种情况需要用到 contains 方法，于是代码可以改写如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+text = &#x27;&#x27;&#x27;
+&lt;li class=&quot;li li-first&quot;&gt;&lt;a href=&quot;link.html&quot;&gt;first item&lt;/a&gt;&lt;/li&gt;
+&#x27;&#x27;&#x27;
 html = etree.HTML(text)
 result = html.xpath(&#x27;//li[contains(@class, &quot;li&quot;)]/a/text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">上面使用了 contains 方法，给其第一个参数传入属性名称，第二个参数传入属性值，只要传入的属性包含传入的属性值，就可以完成匹配了。
-此时运行结果如下:
-[&#x27;first item&#x27;]
-contains 方法经常在某个节点的某个属性有多个值时用到。</p>
+<p class="content-text">上面使用了 contains 方法，给其第一个参数传入属性名称，第二个参数传入属性值，只要传入的
+属性包含传入的属性值，就可以完成匹配了。</p>
+<p class="content-text">此时运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;]</code></pre>
+<p class="content-text">contains 方法经常在某个节点的某个属性有多个值时用到。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">12. 多属性匹配</h3>
-<p class="content-text">我们还可能遇到一种情况，就是根据多个属性确定一个节点，这时需要同时匹配多个属性。运算符 and 用于连接多个属性，实例如下:
-from lxml import etree
-text = &#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;li class=&quot;li li-first&quot; name=&quot;item&quot;&gt;&lt;a href=&quot;link.html&quot;&gt;first item&lt;/a&gt; &lt;/li&gt;</code></pre>
-<p class="content-text">...
-&#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>html = etree.HTML(text)
-result = html.xpath(&#x27;//li[contains(@class, &quot;li&quot;) and @name=&quot;item&quot;]/a/ text()&#x27;)
+<p class="content-text">我们还可能遇到一种情况，就是根据多个属性确定一个节点，这时需要同时匹配多个属性。运算
+符 and 用于连接多个属性，实例如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
+text = &#x27;&#x27;&#x27;
+&lt;li class=&quot;li li-first&quot; name=&quot;item&quot;&gt;&lt;a href=&quot;link.html&quot;&gt;first item&lt;/a&gt; &lt;/li&gt;
+&#x27;&#x27;&#x27;
+html = etree.HTML(text)
+result = html.xpath(&#x27;//li[contains(@class, &quot;li&quot;) and @name=&quot;item&quot;]/a/text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里的 li 节点又增加了一个属性 name。因此要确定 li 节点，需要同时考察 class 和 name 属性，一个条件是 class 属性里面包含 li 字符串，另一个条件是 name 属性为 item 字符串，这二者同时得到满足，才是 li 节点。class 和 name 属性需要用 and 运算符相连，相连之后置于中括号内进行条件筛选。运行结果如下:
-[&#x27;first item&#x27;]
-这里的 and 其实是 XPath 中的运算符。除了它，还有很多其他运算符，如 or、mod 等，在此总结为表3-2。</p>
-<p class="content-text">表3-2 运算符及其介绍</p>
-<table class="content-table"><thead><tr><th>运算符</th><th>描述</th><th>实例</th><th>返回值</th></tr></thead><tbody><tr><td>`or`</td><td>或</td><td>`age=19 or age=20`</td><td>如果 `age` 是 19，则返回 `true`。如果 `age` 是 21，则返回 `false`</td></tr>
-<tr><td>`and`</td><td>与</td><td>`age&gt;19 and age&lt;21`</td><td>如果 `age` 是 20，则返回 `true`。如果 `age` 是 18，则返回 `false`</td></tr>
+<p class="content-text">这里的 li 节点又增加了一个属性 name。因此要确定 li 节点，需要同时考察 class 和 name 属性，
+一个条件是 class 属性里面包含 li 字符串，另一个条件是 name 属性为 item 字符串，这二者同时得到
+满足，才是 li 节点。class 和 name 属性需要用 and 运算符相连，相连之后置于中括号内进行条件筛
+选。运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;]</code></pre>
+<p class="content-text">这里的 and 其实是 XPath 中的运算符。除了它，还有很多其他运算符，如 or、mod 等，在此总结
+为表 3-2。</p>
+<p class="content-text">表 3-2 运算符及其介绍</p>
+<table class="content-table"><thead><tr><th>运算符</th><th>描述</th><th>实例</th><th>返回值</th></tr></thead><tbody><tr><td>`or`</td><td>或</td><td>`age=19 or age=20`</td><td>如果 age 是 19，则返回 true。如果 age 是 21，则返回 false</td></tr>
+<tr><td>`and`</td><td>与</td><td>`age&gt;19 and age&lt;21`</td><td>如果 age 是 20，则返回 true。如果 age 是 18，则返回 false</td></tr>
 <tr><td>`mod`</td><td>计算除法的余数</td><td>`5 mod 2`</td><td>`1`</td></tr>
-<tr><td>`|`</td><td>计算两个节点集</td><td>`//book|//cd`</td><td>返回所有拥有 `book` 和 `cd` 元素的节点集</td></tr>
+<tr><td>`|`</td><td>计算两个节点集</td><td>`//book|//cd`</td><td>返回所有拥有 book 和 cd 元素的节点集</td></tr>
 <tr><td>`+`</td><td>加法</td><td>`6 + 4`</td><td>`10`</td></tr>
 <tr><td>`-`</td><td>减法</td><td>`6 - 4`</td><td>`2`</td></tr>
 <tr><td>`*`</td><td>乘法</td><td>`6 * 4`</td><td>`24`</td></tr>
 <tr><td>`div`</td><td>除法</td><td>`8 div 4`</td><td>`2`</td></tr>
-<tr><td>`=`</td><td>等于</td><td>`age=19`</td><td>如果 `age` 是 19，则返回 `true`。如果 `age` 是 20，则返回 `false`</td></tr>
-<tr><td>`!=`</td><td>不等于</td><td>`age!=19`</td><td>如果 `age` 是 18，则返回 `true`。如果 `age` 是 19，则返回 `false`</td></tr>
-<tr><td>`&lt;`</td><td>小于</td><td>`age&lt;19`</td><td>如果 `age` 是 18，则返回 `true`。如果 `age` 是 19，则返回 `false`</td></tr>
-<tr><td>`&lt;=`</td><td>小于或等于</td><td>`age&lt;=19`</td><td>如果 `age` 是 19，则返回 `true`。如果 `age` 是 20，则返回 `false`</td></tr>
-<tr><td>`&gt;`</td><td>大于</td><td>`age&gt;19`</td><td>如果 `age` 是 20，则返回 `true`。如果 `age` 是 19，则返回 `false`</td></tr>
-<tr><td>`&gt;=`</td><td>大于或等于</td><td>`age&gt;=19`</td><td>如果 `age` 是 19，则返回 `true`。如果 `age` 是 18，则返回 `false`</td></tr></tbody></table>
+<tr><td>`=`</td><td>等于</td><td>`age=19`</td><td>如果 age 是 19，则返回 true。如果 age 是 20，则返回 false</td></tr>
+<tr><td>`!=`</td><td>不等于</td><td>`age!=19`</td><td>如果 age 是 18，则返回 true。如果 age 是 19，则返回 false</td></tr>
+<tr><td>`&lt;`</td><td>小于</td><td>`age&lt;19`</td><td>如果 age 是 18，则返回 true。如果 age 是 19，则返回 false</td></tr>
+<tr><td>`&lt;=`</td><td>小于或等于</td><td>`&lt;=19`</td><td>如果 age 是 19，则返回 true。如果 age 是 20，则返回 false</td></tr>
+<tr><td>`&gt;`</td><td>大于</td><td>`age&gt;19`</td><td>如果 age 是 20，则返回 true。如果 age 是 19，则返回 false</td></tr>
+<tr><td>`&gt;=`</td><td>大于或等于</td><td>`age&gt;=19`</td><td>如果 age 是 19，则返回 true。如果 age 是 18，则返回 false</td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">13. 按序选择</h3>
-<p class="content-text">在选择节点时,某些属性可能同时匹配了多个节点,但我们只想要其中的某一个,如第二个或者
-最后一个,这时该怎么办呢?
-可以使用往中括号中传入索引的方法获取特定次序的节点,实例如下:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">在选择节点时，某些属性可能同时匹配了多个节点，但我们只想要其中的某一个，如第二个或者
+最后一个，这时该怎么办呢？</p>
+<p class="content-text">可以使用往中括号中传入索引的方法获取特定次序的节点，实例如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
 
 text = &#x27;&#x27;&#x27;
 &lt;div&gt;
@@ -350,37 +383,38 @@ result = html.xpath(&#x27;//li[position()&lt;3]/a/text()&#x27;)
 print(result)
 result = html.xpath(&#x27;//li[last()-2]/a/text()&#x27;)
 print(result)</code></pre>
-<p class="content-text">上述代码中,第一次选择时选取了第一个li节点,往中括号中传入数字1即可实现。注意,这
-里和写代码不同,序号以1开头,而非0。
-第二次选择时,选取了最后一个li节点,在中括号中调用 last 方法即可实现。
-第三次选择时,选取了位置小于3的li节点,也就是位置序号为1和2的节点,得到的结果就
-是前两个li节点。
-第四次选择时,选取了倒数第三个li节点,在中括号中调用last方法再减去2即可实现。因为
-last 方法代表最后一个,在此基础上减2得到的就是倒数第三个。
-运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;first item&#x27;]
+<p class="content-text">上述代码中，第一次选择时选取了第一个 li 节点，往中括号中传入数字 1 即可实现。注意，这
+里和写代码不同，序号以 1 开头，而非 0。</p>
+<p class="content-text">第二次选择时，选取了最后一个 li 节点，在中括号中调用 last 方法即可实现。</p>
+<p class="content-text">第三次选择时，选取了位置小于 3 的 li 节点，也就是位置序号为 1 和 2 的节点，得到的结果就
+是前两个 li 节点。</p>
+<p class="content-text">第四次选择时，选取了倒数第三个 li 节点，在中括号中调用 last 方法再减去 2 即可实现。因为
+last 方法代表最后一个，在此基础上减 2 得到的就是倒数第三个。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;]
 [&#x27;fifth item&#x27;]
 [&#x27;first item&#x27;, &#x27;second item&#x27;]
 [&#x27;third item&#x27;]</code></pre>
-<p class="content-text">在这个实例中,我们使用了last、position等方法。XPath提供了100多个方法,包括存取、数
+<p class="content-text">在这个实例中，我们使用了 last、position 等方法。XPath 提供了 100 多个方法，包括存取、数
 值、字符串、逻辑、节点、序列等处理功能。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">14. 节点轴选择</h3>
-<p class="content-text">XPath 提供了很多节点轴的选择方法,包括获取子元素、兄弟元素、父元素、祖先元素等,实例
-如下:</p>
-<pre class="code-block"><code>from 1xml import etree
+<p class="content-text">XPath 提供了很多节点轴的选择方法，包括获取子元素、兄弟元素、父元素、祖先元素等，实例
+如下：</p>
+<pre class="code-block" data-lang="python"><code>from lxml import etree
 
 text = &#x27;&#x27;&#x27;
 &lt;div&gt;
     &lt;ul&gt;
         &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link1.html&quot;&gt;&lt;span&gt;first item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
         &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-        &lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<pre class="code-block"><code>&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
-&lt;/ul&gt;
+        &lt;li class=&quot;item-inactive&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;third item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;
+&#x27;&#x27;&#x27;
 html = etree.HTML(text)
 result = html.xpath(&#x27;//li[1]/ancestor::*&#x27;)
 print(result)
@@ -396,88 +430,87 @@ result = html.xpath(&#x27;//li[1]/following::*[2]&#x27;)
 print(result)
 result = html.xpath(&#x27;//li[1]/following-sibling::*&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;Element html at 0x107941808&gt;, &lt;Element body at 0x1079418c8&gt;, &lt;Element div at 0x107941908&gt;, &lt;Element ul at
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&lt;Element html at 0x107941808&gt;, &lt;Element body at 0x1079418c8&gt;, &lt;Element div at 0x107941908&gt;, &lt;Element ul at
 0x107941948&gt;]
-[&lt;Element div at 0x107941908&gt;]</code></pre>
-<p class="content-text">[&#x27;item-0&#x27;]</p>
-<pre class="code-block"><code>[&lt;Element a at 0x1079418c8&gt;]
-(&lt;Element span at 0x107941948&gt;]
+[&lt;Element div at 0x107941908&gt;]
+[&#x27;item-0&#x27;]
+[&lt;Element a at 0x1079418c8&gt;]
+[&lt;Element span at 0x107941948&gt;]
 [&lt;Element a at 0x1079418c8&gt;]
 [&lt;Element li at 0x107941948&gt;, &lt;Element li at 0x107941988&gt;, &lt;Element li at 0x1079419c8&gt;, &lt;Element li at
 0x107941a08&gt;]</code></pre>
-<p class="content-text">上述代码中第一次选择时,调用了 ancestor轴,可以获取所有祖先节点。其后需要跟两个冒号,
-然后是节点的选择器,这里我们直接使用*,表示匹配所有节点,因此相应返回结果是第一个li节点
-的所有祖先节点,包括html、body、div和ul。
-第二次选择时,又加了限定条件,这次是在冒号后面加了 div,于是得到的结果就只有 div 这个
-祖先节点了。
-第三次选择时,调用了 attribute 轴,可以获取所有属性值,其后跟的选择器还是*,代表获取
-节点的所有属性,返回值就是li节点的所有属性值。
-第四次选择时,调用了child轴,可以获取所有直接子节点。这里我们又加了限定条件,选取 href
-属性为link1.html的a节点。
-第五次选择时,调用了descendant轴,可以获取所有子孙节点。这里我们又加了限定条件———获
-取 span 节点,所以返回结果只包含 span节点,不包含a节点。
-第六次选择时,调用了 following 轴,可以获取当前节点之后的所有节点。这里我们虽然使用的
-是*匹配,但又加了索引选择,所以只获取了第二个后续节点。
-第七次选择时,调用了 following-sibling轴,可以获取当前节点之后的所有同级节点。这里我
-们使用*匹配,所以获取了所有的后续同级节点。</p>
+<p class="content-text">上述代码中第一次选择时，调用了 ancestor 轴，可以获取所有祖先节点。其后需要跟两个冒号，
+然后是节点的选择器，这里我们直接使用 <code class="inline-code">*</code>，表示匹配所有节点，因此相应返回结果是第一个 li 节点
+的所有祖先节点，包括 html、body、div 和 ul。</p>
+<p class="content-text">第二次选择时，又加了限定条件，这次是在冒号后面加了 div，于是得到的结果就只有 div 这个
+祖先节点了。</p>
+<p class="content-text">第三次选择时，调用了 attribute 轴，可以获取所有属性值，其后跟的选择器还是 <code class="inline-code">*</code>，代表获取
+节点的所有属性，返回值就是 li 节点的所有属性值。</p>
+<p class="content-text">第四次选择时，调用了 child 轴，可以获取所有直接子节点。这里我们又加了限定条件，选取 href
+属性为 link1.html 的 a 节点。</p>
+<p class="content-text">第五次选择时，调用了 descendant 轴，可以获取所有子孙节点。这里我们又加了限定条件——获
+取 span 节点，所以返回结果只包含 span 节点，不包含 a 节点。</p>
+<p class="content-text">第六次选择时，调用了 following 轴，可以获取当前节点之后的所有节点。这里我们虽然使用的
+是 <code class="inline-code">*</code> 匹配，但又加了索引选择，所以只获取了第二个后续节点。</p>
+<p class="content-text">第七次选择时，调用了 following-sibling 轴，可以获取当前节点之后的所有同级节点。这里我
+们使用 <code class="inline-code">*</code> 匹配，所以获取了所有的后续同级节点。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">15. 总结</h3>
-<p class="content-text">到现在为止,我们把可能用到的XPath 选择器基本介绍完了。XPath 功能非常强大,内置函数非
-常多,熟练使用之后,可以大大提升提取 HTML 信息的效率。
-本节代码参见:https://github.com/Python3 WebSpider/XPathTest。</p>
+<p class="content-text">到现在为止，我们把可能用到的 XPath 选择器基本介绍完了。XPath 功能非常强大，内置函数非
+常多，熟练使用之后，可以大大提升提取 HTML 信息的效率。</p>
+<p class="content-text">本节代码参见：https://github.com/Python3WebSpider/XPathTest。</p>
 </section>
 <div class="section-heading" id="section-1"><h2>3.2 Beautiful Soup 的使用</h2></div>
-<p class="content-text">第2章介绍了正则表达式的相关用法,只是一旦正则表达式写得有问题,得到的结果就可能不是
-我们想要的了。而且每一个网页都有一定的特殊结构和层级关系,很多节点都用 id 或 class 作区分,
-所以借助它们的结构和属性来提取不也可以吗?
-本节我们就介绍一个强大的解析工具————Beautiful Soup,其借助网页的结构和属性等特性来解析
-网页。有了它,我们不需要写复杂的正则表达式,只需要简单的几个语句,就可以完成网页中某个元
-素的提取。
-废话不多说,接下来就感受一下Beautiful Soup 的强大之处吧。</p>
+<p class="content-text">第 2 章介绍了正则表达式的相关用法，只是一旦正则表达式写得有问题，得到的结果就可能不是
+我们想要的了。而且每一个网页都有一定的特殊结构和层级关系，很多节点都用 id 或 class 作区分，
+所以借助它们的结构和属性来提取不也可以吗？</p>
+<p class="content-text">本节我们就介绍一个强大的解析工具——Beautiful Soup，其借助网页的结构和属性等特性来解析
+网页。有了它，我们不需要写复杂的正则表达式，只需要简单的几个语句，就可以完成网页中某个元
+素的提取。</p>
+<p class="content-text">废话不多说，接下来就感受一下 Beautiful Soup 的强大之处吧。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Beautiful Soup 的简介</h3>
-<p class="content-text">简单来说,Beautiful Soup 是 Python 的一个HTML 或XML的解析库,我们用它可以方便地从网
-页中提取数据,其官方解释如下:
-Beautiful Soup 提供一些简单的、Python 式的函数来处理导航、搜索、修改分析树等功能。它是
-一个工具箱,通过解析文档为用户提供需要抓取的数据,因为简单,所以无须很多代码就可以写出一
-个完整的应用程序。Beautiful Soup 自动将输入文档转换为 Unicode 编码,将输出文档转换为 utf-8 编
-码。你不需要考虑编码方式,除非文档没有指定具体的编码方式,这时你仅仅需要说明一下原始编码
-方式就可以了。Beautiful Soup 已成为和lxml、html5lib一样出色的Python 解释器,为用户灵活提供
-不同的解析策略或强劲的速度。
-总而言之,利用Beautiful Soup 可以省去很多烦琐的提取工作,提高解析网页的效率。</p>
+<p class="content-text">简单来说，Beautiful Soup 是 Python 的一个 HTML 或 XML 的解析库，我们用它可以方便地从网
+页中提取数据，其官方解释如下：</p>
+<p class="content-text">Beautiful Soup 提供一些简单的、Python 式的函数来处理导航、搜索、修改分析树等功能。它是
+一个工具箱，通过解析文档为用户提供需要抓取的数据，因为简单，所以无须很多代码就可以写出一
+个完整的应用程序。Beautiful Soup 自动将输入文档转换为 Unicode 编码，将输出文档转换为 utf-8 编
+码。你不需要考虑编码方式，除非文档没有指定具体的编码方式，这时你仅仅需要说明一下原始编码
+方式就可以了。Beautiful Soup 已成为和 lxml、html5lib 一样出色的 Python 解释器，为用户灵活提供
+不同的解析策略或强劲的速度。</p>
+<p class="content-text">总而言之，利用 Beautiful Soup 可以省去很多烦琐的提取工作，提高解析网页的效率。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 解析器</h3>
-<p class="content-text">实际上,Beautiful Soup 在解析时是依赖解析器的,它除了支持Python 标准库中的HTML解析器,
-还支持一些第三方解析器(例如lxml)。表3-3列出了 Beautiful Soup 支持的解析器。</p>
-<p class="content-text">表3-3 Beautiful Soup 支持的解析器</p>
+<p class="content-text">实际上，Beautiful Soup 在解析时是依赖解析器的，它除了支持 Python 标准库中的 HTML 解析器，
+还支持一些第三方解析器（例如 lxml）。表 3-3 列出了 Beautiful Soup 支持的解析器。</p>
+<p class="content-text">表 3-3 Beautiful Soup 支持的解析器</p>
 <table class="content-table"><thead><tr><th>解析器</th><th>使用方法</th><th>优势</th><th>劣势</th></tr></thead><tbody><tr><td>Python 标准库</td><td>`BeautifulSoup(markup, &#x27;html.parser&#x27;)`</td><td>Python 的内置标准库、执行速度适中、文档容错能力强</td><td>Python 2.7.3 或 3.2.2 前的版本中文容错能力差</td></tr>
 <tr><td>LXML HTML 解析器</td><td>`BeautifulSoup(markup, &#x27;lxml&#x27;)`</td><td>速度快、文档容错能力强</td><td>需要安装 C 语言库</td></tr>
 <tr><td>LXML XML 解析器</td><td>`BeautifulSoup(markup, &#x27;xml&#x27;)`</td><td>速度快、唯一支持 XML 的解析器</td><td>需要安装 C 语言库</td></tr>
 <tr><td>html5lib</td><td>`BeautifulSoup(markup, &#x27;html5lib&#x27;)`</td><td>提供最好的容错性、以浏览器的方式解析文档、生成 HTML5 格式的文档</td><td>速度慢、不依赖外部扩展</td></tr></tbody></table>
-<p class="content-text">通过表3-3的对比可以看出,LXML解析器有解析HTML 和XML的功能,而且速度快、容错能
-力强,所以推荐使用它。
-使用LXML解析器,只需在初始化 Beautiful Soup时,把第二个参数改为1xml即可:</p>
+<p class="content-text">通过表 3-3 的对比可以看出，LXML 解析器有解析 HTML 和 XML 的功能，而且速度快、容错能
+力强，所以推荐使用它。</p>
+<p class="content-text">使用 LXML 解析器，只需在初始化 Beautiful Soup 时，把第二个参数改为 lxml 即可：</p>
 <pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
 soup = BeautifulSoup(&#x27;&lt;p&gt;Hello&lt;/p&gt;&#x27;, &#x27;lxml&#x27;)
 print(soup.p.string)</code></pre>
-<p class="content-text">在后面,统一用这个解析器演示 Beautiful Soup 的用法实例。</p>
+<p class="content-text">在后面，统一用这个解析器演示 Beautiful Soup 的用法实例。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
 <p class="content-text">在开始之前，请确保已经正确安装好 Beautiful Soup 和 lxml 这两个库。Beautiful Soup 直接使用
-pip3 安装即可，命令如下:</p>
-<pre class="code-block"><code>pip3 install beautifulsoup4</code></pre>
-<p class="content-text">更加详细的安装说明可以参考:</p>
-<pre class="result-block"><code>https://setup.scrape.center/beautifulsoup</code></pre>
-<p class="content-text">另外，我们使用的是 lxml 这个解析器，所以还需要额外安装 lxml 这个库，其安装方法见 3.1 节。
-以上两个库都安装完成后，就可以进行接下来的学习了。</p>
+pip3 安装即可，命令如下：</p>
+<pre class="code-block" data-lang="console"><code>pip3 install beautifulsoup4</code></pre>
+<p class="content-text">更加详细的安装说明可以参考：https://setup.scrape.center/beautifulsoup。</p>
+<p class="content-text">另外，我们使用的是 lxml 这个解析器，所以还需要额外安装 lxml 这个库，其安装方法见 3.1 节。</p>
+<p class="content-text">以上两个库都安装完成后，就可以进行接下来的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 基本使用</h3>
-<p class="content-text">下面首先通过实例看看 Beautiful Soup 的基本用法:</p>
+<p class="content-text">下面首先通过实例看看 Beautiful Soup 的基本用法：</p>
 <pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
 &lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;
@@ -485,7 +518,7 @@ pip3 安装即可，命令如下:</p>
 &lt;p class=&quot;story&quot;&gt;Once upon a time there were three little sisters; and their names were
 &lt;a href=&quot;http://example.com/elsie&quot; class=&quot;sister&quot; id=&quot;link1&quot;&gt;&lt;!-- Elsie --&gt;&lt;/a&gt;,
 &lt;a href=&quot;http://example.com/lacie&quot; class=&quot;sister&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt; and
-&lt;a href=&quot;http://example.com/tillie&quot; class=&quot;sister&quot; id=&quot;link3&quot;&gt;Tillie &lt;/a&gt;;
+&lt;a href=&quot;http://example.com/tillie&quot; class=&quot;sister&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;;
 and they lived at the bottom of a well.&lt;/p&gt;
 &lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;
 &quot;&quot;&quot;
@@ -493,7 +526,7 @@ from bs4 import BeautifulSoup
 soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.prettify())
 print(soup.title.string)</code></pre>
-<p class="content-text">运行结果如下:</p>
+<p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;html&gt;
  &lt;head&gt;
   &lt;title&gt;
@@ -520,35 +553,33 @@ print(soup.title.string)</code></pre>
     Tillie
    &lt;/a&gt;
    ;
-and they lived at the bottom of a well.
+                  and they lived at the bottom of a well.
   &lt;/p&gt;
   &lt;p class=&quot;story&quot;&gt;
    ...
- &lt;/p&gt;
- &lt;/body&gt;
-&lt;/html&gt;</code></pre>
-<pre class="code-block" data-lang="html"><code>&lt;/body&gt;
+  &lt;/p&gt;</code></pre>
+<pre class="code-block" data-lang="html"><code> &lt;/body&gt;
 &lt;/html&gt;
 The Dormouse&#x27;s story</code></pre>
-<p class="content-text">这里首先声明一个变量html,这是一个HTML 字符串。但是需要注意的是,它并不是一个完整
-的HTML 字符串,因为body 节点和html 节点都没有闭合。接着,我们将它当作第一个参数传给
-BeautifulSoup 对象,该对象的第二个参数为解析器的类型(这里使用lxml),此时就完成了
-BeaufulSoup 对象的初始化。然后,将这个对象赋值给 soup 变量。
-之后就可以调用soup 的各个方法和属性解析这串 HTML代码了。
-首先,调用 prettify方法。这个方法可以把要解析的字符串以标准的缩进格式输出。这里需要注
-意的是,输出结果里包含 body 和html节点,也就是说对于不标准的HTML 字符串 BeautifulSoup,
-可以自动更正格式。这一步不是由prettify方法完成的,而是在初始化BeautifulSoup 的时候就完成了。
-然后调用 soup.title.string,这实际上是输出 HTML中 title 节点的文本内容。所以,通过
-soup.title 选出 HTML中的title节点,再调用string 属性就可以得到title节点里面的文本了。你
-看,我们通过简单调用几个属性就完成了文本提取,是不是非常方便?</p>
+<p class="content-text">这里首先声明一个变量 html，这是一个 HTML 字符串。但是需要注意的是，它并不是一个完整
+的 HTML 字符串，因为 body 节点和 html 节点都没有闭合。接着，我们将它当作第一个参数传给
+BeautifulSoup 对象，该对象的第二个参数为解析器的类型（这里使用 lxml），此时就完成了
+BeautifulSoup 对象的初始化。然后，将这个对象赋值给 soup 变量。</p>
+<p class="content-text">之后就可以调用 soup 的各个方法和属性解析这串 HTML 代码了。</p>
+<p class="content-text">首先，调用 prettify 方法。这个方法可以把要解析的字符串以标准的缩进格式输出。这里需要注
+意的是，输出结果里包含 body 和 html 节点，也就是说对于不标准的 HTML 字符串 BeautifulSoup，
+可以自动更正格式。这一步不是由 prettify 方法完成的，而是在初始化 BeautifulSoup 的时候就完成了。</p>
+<p class="content-text">然后调用 <code class="inline-code">soup.title.string</code>，这实际上是输出 HTML 中 title 节点的文本内容。所以，通过
+soup.title 选出 HTML 中的 title 节点，再调用 string 属性就可以得到 title 节点里面的文本了。你
+看，我们通过简单调用几个属性就完成了文本提取，是不是非常方便？</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 节点选择器</h3>
-<p class="content-text">直接调用节点的名称即可选择节点,然后调用 string 属性就可以得到节点内的文本了。这种选
-择方式速度非常快,当单个节点结构层次非常清晰时,可以选用这种方式来解析。
-下面再用一个例子详细说明选择节点的方法:</p>
-<p class="content-text">html = &quot;&quot;&quot;</p>
-<pre class="code-block"><code>&lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;
+<p class="content-text">直接调用节点的名称即可选择节点，然后调用 string 属性就可以得到节点内的文本了。这种选
+择方式速度非常快，当单个节点结构层次非常清晰时，可以选用这种方式来解析。</p>
+<p class="content-text">下面再用一个例子详细说明选择节点的方法：</p>
+<pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
+&lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;
 &lt;p class=&quot;title&quot; name=&quot;dromouse&quot;&gt;&lt;b&gt;The Dormouse&#x27;s story&lt;/b&gt;&lt;/p&gt;
 &lt;p class=&quot;story&quot;&gt;Once upon a time there were three little sisters; and their names were
@@ -556,96 +587,105 @@ soup.title 选出 HTML中的title节点,再调用string 属性就可以得到tit
 &lt;a href=&quot;http://example.com/lacie&quot; class=&quot;sister&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt; and
 &lt;a href=&quot;http://example.com/tillie&quot; class=&quot;sister&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;;
 and they lived at the bottom of a well.&lt;/p&gt;
-&lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;</code></pre>
-<p class="content-text">&quot;&quot;&quot;
+&lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;
+&quot;&quot;&quot;
 from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(soup.title)
-print(type (soup.title))
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(soup.title)
+print(type(soup.title))
 print(soup.title.string)
 print(soup.head)
 print(soup.p)</code></pre>
-<p class="content-text">运行结果:</p>
-<pre class="code-block"><code>&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
-&lt;class &#x27;bs4.element.Tag&#x27;&gt;</code></pre>
-<p class="content-text">The Dormouse&#x27;s story</p>
-<pre class="code-block"><code>&lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;
+<p class="content-text">运行结果：</p>
+<pre class="code-block" data-lang="html"><code>&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
+&lt;class &#x27;bs4.element.Tag&#x27;&gt;
+The Dormouse&#x27;s story
+&lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;
 &lt;p class=&quot;title&quot; name=&quot;dromouse&quot;&gt;&lt;b&gt;The Dormouse&#x27;s story&lt;/b&gt;&lt;/p&gt;</code></pre>
-<p class="content-text">这里依然使用刚才的HTML代码,首先打印出 title节点的选择结果,输出结果正是title 节点
-及里面的文字内容。接下来,输出 title 节点的类型,是bs4.element. Tag,这是 Beautiful Soup 中一
-个重要的数据结构,经过选择器选择的结果都是这种Tag类型。Tag具有一些属性,例如 string 属性,
-调用该属性可以得到节点的文本内容,所以类型的输出结果正是节点的文本内容。
-输出文本内容后,又尝试选择了 head节点,结果也是节点加其内部的所有内容。最后,选择了p
-节点。不过这次情况比较特殊,因为结果是第一个p节点的内容,后面的几个p节点并没有选取到。
-也就是说,当有多个节点时,这种选择方式只会选择到第一个匹配的节点,后面的其他节点都会忽略。</p>
+<p class="content-text">这里依然使用刚才的 HTML 代码，首先打印出 title 节点的选择结果，输出结果正是 title 节点
+及里面的文字内容。接下来，输出 title 节点的类型，是 bs4.element.Tag，这是 Beautiful Soup 中一
+个重要的数据结构，经过选择器选择的结果都是这种 Tag 类型。Tag 具有一些属性，例如 string 属性，
+调用该属性可以得到节点的文本内容，所以类型的输出结果正是节点的文本内容。</p>
+<p class="content-text">输出文本内容后，又尝试选择了 head 节点，结果也是节点加其内部的所有内容。最后，选择了 p
+节点。不过这次情况比较特殊，因为结果是第一个 p 节点的内容，后面的几个 p 节点并没有选取到。
+也就是说，当有多个节点时，这种选择方式只会选择到第一个匹配的节点，后面的其他节点都会忽略。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 提取信息</h3>
-<p class="content-text">上面演示了通过调用 string 属性获取文本的值,那么如何获取节点名称?如何获取节点属性的值呢?接下来我们就统一梳理一下信息的提取方式。</p>
+<p class="content-text">上面演示了通过调用 string 属性获取文本的值，那么如何获取节点名称？如何获取节点属性的
+值呢？接下来我们就统一梳理一下信息的提取方式。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">获取名称</h4>
-<p class="content-text">利用 name 属性可以获取节点的名称。还是以上面的文本为例,先选取title节点,再调用 name 属性就可以得到节点名称:</p>
-<pre class="code-block"><code>print(soup.title.name)</code></pre>
-<p class="content-text">运行结果:
-title</p>
+<p class="content-text">利用 name 属性可以获取节点的名称。还是以上面的文本为例，先选取 title 节点，再调用 name 属
+性就可以得到节点名称：</p>
+<pre class="code-block" data-lang="python"><code>print(soup.title.name)</code></pre>
+<p class="content-text">运行结果：</p>
+<pre class="code-block" data-lang="text"><code>title</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取属性</h4>
-<p class="content-text">一个节点可能有多个属性,例如id 和class等,选择这个节点元素后,可以调用 attrs 获取其所有属性:</p>
-<pre class="code-block"><code>print(soup.p.attrs)
+<p class="content-text">一个节点可能有多个属性，例如 id 和 class 等，选择这个节点元素后，可以调用 attrs 获取其
+所有属性：</p>
+<pre class="code-block" data-lang="python"><code>print(soup.p.attrs)
 print(soup.p.attrs[&#x27;name&#x27;])</code></pre>
-<p class="content-text">运行结果:</p>
-<pre class="code-block"><code>{&#x27;class&#x27;: [&#x27;title&#x27;], &#x27;name&#x27;: &#x27;dromouse&#x27;}</code></pre>
-<p class="content-text">dromouse
-可以看到,调用attrs 属性的返回结果是字典形式,包括所选择节点的所有属性和属性值。因此要获取 name属性,相当于从字典中获取某个键值,只需要用中括号加属性名就可以了。例如通过attrs[&#x27;name&#x27;]获取 name属性。
-其实这种方式有点烦琐,还有一种更为简单的获取属性值的方式:不用写 attrs,直接在节点元素后面加中括号,然后传入属性名就可以了。样例如下:</p>
-<pre class="code-block"><code>print(soup.p[&#x27;name&#x27;])
+<p class="content-text">运行结果：</p>
+<pre class="code-block" data-lang="text"><code>{&#x27;class&#x27;: [&#x27;title&#x27;], &#x27;name&#x27;: &#x27;dromouse&#x27;}
+dromouse</code></pre>
+<p class="content-text">可以看到，调用 attrs 属性的返回结果是字典形式，包括所选择节点的所有属性和属性值。因此
+要获取 name 属性，相当于从字典中获取某个键值，只需要用中括号加属性名就可以了。例如通过
+<code class="inline-code">attrs[&#x27;name&#x27;]</code> 获取 name 属性。</p>
+<p class="content-text">其实这种方式有点烦琐，还有一种更为简单的获取属性值的方式：不用写 attrs，直接在节点元
+素后面加中括号，然后传入属性名就可以了。样例如下：</p>
+<pre class="code-block" data-lang="python"><code>print(soup.p[&#x27;name&#x27;])
 print(soup.p[&#x27;class&#x27;])</code></pre>
-<p class="content-text">运行结果如下:
-dromouse
-[&#x27;title&#x27;]
-这里需要注意,有的返回结果是字符串,有的返回结果是由字符串组成的列表。例如,name属性的值是唯一的,于是返回结果就是单个字符串。而对于 class属性,一个节点元素可能包含多个class,所以返回的就是列表。在实际处理过程中,我们要注意判断类型。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>dromouse
+[&#x27;title&#x27;]</code></pre>
+<p class="content-text">这里需要注意，有的返回结果是字符串，有的返回结果是由字符串组成的列表。例如，name 属
+性的值是唯一的，于是返回结果就是单个字符串。而对于 class 属性，一个节点元素可能包含多个
+class，所以返回的就是列表。在实际处理过程中，我们要注意判断类型。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取内容</h4>
-<p class="content-text">这点在前面也提到过,可以利用 string 属性获取节点元素包含的文本内容,例如用如下实例获取第一个p节点的文本:</p>
-<pre class="code-block"><code>print(soup.p.string)</code></pre>
-<p class="content-text">运行结果如下:
-The Dormouse&#x27;s story
-再次注意一下,这里选取的p节点是第一个p节点,获取的文本也是第一个p节点里面的文本。</p>
+<p class="content-text">这点在前面也提到过，可以利用 string 属性获取节点元素包含的文本内容，例如用如下实例获
+取第一个 p 节点的文本：</p>
+<pre class="code-block" data-lang="python"><code>print(soup.p.string)</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>The Dormouse&#x27;s story</code></pre>
+<p class="content-text">再次注意一下，这里选取的 p 节点是第一个 p 节点，获取的文本也是第一个 p 节点里面的文本。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">嵌套选择</h4>
-<p class="content-text">在上面的例子中,我们知道所有返回结果都是 bs4.element.Tag类型,Tag类型的对象同样可以继</p>
-<p class="content-text">续调用节点进行下一步的选择。例如,我们获取了head节点,就可以继续调用 head 选取其内部的head
-节点:</p>
-<pre class="code-block" data-lang="html"><code>html = &quot;&quot;&quot;
+<p class="content-text">在上面的例子中，我们知道所有返回结果都是 bs4.element.Tag 类型，Tag 类型的对象同样可以继</p>
+<p class="content-text">续调用节点进行下一步的选择。例如，我们获取了 head 节点，就可以继续调用 head 选取其内部的 head
+节点：</p>
+<pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
 &lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;
-&quot;&quot;&quot;</code></pre>
-<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+&quot;&quot;&quot;
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.head.title)
 print(type(soup.head.title))
 print(soup.head.title.string)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
 &lt;class &#x27;bs4.element.Tag&#x27;&gt;
 The Dormouse&#x27;s story</code></pre>
-<p class="content-text">运行结果的第一行是调用 head 之后再调用title,而选择的title节点。第二行打印出了它的类
-型,可以看到,仍然是bs4.element.Tag类型。也就是说,我们在Tag类型的基础上再次选择,得到
-的结果依然是 Tag类型。既然每次返回的结果都相同,那么就可以做嵌套选择了。
-最后一行结果输出了title节点的string 属性,也就是节点里的文本内容。</p>
+<p class="content-text">运行结果的第一行是调用 head 之后再调用 title，而选择的 title 节点。第二行打印出了它的类
+型，可以看到，仍然是 bs4.element.Tag 类型。也就是说，我们在 Tag 类型的基础上再次选择，得到
+的结果依然是 Tag 类型。既然每次返回的结果都相同，那么就可以做嵌套选择了。</p>
+<p class="content-text">最后一行结果输出了 title 节点的 string 属性，也就是节点里的文本内容。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 关联选择</h3>
-<p class="content-text">在做选择的过程中,有时不能一步就选到想要的节点,需要先选中某一个节点,再以它为基准选
-子节点、父节点、兄弟节点等,下面就介绍一下如何选择这些节点。</p>
+<p class="content-text">在做选择的过程中，有时不能一步就选到想要的节点，需要先选中某一个节点，再以它为基准选
+子节点、父节点、兄弟节点等，下面就介绍一下如何选择这些节点。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">子节点和子孙节点</h4>
-<p class="content-text">选取节点之后,如果想要获取它的直接子节点,可以调用contents 属性,实例如下:</p>
-<pre class="code-block" data-lang="html"><code>html = &quot;&quot;&quot;
+<p class="content-text">选取节点之后，如果想要获取它的直接子节点，可以调用 contents 属性，实例如下：</p>
+<pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
 &lt;html&gt;
 &lt;head&gt;
 &lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
@@ -662,123 +702,132 @@ and
 and they lived at the bottom of a well.
 &lt;/p&gt;
 &lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;
-&quot;&quot;&quot;</code></pre>
-<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+&quot;&quot;&quot;
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.p.contents)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;\n Once upon a time there were three little sisters; and their names were\n&#x27;,
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;\n Once upon a time there were three little sisters; and their names were\n&#x27;,
 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
 &lt;span&gt;Elsie&lt;/span&gt;
 &lt;/a&gt;, &#x27;\n&#x27;, &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
 &#x27; \n and\n&#x27;, &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot;
 id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;, &#x27;\n and they lived at the bottom of a well.\n&#x27;]</code></pre>
-<p class="content-text">可以看到,返回结果是列表形式。p节点里既包含文本,又包含节点,这些内容会以列表形式统一返回。
-需要注意的是,列表中的每个元素都是p节点的直接子节点。像第一个节点里面包含的span节点,就相当于孙子节点,但是返回结果并没有把 span 节点单独选出来。所以说,contents 属性得到的结果是直接子节点组成的列表。
-同样,我们可以调用 children 属性得到相应的结果:</p>
+<p class="content-text">可以看到，返回结果是列表形式。p 节点里既包含文本，又包含节点，这些内容会以列表形式统
+一返回。</p>
+<p class="content-text">需要注意的是，列表中的每个元素都是 p 节点的直接子节点。像第一个 a 节点里面包含的 span 节
+点，就相当于孙子节点，但是返回结果并没有把 span 节点单独选出来。所以说，contents 属性得到
+的结果是直接子节点组成的列表。</p>
+<p class="content-text">同样，我们可以调用 children 属性得到相应的结果：</p>
 <pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.p.children)
-for i, child in enumerate (soup.p.children):
+for i, child in enumerate(soup.p.children):
     print(i, child)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;list_iterator object at 0x1064f7dd8&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>&lt;list_iterator object at 0x1064f7dd8&gt;
 0
-Once upon a time there were three little sisters; and their names were
+              Once upon a time there were three little sisters; and their names were
+
 1 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
 &lt;span&gt;Elsie&lt;/span&gt;
 &lt;/a&gt;
 2
+
 3 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;
 4
-and
+              and
+
 5 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;
 6
-and they lived at the bottom of a well.</code></pre>
-<p class="content-text">还是同样的 HTML文本,这里调用 children 属性来选择,返回结果是生成器类型。然后,我们用for循环输出了相应的内容。
-如果要得到所有的子孙节点,则可以调用descendants 属性:</p>
-<pre class="code-block" data-lang="python"><code>from bs4 import Beautiful Soup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+              and they lived at the bottom of a well.</code></pre>
+<p class="content-text">还是同样的 HTML 文本，这里调用 children 属性来选择，返回结果是生成器类型。然后，我们
+用 for 循环输出了相应的内容。</p>
+<p class="content-text">如果要得到所有的子孙节点，则可以调用 descendants 属性：</p>
+<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.p.descendants)
-for i, child in enumerate (soup.p.descendants):
+for i, child in enumerate(soup.p.descendants):
     print(i, child)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;generator object descendants at 0x10650e678&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>&lt;generator object descendants at 0x10650e678&gt;
 0
-Once upon a time there were three little sisters; and their names were
+              Once upon a time there were three little sisters; and their names were
+
 1 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
 &lt;span&gt;Elsie&lt;/span&gt;
 &lt;/a&gt;
 2
+
 3 &lt;span&gt;Elsie&lt;/span&gt;
 4 Elsie
 5
+
 6
+
 7 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;
 8 Lacie
 9
-and</code></pre>
-<pre class="code-block"><code>10 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;</code></pre>
-<p class="content-text">11 Tillie</p>
-<p class="content-text">and they lived at the bottom of a well.
-你会发现,此时返回结果还是生成器。遍历输出一下可以看到,这次的输出结果中就包含了 span
-节点,因为 descendants 会递归查询所有子节点,得到所有的子孙节点。</p>
+              and</code></pre>
+<pre class="code-block" data-lang="text"><code>10 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;
+11 Tillie
+12
+              and they lived at the bottom of a well.</code></pre>
+<p class="content-text">你会发现，此时返回结果还是生成器。遍历输出一下可以看到，这次的输出结果中就包含了 span
+节点，因为 descendants 会递归查询所有子节点，得到所有的子孙节点。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">父节点和祖先节点</h4>
-<p class="content-text">如果要获取某个节点元素的父节点,可以调用parent 属性:
-html =
-&quot;&quot;&quot;</p>
-<pre class="code-block"><code>&lt;html&gt;
-&lt;head&gt;
-&lt;/head&gt;
-&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
-&lt;body&gt;
-&lt;p class=&quot;story&quot;&gt;
-&lt;/p&gt;</code></pre>
-<p class="content-text">Once upon a time there were three little sisters; and their names were</p>
-<pre class="code-block"><code>&lt;a href=&quot;http://example.com/elsie&quot; class=&quot;sister&quot; id=&quot;link1&quot;&gt;
+<p class="content-text">如果要获取某个节点元素的父节点，可以调用 parent 属性：</p>
+<pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;p class=&quot;story&quot;&gt;
+            Once upon a time there were three little sisters; and their names were
+            &lt;a href=&quot;http://example.com/elsie&quot; class=&quot;sister&quot; id=&quot;link1&quot;&gt;
+                &lt;span&gt;Elsie&lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+        &lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(soup.a.parent)</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;p class=&quot;story&quot;&gt;
+            Once upon a time there were three little sisters; and their names were
+            &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
+&lt;span&gt;Elsie&lt;/span&gt;
 &lt;/a&gt;
-&lt;span&gt;Elsie&lt;/span&gt;
-&lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;</code></pre>
-<p class="content-text">from bs4 import Beautiful Soup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(soup.a.parent)</code></pre>
-<p class="content-text">运行结果如下:
-Once upon a time there were three little sisters; and their names were</p>
-<pre class="result-block"><code>&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
-&lt;p class=&quot;story&quot;&gt;
-&lt;span&gt;Elsie&lt;/span&gt;
-&lt;/a&gt;
 &lt;/p&gt;</code></pre>
-<p class="content-text">这里我们选择的是第一个节点的父节点元素。很明显,a节点的父节点是p节点,所以输出结
-果便是p节点及其内部内容。
-需要注意,这里输出的仅仅是a节点的直接父节点,而没有再向外寻找父节点的祖先节点。如果
-想获取所有祖先节点,可以调用 parents 属性:
-html = &quot;&quot;&quot;</p>
-<pre class="code-block"><code>&lt;html&gt;
-&lt;body&gt;
-&lt;p class=&quot;story&quot;&gt;
-&lt;a href=&quot;http://example.com/elsie&quot; class=&quot;sister&quot; id=&quot;link1&quot;&gt;
-&lt;span&gt;Elsie&lt;/span&gt;
-&lt;/a&gt;</code></pre>
-<p class="content-text">...</p>
-<pre class="code-block"><code>&lt;/p&gt;</code></pre>
-<p class="content-text">from bs4 import Beautiful Soup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(type(soup.a.parents))
-print(list(enumerate (soup.a.parents)))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;class &#x27;generator&#x27;&gt;
+<p class="content-text">这里我们选择的是第一个 a 节点的父节点元素。很明显，a 节点的父节点是 p 节点，所以输出结
+果便是 p 节点及其内部内容。</p>
+<p class="content-text">需要注意，这里输出的仅仅是 a 节点的直接父节点，而没有再向外寻找父节点的祖先节点。如果
+想获取所有祖先节点，可以调用 parents 属性：</p>
+<pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
+&lt;html&gt;
+    &lt;body&gt;
+        &lt;p class=&quot;story&quot;&gt;
+            &lt;a href=&quot;http://example.com/elsie&quot; class=&quot;sister&quot; id=&quot;link1&quot;&gt;
+                &lt;span&gt;Elsie&lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+&quot;&quot;&quot;
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(type(soup.a.parents))
+print(list(enumerate(soup.a.parents)))</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;class &#x27;generator&#x27;&gt;
 [(0, &lt;p class=&quot;story&quot;&gt;
 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
 &lt;span&gt;Elsie&lt;/span&gt;
 &lt;/a&gt;</code></pre>
-<p class="content-text">可以发现,返回结果是生成器类型。这里用列表输出了其索引和内容,列表中的元素就是a节点的祖先节点。</p>
-</section>
-<section class="minor-section">
-<h4 class="subsection-heading">兄弟节点</h4>
-<p class="content-text">子节点和父节点的获取方式已经介绍完毕,如果要获取同级节点,也就是兄弟节点,又该怎么办呢?实例如下:</p>
 <pre class="code-block" data-lang="html"><code>&lt;/p&gt;), (1, &lt;body&gt;
 &lt;p class=&quot;story&quot;&gt;
 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;
@@ -800,6 +849,13 @@ print(list(enumerate (soup.a.parents)))</code></pre>
 &lt;/a&gt;
 &lt;/p&gt;
 &lt;/body&gt;&lt;/html&gt;)]</code></pre>
+<p class="content-text">可以发现，返回结果是生成器类型。这里用列表输出了其索引和内容，列表中的元素就是 a 节点
+的祖先节点。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">兄弟节点</h4>
+<p class="content-text">子节点和父节点的获取方式已经介绍完毕，如果要获取同级节点，也就是兄弟节点，又该怎么办
+呢？实例如下：</p>
 <pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
 &lt;html&gt;
 &lt;body&gt;
@@ -823,20 +879,27 @@ print(&#x27;Next Sibling&#x27;, soup.a.next_sibling)
 print(&#x27;Prev Sibling&#x27;, soup.a.previous_sibling)
 print(&#x27;Next Siblings&#x27;, list(enumerate(soup.a.next_siblings)))
 print(&#x27;Prev Siblings&#x27;, list(enumerate(soup.a.previous_siblings)))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>Next Sibling
-Hello
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>Next Sibling
+              Hello
+
 Prev Sibling
-Once upon a time there were three little sisters; and their names were
-Next Siblings [(0, &#x27;\n Hello\n&#x27;), (1, &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;), (2, &#x27; \n and\n&#x27;), (3, &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;), (4, &#x27;\n and they lived at the bottom of a well.\n&#x27;)]
-Prev Siblings [(0, &#x27;\n Once upon a time there were three little sisters; and their names were\n&#x27;)]</code></pre>
-<p class="content-text">可以看到,这里调用了4个属性。next_sibling 和 previous_sibling 分别用于获取节点的下一个和上一个兄弟节点,next_siblings 和 previous_siblings 则分别返回后面和前面的所有兄弟节点。</p>
+              Once upon a time there were three little sisters; and their names were
+
+Next Siblings [(0, &#x27;\n Hello\n&#x27;), (1, &lt;a class=&quot;sister&quot; href=&quot;http://example.com/
+lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;), (2, &#x27; \n and\n&#x27;), (3, &lt;a class=&quot;sister&quot; href=
+&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;), (4, &#x27;\n and they lived at the bottom of a
+well.\n&#x27;)]
+Prev Siblings [(0, &#x27;\n Once upon a time there were three little sisters; and their names
+were\n&#x27;)]</code></pre>
+<p class="content-text">可以看到，这里调用了 4 个属性。next_sibling 和 previous_sibling 分别用于获取节点的下一个
+和上一个兄弟节点，next_siblings 和 previous_siblings 则分别返回后面和前面的所有兄弟节点。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">提取信息</h4>
-<p class="content-text">前面讲过关联元素节点的选择方法,如果想要获取它们的一些信息,例如文本、属性等,也可以用同样的方法,实例如下:</p>
-<pre class="code-block"><code>html =
-&quot;&quot;&quot;
+<p class="content-text">前面讲过关联元素节点的选择方法，如果想要获取它们的一些信息，例如文本、属性等，也可以
+用同样的方法，实例如下：</p>
+<pre class="code-block" data-lang="python"><code>html = &quot;&quot;&quot;
 &lt;html&gt;
 &lt;body&gt;
 &lt;p class=&quot;story&quot;&gt;
@@ -854,58 +917,63 @@ print(soup.a.next_sibling.string)
 print(&#x27;Parent:&#x27;)
 print(type(soup.a.parents))
 print(list(soup.a.parents)[0])
-print(list(soup.a.parents) [0].attrs[&#x27;class&#x27;])</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>Next Sibling:
+print(list(soup.a.parents)[0].attrs[&#x27;class&#x27;])</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>Next Sibling:
 &lt;class &#x27;bs4.element.Tag&#x27;&gt;
 &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;
 Lacie
 Parent:
 &lt;class &#x27;generator&#x27;&gt;
 &lt;p class=&quot;story&quot;&gt;
-Once upon a time there were three little sisters; and their names were
-&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Bob&lt;/a&gt;&lt;a class=&quot;sister&quot;
+              Once upon a time there were three little sisters; and their names were
+              &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Bob&lt;/a&gt;&lt;a class=&quot;sister&quot;
 href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;
 &lt;/p&gt;
 [&#x27;story&#x27;]</code></pre>
-<p class="content-text">如果返回结果是单个节点,那么可以直接调用 string、attrs 等属性获得其文本和属性;如果返回结果是包含多个节点的生成器,则可以先将结果转为列表,再从中取出某个元素,之后调用string、attrs 等属性即可获取对应节点的文本和属性。</p>
+<p class="content-text">如果返回结果是单个节点，那么可以直接调用 string、attrs 等属性获得其文本和属性；如果返
+回结果是包含多个节点的生成器，则可以先将结果转为列表，再从中取出某个元素，之后调用 string、
+attrs 等属性即可获取对应节点的文本和属性。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 方法选择器</h3>
-<p class="content-text">前面讲的选择方法都是基于属性来选择的,这种方法虽然快,但是在进行比较复杂的选择时,会变得比较烦琐,不够灵活。幸好,Beautiful Soup还为我们提供了一些查询方法,例如find_all 和 find等,调用这些方法,然后传入相应的参数,就可以灵活查询了。</p>
+<p class="content-text">前面讲的选择方法都是基于属性来选择的，这种方法虽然快，但是在进行比较复杂的选择时，会
+变得比较烦琐，不够灵活。幸好，Beautiful Soup 还为我们提供了一些查询方法，例如 find_all 和 find
+等，调用这些方法，然后传入相应的参数，就可以灵活查询了。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">find_all</h4>
-<p class="content-text">find_all,顾名思义就是查询所有符合条件的元素,可以给它传入一些属性或文本来得到符合条件的元素,功能十分强大。它的API 如下:</p>
+<p class="content-text">find_all，顾名思义就是查询所有符合条件的元素，可以给它传入一些属性或文本来得到符合条
+件的元素，功能十分强大。它的 API 如下：</p>
+<pre class="code-block" data-lang="python"><code>find_all(name, attrs, recursive, text, **kwargs)</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">name</h4>
-<pre class="code-block"><code>`find_all(name, attrs, recursive, text, **kwargs)`</code></pre>
-<p class="content-text">我们可以根据 name 参数来查询元素,下面用一个实例来感受一下:</p>
-<p class="content-text">html=&#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;panel&quot;&gt;
-&lt;div class=&quot;panel-heading&quot;&gt;
-&lt;h4&gt;Hello&lt;/h4&gt;
+<p class="content-text">我们可以根据 name 参数来查询元素，下面用一个实例来感受一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;panel&quot;&gt;
+    &lt;div class=&quot;panel-heading&quot;&gt;
+        &lt;h4&gt;Hello&lt;/h4&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;div class=&quot;panel-body&quot;&gt;
-&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-<p class="content-text">&#x27;&#x27;&#x27;
+&#x27;&#x27;&#x27;
 from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(soup.find_all(name=&#x27;ul&#x27;))
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(soup.find_all(name=&#x27;ul&#x27;))
 print(type(soup.find_all(name=&#x27;ul&#x27;)[0]))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
 &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
@@ -914,57 +982,57 @@ print(type(soup.find_all(name=&#x27;ul&#x27;)[0]))</code></pre>
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
 &lt;/ul&gt;]
 &lt;class &#x27;bs4.element.Tag&#x27;&gt;</code></pre>
-<p class="content-text">这里我们调用了find_all方法,向其中传入 name参数,其参数值为ul,意思是查询所有 ul节
-点。返回结果是列表类型,长度为2,列表中每个元素依然都是bs4.element.Tag 类型。
-因为都是Tag类型,所以依然可以进行嵌套查询。下面这个实例还是以同样的文本为例,先查询
-所有ul 节点,查出后再继续查询其内部的li节点:</p>
-<pre class="code-block"><code>for ul in soup.find_all(name=&#x27;ul&#x27;):
-print(ul.find_all(name=&#x27;li&#x27;))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;]
+<p class="content-text">这里我们调用了 find_all 方法，向其中传入 name 参数，其参数值为 ul，意思是查询所有 ul 节
+点。返回结果是列表类型，长度为 2，列表中每个元素依然都是 bs4.element.Tag 类型。</p>
+<p class="content-text">因为都是 Tag 类型，所以依然可以进行嵌套查询。下面这个实例还是以同样的文本为例，先查询
+所有 ul 节点，查出后再继续查询其内部的 li 节点：</p>
+<pre class="code-block" data-lang="python"><code>for ul in soup.find_all(name=&#x27;ul&#x27;):
+    print(ul.find_all(name=&#x27;li&#x27;))</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;]
 [&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]</code></pre>
-<p class="content-text">返回结果是列表类型,列表中的每个元素依然是Tag类型。
-接下来我们就可以遍历每个li节点,并获取它的文本内容了。</p>
-<pre class="code-block"><code>for ul in soup.find_all(name=&#x27;ul&#x27;):
-print(ul.find_all(name=&#x27;li&#x27;))
-for li in ul.find_all(name=&#x27;li&#x27;):
-print(li.string)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt; &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;]</code></pre>
-<p class="content-text">Foo
+<p class="content-text">返回结果是列表类型，列表中的每个元素依然是 Tag 类型。</p>
+<p class="content-text">接下来我们就可以遍历每个 li 节点，并获取它的文本内容了。</p>
+<pre class="code-block" data-lang="python"><code>for ul in soup.find_all(name=&#x27;ul&#x27;):
+    print(ul.find_all(name=&#x27;li&#x27;))
+    for li in ul.find_all(name=&#x27;li&#x27;):
+        print(li.string)</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;]
+Foo
 Bar
-Jay</p>
-<pre class="code-block"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt; &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]</code></pre>
-<p class="content-text">Foo
-Bar</p>
+Jay
+[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]
+Foo
+Bar</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">attrs</h4>
-<p class="content-text">除了根据节点名查询,我们也可以传入一些属性进行查询,下面用一个实例感受一下:
-html=&#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;panel&quot;&gt;
-&lt;div class=&quot;panel-heading&quot;&gt;
-&lt;h4&gt;Hello&lt;/h4&gt;
+<p class="content-text">除了根据节点名查询，我们也可以传入一些属性进行查询，下面用一个实例感受一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;panel&quot;&gt;
+    &lt;div class=&quot;panel-heading&quot;&gt;
+        &lt;h4&gt;Hello&lt;/h4&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;ul class=&quot;list&quot; id=&quot;list-1&quot; name=&quot;elements&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;div class=&quot;panel-body&quot;&gt;
-&lt;ul class=&quot;list&quot; id=&quot;list-1&quot; name=&quot;elements&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-<p class="content-text">&#x27;&#x27;&#x27;
+&#x27;&#x27;&#x27;
 from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(soup.find_all(attrs={&#x27;id&#x27;: &#x27;list-1&#x27;}))
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(soup.find_all(attrs={&#x27;id&#x27;: &#x27;list-1&#x27;}))
 print(soup.find_all(attrs={&#x27;name&#x27;: &#x27;elements&#x27;}))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;ul class=&quot;list&quot; id=&quot;list-1&quot; name=&quot;elements&quot;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;ul class=&quot;list&quot; id=&quot;list-1&quot; name=&quot;elements&quot;&gt;
 &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
@@ -974,75 +1042,78 @@ print(soup.find_all(attrs={&#x27;name&#x27;: &#x27;elements&#x27;}))</code></pre
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
 &lt;/ul&gt;]</code></pre>
-<p class="content-text">这里查询的时候,传入的是 attrs 参数,其属于字典类型。例如,要查询id为list-1的节点,
-就可以传入 attrs={&#x27;id&#x27;: &#x27;list-1&#x27;}作为查询条件,得到的结果是列表形式,列表中的内容就是符合
-id为list-1这一条件的所有节点。在上面的实例中,符合条件的元素个数是1,所以返回结果是长度
-为1的列表。
-对于一些常用的属性,例如id和class等,我们可以不用attrs传递。例如,要查询id为list-1
-的节点,可以直接传入id这个参数。还是使用上面的文本,只不过换一种方式来查询:
-from bs4 import Beautiful Soup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(soup.find_all(id=&#x27;list-1&#x27;))
+<p class="content-text">这里查询的时候，传入的是 attrs 参数，其属于字典类型。例如，要查询 id 为 list-1 的节点，
+就可以传入 <code class="inline-code">attrs={&#x27;id&#x27;: &#x27;list-1&#x27;}</code> 作为查询条件，得到的结果是列表形式，列表中的内容就是符合
+id 为 list-1 这一条件的所有节点。在上面的实例中，符合条件的元素个数是 1，所以返回结果是长度
+为 1 的列表。</p>
+<p class="content-text">对于一些常用的属性，例如 id 和 class 等，我们可以不用 attrs 传递。例如，要查询 id 为 list-1
+的节点，可以直接传入 id 这个参数。还是使用上面的文本，只不过换一种方式来查询：</p>
+<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(soup.find_all(id=&#x27;list-1&#x27;))
 print(soup.find_all(class_=&#x27;element&#x27;))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
 &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
 &lt;/ul&gt;]
 [&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;, &lt;li
 class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]</code></pre>
-<p class="content-text">这里直接传入 id=&#x27;list-1&#x27;,就可以查询id为list-1的节点元素了。而对于class 来说,由于 class
-在Python 里是一个关键字,所以后面需要加一个下划线,即class_=&#x27;element&#x27;,返回结果依然是 Tag 对</p>
+<p class="content-text">这里直接传入 <code class="inline-code">id=&#x27;list-1&#x27;</code>，就可以查询 id 为 list-1 的节点元素了。而对于 class 来说，由于 class
+在 Python 里是一个关键字，所以后面需要加一个下划线，即 <code class="inline-code">class_=&#x27;element&#x27;</code>，返回结果依然是 Tag 对</p>
 <p class="content-text">象组成的列表。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">text</h4>
-<p class="content-text">text 参数可以用来匹配节点的文本,其传入形式可以是字符串,也可以是正则表达式对象,实例如下:</p>
-<pre class="code-block"><code>import re
-html=&#x27;&#x27;&#x27;
+<p class="content-text">text 参数可以用来匹配节点的文本，其传入形式可以是字符串，也可以是正则表达式对象，实例
+如下：</p>
+<pre class="code-block" data-lang="python"><code>import re
+html = &#x27;&#x27;&#x27;
 &lt;div class=&quot;panel&quot;&gt;
-&lt;div class=&quot;panel-body&quot;&gt;
-&lt;a&gt;Hello, this is a link&lt;/a&gt;
-&lt;a&gt;Hello, this is a link, too&lt;/a&gt;
-&lt;/div&gt;
+    &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;a&gt;Hello, this is a link&lt;/a&gt;
+        &lt;a&gt;Hello, this is a link, too&lt;/a&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
 &#x27;&#x27;&#x27;
 from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.find_all(text=re.compile(&#x27;link&#x27;)))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;Hello, this is a link&#x27;, &#x27;Hello, this is a link, too&#x27;]</code></pre>
-<p class="content-text">这里有两个 a 节点,其内部包含文本信息。这里在find_all方法中传入text参数,该参数为正则表达式对象,返回结果是由所有与正则表达式相匹配的节点文本组成的列表。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;Hello, this is a link&#x27;, &#x27;Hello, this is a link, too&#x27;]</code></pre>
+<p class="content-text">这里有两个 a 节点，其内部包含文本信息。这里在 find_all 方法中传入 text 参数，该参数为正
+则表达式对象，返回结果是由所有与正则表达式相匹配的节点文本组成的列表。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">find</h4>
-<p class="content-text">除了find_all方法,还有find方法也可以查询符合条件的元素,只不过find方法返回的是单个元素,也就是第一个匹配的元素,而find_all会返回由所有匹配的元素组成的列表。实例如下:</p>
-<pre class="code-block"><code>html=&#x27;&#x27;&#x27;
+<p class="content-text">除了 find_all 方法，还有 find 方法也可以查询符合条件的元素，只不过 find 方法返回的是单个
+元素，也就是第一个匹配的元素，而 find_all 会返回由所有匹配的元素组成的列表。实例如下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
 &lt;div class=&quot;panel&quot;&gt;
-&lt;div class=&quot;panel-heading&quot;&gt;
-&lt;h4&gt;Hello&lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class=&quot;panel-body&quot;&gt;
-&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
+    &lt;div class=&quot;panel-heading&quot;&gt;
+        &lt;h4&gt;Hello&lt;/h4&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
 &#x27;&#x27;&#x27;
 from bs4 import BeautifulSoup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 print(soup.find(name=&#x27;ul&#x27;))
 print(type(soup.find(name=&#x27;ul&#x27;)))
 print(soup.find(class_=&#x27;list&#x27;))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
 &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
@@ -1051,103 +1122,103 @@ print(soup.find(class_=&#x27;list&#x27;))</code></pre>
 &lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
 &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
 &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;</code></pre>
-<pre class="code-block"><code>&lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
+<pre class="code-block" data-lang="html"><code>&lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
 &lt;/ul&gt;</code></pre>
-<p class="content-text">可以看到,返回结果不再是列表形式,而是第一个匹配的节点元素,类型依然是Tag类型。
-另外还有许多查询方法,用法与介绍过的 find_all、find完全相同,区别在于查询范围不同,在
+<p class="content-text">可以看到，返回结果不再是列表形式，而是第一个匹配的节点元素，类型依然是 Tag 类型。</p>
+<p class="content-text">另外还有许多查询方法，用法与介绍过的 find_all、find 完全相同，区别在于查询范围不同，在
 此做一下简单的说明。</p>
-<p class="content-text list-like">find_parents 和 find_parent:前者返回所有祖先节点,后者返回直接父节点。
-find_next_siblings 和 find_next_sibling:前者返回后面的所有兄弟节点,后者返回后面第
-一个兄弟节点。
-find_previous_siblings 和 find_previous_sibling:前者返回前面的所有兄弟节点,后者返回
+<p class="content-text list-like"><strong class="term-label">find_parents 和 find_parent：</strong>前者返回所有祖先节点，后者返回直接父节点。</p>
+<p class="content-text list-like">find_next_siblings 和 find_next_sibling：前者返回后面的所有兄弟节点，后者返回后面第
+一个兄弟节点。</p>
+<p class="content-text list-like">find_previous_siblings 和 find_previous_sibling：前者返回前面的所有兄弟节点，后者返回
 前面第一个兄弟节点。</p>
-<p class="content-text list-like">find_all_next 和 find_next:前者返回节点后面所有符合条件的节点,后者返回后面第一个符
-合条件的节点。
-find_all_previous 和 find_previous:前者返回节点前面所有符合条件的节点,后者返回前面
+<p class="content-text list-like">find_all_next 和 find_next：前者返回节点后面所有符合条件的节点，后者返回后面第一个符
+合条件的节点。</p>
+<p class="content-text list-like">find_all_previous 和 find_previous：前者返回节点前面所有符合条件的节点，后者返回前面
 第一个符合条件的节点。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. CSS 选择器</h3>
-<p class="content-text">Beautiful Soup 还提供了另外一种选择器——CSS 选择器。如果你熟悉Web开发,那么肯定对 CSS
-选择器不陌生。
-使用CSS 选择器,只需要调用select方法,传入相应的CSS 选择器即可。我们用一个实例感受
-一下:
-html=&#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;panel&quot;&gt;
-&lt;div class=&quot;panel-heading&quot;&gt;
-&lt;h4&gt;Hello&lt;/h4&gt;
+<p class="content-text">Beautiful Soup 还提供了另外一种选择器——CSS 选择器。如果你熟悉 Web 开发，那么肯定对 CSS
+选择器不陌生。</p>
+<p class="content-text">使用 CSS 选择器，只需要调用 select 方法，传入相应的 CSS 选择器即可。我们用一个实例感受
+一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;panel&quot;&gt;
+    &lt;div class=&quot;panel-heading&quot;&gt;
+        &lt;h4&gt;Hello&lt;/h4&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
+            &lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
+            &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;div class=&quot;panel-body&quot;&gt;
-&lt;ul class=&quot;list&quot; id=&quot;list-1&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul class=&quot;list list-small&quot; id=&quot;list-2&quot;&gt;
-&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;
-&lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-<p class="content-text">...
-from bs4 import Beautiful Soup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)</p>
-<pre class="code-block"><code>print(soup.select(&#x27;.panel .panel-heading&#x27;))
+&#x27;&#x27;&#x27;
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
+print(soup.select(&#x27;.panel .panel-heading&#x27;))
 print(soup.select(&#x27;ul li&#x27;))
-print(soup.select(&#x27;#list-2.element&#x27;))
+print(soup.select(&#x27;#list-2 .element&#x27;))
 print(type(soup.select(&#x27;ul&#x27;)[0]))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;div class=&quot;panel-heading&quot;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;div class=&quot;panel-heading&quot;&gt;
 &lt;h4&gt;Hello&lt;/h4&gt;
 &lt;/div&gt;]
 [&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;, &lt;li
 class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]
 [&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]
 &lt;class &#x27;bs4.element.Tag&#x27;&gt;</code></pre>
-<p class="content-text">这里我们用了3次CSS选择器,返回结果均是由符合CSS 选择器的节点组成的列表。例如,
-select(&#x27;ul li&#x27;)表示选择所有 ul节点下面的所有li节点,结果便是所有li节点组成的列表。
-在最后一句中,我们打印输出了列表中元素的类型。可以看到,类型依然是Tag类型。</p>
+<p class="content-text">这里我们用了 3 次 CSS 选择器，返回结果均是由符合 CSS 选择器的节点组成的列表。例如，
+<code class="inline-code">select(&#x27;ul li&#x27;)</code> 表示选择所有 ul 节点下面的所有 li 节点，结果便是所有 li 节点组成的列表。</p>
+<p class="content-text">在最后一句中，我们打印输出了列表中元素的类型。可以看到，类型依然是 Tag 类型。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">嵌套选择</h4>
-<p class="content-text">select 方法同样支持嵌套选择,例如先选择所有ul节点,再遍历每个ul节点,选择其li节点,
-实例如下:</p>
-<pre class="code-block"><code>from bs4 import Beautiful Soup
-soup = BeautifulSoup (html, &#x27;lxml&#x27;)
+<p class="content-text">select 方法同样支持嵌套选择，例如先选择所有 ul 节点，再遍历每个 ul 节点，选择其 li 节点，
+实例如下：</p>
+<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 for ul in soup.select(&#x27;ul&#x27;):
-print(ul.select(&#x27;li&#x27;))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt; &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;]
-[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt; &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]</code></pre>
-<p class="content-text">可以看到,正常输出了每个ul 节点下所有li节点组成的列表。</p>
+    print(ul.select(&#x27;li&#x27;))</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Jay&lt;/li&gt;]
+[&lt;li class=&quot;element&quot;&gt;Foo&lt;/li&gt;, &lt;li class=&quot;element&quot;&gt;Bar&lt;/li&gt;]</code></pre>
+<p class="content-text">可以看到，正常输出了每个 ul 节点下所有 li 节点组成的列表。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取属性</h4>
-<p class="content-text">既然知道节点是 Tag类型,于是获取属性依然可以使用原来的方法。还是基于上面的HTML文本,
-这里尝试获取每个ul节点的id 属性:</p>
-<pre class="code-block"><code>from bs4 import Beautiful Soup
+<p class="content-text">既然知道节点是 Tag 类型，于是获取属性依然可以使用原来的方法。还是基于上面的 HTML 文本，
+这里尝试获取每个 ul 节点的 id 属性：</p>
+<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
 soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 for ul in soup.select(&#x27;ul&#x27;):
-print(ul[&#x27;id&#x27;])
-print(ul.attrs[&#x27;id&#x27;])</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>list-1
+    print(ul[&#x27;id&#x27;])
+    print(ul.attrs[&#x27;id&#x27;])</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>list-1
 list-1
 list-2
 list-2</code></pre>
-<p class="content-text">可以看到,直接将属性名传入中括号和通过 attrs 属性获取属性值,都是可以成功获取属性的。</p>
+<p class="content-text">可以看到，直接将属性名传入中括号和通过 attrs 属性获取属性值，都是可以成功获取属性的。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取文本</h4>
-<p class="content-text">要获取文本,当然也可以用前面所讲的 string 属性。除此之外,还有一个方法,就是get_text,
-实例如下:</p>
-<pre class="code-block"><code>from bs4 import Beautiful Soup
+<p class="content-text">要获取文本，当然也可以用前面所讲的 string 属性。除此之外，还有一个方法，就是 get_text，
+实例如下：</p>
+<pre class="code-block" data-lang="python"><code>from bs4 import BeautifulSoup
 soup = BeautifulSoup(html, &#x27;lxml&#x27;)
 for li in soup.select(&#x27;li&#x27;):
-print(&#x27;Get Text:&#x27;, li.get_text())
-print(&#x27;String:&#x27;, li.string)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>Get Text: Foo
+    print(&#x27;Get Text:&#x27;, li.get_text())
+    print(&#x27;String:&#x27;, li.string)</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>Get Text: Foo
 String: Foo
 Get Text: Bar
 String: Bar
@@ -1157,58 +1228,58 @@ Get Text: Foo
 String: Foo
 Get Text: Bar
 String: Bar</code></pre>
-<p class="content-text">二者的实现效果完全一致,都可以获取节点的文本值。</p>
+<p class="content-text">二者的实现效果完全一致，都可以获取节点的文本值。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 总结</h3>
-<p class="content-text">到此,Beautiful Soup 的介绍基本就结束了,最后做一下简单的总结。</p>
-<p class="content-text list-like">推荐使用 LXML解析库,必要时使用html.parser。</p>
-<p class="content-text list-like">节点选择器筛选功能弱,但是速度快。</p>
-<p class="content-text list-like">建议使用find、find_all 方法查询匹配的单个结果或者多个结果。
-如果对CSS 选择器熟悉,则可以使用 select 选择法。
-本节代码参见:https://github.com/Python3 WebSpider/BeautifulSoupTest。</p>
+<p class="content-text">到此，Beautiful Soup 的介绍基本就结束了，最后做一下简单的总结。</p>
+<p class="content-text list-like">推荐使用 LXML 解析库，必要时使用 html.parser。</p>
+<p class="content-text list-like">节点选择器筛选功能弱，但是速度快。</p>
+<p class="content-text list-like">建议使用 find、find_all 方法查询匹配的单个结果或者多个结果。</p>
+<p class="content-text list-like">如果对 CSS 选择器熟悉，则可以使用 select 选择法。</p>
+<p class="content-text">本节代码参见：https://github.com/Python3WebSpider/BeautifulSoupTest。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>3.3 pyquery 的使用</h2></div>
-<p class="content-text">3.2节介绍了 Beautiful Soup 的用法,这是一个非常强大的网页解析库,你是否觉得它的一些方法
-用起来有点不适应?有没有觉得它的CSS选择器的功能没那么强大?
-如果你对 Web 编程有所了解,如果你比较喜欢用CSS 选择器,如果你对jQuery 有所了解,那么
-这里有一个更适合你的解析库————pyquery。
-接下来,一起感受一下pyquery 的强大之处。</p>
+<p class="content-text">3.2 节介绍了 Beautiful Soup 的用法，这是一个非常强大的网页解析库，你是否觉得它的一些方法
+用起来有点不适应？有没有觉得它的 CSS 选择器的功能没那么强大？</p>
+<p class="content-text">如果你对 Web 编程有所了解，如果你比较喜欢用 CSS 选择器，如果你对 jQuery 有所了解，那么
+这里有一个更适合你的解析库——pyquery。</p>
+<p class="content-text">接下来，一起感受一下 pyquery 的强大之处。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">同样,在本节开始之前请确保已经安装好了pyquery库,如没有安装,可以使用pip3安装:</p>
-<pre class="code-block"><code>pip3 install pyquery</code></pre>
-<p class="content-text">更加详细的安装说明可以参考:https://setup.scrape.center/pyquery。
-安装完成之后,我们便可以开始接下来的学习了。</p>
+<p class="content-text">同样，在本节开始之前请确保已经安装好了 pyquery 库，如没有安装，可以使用 pip3 安装：</p>
+<pre class="code-block" data-lang="console"><code>pip3 install pyquery</code></pre>
+<p class="content-text">更加详细的安装说明可以参考：https://setup.scrape.center/pyquery。</p>
+<p class="content-text">安装完成之后，我们便可以开始接下来的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 初始化</h3>
-<p class="content-text">在用 pyquery 库解析HTML文本的时候,需要先将其初始化为一个PyQuery对象。
-初始化方式有很多种,例如直接传入字符串、传入URL、传入文件名,等等。下面我们详细介绍
+<p class="content-text">在用 pyquery 库解析 HTML 文本的时候，需要先将其初始化为一个 PyQuery 对象。</p>
+<p class="content-text">初始化方式有很多种，例如直接传入字符串、传入 URL、传入文件名，等等。下面我们详细介绍
 一下这些方式。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">字符串初始化</h4>
-<p class="content-text">这种方式是直接把HTML的内容当作初始化参数,来初始化PyQuery对象。可以用一个实例来感
-受一下:</p>
-<pre class="code-block"><code>html = &#x27;&#x27;&#x27;
+<p class="content-text">这种方式是直接把 HTML 的内容当作初始化参数，来初始化 PyQuery 对象。可以用一个实例来感
+受一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
 &lt;div&gt;
-&lt;ul&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+    &lt;ul&gt;
+        &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;
 &#x27;&#x27;&#x27;
 from pyquery import PyQuery as pq
 doc = pq(html)
 print(doc(&#x27;li&#x27;))</code></pre>
-<p class="content-text">这里首先引入 PyQuery这个对象,取别名为pq。然后声明一个长 HTML 字符串,并将其当作参数
-传递给PyQuery类,这样就成功完成了初始化。接着,将初始化的对象传入CSS选择器。在这个实例
-中,我们传入li节点,这样就可以选择所有的li节点了。</p>
-<p class="content-text">运行结果如下:</p>
+<p class="content-text">这里首先引入 PyQuery 这个对象，取别名为 pq。然后声明一个长 HTML 字符串，并将其当作参数
+传递给 PyQuery 类，这样就成功完成了初始化。接着，将初始化的对象传入 CSS 选择器。在这个实例
+中，我们传入 li 节点，这样就可以选择所有的 li 节点了。</p>
+<p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
 &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
@@ -1217,14 +1288,16 @@ print(doc(&#x27;li&#x27;))</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">URL 初始化</h4>
-<p class="content-text">初始化的参数除了能以字符串形式传递,还能是网页的URL,此时只需要指定 PyQuery 对象的参数为url即可:</p>
+<p class="content-text">初始化的参数除了能以字符串形式传递，还能是网页的 URL，此时只需要指定 PyQuery 对象的参
+数为 url 即可：</p>
 <pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(url=&#x27;https://cuiqingcai.com&#x27;)
 print(doc(&#x27;title&#x27;))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="html"><code>&lt;title&gt;静览 | 崔庆才的个人站点&lt;/title&gt;</code></pre>
-<p class="content-text">这样的话,PyQuery对象会首先请求这个URL,然后用得到的HTML内容完成初始化,其实就相当于把网页的源代码以字符串形式传递给PyQuery类,来完成初始化操作。
-下面代码实现的功能是相同的:</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;title&gt;静觅 | 崔庆才的个人站点&lt;/title&gt;</code></pre>
+<p class="content-text">这样的话，PyQuery 对象会首先请求这个 URL，然后用得到的 HTML 内容完成初始化，其实就相
+当于把网页的源代码以字符串形式传递给 PyQuery 类，来完成初始化操作。</p>
+<p class="content-text">下面代码实现的功能是相同的：</p>
 <pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 import requests
 doc = pq(requests.get(&#x27;https://cuiqingcai.com&#x27;).text)
@@ -1232,65 +1305,66 @@ print(doc(&#x27;title&#x27;))</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">文件初始化</h4>
-<p class="content-text">除了上面两种,还可以传递本地的文件名,此时将参数指定为filename 即可:</p>
+<p class="content-text">除了上面两种，还可以传递本地的文件名，此时将参数指定为 filename 即可：</p>
 <pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(filename=&#x27;demo.html&#x27;)
 print(doc(&#x27;li&#x27;))</code></pre>
-<p class="content-text">当然,这里需要有一个本地 HTML 文件 demo.html,其内容是待解析的HTML 字符串。这样,PyQuery 对象会首先读取本地的文件内容,然后将文件内容以字符串的形式传递给 PyQuery 类进行初始化。
-以上3种初始化方式均可采用。当然,最常用的还是以字符串形式传递。</p>
+<p class="content-text">当然，这里需要有一个本地 HTML 文件 demo.html，其内容是待解析的 HTML 字符串。这样，
+PyQuery 对象会首先读取本地的文件内容，然后将文件内容以字符串的形式传递给 PyQuery 类进行初
+始化。</p>
+<p class="content-text">以上 3 种初始化方式均可采用。当然，最常用的还是以字符串形式传递。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 基本 CSS 选择器</h3>
-<p class="content-text">首先用一个实例感受一下pyquery 库的CSS 选择器的用法:</p>
-<pre class="code-block" data-lang="html"><code>html = &#x27;&#x27;&#x27;
+<p class="content-text">首先用一个实例感受一下 pyquery 库的 CSS 选择器的用法：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
 &lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+    &lt;ul class=&quot;list&quot;&gt;
+        &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;
-&#x27;&#x27;&#x27;</code></pre>
-<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
+&#x27;&#x27;&#x27;
+from pyquery import PyQuery as pq
 doc = pq(html)
 print(doc(&#x27;#container .list li&#x27;))
 print(type(doc(&#x27;#container .list li&#x27;)))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<p class="content-text">这里是 <code class="inline-code">website\chapters\images\ch03\page-026.jpg</code> 的中文 OCR 结果：</p>
-<pre class="code-block"><code>&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
 &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
 &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;</code></pre>
-<p class="content-text">这里我们初始化 PyQuery对象之后,传入了一个CSS 选择器 #container .list li,它的意思是
-先选取 id 为 container 的节点,再选取其内部class为list 的节点内部的所有li节点,然后打印输
-出。从运行结果可以看到,我们成功获取了符合条件的节点。
-最后,将符合条件的节点的类型打印输出,可以看到依然是 PyQuery 类型。
-下面,我们直接遍历获取的节点,然后调用 text方法,就可以直接获取节点的文本内容了,代
-码如下:</p>
+<p class="content-text">这里我们初始化 PyQuery 对象之后，传入了一个 CSS 选择器 <code class="inline-code">#container .list li</code>，它的意思是
+先选取 id 为 container 的节点，再选取其内部 class 为 list 的节点内部的所有 li 节点，然后打印输
+出。从运行结果可以看到，我们成功获取了符合条件的节点。</p>
+<p class="content-text">最后，将符合条件的节点的类型打印输出，可以看到依然是 PyQuery 类型。</p>
+<p class="content-text">下面，我们直接遍历获取的节点，然后调用 text 方法，就可以直接获取节点的文本内容了，代
+码如下：</p>
 <pre class="code-block" data-lang="python"><code>for item in doc(&#x27;#container .list li&#x27;).items():
     print(item.text())</code></pre>
-<p class="content-text">运行结果如下:
-first item
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>first item
 second item
 third item
 fourth item
-fifth item
-怎么样?我们这里没有写正则表达式,直接通过选择器和 text方法,就得到了想要提取的文本
-信息,是不是方便多了?
-下面我们再来详细了解一下 pyquery 库的用法,包括如何查找节点、遍历节点,并获取各种信息
-等。掌握了这些,我们才能更高效地提取数据。</p>
+fifth item</code></pre>
+<p class="content-text">怎么样？我们这里没有写正则表达式，直接通过选择器和 text 方法，就得到了想要提取的文本
+信息，是不是方便多了？</p>
+<p class="content-text">下面我们再来详细了解一下 pyquery 库的用法，包括如何查找节点、遍历节点，并获取各种信息
+等。掌握了这些，我们才能更高效地提取数据。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 查找节点</h3>
 <p class="content-text">下面是一些常用的查询方法。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">子节点</h4>
-<p class="content-text">查找子节点时,需要用到find方法,其参数是CSS选择器。这里我们还是以上面的HTML为例:</p>
+<p class="content-text">查找子节点时，需要用到 find 方法，其参数是 CSS 选择器。这里我们还是以上面的 HTML 为例：</p>
 <pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(html)
 items = doc(&#x27;.list&#x27;)
@@ -1299,8 +1373,8 @@ print(items)
 lis = items.find(&#x27;li&#x27;)
 print(type(lis))
 print(lis)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 &lt;ul class=&quot;list&quot;&gt;
 &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
 &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
@@ -1314,165 +1388,166 @@ print(lis)</code></pre>
 &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">这里我们先通过.list 参数选取class为list 的节点。然后调用find方法,并给其传入CSS 选
-择器,选取其内部的li节点,最后打印输出。可以发现,find方法会将所有符合条件的节点选择出
-来,结果是 PyQuery类型。
-其实 find 方法的查找范围是节点的所有子孙节点。如果只想查找子节点,那么可以用 children
-方法:</p>
-<pre class="code-block"><code>lis = items.children()
+<p class="content-text">这里我们先通过 <code class="inline-code">.list</code> 参数选取 class 为 list 的节点。然后调用 find 方法，并给其传入 CSS 选
+择器，选取其内部的 li 节点，最后打印输出。可以发现，find 方法会将所有符合条件的节点选择出
+来，结果是 PyQuery 类型。</p>
+<p class="content-text">其实 find 方法的查找范围是节点的所有子孙节点。如果只想查找子节点，那么可以用 children
+方法：</p>
+<pre class="code-block" data-lang="python"><code>lis = items.children()
 print(type(lis))
 print(lis)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
 &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">如果要筛选所有子节点中符合条件的节点,例如想筛选出子节点中 class为active的节点,则可
-以向 children 方法传入CSS 选择器.active,代码如下:</p>
-<pre class="code-block"><code>lis = items.children(&#x27;.active&#x27;)
+<p class="content-text">如果要筛选所有子节点中符合条件的节点，例如想筛选出子节点中 class 为 active 的节点，则可
+以向 children 方法传入 CSS 选择器 <code class="inline-code">.active</code>，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>lis = items.children(&#x27;.active&#x27;)
 print(lis)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">可以看到,输出结果已经是筛选过的,只留下了 class为 active 的节点。</p>
+<p class="content-text">可以看到，输出结果已经是筛选过的，只留下了 class 为 active 的节点。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">父节点</h4>
-<p class="content-text">我们可以用 parent 方法获取某个节点的父节点,下面用一个实例感受一下:
-html = &#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<p class="content-text">我们可以用 parent 方法获取某个节点的父节点，下面用一个实例感受一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;wrap&quot;&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</code></pre>
-<p class="content-text">&#x27;&#x27;&#x27;
-from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)
+&#x27;&#x27;&#x27;
+from pyquery import PyQuery as pq
+doc = pq(html)
 items = doc(&#x27;.list&#x27;)
 container = items.parent()
 print(type(container))
 print(container)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 &lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">这里我们首先用.list 选取 class为list 的节点,然后调用 parent 方法得到其父节点,其类型依然是 PyQuery。
-这里的父节点是指直接父节点,也就是说,parent方法不会继续查找父节点的父节点,即祖先节点。
-但是如果就想获取某个祖先节点,要怎么办呢?这时可以用parents 方法:</p>
+    &lt;ul class=&quot;list&quot;&gt;
+        &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;</code></pre>
+<pre class="code-block" data-lang="html"><code>    &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+<p class="content-text">这里我们首先用 <code class="inline-code">.list</code> 选取 class 为 list 的节点，然后调用 parent 方法得到其父节点，其类型
+依然是 PyQuery。</p>
+<p class="content-text">这里的父节点是指直接父节点，也就是说，parent 方法不会继续查找父节点的父节点，即祖先节点。</p>
+<p class="content-text">但是如果就想获取某个祖先节点，要怎么办呢？这时可以用 parents 方法：</p>
 <pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(html)
 items = doc(&#x27;.list&#x27;)
 parents = items.parents()
 print(type(parents))
 print(parents)</code></pre>
-<p class="content-text">运行结果如下:</p>
+<p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 &lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;
 &lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+    &lt;ul class=&quot;list&quot;&gt;
+        &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+        &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+        &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
-<p class="content-text">可以看到,输出结果有两个:一个是class为wrap的节点,一个是id为 container 的节点。也就是说,parents 方法会返回所有祖先节点。
-如果想要筛选某个祖先节点,可以向 parents 方法传入CSS选择器,这样就会返回祖先节点中符合CSS 选择器的节点:</p>
+<p class="content-text">可以看到，输出结果有两个：一个是 class 为 wrap 的节点，一个是 id 为 container 的节点。也
+就是说，parents 方法会返回所有祖先节点。</p>
+<p class="content-text">如果想要筛选某个祖先节点，可以向 parents 方法传入 CSS 选择器，这样就会返回祖先节点中符
+合 CSS 选择器的节点：</p>
 <pre class="code-block" data-lang="python"><code>parent = items.parents(&#x27;.wrap&#x27;)
 print(parent)</code></pre>
-<p class="content-text">运行结果如下:</p>
+<p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;</code></pre>
-<p class="content-text">可以看到,输出结果少了一个节点,只保留了 class为wrap的节点。</p>
+<p class="content-text">可以看到，输出结果少了一个节点，只保留了 class 为 wrap 的节点。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">兄弟节点</h4>
-<p class="content-text">前面我们说明了子节点和父节点的用法,还有一种节点就是兄弟节点。获取兄弟节点可以使用
-siblings 方法。这里还是以上面的HTML文本为例:</p>
-<pre class="code-block"><code>from pyquery import PyQuery as pq
+<p class="content-text">前面我们说明了子节点和父节点的用法，还有一种节点就是兄弟节点。获取兄弟节点可以使用
+siblings 方法。这里还是以上面的 HTML 文本为例：</p>
+<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(html)
-li
-doc(&#x27;.list .item-0.active&#x27;)
+li = doc(&#x27;.list .item-0.active&#x27;)
 print(li.siblings())</code></pre>
-<p class="content-text">这里首先选择 class为list 的节点内部的class为item-0和active的节点,也就是第三个li节
-点。那么,很明显,其兄弟节点有4个,就是第一个、第二个、第四个、第五个li节点。
-运行结果如下:</p>
+<p class="content-text">这里首先选择 class 为 list 的节点内部的 class 为 item-0 和 active 的节点，也就是第三个 li 节
+点。那么，很明显，其兄弟节点有 4 个，就是第一个、第二个、第四个、第五个 li 节点。</p>
+<p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
 &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">可以看到,结果正是我们刚才说的那4个节点。
-如果要筛选某个兄弟节点,依然可以向 siblings 方法传入CSS选择器,这样就能从所有兄弟节
-点中挑选出符合条件的节点了:</p>
-<pre class="code-block"><code>from pyquery import PyQuery as pq
+<p class="content-text">可以看到，结果正是我们刚才说的那 4 个节点。</p>
+<p class="content-text">如果要筛选某个兄弟节点，依然可以向 siblings 方法传入 CSS 选择器，这样就能从所有兄弟节
+点中挑选出符合条件的节点了：</p>
+<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(html)
-li
-doc(&#x27;.list .item-0.active&#x27;)
+li = doc(&#x27;.list .item-0.active&#x27;)
 print(li.siblings(&#x27;.active&#x27;))</code></pre>
-<p class="content-text">这里我们筛选了class为active的节点,通过刚才的结果可以观察到,class为active的兄弟节
-点只有第4个li节点满足,所以结果应该只包含一个节点。
-我们再看一下运行结果:</p>
+<p class="content-text">这里我们筛选了 class 为 active 的节点，通过刚才的结果可以观察到，class 为 active 的兄弟节
+点只有第 4 个 li 节点满足，所以结果应该只包含一个节点。</p>
+<p class="content-text">我们再看一下运行结果：</p>
 <pre class="code-block" data-lang="html"><code>&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;</code></pre>
 <p class="content-text">结果确实符合我们的预期。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 遍历节点</h3>
-<p class="content-text">可以观察到,pyquery 库的选择结果可能是多个节点,也可能是单个节点,类型都是 PyQuery 类
-型,并没有像 Beautiful Soup 那样返回列表。
-如果结果是单个节点,既可以直接打印输出,也可以直接转成字符串:</p>
-<pre class="code-block"><code>from pyquery import PyQuery as pq
+<p class="content-text">可以观察到，pyquery 库的选择结果可能是多个节点，也可能是单个节点，类型都是 PyQuery 类
+型，并没有像 Beautiful Soup 那样返回列表。</p>
+<p class="content-text">如果结果是单个节点，既可以直接打印输出，也可以直接转成字符串：</p>
+<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(html)
-li
-doc(&#x27;.item-0.active&#x27;)
+li = doc(&#x27;.item-0.active&#x27;)
 print(li)
 print(str(li))</code></pre>
-<p class="content-text">运行结果如下:</p>
+<p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">如果结果是多个节点,就需要遍历获取了。需要调用 items 方法:</p>
-<pre class="code-block"><code>from pyquery import PyQuery as pq
+<p class="content-text">如果结果是多个节点，就需要遍历获取了。需要调用 items 方法：</p>
+<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
 doc = pq(html)
-lis
-doc(&#x27;li&#x27;).items()
+lis = doc(&#x27;li&#x27;).items()
 print(type(lis))
 for li in lis:
-print(li, type(li))</code></pre>
-<p class="content-text">这里把所有 li 节点遍历了一遍。运行结果如下:</p>
-<pre class="result-block"><code>&lt;class &#x27;generator&#x27;&gt;
+    print(li, type(li))</code></pre>
+<p class="content-text">这里把所有 li 节点遍历了一遍。运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;class &#x27;generator&#x27;&gt;
 &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
 &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
@@ -1483,25 +1558,28 @@ print(li, type(li))</code></pre>
 &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
 &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;</code></pre>
-<p class="content-text">可以发现,调用 items方法后,会得到一个生成器,对其进行遍历,就可以逐个得到li节点对象了,它的类型也是PyQuery。还可以调用前面所说的方法对li节点进行选择,例如继续查询子节点、寻找某个祖先节点等,非常灵活。</p>
+<p class="content-text">可以发现，调用 items 方法后，会得到一个生成器，对其进行遍历，就可以逐个得到 li 节点对象
+了，它的类型也是 PyQuery。还可以调用前面所说的方法对 li 节点进行选择，例如继续查询子节点、
+寻找某个祖先节点等，非常灵活。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">获取信息</h4>
-<p class="content-text">提取到节点后,我们的最终目的当然是提取节点包含的信息了。比较重要的信息有两类,一是属性、二是文本,下面分别进行说明。</p>
+<p class="content-text">提取到节点后，我们的最终目的当然是提取节点包含的信息了。比较重要的信息有两类，一是属
+性，二是文本，下面分别进行说明。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取属性</h4>
-<p class="content-text">提取到某个 PyQuery 类型的节点后,可以调用attr方法获取其属性:</p>
-<pre class="code-block"><code>html = &#x27;&#x27;&#x27;
+<p class="content-text">提取到某个 PyQuery 类型的节点后，可以调用 attr 方法获取其属性：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
 &lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
 &#x27;&#x27;&#x27;
 from pyquery import PyQuery as pq
@@ -1509,156 +1587,161 @@ doc = pq(html)
 a = doc(&#x27;.item-0.active a&#x27;)
 print(a, type(a))
 print(a.attr(&#x27;href&#x27;))</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt; &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt; &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 link3.html</code></pre>
-<p class="content-text">这里首先选中 class为item-0和 active 的li节点内的a节点,其类型是PyQuery 类型。
-然后调用 attr方法。在这个方法中传入属性的名称,就可以得到对应的属性值了。
-此外,也可以通过调用 attr属性来获取属性值,用法如下:</p>
-<pre class="code-block"><code>print(a.attr.href)</code></pre>
-<p class="content-text">结果如下:</p>
-<pre class="result-block"><code>link3.html</code></pre>
-<p class="content-text">两种方法的结果完全一样。
-如果选中的是多个元素,这种情况下调用 attr方法,会出现怎样的结果呢?我们用实例来测试一下:</p>
-<pre class="code-block"><code>a = doc(&#x27;a&#x27;)
+<p class="content-text">这里首先选中 class 为 item-0 和 active 的 li 节点内的 a 节点，其类型是 PyQuery 类型。</p>
+<p class="content-text">然后调用 attr 方法。在这个方法中传入属性的名称，就可以得到对应的属性值了。</p>
+<p class="content-text">此外，也可以通过调用 attr 属性来获取属性值，用法如下：</p>
+<pre class="code-block" data-lang="python"><code>print(a.attr.href)</code></pre>
+<p class="content-text">结果如下：</p>
+<pre class="result-block" data-lang="text"><code>link3.html</code></pre>
+<p class="content-text">两种方法的结果完全一样。</p>
+<p class="content-text">如果选中的是多个元素，这种情况下调用 attr 方法，会出现怎样的结果呢？我们用实例来测试
+一下：</p>
+<pre class="code-block" data-lang="python"><code>a = doc(&#x27;a&#x27;)
 print(a, type(a))
 print(a.attr(&#x27;href&#x27;))
 print(a.attr.href)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;a
-href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt; &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;</code></pre>
-<p class="content-text">link2.html
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;a
+href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt; &lt;class &#x27;pyquery.pyquery.PyQuery&#x27;&gt;
 link2.html
-照理来说,我们选中的a节点应该有4个,所以打印结果也应该是4个。但是当我们调用attr方
-法时,返回结果却只有第一个。这是因为,当返回结果包含多个节点时,调用attr方法,只会得到
-第一个节点的属性。
-那么,这时如果想获取a节点的所有属性,就要用到前面所说的遍历了:
-from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)
+link2.html</code></pre>
+<p class="content-text">照理来说，我们选中的 a 节点应该有 4 个，所以打印结果也应该是 4 个。但是当我们调用 attr 方
+法时，返回结果却只有第一个。这是因为，当返回结果包含多个节点时，调用 attr 方法，只会得到
+第一个节点的属性。</p>
+<p class="content-text">那么，这时如果想获取 a 节点的所有属性，就要用到前面所说的遍历了：</p>
+<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
+doc = pq(html)
 a = doc(&#x27;a&#x27;)
 for item in a.items():
-print(item.attr(&#x27;href&#x27;))</code></pre>
-<p class="content-text">运行结果如下:
-link2.html
+    print(item.attr(&#x27;href&#x27;))</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>link2.html
 link3.html
 link4.html
-link5.html
-因此,在获取属性时,可以观察返回的节点是一个还是多个,如果是多个,则需要遍历才能依次
+link5.html</code></pre>
+<p class="content-text">因此，在获取属性时，可以观察返回的节点是一个还是多个，如果是多个，则需要遍历才能依次
 获取每个节点的属性。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取文本</h4>
-<p class="content-text">获取节点之后的另一个主要操作就是获取其内部的文本,此时可以调用 text方法实现:
-html = &#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<p class="content-text">获取节点之后的另一个主要操作就是获取其内部的文本，此时可以调用 text 方法实现：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;wrap&quot;&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;*</code></pre>
-<p class="content-text">from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)
+&#x27;&#x27;&#x27;
+from pyquery import PyQuery as pq
+doc = pq(html)
 a = doc(&#x27;.item-0.active a&#x27;)
 print(a)
 print(a.text())</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;</code></pre>
-<p class="content-text">third item
-这里首先选中a节点,然后调用text方法,就可以获取其内部的文本信息。此时 text 方法会忽
-略节点内部包含的所有HTML,只返回纯文字内容。
-要想获取节点内部的HTML文本,需要用html方法:</p>
-<p class="content-text">from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)</code></pre>
-<p class="content-text">li</p>
-<pre class="code-block"><code>doc(&#x27;.item-0.active&#x27;)
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;
+third item</code></pre>
+<p class="content-text">这里首先选中 a 节点，然后调用 text 方法，就可以获取其内部的文本信息。此时 text 方法会忽
+略节点内部包含的所有 HTML，只返回纯文字内容。</p>
+<p class="content-text">要想获取节点内部的 HTML 文本，需要用 html 方法：</p>
+<pre class="code-block" data-lang="python"><code>from pyquery import PyQuery as pq
+doc = pq(html)
+li = doc(&#x27;.item-0.active&#x27;)
 print(li)
 print(li.html())</code></pre>
-<p class="content-text">这里我们选中了第三个li节点,然后调用了html方法,返回结果应该是li节点内的所有HTML
-文本。
-运行结果如下:</p>
-<pre class="result-block"><code>&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;</code></pre>
-<p class="content-text">这里同样有一个问题,如果我们选中的是多个节点,那么text 或html 方法会返回什么内容?不
-妨用实例来看一下:
-html = &#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<p class="content-text">这里我们选中了第三个 li 节点，然后调用了 html 方法，返回结果应该是 li 节点内的所有 HTML
+文本。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;</code></pre>
+<p class="content-text">这里同样有一个问题，如果我们选中的是多个节点，那么 text 或 html 方法会返回什么内容？不
+妨用实例来看一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;wrap&quot;&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</code></pre>
-<p class="content-text">from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)
+&#x27;&#x27;&#x27;
+from pyquery import PyQuery as pq
+doc = pq(html)
 li = doc(&#x27;li&#x27;)
 print(li.html())
 print(li.text())
-print(type(li.text())</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;</code></pre>
-<p class="content-text">second item third item fourth item fifth item</p>
-<pre class="result-block"><code>&lt;class&#x27;str&#x27;&gt;</code></pre>
-<p class="content-text">结果可能比较出乎意料,html方法返回的是第一个11节点内部的HTML文本,而text 返回了所
-有的li节点内部的纯文本,各节点内容中间用一个空格分割开,即返回结果是一个字符串。
-所以这个地方值得注意,如果得到的结果是多个节点,并且想获取所有节点的内部 HTML 文本,
-就需要遍历这些节点。而text方法不需要遍历即可获取,会对所有节点取文本之后合并成一个字符串。</p>
+print(type(li.text()))</code></pre>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;
+second item third item fourth item fifth item
+&lt;class &#x27;str&#x27;&gt;</code></pre>
+<p class="content-text">结果可能比较出乎意料，html 方法返回的是第一个 li 节点内部的 HTML 文本，而 text 返回了所
+有的 li 节点内部的纯文本，各节点内容中间用一个空格分割开，即返回结果是一个字符串。</p>
+<p class="content-text">所以这个地方值得注意，如果得到的结果是多个节点，并且想获取所有节点的内部 HTML 文本，
+就需要遍历这些节点。而 text 方法不需要遍历即可获取，会对所有节点取文本之后合并成一个字符串。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 节点操作</h3>
-<p class="content-text">pyquery 库提供了一系列方法对节点进行动态修改,例如为某个节点添加一个class,移除某个节
-点等,有时候这些操作会为提取信息带来极大的便利。
-节点操作的方法太多,下面仅举几个典型的例子来说明其用法。</p>
+<p class="content-text">pyquery 库提供了一系列方法对节点进行动态修改，例如为某个节点添加一个 class，移除某个节
+点等，有时候这些操作会为提取信息带来极大的便利。</p>
+<p class="content-text">节点操作的方法太多，下面仅举几个典型的例子来说明其用法。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">addClass 和 removeClass</h4>
-<p class="content-text">我们先用一个实例感受一下:
-html = &#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot; &gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link:3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;</code></pre>
-<pre class="code-block"><code>&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<p class="content-text">我们先用一个实例感受一下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;div class=&quot;wrap&quot;&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</code></pre>
-<p class="content-text">from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)</code></pre>
-<p class="content-text">li</p>
-<pre class="code-block"><code>doc(&#x27;.item-0.active&#x27;)
+&#x27;&#x27;&#x27;
+from pyquery import PyQuery as pq
+doc = pq(html)
+li = doc(&#x27;.item-0.active&#x27;)
 print(li)
 li.removeClass(&#x27;active&#x27;)
 print(li)
 li.addClass(&#x27;active&#x27;)
 print(li)</code></pre>
-<p class="content-text">首先选中了第三个li节点,然后调用 removeClass方法,将其中的active 这个class 移除,然后又调用 addClass方法,将这个class添加回来。每执行一次操作,就会打印一次当前li节点的内容。
-运行结果如下:</p>
-<pre class="result-block"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+<p class="content-text">首先选中了第三个 li 节点，然后调用 removeClass 方法，将其中的 active 这个 class 移除，然
+后又调用 addClass 方法，将这个 class 添加回来。每执行一次操作，就会打印一次当前 li 节点的内容。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">可以看到,一共输出了3次。第二次输出时,li节点的active 这个class 已经不见了,第三次这个class 又有了。
-所以说,addClass 和 removeClass方法可以动态改变节点的class 属性。</p>
+<p class="content-text">可以看到，一共输出了 3 次。第二次输出时，li 节点的 active 这个 class 已经不见了，第三次
+这个 class 又有了。</p>
+<p class="content-text">所以说，addClass 和 removeClass 方法可以动态改变节点的 class 属性。</p>
 </section>
 <section class="minor-section">
-<h4 class="subsection-heading">attr、text 和html</h4>
-<p class="content-text">当然,除了addClass 和 removeClass方法,也可以用attr方法对属性进行操作。此外,text和html方法可以用来改变节点内部的内容。实例如下:
-html = &#x27;&#x27;&#x27;</p>
-<pre class="code-block"><code>&lt;ul class=&quot;list&quot;&gt;
+<h4 class="subsection-heading">attr、text 和 html</h4>
+<p class="content-text">当然，除了 addClass 和 removeClass 方法，也可以用 attr 方法对属性进行操作。此外，text 和 html
+方法可以用来改变节点内部的内容。实例如下：</p>
+<pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
+&lt;ul class=&quot;list&quot;&gt;
+    &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">from pyquery import PyQuery as pq</p>
-<pre class="code-block"><code>doc = pq(html)</code></pre>
-<p class="content-text">li</p>
-<pre class="code-block"><code>doc(&#x27;.item-0.active&#x27;)
+&#x27;&#x27;&#x27;
+from pyquery import PyQuery as pq
+doc = pq(html)
+li = doc(&#x27;.item-0.active&#x27;)
 print(li)
 li.attr(&#x27;name&#x27;, &#x27;link&#x27;)
 print(li)
@@ -1666,19 +1749,25 @@ li.text(&#x27;changed item&#x27;)
 print(li)
 li.html(&#x27;&lt;span&gt;changed item&lt;/span&gt;&#x27;)
 print(li)</code></pre>
-<p class="content-text">这里我们首先选中li节点,然后调用attr方法修改其属性,该方法的第一个参数为属性名,第二个参数为属性值。接着,调用text 和html方法改变li节点内部的内容。每次操作后,都会打印出当前的li节点。
-运行结果如下:</p>
-<pre class="result-block"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt; &lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+<p class="content-text">这里我们首先选中 li 节点，然后调用 attr 方法修改其属性，该方法的第一个参数为属性名，第二
+个参数为属性值。接着，调用 text 和 html 方法改变 li 节点内部的内容。每次操作后，都会打印出
+当前的 li 节点。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="html"><code>&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot; name=&quot;link&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot; name=&quot;link&quot;&gt;changed it em&lt;/li&gt;
+&lt;li class=&quot;item-0 active&quot; name=&quot;link&quot;&gt;changed item&lt;/li&gt;
 &lt;li class=&quot;item-0 active&quot; name=&quot;link&quot;&gt;&lt;span&gt;changed item&lt;/span&gt;&lt;/li&gt;</code></pre>
-<p class="content-text">可以发现,调用attr方法后,li节点多了--个原本不存在的属性name,其值为link。接着调用text 方法,传入文本之后,li节点内部的文本全被改为传入的字符串文本了。最后,调用html 方法传入HTML 文本后,li节点内部又变为了传入的HTML文本。</p>
+<p class="content-text">可以发现，调用 attr 方法后，li 节点多了一个原本不存在的属性 name，其值为 link。接着调用
+text 方法，传入文本之后，li 节点内部的文本全被改为传入的字符串文本了。最后，调用 html 方法
+传入 HTML 文本后，li 节点内部又变为了传入的 HTML 文本。</p>
+<p class="content-text">所以说，如果 attr 方法只传入第一个参数，即属性名，则表示获取这个属性值；如果传入第二
+个参数，则可以用来修改属性值。text 和 html 方法如果不传参数，表示的是获取节点内的纯文本和
+HTML 文本；如果传入参数，则表示进行赋值。</p>
 </section>
-</section>
-<p class="content-text">所以说,如果 <code class="inline-code">attr</code> 方法只传入第一个参数,即属性名,则表示获取这个属性值;如果传入第二个参数,则可以用来修改属性值。<code class="inline-code">text</code> 和 <code class="inline-code">html</code> 方法如果不传参数,表示的是获取节点内的纯文本和 HTML 文本;如果传入参数,则表示进行赋值。</p>
 <section class="minor-section">
-<h4 class="subsection-heading">`remove`</h4>
-<p class="content-text">顾名思义,<code class="inline-code">remove</code> 方法的作用是移除,有时会为信息的提取带来非常大的便利。下面有一段HTML 文本:</p>
+<h4 class="subsection-heading">remove</h4>
+<p class="content-text">顾名思义，remove 方法的作用是移除，有时会为信息的提取带来非常大的便利。下面有一段 HTML
+文本：</p>
 <pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
 &lt;div class=&quot;wrap&quot;&gt;
 Hello, World
@@ -1689,30 +1778,35 @@ from pyquery import PyQuery as pq
 doc = pq(html)
 wrap = doc(&#x27;.wrap&#x27;)
 print(wrap.text())</code></pre>
-<p class="content-text">现在想提取文本中的 <code class="inline-code">Hello, World</code> 这个字符串,而不要 <code class="inline-code">p</code> 节点内部的字符串,该怎样操作呢?
-这里直接先尝试提取 <code class="inline-code">class</code> 为 <code class="inline-code">wrap</code> 的节点中的内容,看看是不是我们想要的。运行结果如下:</p>
-<pre class="result-block"><code>Hello, World This is a paragraph.</code></pre>
-<p class="content-text">这个结果中包含着 <code class="inline-code">p</code> 节点的内容,也就是说 <code class="inline-code">text</code> 方法把所有纯文本全提取出来了。要想去掉 <code class="inline-code">p</code> 节点内部的文本,可以再把 <code class="inline-code">p</code> 节点内的文本提取一遍,然后从整个结果中移除这个子串,显然这个做法比较烦琐。</p>
-<p class="content-text">这时 <code class="inline-code">remove</code> 方法就派上用场了,可以这么做:</p>
+<p class="content-text">现在想提取文本中的 Hello, World 这个字符串，而不要 p 节点内部的字符串，该怎样操作呢？</p>
+<p class="content-text">这里直接先尝试提取 class 为 wrap 的节点中的内容，看看是不是我们想要的。运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>Hello, World This is a paragraph.</code></pre>
+<p class="content-text">这个结果中包含着 p 节点的内容，也就是说 text 方法把所有纯文本全提取出来了。要想去掉 p 节
+点内部的文本，可以再把 p 节点内的文本提取一遍，然后从整个结果中移除这个子串，显然这个做法
+比较烦琐。</p>
+<p class="content-text">这时 remove 方法就派上用场了，可以这么做：</p>
 <pre class="code-block" data-lang="python"><code>wrap.find(&#x27;p&#x27;).remove()
 print(wrap.text())</code></pre>
-<p class="content-text">首先选中 <code class="inline-code">p</code> 节点,然后调用 <code class="inline-code">remove</code> 方法将其移除,这时 <code class="inline-code">wrap</code> 内部就只剩下 <code class="inline-code">Hello, World</code> 这句话了,再利用 <code class="inline-code">text</code> 方法提取即可。</p>
-<p class="content-text">其实还有很多操作节点的方法,例如 <code class="inline-code">append</code>、<code class="inline-code">empty</code> 和 <code class="inline-code">prepend</code> 等。</p>
+<p class="content-text">首先选中 p 节点，然后调用 remove 方法将其移除，这时 wrap 内部就只剩下 Hello, World 这句话
+了，再利用 text 方法提取即可。</p>
+<p class="content-text">其实还有很多操作节点的方法，例如 append、empty 和 prepend 等。</p>
+</section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 伪类选择器</h3>
-<p class="content-text">CSS 选择器之所以强大,还有一个很重要的原因,就是它支持多种多样的伪类选择器,例如选择第一个节点、最后一个节点、奇偶数节点、包含某一文本的节点等。实例如下:</p>
+<p class="content-text">CSS 选择器之所以强大，还有一个很重要的原因，就是它支持多种多样的伪类选择器，例如选择
+第一个节点、最后一个节点、奇偶数节点、包含某一文本的节点等。实例如下：</p>
 <pre class="code-block" data-lang="python"><code>html = &#x27;&#x27;&#x27;
 &lt;div class=&quot;wrap&quot;&gt;
-&lt;div id=&quot;container&quot;&gt;
-&lt;ul class=&quot;list&quot;&gt;
-&lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
-&lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-&lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
+    &lt;div id=&quot;container&quot;&gt;
+        &lt;ul class=&quot;list&quot;&gt;
+            &lt;li class=&quot;item-0&quot;&gt;first item&lt;/li&gt;
+            &lt;li class=&quot;item-1&quot;&gt;&lt;a href=&quot;link2.html&quot;&gt;second item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0 active&quot;&gt;&lt;a href=&quot;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-1 active&quot;&gt;&lt;a href=&quot;link4.html&quot;&gt;fourth item&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;item-0&quot;&gt;&lt;a href=&quot;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;
 &#x27;&#x27;&#x27;
 from pyquery import PyQuery as pq
@@ -1721,98 +1815,105 @@ li = doc(&#x27;li:first-child&#x27;)
 print(li)
 li = doc(&#x27;li:last-child&#x27;)
 print(li)</code></pre>
-<p class="content-text">运行结果如下:
-first item
+<p class="content-text">容提取出来。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>first item
 third item
-fifth item
-get 方法的作用是从 SelectorList 里面提取第一个 Selector 对象,然后输出其中的结果。
-我们再看一个实例:</p>
-<pre class="result-block"><code>result = selector.xpath(&#x27;//li[contains(@class, &quot;item-0&quot;)]//text()&#x27;).get()
+fifth item</code></pre>
+<p class="content-text">get 方法的作用是从 SelectorList 里面提取第一个 Selector 对象，然后输出其中的结果。</p>
+<p class="content-text">我们再看一个实例：</p>
+<pre class="code-block" data-lang="python"><code>result = selector.xpath(&#x27;//li[contains(@class, &quot;item-0&quot;)]//text()&#x27;).get()
 print(result)</code></pre>
-<p class="content-text">输出结果如下:
-first item
-这里我们使用//li[contains(@class, &quot;item-0&quot;)]//text()选取了所有class 包含item-0的li节点的文本内容。准确来说,返回结果 SelectorList 应该对应三个li对象,而这里get方法仅返回了第一个li对象的文本内容,因为它其实只会提取第一个 Selector 对象的结果。
-那有没有能够提取所有 Selector 对应内容的方法呢?有,那就是getall方法。
-所以如果要提取所有对应的li节点的文本内容,写法可以改写为如下内容:</p>
-<pre class="result-block"><code>result = selector.xpath(&#x27;//li[contains(@class, &quot;item-0&quot;)]//text()&#x27;).getall()
+<p class="content-text">输出结果如下：</p>
+<pre class="result-block" data-lang="text"><code>first item</code></pre>
+<p class="content-text">这里我们使用 <code class="inline-code">//li[contains(@class, &quot;item-0&quot;)]//text()</code> 选取了所有 class 包含 item-0 的 li 节
+点的文本内容。准确来说，返回结果 SelectorList 应该对应三个 li 对象，而这里 get 方法仅仅返回
+了第一个 li 对象的文本内容，因为它其实只会提取第一个 Selector 对象的结果。</p>
+<p class="content-text">那有没有能够提取所有 Selector 对应内容的方法呢？有，那就是 getall 方法。</p>
+<p class="content-text">所以如果要提取所有对应的 li 节点的文本内容，写法可以改写为如下内容：</p>
+<pre class="code-block" data-lang="python"><code>result = selector.xpath(&#x27;//li[contains(@class, &quot;item-0&quot;)]//text()&#x27;).getall()
 print(result)</code></pre>
-<p class="content-text">输出结果如下:
-[&#x27;first item&#x27;, &#x27;third item&#x27;, &#x27;fifth item&#x27;]
-这时候,我们得到的就是列表类型的结果,其中的每一项和 Selector 对象是——对应的。
-因此,如果要提取 SelectorList 里面对应的结果,可以使用get或getall方法,前者会获取第一个 Selector 对象里面的内容,后者会依次获取每个 Selector 对象对应的结果。
-另外在上述案例中,如果把xpath方法改写成CSS方法,可以这么实现:</p>
-<pre class="result-block"><code>result = selector.css(&#x27;.item-0 *::text&#x27;).getall()
+<p class="content-text">输出结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;, &#x27;third item&#x27;, &#x27;fifth item&#x27;]</code></pre>
+<p class="content-text">这时候，我们得到的就是列表类型的结果，其中的每一项和 Selector 对象是一一对应的。</p>
+<p class="content-text">因此，如果要提取 SelectorList 里面对应的结果，可以使用 get 或 getall 方法，前者会获取第
+一个 Selector 对象里面的内容，后者会依次获取每个 Selector 对象对应的结果。</p>
+<p class="content-text">另外在上述案例中，如果把 xpath 方法改写成 CSS 方法，可以这么实现：</p>
+<pre class="code-block" data-lang="python"><code>result = selector.css(&#x27;.item-0 *::text&#x27;).getall()
 print(result)</code></pre>
-<p class="content-text">这里*用来提取所有子节点(包括纯文本节点),提取文本需要再加上::text,最终的运行结果和上面是一样的。
-到这里,我们就简单了解了提取文本的方法。</p>
+<p class="content-text">这里 <code class="inline-code">*</code> 用来提取所有子节点（包括纯文本节点），提取文本需要再加上 <code class="inline-code">::text</code>，最终的运行结果和
+上面是一样的。</p>
+<p class="content-text">到这里，我们就简单了解了提取文本的方法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 提取属性</h3>
-<p class="content-text">刚才我们演示了HTML中的文本提取,直接在XPath 中加入//text()即可,那提取属性怎么实现呢?方式是类似的,也是直接在XPath 或者CSS 选择器中表示出来就可以了。
-例如我们提取第三个li节点内部的a节点的href属性,写法如下:
-from parsel import Selector</p>
-<pre class="code-block"><code>selector = Selector(text=html)
+<p class="content-text">刚才我们演示了 HTML 中的文本提取，直接在 XPath 中加入 <code class="inline-code">//text()</code> 即可，那提取属性怎么实
+现呢？方式是类似的，也是直接在 XPath 或者 CSS 选择器中表示出来就可以了。</p>
+<p class="content-text">例如我们提取第三个 li 节点内部的 a 节点的 href 属性，写法如下：</p>
+<pre class="code-block" data-lang="python"><code>from parsel import Selector
+selector = Selector(text=html)
 result = selector.css(&#x27;.item-0.active a::attr(href)&#x27;).get()
 print(result)
 result = selector.xpath(&#x27;//li[contains(@class, &quot;item-0&quot;) and contains(@class, &quot;active&quot;)]/a/@href&#x27;).get()
 print(result)</code></pre>
-<p class="content-text">这里我们实现了两种写法,分别用css和xpath方法实现。我们以同时包含item-0和active 两个class 为依据,来选取第三个li节点,然后进一步选取了里面的a节点。对于CSS选择器,选取</p>
+<p class="content-text">这里我们实现了两种写法，分别用 css 和 xpath 方法实现。我们以同时包含 item-0 和 active 两
+个 class 为依据，来选取第三个 li 节点，然后进一步选取了里面的 a 节点。对于 CSS 选择器，选取</p>
+<p class="content-text">属性需要加 <code class="inline-code">::attr()</code>，并传入对应的属性名称才可选取；对于 XPath，直接用 <code class="inline-code">/@</code> 再加属性名称即可选
+取。最后统一用 get 方法提取结果。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>link3.html
+link3.html</code></pre>
+<p class="content-text">可以看到两种方法都正确提取到了对应的 href 属性。</p>
 </section>
-<div class="section-heading" id="section-3"><h2>3.4 parsel 的使用</h2></div>
-<p class="content-text">属性需要加::attr(),并传入对应的属性名称才可选取;对于XPath,直接用/@再加属性名称即可选取。最后统一用get方法提取结果。
-运行结果如下:
-link3.html
-link3.html
-可以看到两种方法都正确提取到了对应的href 属性。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 正则提取</h3>
-<p class="content-text">除了常用的CSS和xpath方法,Selector 对象还提供了正则表达式提取方法,我们用一个实例来
-了解下:</p>
-<pre class="code-block"><code>from parsel import Selector
-selector = Selector (text=html)
+<p class="content-text">除了常用的 css 和 xpath 方法，Selector 对象还提供了正则表达式提取方法，我们用一个实例来
+了解下：</p>
+<pre class="code-block" data-lang="python"><code>from parsel import Selector
+selector = Selector(text=html)
 result = selector.css(&#x27;.item-0&#x27;).re(&#x27;link.*&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里先用CSS 方法提取了所有class 包含 item-o的节点,然后使用re方法传入了link.*,用来
-匹配包含 link 的所有结果。
-运行结果如下:</p>
-<pre class="result-block"><code>`[&#x27;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&#x27;, &#x27;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;&#x27;]`</code></pre>
-<p class="content-text">可以看到,re方法在这里遍历了所有提取到的Selector对象,然后根据传入的正则表达式,查
-找出符合规则的节点源码并以列表形式返回。
-当然,如果在调用css方法时,已经提取了进一步的结果,例如提取了节点文本值,那么re方
-法就只会针对节点文本值进行提取:</p>
-<pre class="code-block"><code>from parsel import Selector
+<p class="content-text">这里先用 css 方法提取了所有 class 包含 item-0 的节点，然后使用 re 方法传入了 <code class="inline-code">link.*</code>，用来
+匹配包含 link 的所有结果。</p>
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;link3.html&quot;&gt;&lt;span class=&quot;bold&quot;&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&#x27;, &#x27;link5.html&quot;&gt;fifth item&lt;/a&gt;&lt;/li&gt;&#x27;]</code></pre>
+<p class="content-text">可以看到，re 方法在这里遍历了所有提取到的 Selector 对象，然后根据传入的正则表达式，查
+找出符合规则的节点源码并以列表形式返回。</p>
+<p class="content-text">当然，如果在调用 css 方法时，已经提取了进一步的结果，例如提取了节点文本值，那么 re 方
+法就只会针对节点文本值进行提取：</p>
+<pre class="code-block" data-lang="python"><code>from parsel import Selector
 selector = Selector(text=html)
 result = selector.css(&#x27;.item-0 *::text&#x27;).re(&#x27;.*item&#x27;)
 print(result)</code></pre>
-<p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>`[&#x27;first item&#x27;, &#x27;third item&#x27;, &#x27;fifth item&#x27;]`</code></pre>
-<p class="content-text">我们也可以利用re_first方法来提取第一个符合规则的结果:</p>
-<pre class="code-block"><code>from parsel import Selector
+<p class="content-text">运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;, &#x27;third item&#x27;, &#x27;fifth item&#x27;]</code></pre>
+<p class="content-text">我们也可以利用 re_first 方法来提取第一个符合规则的结果：</p>
+<pre class="code-block" data-lang="python"><code>from parsel import Selector
 selector = Selector(text=html)
-result = selector.css(&#x27;.item-o&#x27;).re_first(&#x27;&lt;span class=&quot;bold&quot;&gt;(.*?)&lt;/span&gt;&#x27;)
+result = selector.css(&#x27;.item-0&#x27;).re_first(&#x27;&lt;span class=&quot;bold&quot;&gt;(.*?)&lt;/span&gt;&#x27;)
 print(result)</code></pre>
-<p class="content-text">这里调用了 re_first 方法,提取的是被span 标签包含的文本值,提取结果用小括号括起来表示
-一个提取分组,最后输出的结果就是小括号包围的部分,运行结果如下:</p>
-<pre class="result-block"><code>`third item`</code></pre>
-<p class="content-text">通过这几个例子,我们知道了正则匹配的一些使用方法,re对应多个结果,re_first对应单个结
-果,在不同情况下可以选择合适的方法进行提取。</p>
+<p class="content-text">这里调用了 re_first 方法，提取的是被 span 标签包含的文本值，提取结果用小括号括起来表示
+一个提取分组，最后输出的结果就是小括号包围的部分，运行结果如下：</p>
+<pre class="result-block" data-lang="text"><code>third item</code></pre>
+<p class="content-text">通过这几个例子，我们知道了正则匹配的一些使用方法，re 对应多个结果，re_first 对应单个结
+果，在不同情况下可以选择合适的方法进行提取。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">parsel 库是一个融合了XPath、CSS 选择器和正则表达式的提取库,功能强大又灵活,建议好好
-学习一下,同时可以为之后学习 Scrapy 框架打下基础,有关parsel更多的用法可以参考其官方文档
-https://parsel.readthedocs.io/。
-本节代码参见:https://github.com/Python3WebSpider/ParselTest。</p>
+<p class="content-text">parsel 库是一个融合了 XPath、CSS 选择器和正则表达式的提取库，功能强大又灵活，建议好好
+学习一下，同时可以为之后学习 Scrapy 框架打下基础，有关 parsel 更多的用法可以参考其官方文档
+https://parsel.readthedocs.io/。</p>
+<p class="content-text">本节代码参见：https://github.com/Python3WebSpider/ParselTest。</p>
 </section>
       </article>
       <nav class="chapter-nav">
         <a href="ch02.html">&larr; 第2章 基本库的使用</a>
-        <span></span>
+        <a href="ch04.html">第4章 数据的存储 &rarr;</a>
       </nav>
     </main>
   </div>
   <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第3章 网页数据的解析提取</footer>
-  <script src="../js/sidebar.js?v=20260525-search-context-only"></script>
+  <script src="../js/sidebar.js?v=20260605-text-indent"></script>
   <script>buildSidebarForChapter("ch03");</script>
 </body>
 </html>
