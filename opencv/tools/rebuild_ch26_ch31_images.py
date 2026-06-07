@@ -156,6 +156,81 @@ def haar_face_diagram() -> Image.Image:
     return image
 
 
+def cascade_flow_diagram() -> Image.Image:
+    image = Image.new("RGB", (1080, 720), "white")
+    draw = ImageDraw.Draw(image)
+    draw.text((40, 28), "阶层式分类器排除流程", fill=(34, 43, 58), font=FONT_TITLE)
+    draw.text((40, 68), "不符合任一条件的样本会被立即排除，最后留下正样本。", fill=(88, 101, 119), font=FONT_BODY)
+
+    def arrow(start: tuple[int, int], end: tuple[int, int], color: tuple[int, int, int] = (37, 99, 235)) -> None:
+        draw.line((*start, *end), fill=color, width=4)
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        if abs(dx) >= abs(dy):
+            sign = 1 if dx >= 0 else -1
+            points = [(end[0], end[1]), (end[0] - sign * 18, end[1] - 10), (end[0] - sign * 18, end[1] + 10)]
+        else:
+            sign = 1 if dy >= 0 else -1
+            points = [(end[0], end[1]), (end[0] - 10, end[1] - sign * 18), (end[0] + 10, end[1] - sign * 18)]
+        draw.polygon(points, fill=color)
+
+    def box(center: tuple[int, int], size: tuple[int, int], text: str, fill: tuple[int, int, int]) -> tuple[int, int, int, int]:
+        x, y = center
+        w, h = size
+        rect = (x - w // 2, y - h // 2, x + w // 2, y + h // 2)
+        draw.rounded_rectangle(rect, radius=10, fill=fill, outline=(148, 163, 184), width=3)
+        lines = text.split("\n")
+        total_h = len(lines) * 30
+        ty = y - total_h // 2
+        for line in lines:
+            tw = draw.textlength(line, font=FONT_BODY)
+            draw.text((x - tw / 2, ty), line, fill=(34, 43, 58), font=FONT_BODY)
+            ty += 30
+        return rect
+
+    def diamond(center: tuple[int, int], size: tuple[int, int], text: str) -> tuple[tuple[int, int], tuple[int, int], tuple[int, int], tuple[int, int]]:
+        x, y = center
+        w, h = size
+        points = ((x, y - h // 2), (x + w // 2, y), (x, y + h // 2), (x - w // 2, y))
+        draw.polygon(points, fill=(239, 246, 255), outline=(37, 99, 235))
+        draw.line((*points[0], *points[1]), fill=(37, 99, 235), width=3)
+        draw.line((*points[1], *points[2]), fill=(37, 99, 235), width=3)
+        draw.line((*points[2], *points[3]), fill=(37, 99, 235), width=3)
+        draw.line((*points[3], *points[0]), fill=(37, 99, 235), width=3)
+        tw = draw.textlength(text, font=FONT_BODY)
+        draw.text((x - tw / 2, y - 15), text, fill=(34, 43, 58), font=FONT_BODY)
+        return points
+
+    box((220, 150), (220, 64), "所有样本", (248, 250, 252))
+    conditions = [
+        ((220, 265), "条件 1"),
+        ((220, 390), "条件 2"),
+        ((220, 545), "条件 n"),
+    ]
+    for center, label in conditions:
+        diamond(center, (220, 88), label)
+
+    box((735, 265), (180, 58), "负样本", (254, 242, 242))
+    box((735, 390), (180, 58), "负样本", (254, 242, 242))
+    box((735, 545), (180, 58), "负样本", (254, 242, 242))
+    box((220, 655), (220, 64), "正样本", (236, 253, 245))
+
+    arrow((220, 182), (220, 221))
+    arrow((220, 309), (220, 346))
+    arrow((220, 434), (220, 493))
+    arrow((220, 589), (220, 623))
+    for y in (265, 390, 545):
+        arrow((330, y), (645, y), (220, 38, 38))
+    draw.text((356, 236), "False", fill=(220, 38, 38), font=FONT_BODY)
+    draw.text((356, 361), "False", fill=(220, 38, 38), font=FONT_BODY)
+    draw.text((356, 516), "False", fill=(220, 38, 38), font=FONT_BODY)
+    draw.text((240, 326), "True", fill=(22, 101, 52), font=FONT_BODY)
+    draw.text((240, 451), "True", fill=(22, 101, 52), font=FONT_BODY)
+    draw.text((240, 586), "True", fill=(22, 101, 52), font=FONT_BODY)
+    draw.text((195, 464), "...", fill=(88, 101, 119), font=FONT_TITLE)
+    return image
+
+
 def eye_minneighbors_result(path: Path) -> Image.Image:
     image = cv_open(path)
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
@@ -362,6 +437,17 @@ def zip_image(name: str) -> Image.Image:
             return Image.open(io.BytesIO(fh.read())).convert("RGB")
 
 
+def zip_text(name: str) -> str:
+    with zipfile.ZipFile(CH30_ZIP) as zf:
+        data = zf.read(name)
+    for encoding in ("utf-8-sig", "cp950", "latin1"):
+        try:
+            return data.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return data.decode("latin1", errors="replace")
+
+
 def zip_names(prefix: str, suffixes: tuple[str, ...] = ()) -> list[str]:
     with zipfile.ZipFile(CH30_ZIP) as zf:
         names = [name for name in zf.namelist() if name.startswith(prefix) and not name.endswith("/")]
@@ -379,6 +465,75 @@ def natural_key(name: str) -> tuple[str, int]:
 def ch30_folder_items(prefix: str, count: int = 10, suffixes: tuple[str, ...] = (".jpg", ".bmp")) -> list[FileItem]:
     names = sorted(zip_names(prefix, suffixes), key=natural_key)[:count]
     return [FileItem(Path(name).name, thumb=zip_image(name)) for name in names]
+
+
+def ch30_info_box(rawdata_name: str) -> tuple[int, int, int, int]:
+    info = zip_text("ch30/Haar-Training-car-plate/training/positive/info.txt")
+    for line in info.splitlines():
+        parts = line.split()
+        if parts and parts[0] == rawdata_name:
+            return tuple(int(value) for value in parts[2:6])
+    raise ValueError(f"missing marker info for {rawdata_name}")
+
+
+def objectmarker_view(rawdata_name: str, show_marker: bool) -> Image.Image:
+    source = zip_image(f"ch30/Haar-Training-car-plate/training/positive/{rawdata_name}")
+    scale = 2.6
+    car = source.resize((round(source.width * scale), round(source.height * scale)), Image.Resampling.LANCZOS)
+    if show_marker:
+        x, y, w, h = ch30_info_box(rawdata_name)
+        draw = ImageDraw.Draw(car)
+        box = tuple(round(value * scale) for value in (x, y, x + w, y + h))
+        draw.rectangle(box, outline=(199, 55, 188), width=5)
+
+    frame = Image.new("RGB", (car.width + 36, car.height + 36), "white")
+    frame.paste(car, (18, 18))
+    draw = ImageDraw.Draw(frame)
+    draw.rectangle((0, 0, frame.width - 1, frame.height - 1), outline=(184, 188, 196), width=3)
+
+    canvas = Image.new("RGB", (1060, 720), (51, 78, 174))
+    canvas.paste(frame, ((canvas.width - frame.width) // 2, (canvas.height - frame.height) // 2))
+    return add_window(canvas, "Object Marker", max_width=1200)
+
+
+def console_view(lines: list[str], title: str, width: int = 1160) -> Image.Image:
+    line_h = 30
+    margin = 24
+    height = margin * 2 + line_h * len(lines)
+    image = Image.new("RGB", (width, height), (42, 74, 170))
+    draw = ImageDraw.Draw(image)
+    y = margin
+    for line in lines:
+        draw.text((margin, y), line, fill=(232, 238, 248), font=FONT_MONO)
+        y += line_h
+    return add_window(image, title, max_width=1200)
+
+
+def ch30_training_console() -> Image.Image:
+    lines = [
+        r"haartraining.exe -data cascades -vec vector/facevector.vec -bg negative/bg.txt",
+        r"-npos 90 -nneg 295 -nstages 15 -mem 512 -mode ALL -w 70 -h 20 -nonsym",
+        "",
+        "PARAMETERS:",
+        "cascadeDirName: cascades",
+        "vecFileName: vector/facevector.vec",
+        "bgFileName: negative/bg.txt",
+        "numPos: 90",
+        "numNeg: 295",
+        "numStages: 15",
+        "mem: 512 MB",
+        "",
+        "POS: 90 90 90",
+        "NEG: 295",
+        "BACKGROUND PROCESSING TIME: 0.01",
+        "Precalculation time: 8.89",
+        "+----+------+---------+----------+----------+----------+",
+        "|  N | %SMP |    ST.THR |       HR |       FA | EXP. ERR |",
+        "+----+------+---------+----------+----------+----------+",
+        "|  1 | 100% | -0.942940| 1.000000 | 1.000000 | 0.027397 |",
+        "+----+------+---------+----------+----------+----------+",
+    ]
+    return console_view(lines, "haartraining.exe")
 
 
 def draw_detections(path: Path, cascade_name: str, params: dict, label: str | None = None) -> Image.Image:
@@ -444,8 +599,13 @@ def rebuild_ch30() -> None:
     save(folder_view("ch30 > notCarGray", ch30_folder_items("ch30/notCarGray/", 8, (".jpg",))), "ch30/ch30_06_notCarGray_folder.png")
     save(folder_view("Haar-Training-car-plate > training > positive > rawdata", ch30_folder_items("ch30/Haar-Training-car-plate/training/positive/rawdata/", 8, (".bmp", ".jpg"))), "ch30/ch30_08_positive_rawdata.png")
     save(list_view("Haar-Training-car-plate > training > negative", [FileItem("bg.txt", size="4 KB")] + [FileItem(f"notcar{i}.jpg", size="64 KB") for i in range(1, 9)]), "ch30/ch30_09_negative_folder.png")
+    bg_lines = zip_text("ch30/Haar-Training-car-plate/training/negative/bg.txt").splitlines()[:22]
+    save(text_panel(bg_lines, width=760, title="bg.txt"), "ch30/ch30_10_bg_txt.png")
+    save(objectmarker_view("rawdata/car1.bmp", show_marker=True), "ch30/ch30_11_objectmarker_mark.png")
+    save(objectmarker_view("rawdata/car10.bmp", show_marker=False), "ch30/ch30_12_objectmarker_next.png")
     save(folder_view("ch30 > plate-mark", ch30_folder_items("ch30/plate-mark/", 8, (".bmp",))), "ch30/ch30_13_plate_mark_folder.png")
     cascade_items = [FileItem(str(i), kind="folder") for i in range(0, 11)]
+    save(ch30_training_console(), "ch30/ch30_15_training_console.png")
     save(list_view("Haar-Training-car-plate > training > cascades", cascade_items), "ch30/ch30_16_cascades_folder.png")
     car1 = draw_custom_plate_detection(SOURCE / "ch31" / "testCar" / "cartest1.jpg")
     save(car1, "ch30/ch30_17_detect_cartest1.png")
@@ -472,6 +632,7 @@ def rebuild_ch31() -> None:
 
 def rebuild_ch27() -> None:
     ch27 = SOURCE / "ch27"
+    save(cascade_flow_diagram(), "ch27/ch27_01_cascade_flow.png")
     save(haar_features_diagram(), "ch27/ch27_02_haar_features.png")
     save(haar_face_diagram(), "ch27/ch27_03_haar_face_features.png")
     face_params = {"scaleFactor": 1.1, "minNeighbors": 3, "minSize": (20, 20)}

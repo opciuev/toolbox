@@ -8,7 +8,6 @@
   <style>
     .chapter-figure { margin: 1.25rem 0; text-align: center; }
     .chapter-figure img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.12); background: #fff; }
-    .chapter-figure.cover img { max-width: 760px; }
     .inline-list { margin: .75rem 0 1rem 1.5rem; }
     .inline-list li { margin: .35rem 0; }
   </style>
@@ -38,10 +37,6 @@
       <span class="chapter-badge">第 30 章</span>
       <h1 class="chapter-title">建立哈尔特征分类器 - 车牌辨识</h1>
       <div class="chapter-meta">正样本与负样本图像资料 · Haar 训练工具 · 样本标记 · 车牌侦测</div>
-
-      <div class="chapter-figure cover">
-        <img src="images/ch30/ch30_00_cover.png" alt="第 30 章 建立哈尔特征分类器 - 车牌辨识封面">
-      </div>
 
       <div class="chapter-intro">
         第 27 章笔者介绍了 OpenCV 所提供的哈尔 (Haar) 特征分类器资源档案，侦测物件，这一节将以程式实例带领读者自行设计哈尔 (Haar) 特征分类器档案，一步一步做辨识台湾汽车车牌。
@@ -261,12 +256,7 @@ print("在 notCar 资料夹将图像转为灰阶成功，同时存入notCarGray�
       <p class="content-text">档案 <code>create_list.bat</code> 是批次档，主要是建立 <code>bg.txt</code>，连接两下可以建立此 <code>bg.txt</code> 档案，下列是执行结果。</p>
       <div class="chapter-figure"><img src="images/ch30/ch30_09_negative_folder.png" alt="negative 资料夹"></div>
       <p class="content-text">上述建立 <code>bg.txt</code> 则是记录这个资料夹内的所有档案名称。</p>
-      <div class="result-box-content result-output">notcar0.jpg
-notcar10.jpg
-notcar100.jpg
-notcar101.jpg
-notcar102.jpg
-notcar103.jpg</div>
+      <div class="chapter-figure"><img src="images/ch30/ch30_10_bg_txt.png" alt="bg.txt 档案内容"></div>
 
       <h3>30-4-4 为正样本加上标记</h3>
       <p class="content-text">我们必须告诉分类器所要侦测的物件，所以为正样本加上标记就是要将分类器辨识的物件标记出来，我们想要辨识汽车车牌，所以标记的方式是使用框选汽车图像的车牌。</p>
