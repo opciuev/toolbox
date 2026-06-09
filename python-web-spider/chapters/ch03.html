@@ -51,8 +51,8 @@ Beautiful Soup、pyquery、parsel 等。本章就来介绍这几个解析库的�
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. XPath 常用规则</h3>
-<p class="content-text">表 3-1 列举了 XPath 的几个常用规则。</p>
-<p class="content-text">表 3-1 XPath 的常用规则</p>
+<p class="table-caption">表 3-1 列举了 XPath 的几个常用规则。</p>
+<p class="table-caption">表 3-1 XPath 的常用规则</p>
 <table class="content-table"><thead><tr><th>表达式</th><th>描述</th></tr></thead><tbody><tr><td>`nodename`</td><td>选取此节点的所有子节点</td></tr>
 <tr><td>`/`</td><td>从当前节点选取直接子节点</td></tr>
 <tr><td>`//`</td><td>从当前节点选取子孙节点</td></tr>
@@ -340,7 +340,7 @@ print(result)</code></pre>
 <pre class="result-block" data-lang="text"><code>[&#x27;first item&#x27;]</code></pre>
 <p class="content-text">这里的 and 其实是 XPath 中的运算符。除了它，还有很多其他运算符，如 or、mod 等，在此总结
 为表 3-2。</p>
-<p class="content-text">表 3-2 运算符及其介绍</p>
+<p class="table-caption">表 3-2 运算符及其介绍</p>
 <table class="content-table"><thead><tr><th>运算符</th><th>描述</th><th>实例</th><th>返回值</th></tr></thead><tbody><tr><td>`or`</td><td>或</td><td>`age=19 or age=20`</td><td>如果 age 是 19，则返回 true。如果 age 是 21，则返回 false</td></tr>
 <tr><td>`and`</td><td>与</td><td>`age&gt;19 and age&lt;21`</td><td>如果 age 是 20，则返回 true。如果 age 是 18，则返回 false</td></tr>
 <tr><td>`mod`</td><td>计算除法的余数</td><td>`5 mod 2`</td><td>`1`</td></tr>
@@ -486,7 +486,7 @@ print(result)</code></pre>
 <h3 class="subsection-heading numbered-heading">2. 解析器</h3>
 <p class="content-text">实际上，Beautiful Soup 在解析时是依赖解析器的，它除了支持 Python 标准库中的 HTML 解析器，
 还支持一些第三方解析器（例如 lxml）。表 3-3 列出了 Beautiful Soup 支持的解析器。</p>
-<p class="content-text">表 3-3 Beautiful Soup 支持的解析器</p>
+<p class="table-caption">表 3-3 Beautiful Soup 支持的解析器</p>
 <table class="content-table"><thead><tr><th>解析器</th><th>使用方法</th><th>优势</th><th>劣势</th></tr></thead><tbody><tr><td>Python 标准库</td><td>`BeautifulSoup(markup, &#x27;html.parser&#x27;)`</td><td>Python 的内置标准库、执行速度适中、文档容错能力强</td><td>Python 2.7.3 或 3.2.2 前的版本中文容错能力差</td></tr>
 <tr><td>LXML HTML 解析器</td><td>`BeautifulSoup(markup, &#x27;lxml&#x27;)`</td><td>速度快、文档容错能力强</td><td>需要安装 C 语言库</td></tr>
 <tr><td>LXML XML 解析器</td><td>`BeautifulSoup(markup, &#x27;xml&#x27;)`</td><td>速度快、唯一支持 XML 的解析器</td><td>需要安装 C 语言库</td></tr>
@@ -501,8 +501,8 @@ print(soup.p.string)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">在开始之前，请确保已经正确安装好 Beautiful Soup 和 lxml 这两个库。Beautiful Soup 直接使用
-pip3 安装即可，命令如下：</p>
+<p class="content-text">在开始之前，请确保已经正确安装好 Beautiful Soup 和 lxml 这两个库。Beautiful Soup 直接使用</p>
+<pre class="code-block"><code>pip3 安装即可，命令如下：</code></pre>
 <pre class="code-block" data-lang="console"><code>pip3 install beautifulsoup4</code></pre>
 <p class="content-text">更加详细的安装说明可以参考：https://setup.scrape.center/beautifulsoup。</p>
 <p class="content-text">另外，我们使用的是 lxml 这个解析器，所以还需要额外安装 lxml 这个库，其安装方法见 3.1 节。</p>
@@ -642,8 +642,8 @@ print(soup.p[&#x27;class&#x27;])</code></pre>
 <pre class="result-block" data-lang="text"><code>dromouse
 [&#x27;title&#x27;]</code></pre>
 <p class="content-text">这里需要注意，有的返回结果是字符串，有的返回结果是由字符串组成的列表。例如，name 属
-性的值是唯一的，于是返回结果就是单个字符串。而对于 class 属性，一个节点元素可能包含多个
-class，所以返回的就是列表。在实际处理过程中，我们要注意判断类型。</p>
+性的值是唯一的，于是返回结果就是单个字符串。而对于 class 属性，一个节点元素可能包含多个</p>
+<pre class="code-block"><code>class，所以返回的就是列表。在实际处理过程中，我们要注意判断类型。</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取内容</h4>
@@ -1901,8 +1901,8 @@ print(result)</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
 <p class="content-text">parsel 库是一个融合了 XPath、CSS 选择器和正则表达式的提取库，功能强大又灵活，建议好好
-学习一下，同时可以为之后学习 Scrapy 框架打下基础，有关 parsel 更多的用法可以参考其官方文档
-https://parsel.readthedocs.io/。</p>
+学习一下，同时可以为之后学习 Scrapy 框架打下基础，有关 parsel 更多的用法可以参考其官方文档</p>
+<pre class="result-block"><code>https://parsel.readthedocs.io/。</code></pre>
 <p class="content-text">本节代码参见：https://github.com/Python3WebSpider/ParselTest。</p>
 </section>
       </article>

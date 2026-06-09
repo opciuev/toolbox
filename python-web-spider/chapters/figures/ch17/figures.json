@@ -1,0 +1,431 @@
+{
+  "图17-1 Scrapyd 页面": {
+    "src": "figures/ch17/fig-17_1.jpg",
+    "page": "page-002",
+    "box": {
+      "x": 0.16,
+      "y": 0.125,
+      "w": 0.7,
+      "h": 0.285
+    },
+    "manual": true
+  },
+  "图17-2 登录界面": {
+    "src": "figures/ch17/fig-17_2.jpg",
+    "page": "page-009",
+    "box": {
+      "x": 0.12,
+      "y": 0.145,
+      "w": 0.77,
+      "h": 0.305
+    },
+    "manual": true
+  },
+  "图17-4 主机列表": {
+    "src": "figures/ch17/fig-17_4.jpg",
+    "page": "page-010",
+    "box": {
+      "x": 0.055,
+      "y": 0.075,
+      "w": 0.86,
+      "h": 0.165
+    },
+    "manual": true
+  },
+  "图17-5 projects 文件夹": {
+    "src": "figures/ch17/fig-17_5.jpg",
+    "page": "page-010",
+    "box": {
+      "x": 0.145,
+      "y": 0.37,
+      "w": 0.73,
+      "h": 0.275
+    },
+    "manual": true
+  },
+  "图17-6 项目列表": {
+    "src": "figures/ch17/fig-17_6.jpg",
+    "page": "page-010",
+    "box": {
+      "x": 0.04,
+      "y": 0.735,
+      "w": 0.88,
+      "h": 0.12
+    },
+    "manual": true
+  },
+  "图17-7 编辑项目": {
+    "src": "figures/ch17/fig-17_7.jpg",
+    "page": "page-011",
+    "box": {
+      "x": 0.08,
+      "y": 0.08,
+      "w": 0.86,
+      "h": 0.3
+    },
+    "manual": true
+  },
+  "图17-8 项目打包": {
+    "src": "figures/ch17/fig-17_8.jpg",
+    "page": "page-011",
+    "box": {
+      "x": 0.08,
+      "y": 0.49,
+      "w": 0.86,
+      "h": 0.115
+    },
+    "manual": true
+  },
+  "图17-9 部署项目": {
+    "src": "figures/ch17/fig-17_9.jpg",
+    "page": "page-011",
+    "box": {
+      "x": 0.08,
+      "y": 0.73,
+      "w": 0.86,
+      "h": 0.16
+    },
+    "manual": true
+  },
+  "图17-10 查看日志详情": {
+    "src": "figures/ch17/fig-17_10.jpg",
+    "page": "page-012",
+    "box": {
+      "x": 0.06,
+      "y": 0.18,
+      "w": 0.88,
+      "h": 0.245
+    },
+    "manual": true
+  },
+  "图17-11 在 Docker Hub 上出现新推送的 Docker 镜像": {
+    "src": "figures/ch17/fig-17_11.jpg",
+    "page": "page-016",
+    "box": {
+      "x": 0.08,
+      "y": 0.5,
+      "w": 0.86,
+      "h": 0.28
+    },
+    "manual": true
+  },
+  "图17-12 Docker 的设置面板": {
+    "src": "figures/ch17/fig-17_12.jpg",
+    "page": "page-022",
+    "box": {
+      "x": 0.12,
+      "y": 0.495,
+      "w": 0.78,
+      "h": 0.315
+    },
+    "manual": true
+  },
+  "图17-13 运行结果": {
+    "src": "figures/ch17/fig-17_13.jpg",
+    "page": "page-024",
+    "box": {
+      "x": 0.22,
+      "y": 0.45,
+      "w": 0.56,
+      "h": 0.055
+    },
+    "manual": true
+  },
+  "图17-14 运行结果": {
+    "src": "figures/ch17/fig-17_14.jpg",
+    "page": "page-027",
+    "box": {
+      "x": 0.21,
+      "y": 0.11,
+      "w": 0.58,
+      "h": 0.08
+    },
+    "manual": true
+  },
+  "图17-15 运行结果": {
+    "src": "figures/ch17/fig-17_15.jpg",
+    "page": "page-030",
+    "box": {
+      "x": 0.535,
+      "y": 0.72,
+      "w": 0.345,
+      "h": 0.095
+    },
+    "manual": true
+  },
+  "图17-16 Dashboard 登录界面": {
+    "src": "figures/ch17/fig-17_16.jpg",
+    "page": "page-034",
+    "box": {
+      "x": 0.12,
+      "y": 0.39,
+      "w": 0.76,
+      "h": 0.215
+    },
+    "manual": true
+  },
+  "图17-17 登录成功后的页面": {
+    "src": "figures/ch17/fig-17_17.jpg",
+    "page": "page-035",
+    "box": {
+      "x": 0.15,
+      "y": 0.12,
+      "w": 0.7,
+      "h": 0.305
+    },
+    "manual": true
+  },
+  "图17-19 Scrapy 爬虫项目对应的 Pod": {
+    "src": "figures/ch17/fig-17_19.jpg",
+    "page": "page-036",
+    "box": {
+      "x": 0.15,
+      "y": 0.09,
+      "w": 0.7,
+      "h": 0.345
+    },
+    "manual": true
+  },
+  "图17-20 Pod 对应的运行日志": {
+    "src": "figures/ch17/fig-17_20.jpg",
+    "page": "page-036",
+    "box": {
+      "x": 0.15,
+      "y": 0.58,
+      "w": 0.72,
+      "h": 0.32
+    },
+    "manual": true
+  },
+  "图17-21 “规模”选项卡": {
+    "src": "figures/ch17/fig-17_21.jpg",
+    "page": "page-037",
+    "box": {
+      "x": 0.08,
+      "y": 0.17,
+      "w": 0.85,
+      "h": 0.25
+    },
+    "manual": true
+  },
+  "图17-22 调整目标副本数量": {
+    "src": "figures/ch17/fig-17_22.jpg",
+    "page": "page-037",
+    "box": {
+      "x": 0.09,
+      "y": 0.5,
+      "w": 0.82,
+      "h": 0.165
+    },
+    "manual": true
+  },
+  "图17-23 新创建了 4 个 Pod": {
+    "src": "figures/ch17/fig-17_23.jpg",
+    "page": "page-038",
+    "box": {
+      "x": 0.08,
+      "y": 0.09,
+      "w": 0.84,
+      "h": 0.37
+    },
+    "manual": true
+  },
+  "图17-24 Redis key 列表": {
+    "src": "figures/ch17/fig-17_24.jpg",
+    "page": "page-042",
+    "box": {
+      "x": 0.39,
+      "y": 0.795,
+      "w": 0.25,
+      "h": 0.1
+    },
+    "manual": true
+  },
+  "图17-25 运行结果": {
+    "src": "figures/ch17/fig-17_25.jpg",
+    "page": "page-043",
+    "box": {
+      "x": 0.08,
+      "y": 0.1,
+      "w": 0.86,
+      "h": 0.455
+    },
+    "manual": true
+  },
+  "图17-26 Prometheus 的整体架构": {
+    "src": "figures/ch17/fig-17_26.jpg",
+    "page": "page-044",
+    "box": {
+      "x": 0.06,
+      "y": 0.47,
+      "w": 0.87,
+      "h": 0.39
+    },
+    "manual": true
+  },
+  "图17-27 用 Grafana 做的可视化监控面板": {
+    "src": "figures/ch17/fig-17_27.jpg",
+    "page": "page-045",
+    "box": {
+      "x": 0.09,
+      "y": 0.37,
+      "w": 0.84,
+      "h": 0.335
+    },
+    "manual": true
+  },
+  "图17-28 Exporter": {
+    "src": "figures/ch17/fig-17_28.jpg",
+    "page": "page-046",
+    "box": {
+      "x": 0.16,
+      "y": 0.09,
+      "w": 0.7,
+      "h": 0.41
+    },
+    "manual": true
+  },
+  "图17-29 运行结果": {
+    "src": "figures/ch17/fig-17_29.jpg",
+    "page": "page-049",
+    "box": {
+      "x": 0.08,
+      "y": 0.585,
+      "w": 0.84,
+      "h": 0.305
+    },
+    "manual": true
+  },
+  "图17-30 欢迎界面": {
+    "src": "figures/ch17/fig-17_30.jpg",
+    "page": "page-051",
+    "box": {
+      "x": 0.16,
+      "y": 0.08,
+      "w": 0.7,
+      "h": 0.375
+    },
+    "manual": true
+  },
+  "图17-31 用户名和密码": {
+    "src": "figures/ch17/fig-17_31.jpg",
+    "page": "page-051",
+    "box": {
+      "x": 0.27,
+      "y": 0.58,
+      "w": 0.52,
+      "h": 0.3
+    },
+    "manual": true
+  },
+  "图17-32 Grafana 控制面板": {
+    "src": "figures/ch17/fig-17_32.jpg",
+    "page": "page-052",
+    "box": {
+      "x": 0.075,
+      "y": 0.14,
+      "w": 0.84,
+      "h": 0.33
+    },
+    "manual": true
+  },
+  "图17-34 搜索 scrapy 相关的指标": {
+    "src": "figures/ch17/fig-17_34.jpg",
+    "page": "page-053",
+    "box": {
+      "x": 0.28,
+      "y": 0.13,
+      "w": 0.46,
+      "h": 0.26
+    },
+    "manual": true
+  },
+  "图17-35 搜索结果": {
+    "src": "figures/ch17/fig-17_35.jpg",
+    "page": "page-053",
+    "box": {
+      "x": 0.13,
+      "y": 0.54,
+      "w": 0.74,
+      "h": 0.365
+    },
+    "manual": true
+  },
+  "图17-36 创建一个 Dashboard": {
+    "src": "figures/ch17/fig-17_36.jpg",
+    "page": "page-054",
+    "box": {
+      "x": 0.08,
+      "y": 0.14,
+      "w": 0.25,
+      "h": 0.185
+    },
+    "manual": true
+  },
+  "图17-37 创建新面板": {
+    "src": "figures/ch17/fig-17_37.jpg",
+    "page": "page-054",
+    "box": {
+      "x": 0.38,
+      "y": 0.14,
+      "w": 0.55,
+      "h": 0.185
+    },
+    "manual": true
+  },
+  "图17-38 配置面板": {
+    "src": "figures/ch17/fig-17_38.jpg",
+    "page": "page-054",
+    "box": {
+      "x": 0.1,
+      "y": 0.59,
+      "w": 0.84,
+      "h": 0.315
+    },
+    "manual": true
+  },
+  "图17-39 仪表盘": {
+    "src": "figures/ch17/fig-17_39.jpg",
+    "page": "page-055",
+    "box": {
+      "x": 0.075,
+      "y": 0.18,
+      "w": 0.845,
+      "h": 0.3
+    },
+    "manual": true
+  },
+  "图17-3 创建主机": {
+    "src": "figures/ch17/fig-17_3.jpg",
+    "page": "page-009",
+    "box": {
+      "x": 0.31,
+      "y": 0.61,
+      "w": 0.4,
+      "h": 0.205
+    },
+    "manual": true
+  },
+  "图17-18 crawler 命名空间下各个服务的运行状态": {
+    "src": "figures/ch17/fig-17_18.jpg",
+    "page": "page-035",
+    "box": {
+      "x": 0.15,
+      "y": 0.55,
+      "w": 0.7,
+      "h": 0.285
+    },
+    "manual": true
+  },
+  "图17-33 Explore 页面": {
+    "src": "figures/ch17/fig-17_33.jpg",
+    "page": "page-052",
+    "box": {
+      "x": 0.075,
+      "y": 0.575,
+      "w": 0.84,
+      "h": 0.32
+    },
+    "manual": true
+  }
+}

@@ -1,0 +1,2143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第12章 APP数据的爬取 - Python3 网络爬虫开发实战 第2版</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/style.css?v=20260605-text-indent">
+</head>
+<body>
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="../index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
+    <div class="header-right"><a href="../index.html">首页</a></div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <h1 class="chapter-title">第12章 APP数据的爬取</h1>
+
+      <article class="ocr-content preserve-lines">
+<p class="content-text">截至目前,我们介绍的都是爬取网页数据相关的内容。但随着移动互联网的发展,越来越多的企
+业不再提供网页端的服务,而是直接开发了App,更多更全的信息都是通过App 展示的。
+那我们可以爬取App的数据吗?当然可以。
+大部分 App 使用的数据通信协议也是基于 HTTP/HTTPS的,App 内部一些页面交互和数据通信
+的背后也都有对应的API来处理,例如某个页面呈现的数据几乎都来源于某个API。为了更好地理解
+App 中的数据加载,我们将其类比于网页中的Ajax请求和数据渲染,其基本过程是App向服务器发
+起一个HTTP/HTTPS 请求,然后接收并解析服务器的响应内容,之后将得到的数据呈现出来。
+在网页中,我们可以借助浏览器开发者工具中的Network 面板看到网页中产生的所有网络请求和
+响应内容,然而App怎么办呢?要想拦截 App中的网络请求,就得用到抓包工具了,例如Charles、
+Fiddler、mitmproxy等,我们可以通过这些工具拦截 App和API通信的请求内容和响应内容,如果能
+从中找到一定的规律,就可以用程序直接构造请求来模拟 API的请求,从而完成数据爬取。
+和网页一样,App为了更好地保护数据不被爬取,其对应的API请求中也会出现加密参数,如果
+我们因此找不到对应的规律,那么即使抓到了包,也不好直接构造请求完成数据爬取。这时就需要想
+各种办法了,例如直接拦截所有请求的响应内容并实时处理、使用与网页中的Selenium类似的工具完
+成“所见即所爬”、直接Hook App中的关键方法来获取数据、直接逆向App找到其中的接口参数逻辑,
+等等。
+本章的介绍侧重于比较基础的App爬取技术,例如App数据包的抓取和App的自动化等技术,
+会主要介绍 Charles、mitmproxy、Appium 和 Airtest 这些工具的使用方法,学会这些足以应对大多数 App
+的爬取。
+当然只学会本章所讲的技术还不够,可能还是会抓包失败,或者在使用自动化工具爬取数据时碰
+壁。换句话说,仅仅停留在表层是不够的,在某些情况下需要对App进行逆向来找到其核心逻辑以及
+数据请求究竟是怎么实现的,这就涉及App的逆向、脱壳、模拟执行so文件等技术了,这些会在第13
+章单独讲解。</p>
+<div class="section-heading" id="section-0"><h2>12.1 Charles 抓包工具的使用</h2></div>
+<p class="content-text">marles 是一个网络抓包工具,我们可以用它抓取 App运行过程中产生的所有请求内容和响应内
+容,这和在浏览器开发者工具的Network 面板中看到网页产生的内容是——一样的道理。
+Charles、Fiddler 等都是非常强大的HTTP抓包软件,功能基本类似,本节我们选择 Charles 作为
+主要的移动端抓包工具来分析 App的数据包,以便之后爬取App的数据。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 本节目标</h3>
+<p class="content-text">本节我们会以一个电影示例App为例,利用Charles 抓取这个App在运行过程中产生的网络数据</p>
+<p class="content-text">包,然后查看具体的请求内容和响应内容。
+同时,我们会使用Python 改写抓取到的数据包中的请求,继而爬取App的数据。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
+<p class="content-text">Charles 运行在一个电脑上,运行的时候会在该电脑的8888端口开启一个代理服务,首先请确保
+已经正确安装好 Charles 并开启了代理服务。
+然后准备一部 Android 手机或模拟器(系统版本最好在 7.0 以下),并让手机或模拟器的网络和
+Charles 所在电脑的网络处于同一个局域网下(可以让模拟器通过虚拟网络与电脑连接,也可以让手机
+真机和电脑连接同一个 Wi-Fi)。
+之后设置好 Charles 代理和 Charles CA 证书,在 Charles 中开启 SSL 监听。整个配置过程可以参
+考 https://setup.scrape.center/charles。
+另外需在手机上安装示例 App,安装包下载地址为 https://app1.scrape.center/, 访问即可下载。
+注意 为了方便,本节后续的内容会统一使用“手机”指代“手机真机”或“模拟器”。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 抓包原理</h3>
+<p class="content-text">设置手机代理为 Charles 的代理服务的地址,这样手机访问互联网的数据包就会先流经 Charles,
+再由 Charles 转发给真正的服务器;同样,服务器返回的数据包会先到达 Charles,再由 Charles 转发
+给手机。整个过程中的 Charles 相当于中间人,可以捕获所有数据包,意味着可以捕获所有请求内容
+和响应内容。不仅如此,Charles 还可以对请求内容和响应内容做修改。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 实战抓包</h3>
+<p class="content-text">打开 Charles,初始运行界面如图 12-1 所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_1.jpg" alt="图12-1 Charles 的初始运行界面" loading="lazy"><figcaption>图12-1 Charles 的初始运行界面</figcaption></figure>
+<p class="content-text">Charles 会一直监听手机产生的数据包,捕获的数据包将显示在界面左侧,随着时间的推移,会捕
+获越来越多的数据包,左侧列表里的内容也越来越多。</p>
+<p class="content-text">现在打开手机上下载的app1,其界面如图12-2所示。
+会发现 Charles 已经捕获了对应的数据包,其界面类似图12-3(注意一定要提前设置好 Charles 代
+理以及 Charles CA证书,否则没有效果)。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_2.jpg" alt="图12-2 app1 的界面" loading="lazy"><figcaption>图12-2 app1 的界面</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_3.jpg" alt="图12-3 打开 app1 后，Charles 的界面" loading="lazy"><figcaption>图12-3 打开 app1 后，Charles 的界面</figcaption></figure>
+<p class="content-text">在app1里不断上拉,Charles 会捕获这个过程中产生的所有网络请求,图12-4中左侧的列表展示
+了捕获的数据包。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_4.jpg" alt="图12-4 在 app1 里不断上拉后，Charles 的界面" loading="lazy"><figcaption>图12-4 在 app1 里不断上拉后，Charles 的界面</figcaption></figure>
+<p class="content-text">可以看到,左侧列表中有一个链接是https://app1.scrape.center,在app1里上拉的时候它会一直闪
+动,这就表示当前app1发出的获取电影数据的请求被 Charles 捕获了。
+为了验证这个结论的正确性,点击上述链接下的一个条目,切换到 Contents 选项卡,查看其详情。
+此时界面右侧会显示一些 JSON数据,其中有一个 results 字段,该字段中每一个条目里的 name 值都</p>
+<p class="content-text">是一个电影的名称,这些名称与图12-2中的电影——对应,如图12-5所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_5.jpg" alt="图12-5 所捕获数据的具体内容" loading="lazy"><figcaption>图12-5 所捕获数据的具体内容</figcaption></figure>
+<p class="content-text">至此可以确定,https://app1.scrape.center 对应的接口就是获取电影数据的接口。这样我们就成功
+捕获了在上拉刷新过程中产生的请求内容和响应内容。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 分析</h3>
+<p class="content-text">现在分析一下捕获的请求内容和响应内容的详细信息。首先回到Overview 选项卡,界面右侧的
+上方显示了请求 URL、响应状态码 Response Code 和请求方法 Method 等信息,如图12-6所示,这些
+内容和在网页中用浏览器开发者工具捕获的內容是类似的。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_6.jpg" alt="图12-6 Overview 选项卡下的内容" loading="lazy"><figcaption>图12-6 Overview 选项卡下的内容</figcaption></figure>
+<p class="content-text">第12章 App数据的爬取
+接下来点击 Contents 选项卡,查看请求内容和响应内容的详情,界面如图 12-7所示。上半部分
+显示的是请求的信息,下半部分显示的是响应的信息。切换到 Headers 选项卡即可看到请求头,切换
+到 JSON Text 选项卡即可看到响应体,并且响应体的内容已经被格式化。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_7.jpg" alt="图12-7 Contents 选项卡下的内容" loading="lazy"><figcaption>图12-7 Contents 选项卡下的内容</figcaption></figure>
+<p class="content-text">由于这个请求是 GET请求,因此还需要关心GET的参数信息,切换到 Query String 选项卡即可
+查看,如图12-8所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_8.jpg" alt="图12-8 GET 的参数信息" loading="lazy"><figcaption>图12-8 GET 的参数信息</figcaption></figure>
+<p class="content-text">对于其他 App,同样可以使用本节的分析方式。如果能直接分析出请求 URL 和参数的规律,就
+可以直接模拟发出请求实现数据的批量抓取。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 重发</h3>
+<p class="content-text">Charles 还有一个强大功能，是可以对捕获的请求内容加以修改并把修改后的请求发送出去。点击
+界面右侧上方的修改按钮，左侧列表就会出现一个以编辑图标为开头的接口，代表我们正在修改此接
+口对应的请求，如图12-9所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_9.jpg" alt="图12-9 修改捕获的请求" loading="lazy"><figcaption>图12-9 修改捕获的请求</figcaption></figure>
+<p class="content-text">可以修改请求参数中的某个字段，例如这里将 offset 字段的值由0修改为10，如图12-10所示，
+然后点击界面下方的Execute 按钮即可发送修改后的请求。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_10.jpg" alt="图12-10 将 offset 字段的值由 0 修改为 10" loading="lazy"><figcaption>图12-10 将 offset 字段的值由 0 修改为 10</figcaption></figure>
+<p class="content-text">可以发现左侧列表出现了对应的请求结果，点击 Contents 选项卡，查看响应内容，这次返回的是
+第2个列表页中的电影信息，如图12-11 所示。</p>
+<p class="content-text">有了重发功能，就可以方便地使用 Charles 做调试了，可以通过修改参数、接口等测试不同请求
+的响应状态，从而知道哪些参数必要和哪些不必要，以及参数分别有什么规律，最后抽象出一个最简
+单的接口供模拟使用。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 修改响应内容</h3>
+<p class="content-text">除了修改请求内容，Charles 还可以修改响应内容，例如将响应内容修改为本地或远程的某个文件，
+这样就可以实现数据的修改和伪造了。
+怎么实现呢？右击任意一个请求，可以看到出现的菜单中有 Map Remote 和 Map Local 这两个选
+项，通过这两个选项就可以将响应内容修改为远程或本地的文件，</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_11.jpg" alt="图12-11 返回了第 11~20 个电影的信息" loading="lazy"><figcaption>图12-11 返回了第 11~20 个电影的信息</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_12.jpg" alt="图12-12 Map Remote 和 Map Local 选项" loading="lazy"><figcaption>图12-12 Map Remote 和 Map Local 选项</figcaption></figure>
+<p class="content-text">以生成本地文件为例，怎么实现呢？可以先把当前的响应内容，也就是 JSON Text 的内容复制下
+来，保存成本地文件，文件名是 data.json，</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_13.jpg" alt="图12-13 保存当前的响应内容" loading="lazy"><figcaption>图12-13 保存当前的响应内容</figcaption></figure>
+<p class="content-text">Charles 抓包工具的使用
+然后修改其中的字段值,例如将第一个条目的 name 值修改为“霸王别姬 2”,并保存修改,如图 12-14
+所示。</p>
+<p class="content-text">  data.json</p>
+<pre class="code-block"><code>{
+  &quot;count&quot;: 100,
+  &quot;id&quot;: 1,
+  &quot;results&quot;: [{
+    &quot;name&quot;:&quot;霸王别姬2&quot;,
+    &quot;alias&quot;: &quot;Farewell My Concubine&quot;,
+    &quot;cover&quot;: &quot;https://p0.meituan.net/movie/
+    ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c&quot;,
+    &quot;categories&quot;:[&quot;剧情&quot;,&quot;爱情&quot;],
+    &quot;published_at&quot;: &quot;1993-07-26&quot;,
+    &quot;minute&quot;: 171,
+    &quot;score&quot;: 9.5,
+    &quot;regions&quot;: [&quot;中国内地&quot;,&quot;中国香港&quot;]
+  }, {
+    &quot;id&quot;: 2,
+    &quot;name&quot;:&quot;这个杀手不太冷&quot;,
+    &quot;alias&quot;: &quot;Léon&quot;,
+    &quot;cover&quot;: &quot;https://p1.meituan.net/movie/
+    6bea9af4524dfbd0b668eaa7e187c3df767253.jpg@464w_644h_le_1c&quot;,
+    &quot;categories&quot;:[&quot;剧情&quot;,&quot;动作&quot;,&quot;犯罪&quot;],
+    &quot;published_at&quot;: &quot;1994-09-14&quot;,
+    &quot;minute&quot;: 110,
+    &quot;score&quot;: 9.5,
+    &quot;regions&quot;: [&quot;法国&quot;]
+  }, {
+    &quot;id&quot;: 3,
+    &quot;name&quot;:&quot;肖申克的救赎”,
+    &quot;alias&quot;: &quot;The Shawshank Redemption&quot;,</code></pre>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_14.jpg" alt="图12-14 修改响应内容中的字段值" loading="lazy"><figcaption>图12-14 修改响应内容中的字段值</figcaption></figure>
+<p class="content-text">再在 Map Local 的配置中,选定data.json文件的保
+存路径,如图12-15所示。
+这样,我们就把 app1的第一个请求——加载列表页
+成功修改成本地文件 data.json中的内容了。接下来重新
+启动app1,界面如图12-16所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_15.jpg" alt="图12-15 配置 Map Local" loading="lazy"><figcaption>图12-15 配置 Map Local</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_16.jpg" alt="图12-16 重启 app1 后的界面" loading="lazy"><figcaption>图12-16 重启 app1 后的界面</figcaption></figure>
+<p class="content-text">可以发现,第一个电影的名称变成了“霸王别姬2”,我们成功修改了响应内容。
+这和11.11 节内容的原理其实都是修改了HTTP响应的内容。在11.11节中,我们使用 Playwright
+修改了网页中要加载的一些数据文件,将它们映射为本地的文件,整个过程是依据 Playwright 中设置
+的规则完成的,此处是借助Charles 完成。</p>
+<p class="content-text">可以把前面所讲的“重发”和这个过程称为中间人攻击,Charles 就相当于中间人,它可以拦截请
+求内容和响应内容,并对这些内容进行修改,而手机端完全无感。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">8. 模拟爬取</h3>
+<p class="content-text">现在我们已经成功完成了抓包操作,app1发出的所有请求一目了然,请求 URL 就是 https://app1.
+scrape.center/api/movie/,后面跟着两个请求参数 offset 和limit。显然,offset 就是偏移量,limit 就是一
+次的返回结果中包含的条目数量。例如 offset为20,limit为10,代表返回第21~30条电影的信息。
+另外,通过观察可以发现一共有100个电影,因此 offset 取0、10、20、...、90, limit 则恒为10。
+接下来我们用 Python 简单模拟一下请求,这里写法有一些从简,代码如下:</p>
+<pre class="code-block"><code>import requests
+BASE_URL = &#x27;https://app1.scrape.center/api/movie?offset={offset}&amp;limit=10&#x27;
+for i in range(0, 10):
+offset = i * 10
+url= BASE_URL.format(offset=offset)
+data = requests.get(url).json()
+print(&#x27;data&#x27;, data)</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>data {&#x27;count&#x27;: 100, &#x27;results&#x27;: [{&#x27;id&#x27;: 1, &#x27;name&#x27;:&#x27;霸王别姬&#x27;, &#x27;alias&#x27;: &#x27;Farewell My Concubine&#x27;, &#x27;cover&#x27;:</code></pre>
+<p class="content-text">&#x27;https://po.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c&#x27;, &#x27;categories&#x27;: [&#x27;
+剧情&#x27;,&#x27;爱情&#x27;], &#x27;published_at&#x27;: &#x27;1993-07-26&#x27;, &#x27;minute&#x27;: 171, &#x27;score&#x27;: 9.5, &#x27;regions&#x27;: [&#x27;中国大陆&#x27;,&#x27;中国香
+港&#x27;]},{&#x27;id&#x27;: 2, &#x27;name&#x27;:&#x27;这个杀手不太冷&#x27;,&#x27;alias&#x27;: &#x27;Léon&#x27;, &#x27;cover&#x27;: ... &#x27;published_at&#x27;: &#x27;1995-07-15&#x27;, &#x27;minute&#x27;:
+89, &#x27;score&#x27;: 9.0, &#x27;regions&#x27;: [&#x27;美国&#x27;]}]}</p>
+<pre class="code-block"><code>data {&#x27;count&#x27;: 100, &#x27;results&#x27;: [{&#x27;id&#x27;: 11, &#x27;name&#x27;: &#x27;V字仇杀队&#x27;, &#x27;alias&#x27;: &#x27;V for Vendetta&#x27;, &#x27;cover&#x27;:</code></pre>
+<p class="content-text">&#x27;https://p1.meituan.net/movie/06ec3c1c647942b1e40bca84036014e9490863.jpg@464w_644h_1e_1c&#x27;, &#x27;categories&#x27;:</p>
+<pre class="code-block"><code>[&#x27;剧情&#x27;,&#x27;动作&#x27;,&#x27;科幻&#x27;,&#x27;惊悚&#x27;], &#x27;published_at&#x27;: &#x27;2005-12-11&#x27;, &#x27;minute&#x27;: 132, &#x27;score&#x27;: 8.9, &#x27;regions&#x27;: [&#x27;</code></pre>
+<p class="content-text">美国&#x27;,&#x27;英国&#x27;,&#x27;德国&#x27;]},... &#x27;categories&#x27;: [&#x27;纪录片&#x27;],&#x27;published_at&#x27;: &#x27;2001-12-12&#x27;, &#x27;minute&#x27;: 98, &#x27;score&#x27;:
+9.1, &#x27;regions&#x27;: [&#x27;法国&#x27;,&#x27;德国&#x27;,&#x27;意大利&#x27;,&#x27;西班牙&#x27;,&#x27;瑞士&#x27;]}]}</p>
+<pre class="code-block"><code>data {&#x27;count&#x27;: 100, &#x27;results&#x27;: [{&#x27;id&#x27;: 21, &#x27;name&#x27;:&#x27;黃金三镖客&#x27;, &#x27;alias&#x27;: &#x27;Il buono, il brutto, il cattivo.&#x27;,
+&#x27;cover&#x27;:</code></pre>
+<p class="content-text">可以看到,我们轻松模拟了每个请求,并爬取了服务器的响应内容。
+由于 app1 的接口没有任何加密措施,因此我们仅仅靠抓包以及观察数据包的规律就轻松模拟了
+app1 的请求。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">9. 总结</h3>
+<p class="content-text">本节介绍了借助抓包工具 Charles 模拟 App请求的过程。我们成功抓取了App 发往网络的数据包,
+还捕获了原始的响应数据,并通过修改原始请求和发送修改后的请求进行了接口测试。
+另外,知道了请求和响应的具体内容后,通过分析得到请求 URL 和参数的规律,之后就可以用
+程序模拟请求实现批量抓取。
+当然,本节所讲的案例是基于一种比较理想的情况,随着技术的发展,App接口往往会带有密钥
+或者出现无法抓包的情况,在第13章会详细讲解如何处理此类情形。</p>
+</section>
+<div class="section-heading" id="section-1"><h2>12.2 mitmproxy 抓包工具的使用</h2></div>
+<p class="content-text">mitmproxy 是一个支持 HTTP/HTTPS 协议的抓包程序,和Fiddler、Charles 有类似的功能,只不
+过它以控制台的形式操作。
+mitmproxy 还有两个关联组件。一个是mitmdump,这是mitmproxy 的命令行接口,利用它我们可
+以对接 Python 脚本,用Python实现监听后的处理。另一个是mitmweb,这是一个Web程序,通过它
+我们可以清楚地观察到 mitmproxy 捕获的请求。</p>
+<p class="content-text">本节来了解一下mitmproxy的用法。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. mitmproxy 的功能</h3>
+<p class="content-text">mitmproxy 有如下几项功能:
+ 拦截 HTTP/HTTPS的请求和响应;
+ □保存并分析 HTTP 会话;
+ □ 模拟客户端发起请求,模拟服务端返回响应;
+ ■ 利用反向代理将流量转发给指定服务器;
+ □ 支持Mac 系统和Linux 系统上的透明代理;
+ ■利用Python 实时处理 HTTP请求和响应。
+整体来看,mitmproxy 相当于一个命令行版本的Charles,同样可以捕获与修改请求内容和响应内容。其实,相比 Charles, mitmproxy 最有优势的是它的关联组件 mitmdump, mitmdump可以使用Python
+脚本实时处理请求和响应,功能非常强大。
+本节我们先了解 mitmproxy 的基本功能,12.3节再来介绍 mitmdump 对接 Python 的实现。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
+<p class="content-text">和 Charles一样,mitmproxy 运行之后会默认在当前电脑的8080端口开启一个代理服务,这个服务实际上是一个HTTP/HTTPS的代理。
+请确保已经正确安装好了 mitmproxy,并且让手机和mitmproxy 所在的电脑处于同一个局域网下。
+然后配置好 mitmproxy CA,具体的安装和配置方法见 https://setup.scrape.center/mitmproxy。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 抓包原理</h3>
+<p class="content-text">让手机和电脑处在同一个局域网下,将手机代理设置为mitmproxy的代理服务的地址。这样手机
+在访问互联网的时候,数据包就会先流经 mitmproxy,再由 mitmproxy 把这些数据包转发给真正的服务器;同样,服务器返回的数据包也会先到达 mitmproxy,再由 mitmproxy 转发给手机。整个过程中的 mitmproxy 相当于中间人,能够抓取所有请求和响应。
+这个过程还可以对接 mitmdump,直接用Python 脚本处理抓取的请求和响应的具体内容。例如得到响应之后,直接解析其内容,然后存入数据库。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 基本使用</h3>
+<p class="content-text">首先需要运行 mitmproxy,命令如下:
+mitmproxy
+运行之后当前电脑的8080端口上会运行
+一个代理服务。mitmproxy的页面如图 12-17
+所示,右下角是当前正在监听的端口。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_17.jpg" alt="图12-17 启动 mitmproxy 的结果" loading="lazy"><figcaption>图12-17 启动 mitmproxy 的结果</figcaption></figure>
+<p class="content-text">接下来将手机和电脑连接在同一局域网
+下,将代理设置为当前代理。先查看当前电脑的IP地址,在Windows 上查看的命令如下:
+ipconfig
+在Linux和Mac上查看的命令如下:</p>
+<pre class="code-block"><code>ifconfig</code></pre>
+<p class="content-text">输出结果如图12-18所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_18.jpg" alt="图12-18 查看当前电脑的 IP 地址" loading="lazy"><figcaption>图12-18 查看当前电脑的 IP 地址</figcaption></figure>
+<p class="content-text">当前电脑的IP地址形式一般是10.***、172.16.*.*和192.168.*.*,例如图12-18中的192.168.31.102。
+设置 mitmproxy 的代理时,设置为此地址即可。
+设置成功后,在手机浏览器上访问任意网页或者打开任意App时,mitmproxy 页面上都会呈现出
+这个过程中的所有请求,例如在手机浏览器上打开百度,期间产生的请求如图12-19所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_19.jpg" alt="图12-19 打开百度产生的所有请求" loading="lazy"><figcaption>图12-19 打开百度产生的所有请求</figcaption></figure>
+<p class="content-text">这也相当于我们之前在浏览器开发者工具中监听得到的内容。图12-19中左下角显示的1/31代表
+一共产生了31个请求,箭头当前所指的请求是第1个。每个请求的开头都有一个GET或POST,这是
+请求方法,后面紧接的内容是请求URL,URL 之后是请求对应的响应状态码,其后是响应内容的类
+型(例如text/html代表网页文档、image/jpeg代表图片),再后面是响应体的大小和响应时间。总之,
+当前页面呈现了所有请求和响应的概览,我们可以通过这个页面观察所有的请求。</p>
+<p class="content-text">如果想查看某个请求的详情,可以通过上下键切换,选中这个请求后按下回车键,进入请求的详
+情页面,如图12-20所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_20.jpg" alt="图12-20 请求的详情页面" loading="lazy"><figcaption>图12-20 请求的详情页面</figcaption></figure>
+<p class="content-text">从图12-20中,可以看到请求头的详细信息,例如Host、Cookie等。图的上方有 Request、Response
+和 Detail 三个选项,当前是打开了 Request 选项。按下Tab键切换至 Response 选项卡,查看请求对
+应的响应详情,如图12-21所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_21.jpg" alt="图12-21 响应的详情页面" loading="lazy"><figcaption>图12-21 响应的详情页面</figcaption></figure>
+<p class="content-text">开始的内容是响应头的信息,下拉之后可以看到响应体的信息。针对当前请求,响应体就是网页
+的源代码。此时再按Tab键,切换到最后一个选项卡 Detail,即可看到当前请求的详细信息,如服务
+器的IP 和端口、HTTP协议版本、客户端的IP和端口等,如图12-22 所示。
+mitmproxy 还提供了命令行式的编辑功能,使我们可以重新编辑请求。按下E键即可进入编辑页
+面,这时它会询问要编辑哪部分内容,选项有 cookies、query、url等,如图12-23所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_22.jpg" alt="图12-22 当前请求的详细信息" loading="lazy"><figcaption>图12-22 当前请求的详细信息</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_23.jpg" alt="图12-23 编辑请求" loading="lazy"><figcaption>图12-23 编辑请求</figcaption></figure>
+<p class="content-text">按下要编辑内容对应的索引键即可进入编辑页面,例如按下数字6键,进入编辑请求 URL 的参
+数 Query Strings 的页面,如图12-24所示。我们可以按下D键删除当前的Query Strings,然后按下A键
+新增一行,输入新的Key 和Value。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_24.jpg" alt="图12-24 编辑 Query Strings 的页面" loading="lazy"><figcaption>图12-24 编辑 Query Strings 的页面</figcaption></figure>
+<p class="content-text">这里我们分别输入wd和NBA。之后按下Esc键和Q键返回请求的详情页面,可以看到请求 URL里
+多了一个 wd=NBA的参数,如图12-25所示。</p>
+<p class="content-text">接着按下E键和数字4键,进入编辑 Path 的页面,如图12-26所示。和上面流程一样,按下D键
+和A键修改 Path的内容。
+这里我们将 Path 修改为s。之后按下Esc键和Q键返回请求的详情页面,可以看到请求 URL 变
+成了https://m.baidu.com/s?wd=NBA,访问这个页面,结果如图12-27所示,这和用百度搜索关键词 NBA
+的返回结果一样。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_25.jpg" alt="图12-25 更新了修改后的请求页面" loading="lazy"><figcaption>图12-25 更新了修改后的请求页面</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_26.jpg" alt="图12-26 编辑 Path 的页面" loading="lazy"><figcaption>图12-26 编辑 Path 的页面</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_27.jpg" alt="图12-27 访问修改后的 URL 的结果" loading="lazy"><figcaption>图12-27 访问修改后的 URL 的结果</figcaption></figure>
+<p class="content-text">接下来,按下R键重新发送修改后的请求,可以看到请求旁边多了一个回旋箭头,如图12-28所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_28.jpg" alt="图12-28 重新发送修改后的请求" loading="lazy"><figcaption>图12-28 重新发送修改后的请求</figcaption></figure>
+<p class="content-text">响应结果如图 12-29所示,观察响应体,可以看到图 12-27 所示页面的源代码。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_29.jpg" alt="图12-29 响应结果" loading="lazy"><figcaption>图12-29 响应结果</figcaption></figure>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 总结</h3>
+<p class="content-text">本节介绍了 mitmproxy的简单用法,其基本功能和Charles 是类似的,只是不像Charles 那样有方
+便操作的UI界面,不过快捷键使用熟练后,也是非常方便的。
+利用 mitmproxy,我们可以观察手机上的所有请求,以及对请求的修改并重新发送。Fiddler、
+Charles 也有这个功能,而且它们的UI界面操作起来更加方便。那么 mitmproxy 的优势何在?其实,
+mitmproxy 的强大之处体现在它的关联组件 mitmdump上,有了 mitmdump,我们便可以直接对接
+Python 脚本对请求和响应做处理。12.3节我们就来学习 mitmdump 的用法。</p>
+</section>
+<div class="section-heading" id="section-2"><h2>12.3 mitmdump 实时抓包处理</h2></div>
+<p class="content-text">mitmdump 是 mitmproxy 的命令行接口,可以对接Python 脚本处理请求和响应,这是相比 Fiddler、
+Charles 等工具更加方便的地方。有了它,我们不用再手动抓取和分析HTTP请求与响应,只要写好请
+求和响应的处理逻辑即可。
+正是由于 mitmdump可以对接 Python 脚本,因此我们在Python 脚本中获得请求和响应的内容时,
+就可以顺便添加一些解析、存储数据的逻辑,这样就实现了数据的抓取和实时处理。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 实例引入</h3>
+<p class="content-text">我们可以使用命令启动 mitmdump:
+mitmdump -s script.py
+这里使用-s参数指定了本地脚本 script.py 为处理脚本,用来处理抓取的数据,需要将其放置在
+当前命令的执行目录下。
+我们可以在 script.py 脚本里写入如下内容:</p>
+<pre class="code-block"><code>def request(flow):</code></pre>
+<p class="content-text">    flow.request.headers[&#x27;User-Agent&#x27;] = &#x27;MitmProxy&#x27;</p>
+<pre class="code-block"><code>print(flow.request.headers)</code></pre>
+<p class="content-text">其中定义了一个 request 方法,参数为flow,这是一个HTTPFlow 对象,调用其 request 属性即可</p>
+<p class="content-text">获取当前的请求对象。这里将当前请求对象的请求头 User-Agent
+修改成了 MitmProxy,然后打印出了所有请求头。
+运行启动命令后,在手机端访问http://www.httpbin.org/get,
+可以看到手机端显示的页面显示如图12-30所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_30.jpg" alt="图12-30 手机端显示的页面" loading="lazy"><figcaption>图12-30 手机端显示的页面</figcaption></figure>
+<p class="content-text">同时电脑端的控制台输出如图12-31所示的结果。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_31.jpg" alt="图12-31 电脑端控制台的输出结果" loading="lazy"><figcaption>图12-31 电脑端控制台的输出结果</figcaption></figure>
+<p class="content-text">图12-30 中的headers 实际上就是请求头,可以看到里面的
+User-Agent 是我们修改后的MitmProxy。图12-31中的Headers 也
+是,其中 User-Agent 的內容正是 MitmProxy。
+在这个案例中,我们通过只有3行代码的script.py 脚本完成
+了对请求的修改,输出结果可以呈现在电脑端的控制台上,调试
+起来很方便。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 日志输出</h3>
+<p class="content-text">mitmdump 提供了专门的日志输出功能,可以设定以不同的颜色输出不同级别的结果。把script.py
+脚本的内容修改成如下这样:</p>
+<pre class="code-block"><code>from mitmproxy import ctx</code></pre>
+<pre class="code-block"><code>def request(flow):</code></pre>
+<p class="content-text">    flow.request.headers[&#x27;User-Agent&#x27;] = &#x27;MitmProxy&#x27;</p>
+<pre class="code-block"><code>ctx.log.info(str(flow.request.headers))
+ctx.log.warn(str(flow.request.headers))
+ctx.log.error(str(flow.request.headers))</code></pre>
+<p class="content-text">这里调用了 ctx模块,它有一
+个名为log 的功能,调用不同的输
+出方法可以输出不同颜色的结果,
+以便我们更直观、方便地调试(例
+如,调用 info 方法输出的结果为
+白色,调用 warn 方法输出的结果
+为黄色,调用error 方法输出的内
+容为红色)。上述代码的运行结果
+如图12-32所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_32.jpg" alt="图12-32 使用 log 功能的运行结果" loading="lazy"><figcaption>图12-32 使用 log 功能的运行结果</figcaption></figure>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 请求</h3>
+<p class="content-text">我们来看看 mitmdump 还有哪些常用的功能,先用一个实例感受一下:</p>
+<pre class="code-block"><code>from mitmproxy import ctx</code></pre>
+<pre class="code-block"><code>def request(flow):
+request = flow.request
+info = ctx.log.info
+info(request.url)
+info(str(request.headers))
+info(str(request.cookies))
+info(request.host)
+info(request.method)
+info(str(request.port))
+info(request.scheme)</code></pre>
+<p class="content-text">这里的 request 方法是 mitmdump 针对请求提供的处理接口。将 script.py 脚本修改为如上内容,
+然后在手机上打开 http://www.httpbin.org/get,即可看到电脑端的控制台输出了一系列请求。这里我们
+找到第一个请求,控制台打印出了该请求的一些常见属性,如请求 URL、请求头、请求 Cookies、请
+求 Host、请求方法、请求端口、请求协议等,结果如图12-33所示。
+我们可以修改其中的任意属性,就像最初修改请求头 User-Agent一样,直接赋值即可。例如,修
+改请求 URL:</p>
+<pre class="code-block"><code>def request(flow):
+url = &#x27;https://www.baidu.com&#x27;</code></pre>
+<p class="content-text">    flow.request.url = url
+这里直接将请求 URL 修改成了百度,会发生什么事情呢?手机端会显示如图12-34所示的页面。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_33.jpg" alt="图12-33 输出结果" loading="lazy"><figcaption>图12-33 输出结果</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_34.jpg" alt="图12-34 手机端显示的页面" loading="lazy"><figcaption>图12-34 手机端显示的页面</figcaption></figure>
+<p class="content-text">有意思的是,浏览器最上方呈现的网址还是 http://www.httpbin.org,而页面已经变成了百度首页。
+我们用简单的脚本就成功修改了目标网站,意味着这种方式使修改和伪造请求变得轻而易举,这也是
+中间人攻击。
+注意 通过这个实例我们也能知道,URL 正确不代表页面内容也正确。我们需要进一步提高安全防
+范意识。</p>
+<p class="content-text">了解了基本用法,很容易就能获取和修改请求内容,另外可以通过修改Cookie、添加代理等方式
+规避反爬。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 响应</h3>
+<p class="content-text">对于爬虫来说,更加关心的其实是响应内容,响应体才是要爬取的结果。和请求一样,mitmdump
+针对响应也提供了对应的处理接口,就是 response 方法:</p>
+<pre class="code-block"><code>from mitmproxy import ctx</code></pre>
+<pre class="code-block"><code>def response(flow):
+response = flow.response
+info = ctx.log.info
+info(str(response.status_code))
+info(str(response.headers))
+info(str(response.cookies))
+info(str(response.text))</code></pre>
+<p class="content-text">将 script.py 脚本修改为如上内容,然后用手机访问http://www.httpbin.org/get,电脑端控制台会输
+出响应状态码、响应头、响应 Cookie 和响应体几个属性,其中最后一个就是网页的源代码。电脑端
+控制台的输出结果如图12-35所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_35.jpg" alt="图12-35 电脑端控制台的输出结果" loading="lazy"><figcaption>图12-35 电脑端控制台的输出结果</figcaption></figure>
+<p class="content-text">我们通过 response 方法获取了每个请求对应的响应内容,接下来对响应信息进行提取和存储,就
+成功完成爬取了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 实战准备</h3>
+<p class="content-text">我们已经可以利用 mitmdump 对接 Python 脚本实时处理响应内容了,接下来看看能否将其应用于
+App 爬虫。先尝试将一个电影App 的接口数据爬取下来,再将结果实时保存到 MongoDB 数据库中。
+请确保已经正确安装好 mitmproxy 和 mitmdump,手机和电脑处于同一个局域网下,以及配置好
+了 mitmproxy 的CA证书,具体的配置流程可以参考 https://setup.scrape.center/mitmproxy。
+本节使用的示例 App的下载地址为https://app5.scrape.center/,请在手机上安装这个App。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 抓取分析</h3>
+<p class="content-text">首先获取一下当前页面的URL 和返回内容,编写一个脚本:</p>
+<pre class="code-block"><code>def response(flow):
+print(flow.request.url)
+print(flow.response.text)</code></pre>
+<p class="content-text">这里只打印了请求 URL 和响应体这两个最关键的部分,
+将此脚本保存 spider.py文件。接下来启动 mitmdump:</p>
+<pre class="code-block"><code>mitmdumps spider.py</code></pre>
+<p class="content-text">打开手机上下载的app5,便可以看到电脑端控制台输出
+了相应内容,接着不断下拉,可以看到手机屏幕上的电影数据
+在一页一页加载,如图12-36所示。
+观察一下电脑端控制台,可以看到输出了类似JSON数据
+的结果,部分结果如图12-37所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_36.jpg" alt="图12-36 不断加载的电影数据" loading="lazy"><figcaption>图12-36 不断加载的电影数据</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_37.jpg" alt="图12-37 控制台输出的部分结果" loading="lazy"><figcaption>图12-37 控制台输出的部分结果</figcaption></figure>
+<p class="content-text">选取其中的一个URL 观察一下,具体为 https://app5.scrape.center/api/movie/?offset=30&amp;limit=
+10&amp;token=M2U5NjYxZjEwNmQyMDlkYmYyNTIzZGFkYmZkYzdiNThlYTgzOWQ0MywxNjIxNzAzM
+DA5%0A,可以看到除了offset、limit参数,里面还带有一个token。我们把结果中的响应体复制下来,
+并格式化处理,结果如图12-38所示。</p>
+<pre class="result-block" data-lang="json"><code>{
+data.json
+&quot;count&quot;: 100,
+&quot;results&quot;: [
+{
+&quot;id&quot;: 30,
+&quot;name&quot;:&quot;上帝之城&quot;,
+&quot;alias&quot;: &quot;Cidade de Deus&quot;,
+&quot;cover&quot;: &quot;https://p1.meituan.net/movie/
+b553d13f30100db731ab6cf45668e52d94703.jpg@464w_644h_le_1c&quot;,
+&quot;categories&quot;:[&quot;剧情”,“犯罪”},
+&quot;published_at&quot;: null,
+&quot;minute&quot;: 130,
+&quot;score&quot;: 8.8,
+&quot;regions&quot;:[&quot;巴西”,“法国&quot;],
+&quot;drama&quot;:&quot;巴西里约热内卢的贫民窟,这里是“上帝之城”,更是魔鬼也会叹息着转身的地方。阿炮(亚历山大·罗德里格斯饰)
+带着我们到了这里,他见证了这里二十多年来被残暴、贪婪、复仇、野心、背叛、掠夺所裹挟的混乱生活以及最终导致的一场灾难性的黑帮
+争斗。虽然从小就要辗转于匪徒间求生存,但胆小怕事的性格与自我保护的本能却使他一直能平安度日。60年代初,阿毛、阿夹和阿呆是
+这里的“少年
+三侠”,在抢劫完旅馆之后,他们三人分道扬镳,阿夹重回上帝的怀抱,而阿呆和阿毛纷纷付出了生命的代价。78年,当年“少
+年三侠”手下的小弟小豆子(道格拉斯·席尔瓦饰)靠着自己的心狠手辣,不停地吞并别人的地盘,成为了贫民区的“小霸王”,生意也从抢
+劫升级到了更为暴利的毒品买卖,和他一起飞黄腾达的还有班尼(Phellipe·哈根森 饰)。班尼认识
+了美丽的安迪丽卡(艾莉丝·布拉加饰),准备归隐,在送别的晚会上,他意外被对头杀害
+,悲痛之下,“小霸王”集合人手给班尼报仇,帮派之间的厮杀就此开始。此时的阿炮,机缘
+巧合下成为了杂志社的见习摄影师,他的相机,照下的却是孩子们持枪核弹的狰狞,和帮派
+间无休无止的仇杀。”
+},
+{
+&quot;id&quot;: 31,
+&quot;name&quot;:&quot;辩护人”,
+&quot;alias&quot;: &quot;변호인&quot;,</code></pre>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_38.jpg" alt="图12-38 格式化处理后的响应体内容" loading="lazy"><figcaption>图12-38 格式化处理后的响应体内容</figcaption></figure>
+<p class="content-text">  通过对比可以发现,图12-38中的内容和app5里显示的电影数据完全一致,说明我们成功截获了
+  响应体。
+  有人可能会想,为什么这里不能像12.1节那样直接用Python 请求爬取数据呢?因为这次App的
+  接口带有一个加密参数 token,仅凭借抓包根本没法知道它是如何生成的,而通过Python 直接构造请
+  求来爬取数据需要模拟 token 的生成逻辑,所以不能。
+  好在我们已经可以直接通过 mitmdump抓取结果,相当于请求是App构造的,我们直接拿到了响
+  应结果,得来全不费功夫,也不需要再去构造请求了,直接把响应结果保存下来就好。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 数据抓取</h3>
+<p class="content-text">  现在我们稍微完善一下 spider.py 脚本,增加一些过滤URL 和处理响应结果的逻辑:</p>
+<pre class="code-block" data-lang="python"><code>import json
+from mitmproxy import ctx
+
+def response(flow):
+    url = &#x27;https://app5.scrape.center/api/movie/&#x27;
+    if flow.request.url.startswith(url):
+        text
+        flow.response.text
+        if not text:
+            return
+        data = json.loads(text)
+        items = data.get(&#x27;results&#x27;)
+        for item in items:
+            ctx.log.info(str(item))</code></pre>
+<p class="content-text">  之后重新打开 app5,并在电脑端控制台观察输出结果,如图12-39所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_39.jpg" alt="图12-39 电脑端控制台的输出结果" loading="lazy"><figcaption>图12-39 电脑端控制台的输出结果</figcaption></figure>
+<p class="content-text">  可以看到输出了每部电影的数据,数据以 JSON形式呈现。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">8. 提取保存</h3>
+<p class="content-text">  现在再修改一下 spider.py脚本,将返回结果保存下来,保存为文本文件即可,改后的脚本内容
+  如下:</p>
+<pre class="code-block" data-lang="python"><code>import json
+from mitmproxy import ctx
+import os</code></pre>
+<pre class="code-block"><code>OUTPUT_FOLDER = &#x27;movies&#x27;
+os.path.exists(OUTPUT_FOLDER) or os.makedirs (OUTPUT_FOLDER)
+def response(flow):
+url = &#x27;https://app5.scrape.center/api/movie/&#x27;
+if flow.request.url.startswith(url):
+text = flow.response.text
+if not text:
+return
+data = json.loads(text)
+items = data.get(&#x27;results&#x27;)
+for item in items:
+ctx.log.info(str(item))
+with open(f&#x27;{OUTPUT_FOLDER}/{item[&quot;name&quot;]}.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as f:
+f.write(json.dumps(item, ensure_ascii=False, indent=2))</code></pre>
+<p class="content-text">然后重新打开 app5,滑一下屏幕,这时候观察 movies 文件夹,会发现成功生成了一些JSON文
+件,这些文件以电影名称命名,如图12-40所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_40.jpg" alt="图12-40 movies 文件夹下生成的文件" loading="lazy"><figcaption>图12-40 movies 文件夹下生成的文件</figcaption></figure>
+<p class="content-text">任意打开其中一个文件,如阿飞正传.json文件,可以看到如图 12-41 所示的结果。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_41.jpg" alt="图12-41 打开阿飞正传 json 文件" loading="lazy"><figcaption>图12-41 打开阿飞正传 json 文件</figcaption></figure>
+<pre class="result-block" data-lang="json"><code>{
+    &quot;id&quot;: 24,
+    &quot;name&quot;:&quot;阿飞正传&quot;,
+    &quot;alias&quot;: &quot;Days of Being Wild&quot;,
+    &quot;cover&quot;: &quot;https://p0.meituan.net/movie/85215b28d568ea8e2c97766edd95f890210522.jpg@464w_644h_le_1c&quot;,
+    &quot;categories&quot;: [
+        &quot;剧情&quot;,
+        &quot;爱情&quot;,
+        &quot;犯罪&quot;
+    ],
+    &quot;published_at&quot;: &quot;2018-06-25&quot;,
+    &quot;minute&quot;: 94,
+    &quot;score&quot;: 9.1,
+    &quot;regions&quot;: [
+        &quot;中国香港&quot;
+    ],
+    &quot;drama&quot;:&quot;英俊不凡的旭仔阿飞(张国荣饰)是上海移民,他从未见过生母,自小由养母 (潘迪华饰)养大,因此长大后他对生命中遇到的每一个女人都冷酷无情。放荡不羁的他先后与南华体育会售票员苏丽珍(张曼玉饰)和舞女咪咪(刘嘉玲饰)同居,但后来又相继抛弃了她们。旭仔从养母处得知,自己原是混着西班牙和菲律宾贵族血统的私生子旭仔决要找到生母,为此他只身前往菲律宾,可是生母拒见,带着怨恨离开。旭仔在离开香港前,将车子给予歪仔(张学友饰)。咪咪发现抱仔走了,问歪仔知不知道他在那里,歪仔告诉她旭仔去了菲律宾,并将旭仔的车子卖掉,将钱给她去菲律宾找旭仔。一直暗恋苏丽珍的警察超仔 (刘德华饰) 目睹了苏丽珍与旭仔的决裂,并在母亲死后,决定改行去跑船。超仔在菲律宾唐人街又遇上了旭仔,不过他假装自己不认识他。不久,旭仔因为买卖假护照而在一场殴斗中身负重伤,超仔问他记不记得某年4月16日下午3时他在做什么,旭仔说要记得的他永远记得,但是他叫超仔告诉苏丽珍他已经不记得了。最后他守着死在一列异国火车上的旭仔。在这同时,另一个阿飞(梁朝伟饰) 精心打理自己准备出门,继续上演着无脚鸟的故*.&quot;
+}</code></pre>
+</section>
+<div class="section-heading" id="section-3"><h2>12.4 Appium 的使用</h2></div>
+<p class="content-text">可以看到这部电影的数据已经实时保存下来了,其他电影也是如此。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">9. 总结</h3>
+<p class="content-text">本节主要讲解了 mitmdump的用法及脚本的编写方法,借助mitmdump,我们可以直接使用Python
+脚本实时处理拦截的请求和响应,由于可以实时获取响应内容,因此可以在此基础上进行一些实时处
+理,如提取和存储数据,这样就能轻而易举地把数据爬取下来了。
+本节代码见 https://github.com/Python3WebSpider/MitmProxyTest。</p>
+<p class="content-text">Appium 是一个跨平台的移动端自动化测试工具,可以非常便捷地为 iOS 和 Android 平台创建自
+动化测试用例。它可以模拟App的各种操作,如点击、滑动、文本输入等,我们手工能完成的操作
+Appium 也都能完成。我们在第7章曾了解过 Selenium,这是一个网页端的自动化测试工具,Appium 实
+际上就类似于它,也是利用WebDriver实现自动化测试。对于iOS设备,Appium使用 UIAutomation 实
+现驱动;对于Android设备,使用 UiAutomator 和 Selendroid 实现驱动。
+Appium 提供了一个服务器,我们可以向这个服务器发送一些操作指令,然后Appium会根据不同
+的指令驱动移动设备完成不同的动作。
+爬虫使用 Selenium 爬取 JavaScript 渲染的页面,实现所见即所爬。Appium 同样可以,所以在某
+些情况下,用Appium 做App 爬虫不失为一好的选择。
+本节我们就来了解Appium的基本使用方法,学习利用 Appium 进行自动化爬取的基本操作,主
+要目的是了解利用Appium 进行自动化测试的流程以及相关API 的用法。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
+<p class="content-text">请确保已经做好如下准备工作。</p>
+<p class="content-text list-like">在电脑上安装好Appium 客户端,并且客户端可以正常运行。</p>
+<p class="content-text list-like">在电脑上配置好 Android开发环境并能正常使用adb命令。</p>
+<p class="content-text list-like">安装好 Python 版本的Appium API。
+以上 Appium 环境的具体配置方法可以参考https://setup.scrape.center/appium。
+除了配置好环境,还需要做到下面两步。</p>
+<p class="content-text list-like">准备一部 Android 真机或启动一个 Android 模拟器,并在上面安装好示例App,下载地址为</p>
+<pre class="result-block"><code>https://app5.scrape.center/。</code></pre>
+<p class="content-text list-like">用USB线连接电脑和 Android 真机或模拟器,确保 adb 能够正常连接到 Android 真机或模
+拟器。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. Appium 启动APP</h3>
+<p class="content-text">Appium 启动App的方式有两种:一种是用Appium 内置的驱动器打开App,另一种是利用 Python
+代码打开App。下面我们进行说明。
+两种方法都需要启动Appium服务,因此先打开Appium，如图12-42所示。</p>
+<p class="content-text">直接点击 Start Server v1.15.1 按钮即可启动Appium 服务,这就相当于开启了一个Appium 服务器。
+我们可以通过 Appium 内置的驱动器或 Python 代码向 Appium 服务发送一系列操作指令,它会根据不
+同的指令驱动移动设备完成不同的动作。Appium 启动后的运行界面如图12-43所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_42.jpg" alt="图12-42 Appium 的启动界面" loading="lazy"><figcaption>图12-42 Appium 的启动界面</figcaption></figure>
+<p class="content-text">Appium 正在监听4723端口,我们向此端口对应的服务接口发送操作指令,运行界面就会显示这
+个过程的操作日志。可以输入adb命令测试和手机的连接情况,命令如下:
+adb devices -1
+如果输出结果类似下面这样,说明电脑已经正确连接手机:
+List of devices attached
+R5CN30RMOQL device usb:338690048X product:y2qzcx model:SM_G9860 device:y2q transport_id:1
+其中 model 是设备的名称,就是即将会介绍到的deviceName,对于不同的手机其结果不同,请以
+自己的结果为准。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_43.jpg" alt="图12-43 Appium 启动后的运行界面" loading="lazy"><figcaption>图12-43 Appium 启动后的运行界面</figcaption></figure>
+<div class="note-box"><span class="note-icon">注</span><div class="note-text">这步一定是成功获取了设备信息才能证明电脑和手机连接成功了。如果提示找不到 adb 命
+令,那么请检查 Android 开发环境和环境变量是否配置成功。如果可以成功调用 adb 命令但
+不显示设备信息,那么请检查手机和电脑的连接情况,如 USB 调试功能是否开启等。</div></div>
+<p class="content-text">接下来用 Appium 内置的驱动器打开 App,点击运行界面右上方的 Start Inspector Session 按钮,如</p>
+<p class="figure-caption">图 12-44 所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_44.jpg" alt="图12-44 操作示例" loading="lazy"><figcaption>图12-44 操作示例</figcaption></figure>
+<p class="content-text">会打开一个配置页面,如图 12-45 所示。
+我们需要在这里配置启动 App 时的 Desired Capabilities 参数,包括 platformName、deviceName、
+appPackage 和 appActivity。</p>
+<p class="content-text">  platformName: 平台名称,取值有 Android 和 iOS,此处填写 Android。
+  deviceName: 设备名称,是手机的具体类型,即刚才获取的 model 值。
+  appPackage: App 包名,示例 App 的包名为 com.goldze.mvvmhabit。
+  appActivity: 入口 Activity 名,示例 App 的入口 Activity 名为 .ui.MainActivity。
+  noReset: 不重置 App 的状态,此处需要填 true,如果不填,那么每次打开 App 都和新安装时
+    一样。例如启动了微信,而此参数没有设置,就会变成未登录状态。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_45.jpg" alt="图12-45 配置页面" loading="lazy"><figcaption>图12-45 配置页面</figcaption></figure>
+<p class="content-text">当前配置页面的左下角链接了包含更多配置参数相关说明的文档,大家可以参考盖文档配置更多
+的参数。
+不同 App 的 appPackage 和 appActivity是不一样的,如果不知道它们的值,可以用jadx(https://
+github.com/skylot/jadx)这样的工具解析 App安装包中的AndroidManifest.xml 文件获取。例如这里用
+jadx 工具打开示例App,就可以看到它的AndroidManifest.xml 文件,如图12-46所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_46.jpg" alt="图12-46 app5 的 AndroidManifest.xml 文件" loading="lazy"><figcaption>图12-46 app5 的 AndroidManifest.xml 文件</figcaption></figure>
+<p class="content-text">appPackage 的值就是 manifest 根节点的 package 属性,这里它的值就是com.goldze.mvvmhabit,
+如图12-47所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_47.jpg" alt="图12-47 manifest 根节点的 package 属性值" loading="lazy"><figcaption>图12-47 manifest 根节点的 package 属性值</figcaption></figure>
+<p class="content-text">可以看到, AndroidManifest.xml 文件中有很多个 activity 节点,其中一个包含如下关键内容:</p>
+<pre class="code-block"><code>&lt;intent-filter&gt;
+&lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+&lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+&lt;/intent-filter&gt;</code></pre>
+<p class="content-text">这4行内容代表 app5在启动时会启动该 activity 节点中声明的 Activity 对应的页面,找到该
+activity 节点中的android:name属性值,这里就是com.goldze.mvvmhabit.ui.MainActivity,如图 12-48
+所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_48.jpg" alt="图12-48 activity 节点中的 android:name 属性" loading="lazy"><figcaption>图12-48 activity 节点中的 android:name 属性</figcaption></figure>
+<p class="content-text">在Appium 配置的时候,需要去掉属性值里前面的appPackage信息,于是结果为.ui.MainActivity。
+接下来在Appium 中加入上面5个配置,如图12-49所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_49.jpg" alt="图12-49 配置信息" loading="lazy"><figcaption>图12-49 配置信息</figcaption></figure>
+<p class="content-text">第12章 App数据的爬取</p>
+<p class="content-text">点击 Save As... 按钮将配置信息保存下来,以后就可以继续使用这个配置。然后点击 Start Session
+按钮,即可启动 Android手机上的App并进入启动页面。同时,电脑端会弹出一个调试窗口,我们可
+以从这个窗口预览当前的手机页面,以及查看页面源代码,如图12-50所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_50.jpg" alt="图12-50 电脑端弹出的调试窗口" loading="lazy"><figcaption>图12-50 电脑端弹出的调试窗口</figcaption></figure>
+<p class="content-text">点击左栏中手机页面的某个元素,它就会高亮显示,如这里的电影名称“霸王别姬”。这时中间栏
+会显示它对应的源代码;右栏会显示它的基本信息,如 index、class、text等。我们还可以在右栏执行
+一些操作,如Tap、Send Keys、Clear,现在点击右栏的Tap按钮,即执行点击操作,如图12-51所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_51.jpg" alt="图12-51 点击 Tap 按钮" loading="lazy"><figcaption>图12-51 点击 Tap 按钮</figcaption></figure>
+<p class="content-text">可以发现电脑端的页面发生了变化,如图12-52所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_52.jpg" alt="图12-52 电脑端的页面发生变化" loading="lazy"><figcaption>图12-52 电脑端的页面发生变化</figcaption></figure>
+<p class="content-text">左栏的手机页面跳转到了《霸王别姬》电影的详情页,中间栏的Source 面板显示了当前页面的节
+点信息。那怎么返回呢?点击中间栏上方的Back 按钮,如图12-53所示。</p>
+<p class="content-text">这时就返回首页了。Appium 还提供了动作录制功能,如图12-54所示,点击中间栏上方的 Start
+Recording 按钮,Appium 就会开始录制,之后我们在窗口中操作App的行为都会被记录下来,Recorder
+面板中可以自动生成指定语言编写的代码。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_53.jpg" alt="图12-53 点击 Back 按钮返回" loading="lazy"><figcaption>图12-53 点击 Back 按钮返回</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_54.jpg" alt="图12-54 点击 Start Recording 按钮录制动作" loading="lazy"><figcaption>图12-54 点击 Start Recording 按钮录制动作</figcaption></figure>
+<p class="content-text">例如,点击 Start Recoding 按钮后,选中电影条目“初恋这件小事”,然后点击 Tap 按钮,再点击
+返回,可以看到Appium的 Recorder 面板中出现了这些过程的操作代码,如图12-55所示。
+这里我们选择的语言是Python,代码逻辑是选中某个节点然后执行点击操作,接着返回,和我们
+手工操作的內容一一对应。
+总结一下,我们通过在电脑端弹出的调试窗口中点击不同的动作按钮,即可实现对App的控制,
+同时 Recorder 面板可以生成对应的代码。在Appium 客户端控制和操作App的方法就介绍完了。
+下面我们看看使用Python 代码打开App的方法,这里需要借助我们已经安装好的Appium的
+Python 库实现。首先在代码中指定一个Appium服务,而这个服务在刚才打开 Appium 的时候就已经
+开启了,运行在4723端口上,配置如下所示:</p>
+<pre class="code-block"><code>server = &#x27;http://localhost:4723/wd/hub&#x27;</code></pre>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_55.jpg" alt="图12-55 Recorder 面板中自动生成操作代码" loading="lazy"><figcaption>图12-55 Recorder 面板中自动生成操作代码</figcaption></figure>
+<p class="content-text">接下来用字典配置 Desired Capabilities 参数，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>desired_capabilities = {
+    &quot;platformName&quot;: &quot;Android&quot;,
+    &quot;deviceName&quot;: &quot;SM_G9860&quot;,
+    &quot;appPackage&quot;: &quot;com.goldze.mvvmhabit&quot;,
+    &quot;appActivity&quot;: &quot;.ui.MainActivity&quot;,
+    &quot;noReset&quot;: True
+}</code></pre>
+<p class="content-text">新建一个 Session，这和点击 Appium 内置驱动器的 Start Session 按钮功能相同，代码实现如下：</p>
+<pre class="code-block" data-lang="python"><code>from appium import webdriver
+
+driver = webdriver.Remote(server, desired_capabilities)</code></pre>
+<p class="content-text">配置完成后，运行代码就可以启动示例App了，但现在仅仅能启动App，还不能做任何动作。接
+下来实现一个加载等待和下拉的逻辑：</p>
+<pre class="code-block" data-lang="python"><code>from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+wait = WebDriverWait(driver, 30)
+wait.until(EC.presence_of_all_elements_located(
+    (By.XPATH, &#x27;//android.support.v7.widget.RecyclerView/android.widget.LinearLayout&#x27;)))
+window_size = driver.get_window_size()
+width, height = window_size.get(&#x27;width&#x27;), window_size.get(&#x27;height&#x27;)
+driver.swipe(width * 0.5, height * 0.8, width * 0.5, height * 0.2, 1000)</code></pre>
+<p class="content-text">这段代码先确保所有电影条目加载成功。因为一个电影条目对应一个 android.widget.LinearLayout
+节点，这些节点的父节点是 android.support.v7.widget.RecyclerView，所以这里构造了一个取值为
+//android.support.v7.widget.RecyclerView/android.widget.LinearLayout 的XPath，用来查找每个电
+影条目，外层 presence_of_all_elements_located 的意思是确保所有电影条目都加载出来，其外再套
+一层 WebDriverWait 对象的 until 方法，设置加载的超时时间为30秒。于是，最长会等待30秒，如</p>
+<p class="content-text">果这期间所有电影条目都加载出来,就立即向下执行,如果没有加载成功,就代表数据加载失败,抛
+出超时异常。
+接着获取了手机页面的宽高信息,然后调用swipe 方法执行
+了一次屏幕滑动,这个方法接收5个参数,分别是x1、y1、x2、
+y2、duration。其中x1、y1标识了滑动的初始位置,x2、y2 标识
+了滑动的结束位置,分别是两个位置相对屏幕左上角的横纵坐标,
+左上角的坐标是(0,0),向右为x轴的正方向,向下为y轴的正方
+向。这里设置x1为手机页面宽度的0.5倍,设置y1为手机页面高
+度的0.8倍,x2 同样为手机页面宽度的0.5倍,y2 则是手机页面
+高度的0.3倍。duration 是滑动时间,这里设置为1000(单位为
+毫秒),即1秒。滑动效果如图12-56中的红色箭头所示。
+我们模拟了垂直向上滑动,触发加载下一页数据的过程。综
+上所述,完整的代码如下:</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_56.jpg" alt="图12-56 滑动效果" loading="lazy"><figcaption>图12-56 滑动效果</figcaption></figure>
+<pre class="code-block"><code>from appium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+server = &#x27;http://localhost:4723/wd/hub&#x27;
+desired_capabilities = {
+&quot;platformName&quot;: &quot;Android&quot;,
+&quot;deviceName&quot;: &quot;SM_G9860&quot;,
+&quot;appPackage&quot;: &quot;com.goldze.mvvmhabit&quot;,
+&quot;appActivity&quot;: &quot;.ui.MainActivity&quot;,
+&quot;noReset&quot;: True
+}
+driver = webdriver. Remote (server, desired_capabilities)
+wait = WebDriverWait (driver, 30)</code></pre>
+<p class="content-text">wait.until(EC.presence_of_all_elements_located(
+(By.XPATH, &#x27;//android.support.v7.widget.RecyclerView/android.widget.LinearLayout&#x27;)))</p>
+<pre class="code-block"><code>window_size = driver.get_window_size()
+width, height = window_size.get(&#x27;width&#x27;), window_size.get(&#x27;height&#x27;)
+driver.swipe(width * 0.5, height * 0.8, width * 0.5, height * 0.2, 1000)</code></pre>
+<p class="content-text">重新运行代码,App会重启,首页的电影数据加载出来之后,屏幕会向上滑动一下,接着第2页
+电影数据成功加载出来。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. Appium 的相关 API</h3>
+<p class="content-text">本节我们来总结一下 Appium 的相关API怎么用。使用的Python 库是 AppiumPythonClient
+(https://github.com/appium/python-client),此库继承自 Selenium,因此使用方法与 Selenium 有很多共
+同之处。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">初始化</h4>
+<p class="content-text">需要先配置启动App的Desired Capabilities 参数,完整的配置说明可以参考https://github.com/
+appium/appium/blob/master/docs/en/writing-running-appium/caps.md,一般配置几个基本参数即可:</p>
+<pre class="code-block"><code>from appium import webdriver
+server = &#x27;http://localhost:4723/wd/hub&#x27;
+desired_capabilities = {
+&quot;platformName&quot;: &quot;Android&quot;,
+&quot;deviceName&quot;: &quot;SM G9860&quot;,</code></pre>
+<p class="content-text">第12章 App数据的爬取</p>
+<pre class="code-block"><code>&quot;appPackage&quot;: &quot;com.goldze.mvvmhabit&quot;,
+&quot;appActivity&quot;: &quot;.ui.MainActivity&quot;,
+&quot;noReset&quot;: True
+}
+driver = webdriver. Remote (server, desired_capabilities)</code></pre>
+<p class="content-text">这样 Appium 就会自动按照 Desired Capabilities 参数设置的内容查找手机上的包名和入口类,然后将 App 启动。如果没有事先在手机上安装要打开的App,可以直接指定参数 app 为安装包所在的路
+径,这样程序启动时就会自动在手机上安装并启动App,代码如下:</p>
+<pre class="code-block"><code>from appium import webdriver
+server = &#x27;http://localhost:4723/wd/hub&#x27;
+desired_capabilities = {
+    &#x27;platformName&#x27;: &#x27;Android&#x27;,
+    &#x27;deviceName&#x27;: &#x27;SM_G9860&#x27;,
+    &#x27;app&#x27;: &#x27;./scrape_app5.apk&#x27;
+}
+driver = webdriver.Remote (server, desired_capabilities)</code></pre>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">查找节点</h4>
+<p class="content-text">可以使用和 Selenium 类似的通用查找方法来查找节点,代码如下:</p>
+<pre class="code-block"><code>el = driver.find_element_by_id(&#x27;&lt;package&gt;:id/&lt;id&gt;&#x27;)</code></pre>
+<p class="content-text">Selenium 中其他用来查找节点的方法在此处也同样适用,不再赘述。还可以使用 UIAutomator 查找节点,针对 Android 平台的代码如下:</p>
+<pre class="code-block"><code>el = self.driver.find_element_by_android_uiautomator (&#x27;new UiSelector().description(&quot;Animation&quot;)&#x27;)
+els = self.driver.find_elements_by_android_uiautomator(&#x27;new UiSelector().clickable(true)&#x27;)</code></pre>
+<p class="content-text">针对iOS平台的代码如下:</p>
+<pre class="code-block"><code>el = self.driver.find_element_by_ios_uiautomation(&#x27;.elements()[0]&#x27;)
+els = self.driver.find_elements_by_ios_uiautomation (&#x27;.elements()&#x27;)</code></pre>
+<p class="content-text">此外,使用iOS Predicates 查找节点的代码如下:</p>
+<pre class="code-block"><code>el = self.driver.find_element_by_ios_predicate(&#x27;wdName == &quot;Buttons&quot;&#x27;)
+els = self.driver.find_elements_by_ios_predicate(&#x27;wdValue == &quot;SearchBar&quot; AND isWDDivisible == 1&#x27;)</code></pre>
+<p class="content-text">使用iOS Class Chain 查找节点的代码如下:</p>
+<pre class="code-block"><code>el = self.driver.find_element_by_ios_class_chain(&#x27;XCUIElementTypeWindow/XCUIElementTypeButton[3]&#x27;)
+els = self.driver.find_elements_by_ios_class_chain(&#x27;XCUIElementTypeWindow/XCUIElementTypeButton&#x27;)</code></pre>
+<div class="note-box"><span class="note-icon">注</span><div class="note-text">这种方法只适用于XCUITest 驱动,具体可以参考 https://github.com/appium/appium-xcuitest-driver。</div></div>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">点击屏幕</h4>
+<p class="content-text">可以使用 tap 方法模拟点击操作,该方法能够模拟手指点击(最多五个手指),设置和屏幕的接触时长(单位为毫秒),定义如下:</p>
+<pre class="code-block"><code>tap(self, positions, duration=None)</code></pre>
+<p class="content-text">参数有 positions 和 duration。
+  □ positions: 点击位置组成的列表。
+  □ duration: 点击持续的时间。
+实例如下:</p>
+<pre class="code-block"><code>driver.tap([(100, 20), (100, 60), (100, 100)], 500)</code></pre>
+<p class="content-text">运行这行代码,就可以模拟点击手机页面中几个指定位置的点。另外,我们可以直接调用cilck 方法模拟点击某个节点(如按钮)的操作,实例如下:</p>
+<pre class="code-block"><code>button = find_element_by_id(&#x27;&lt;package&gt;:id/&lt;id&gt;&#x27;)
+button.click()</code></pre>
+<p class="content-text">这里先获取节点,然后调用click 方法模拟点击该节点。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">屏幕滑动</h4>
+<p class="content-text">可以使用 scroll方法模拟屏幕滑动,其定义如下:</p>
+<pre class="code-block"><code>scroll(self, origin_el, destination_el)</code></pre>
+<p class="content-text">表示从元素 origin_el 滑动至元素 destination_el。
+实例如下:</p>
+<pre class="code-block"><code>driver.scroll(el1, el2)</code></pre>
+<p class="content-text">还可以使用 swipe 方法模拟从A点滑动到B点的动作,这个方法之前已经应用过,其定义如下:</p>
+<pre class="code-block"><code>swipe(self, start_x, start_y, end_x, end_y, duration=None)</code></pre>
+<p class="content-text">参数有 start_x、start_y、end_x, end_y 和 duration.</p>
+<p class="content-text list-like"><strong class="term-label">start x:</strong>开始位置的横坐标。</p>
+<p class="content-text list-like"><strong class="term-label">start_y:</strong>开始位置的纵坐标。</p>
+<p class="content-text list-like"><strong class="term-label">end_x:</strong>结束位置的横坐标。</p>
+<p class="content-text list-like">end_y:结束位置的纵坐标。
+duration:持续时间,单位为毫秒。
+实例如下:</p>
+<pre class="code-block"><code>driver.swipe(100, 100, 100, 400, 5000)</code></pre>
+<p class="content-text">运行这行代码,可以在5秒内由点(100,100)滑动到点(100,400)。另外可以使用flick方法模拟从
+A点快速滑动到B点的动作,用法如下:</p>
+<pre class="code-block"><code>flick(self, start_x, start_y, end_x, end_y)</code></pre>
+<p class="content-text">参数有 start_x、start_y、end_x 和end_y.</p>
+<p class="content-text list-like"><strong class="term-label">start x:</strong>开始位置的横坐标。</p>
+<p class="content-text list-like"><strong class="term-label">start_y:</strong>开始位置的纵坐标。</p>
+<p class="content-text list-like">end_x:结束位置的横坐标。
+■ end_y:结束位置的纵坐标。
+实例如下:</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">拖动</h4>
+<pre class="code-block"><code>driver.flick(100, 100, 100, 400)</code></pre>
+<p class="content-text">可以使用 drag_and_drop 方法模拟把一个节点拖动到另一个节点处的动作,其用法如下:</p>
+<pre class="code-block"><code>drag_and_drop(self, origin_el, destination_el)</code></pre>
+<p class="content-text">可以把节点 origin_el 拖动到节点 destination_el 处。
+参数有 origin_el 和 destination_el.</p>
+<p class="content-text list-like"><strong class="term-label">original_el:</strong>被拖动的节点。</p>
+<p class="content-text list-like">destination_el:目标节点。
+实例如下:</p>
+<pre class="code-block"><code>driver.drag_and_drop(el1, el2)</code></pre>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">文本输入</h4>
+<p class="content-text">可以使用 set_text方法模拟文本输入,实例如下:</p>
+<pre class="code-block"><code>el = find_element_by_id(&#x27;&lt;package&gt;:id/cjk&#x27;)
+el.set_text(&#x27;Hello&#x27;)</code></pre>
+<p class="content-text">这里先选中一个文本框元素,然后调用set_text方法输入文本。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">动作链</h4>
+<p class="content-text">与Selenium 中的ActionChains 类似,Appium 中的TouchAction 可支持tap、press、long_press、
+release、move_to、wait、cancel等方法,实例如下:</p>
+<pre class="code-block"><code>el = self.driver.find_element_by_accessibility_id(&#x27;Animation&#x27;)
+action = TouchAction(self.driver)
+action.tap(el).perform()</code></pre>
+<p class="content-text">这里首先选中一个节点,然后利用 TouchAction 点击此节点。如果想实现拖动操作,可以这样:</p>
+<pre class="code-block"><code>els = self.driver.find_elements_by_class_name(&#x27;listView&#x27;)
+a1 = TouchAction()
+a1.press(els[0]).move_to(x=10, y=0).move_to(x=10, y=-75).move_to(x=10, y=-600).release()
+a2 = TouchAction()
+a2.press(els[1]).move_to(x=10, y=10).move_to(x=10, y=-300).move_to(x=10, y=-600).release()</code></pre>
+<p class="content-text">利用本节所讲的API,可以完成绝大部分自动化操作。更多的API详情可以参考https://appium.io/
+docs/en/about-appium/api/。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 总结</h3>
+<p class="content-text">本节我们主要了解了Appium操作App的基本用法,以及常用API的用法,在12.5节我们会用一
+个实例演示 Appium的使用方法。
+本节代码见 https://github.com/Python3 WebSpider/AppiumTest。</p>
+<p class="content-text">本节中我们会完整地讲述如何用Appium 爬取一个App。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
+<p class="content-text">本节的准备工作和12.4节基本一样,请参考那里。
+另外,本节会用到一个日志输出库loguru,可以使用pip3工具安装:</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 思路分析</h3>
+<pre class="code-block"><code>pip3 install loguru</code></pre>
+<p class="content-text">首先,我们观察一下整个app5的交互流程,其首页分条显示了电影数据,每个电影条目都包括
+封面、标题、类别和评分4个内容,点击一个电影条目,就可以看到这个电影的详情介绍,包括标题、
+类别、上映时间、评分、时长、电影简介等内容。
+可见详情页的内容远比首页丰富,我们需要依次点击每个电影条目,抓取看到的所有内容,把所
+有电影条目的信息都抓取下来后回退到首页。
+另外,首页一开始只显示10个电影条目,需要上拉才能显示更多数据,一共100条数据。所以
+为了爬取所有数据,我们需要在适当的时候模拟手机的上拉操作,以加载更多数据。
+综上,这里总结出基本的爬取流程。
+  □ 遍历现有的电影条目,依次模拟点击每个电影条目,进入详情页。</p>
+<p class="content-text list-like">爬取详情页的数据,爬取完毕后模拟点击回退按钮的操作,返回首页。</p>
+<p class="content-text list-like">当首页的所有电影条目即将爬取完毕时,模拟上拉操作,加载更多数据。</p>
+<p class="content-text list-like">在爬取过程中,将已经爬取的数据记录下来,以免重复爬取。</p>
+<p class="content-text list-like">100条数据全部爬取完毕后,终止爬取。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 基本实现</h3>
+<p class="content-text">现在我们着手实现整个爬取流程吧。
+在编写代码的过程中,我们依然需要用Appium 观察现有App的源代码,以便编写节点的提取规
+则。和12.4节类似,启动Appium服务,然后启动 Session,打开电脑端的调试窗口,如图12-57所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_57.jpg" alt="图12-57 电脑端的调试窗口" loading="lazy"><figcaption>图12-57 电脑端的调试窗口</figcaption></figure>
+<p class="content-text">首先观察一下首页各个电影条目对应的UI 树是怎样的。通过观察源代码可以发现,每个电影条
+目都是一个 android.widget.LinearLayout 节点,该节点带有一个属性 resource-id 为 com.goldze.
+mvvmhabit:id/item,条目内部的标题是一个 android.widget.TextView 节点,该节点带有一个属性
+resource-id,属性值是 com.goldze.mvvmhabit:id/tv_title。我们可以先选中所有的电影条目节点,
+同时记录电影标题以去重。</p>
+<div class="note-box"><span class="note-icon">注</span><div class="note-text">这时可能有读者会疑惑,为什么要去重呢?因为对于已经被渲染出来但是没有呈现在屏幕上
+的节点,我们是无法获取其信息的。在不断上拉爬取的过程中,我们在同一时刻只能获取屏
+幕中能看到的所有电影条目节点,被滑动出屏幕外的节点已经获取不到了。所以需要记录一
+下已经爬取的电影条目节点,以便下次滑动完毕后可以接着上一次爬取。由于此案例中的电
+影标题不存在重复,因此我们就用它来实现记录和去重。</div></div>
+<p class="content-text">接下来做一些初始化声明:</p>
+<pre class="code-block"><code>from appium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait</code></pre>
+<pre class="code-block"><code>from selenium.common.exceptions import NoSuchElementException
+SERVER = &#x27;http://localhost:4723/wd/hub&#x27;
+DESIRED_CAPABILITIES = {
+&quot;platformName&quot;: &quot;Android&quot;,
+&quot;deviceName&quot;: &quot;SM G9860&quot;,
+&quot;appPackage&quot;: &quot;com.goldze.mvvmhabit&quot;,
+&quot;appActivity&quot;: &quot;.ui.MainActivity&quot;,
+&quot;noReset&quot;: True
+}
+PACKAGE_NAME = DESIRED_CAPABILITIES[&#x27;appPackage&#x27;]
+TOTAL_NUMBER = 100</code></pre>
+<p class="content-text">这里我们首先声明了 SERVER 变量,即 Appium 在本地启动的服务地址。接着声明了 DESIRED_
+CAPABILITIES,这就是 Appium 启动示例 App 的配置参数,其中的 deviceName 需要更改成自己手机的
+model 名称,具体的获取方式可以参考 12.4 节的内容。另外,这里额外声明了一个变量 PACKAGE_NAME,
+即包名,这是为后续编写获取节点的逻辑准备的。最后声明 TOTAL NUMBER 为 100,代表电影条目的总
+数为 100,之后以此作为判断爬取终止的条件。</p>
+<p class="content-text">接下来,我们声明 driver 对象,并初始化一些必要的对象和变量:</p>
+<pre class="code-block"><code>driver = webdriver.Remote (SERVER, DESIRED_CAPABILITIES)
+wait = WebDriverWait (driver, 30)
+window_size = driver.get_window_size()
+window_width, window_height = window_size.get(&#x27;width&#x27;), window_size.get(&#x27;height&#x27;)</code></pre>
+<p class="content-text">这里的 wait 变量就是一个 WebDriverWait 对象,调用它的 until 方法可以实现如果查找到目标节
+点就立即返回,如果等待 30 秒还查找不到目标节点就抛出异常。我们还声明了 window_width、
+window_height 变量,分别代表屏幕的宽、高。</p>
+<p class="content-text">初始化的工作完成,下面先爬取首页的所有电影条目:</p>
+<pre class="code-block"><code>def scrape_index():
+items = wait.until(EC.presence_of_all_elements_located(
+(By.XPATH, f&#x27;//android.widget.LinearLayout[@resource-id=&quot;{PACKAGE_NAME}:id/item&quot;]&#x27;)))
+return items</code></pre>
+<p class="content-text">这里实现了一个 scrape_index 方法,使用 XPath 选择对应的节点,开头的 // 代表匹配根节点的所
+有子孙节点,即所有符合后面条件的节点都会被筛选出来,这里对节点名称 android.widget.LinearLayout
+和属性 resource-id 进行了组合匹配。在外层调用了 wait 变量的 until 方法,最后的结果就是如果符
+合条件的节点加载出来,就立即把这个节点赋值为 items 变量,并返回 items,否则抛出超时异常。
+所以在正常情况下,使用 scrape_index 方法可以获得首页上呈现的所有电影条目的数据。</p>
+<p class="content-text">接下来就可以定义一个 main 方法来调用 scrape_index 方法了:</p>
+<pre class="code-block"><code>from loguru import logger</code></pre>
+<pre class="code-block"><code>def main():
+elements = scrape_index()
+for element in elements:
+element_data = scrape_detail(element)
+logger.debug(f&#x27;scraped data {element_data}&#x27;)</code></pre>
+<pre class="code-block"><code>if __name__ == &#x27;__main__&#x27;:
+main()</code></pre>
+<p class="content-text">这里在 main 方法中首先调用 scrape_index 方法提取了当前首页的所有节点,然后遍历这些节点,
+并想通过一个 scrape_detail 方法提取每部电影的详情信息,最后返回并输出日志。</p>
+<p class="content-text">那么问题明确了,scrape_detail 方法如何实现?大致思考一下,可以想到该方法需要做到如下
+三件事情。</p>
+<p class="content-text">模拟点击 element,即首页的电影条目节点。</p>
+<p class="content-text list-like">进入详情页后爬取电影信息。</p>
+<p class="content-text list-like">点击回退按钮后返回首页。
+所以,这个方法实现为:</p>
+<pre class="code-block" data-lang="python"><code>def scrape_detail(element):
+    logger.debug(f&#x27;scraping {element}&#x27;)
+    element.click()
+    wait.until(EC.presence_of_element_located(
+        (By.ID, f&#x27;{PACKAGE_NAME}:id/detail&#x27;)))
+    title = wait.until(EC.presence_of_element_located(
+        (By.ID, f&#x27;{PACKAGE_NAME}:id/title&#x27;))).get_attribute(&#x27;text&#x27;)
+    categories = wait.until(EC.presence_of_element_located(
+        (By.ID,
+         f&#x27;{PACKAGE_NAME}:id/categories_value&#x27;))).get_attribute(&#x27;text&#x27;)
+    score = wait.until(EC.presence_of_element_located(
+        (By.ID,
+         f&#x27;(PACKAGE_NAME}:id/score_value&#x27;))).get_attribute(&#x27;text&#x27;)
+    minute = wait.until(EC.presence_of_element_located(
+        (By.ID, f&#x27;{PACKAGE_NAME}:id/minute_value&#x27;))).get_attribute(&#x27;text&#x27;)
+    published_at = wait.until(EC.presence_of_element_located(
+        (By.ID, f&#x27;{PACKAGE_NAME}:id/published_at_value&#x27;))).get_attribute(&#x27;text&#x27;)
+    drama = wait.until(EC.presence_of_element_located(
+        (By.ID, f&#x27;{PACKAGE_NAME}:id/drama_value&#x27;))).get_attribute(&#x27;text&#x27;)
+    driver.back()
+    return {
+        &#x27;title&#x27;: title,
+        &#x27;categories&#x27;: categories,
+        &#x27;score&#x27;: score,
+        &#x27;minute&#x27;: minute,
+        &#x27;published_at&#x27;: published_at,
+        &#x27;drama&#x27;: drama
+    }</code></pre>
+<p class="content-text">实现该方法需要先弄清楚详情页每个节点对应的节点名称、属性都是怎样的,于是再次打开调试
+窗口,点击一个电影标题进入详情页,查看其DOM树,如图12-58所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_58.jpg" alt="图12-58 进入详情页" loading="lazy"><figcaption>图12-58 进入详情页</figcaption></figure>
+<p class="content-text">可以观察到整个详情页对应一个 android.widget.ScrollView 节点,其包含的resource-id 属性值
+为 com.goldze.mvvmhabit:id/detail。详情页上的标题、类别、评分、时长、上映时间、剧情简介也
+都有各自的节点名称和 resource-id,这里不展开描述了,从Appium的Source 面板里面即可查看。
+在 scrape_detail 方法中,首先调用 element 的click 方法进入对应的详情页,然后等待整个详
+情页的信息(即com.goldze.mvvmhabit:id/detail)加载出来,之后顺次爬取了标题、类别、评分、
+时长、上映时间、剧情简介,爬取完毕后模拟点击回退按钮,最后将所有爬取的内容构成一个字典
+返回。
+其实到现在,我们已经可以成功获取首页最开始加载的几条电影信息了,运行一下代码,返回结
+果如下:</p>
+<pre class="result-block"><code>2021-02-24 00:35:42.929 | DEBUG
+| _main_:scrape_detail:31 - scraping &lt;appium.webdriver.webelement.
+WebElement (session=&quot;14f506d1-248f-438e-918b-382cb5ceb6aa&quot;, element=&quot;eb3e768f-37ef-4c7d-9d3b-3fdcd84b6101&quot;)&gt;
+2021-02-24 00:35:44.512 | DEBUG</code></pre>
+<p class="content-text">main_main:68 - scraped data {&#x27;title&#x27;:&#x27;霸王别姬&#x27;, &#x27;categories&#x27;:&#x27;
+剧情、爱情&#x27;,&#x27;Score&#x27;: &#x27;9.5&#x27;, &#x27;minute&#x27;: &#x27;171 分钟&#x27;, &#x27;published_at&#x27;: &#x27;1993-07-26&#x27;, &#x27;drama&#x27;:&#x27;影片借一出《霸
+王别姬》的京戏,牵扯出三个人之间一段随时代风云变幻的爱恨情仇。段小楼(张丰毅饰)与程蝶衣(张国荣饰)是一
+对打小一起长大的师兄弟,两人一个演生,一个饰旦,一向配合天衣无缝,...&#x27;}</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 上拉加载更多数据</h3>
+<pre class="result-block"><code>2021-02-24 00:35:44.513 | DEBUG | _main_:scrape_detail:31 - scraping &lt;appium.webdriver.webelement.
+WebElement (session=&quot;14f506d1-248f-438e-918b-382cb5ceb6aa&quot;, element=&quot;62a0c23e-dodb-4428-93ad-754ca4f67e6a&quot;)&gt;</code></pre>
+<p class="content-text">现在在上面代码的基础上,加入上拉加载更多数据的逻辑,因此需要判断在什么时候上拉加载数
+据。想想我们平时在浏览数据的时候是怎么操作的呢?一般是在即将看完的时候上拉,那这里也一样,
+可以让程序在遍历到位于偏下方的电影条目时开始上拉。例如,当爬取的节点对应的电影条目差不多
+位于页面高度的80%时,就触发上拉加载。将main方法改写如下:</p>
+<pre class="code-block"><code>def main():
+elements = scrape_index()
+for element in elements:
+element_location = element.location
+element_y = element_location.get(&#x27;y&#x27;)
+if element_y / window_height &gt; 0.8:
+logger.debug(f&#x27;scroll up&#x27;)
+scroll_up()
+element_data = scrape_detail(element)
+logger.debug(f&#x27;scraped data {element_data}&#x27;)</code></pre>
+<p class="content-text">这里在遍历时判断了 element 的位置,获取了其y坐标值,当该值小于页面高度的80%时,触发
+上拉加载,加载方法是 scroll_up,其定义如下:</p>
+<pre class="code-block"><code>def scroll_up():</code></pre>
+<p class="content-text">    driver.swipe(window_width * 0.5, window_height * 0.8,
+                 window_width * 0.5, window_height * 0.5, 1000)
+这个上拉逻辑的实现和12.4节基本一样,只是上拉动作的起始位置和结束位置有所变化。这样,
+在爬取过程中就可以自动触发下一页电影条目的加载了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 去重、终止和保存数据</h3>
+<p class="content-text">在本节开始部分我们曾提到,需要额外添加根据标题进行去重和判断终止的逻辑,所以在遍历首
+页中每个电影条目的时候还需要提取一下标题,然后将其存入一个全局变量中:</p>
+<pre class="code-block"><code>def get_element_title(element):
+try:
+element_title = element.find_element_by_id(f&#x27;{PACKAGE_NAME}:id/tv_title&#x27;).get_attribute(&#x27;text&#x27;)
+return element_title
+except NoSuchElementException:
+return None</code></pre>
+<p class="content-text">这里定义了一个 get_element_title 方法,该方法接收一个 element 参数,即首页电影条目对应
+的节点对象,然后提取其标题文本并返回。最后将 main 方法修改如下:</p>
+<pre class="code-block"><code>scraped_titles = []
+def main():
+while len(scraped_titles) &lt; TOTAL_NUMBER:
+elements = scrape_index()
+for element in elements:
+element_title = get_element_title(element)
+if not element_title or element_title in scraped_titles:</code></pre>
+<p class="content-text">                continue</p>
+<pre class="code-block"><code>element_location = element.location
+element_y = element_location.get(&#x27;y&#x27;)
+if element_y/ window_height &gt; 0.8:
+logger.debug(f&#x27;scroll up&#x27;)
+scroll_up()
+element_data = scrape_detail(element)
+scraped_titles.append(element_title)
+logger.debug(f&#x27;scraped data {element_data}&#x27;)</code></pre>
+<p class="content-text">这里在 main 方法里添加了while 循环,如果爬取的电影条目数量尚未达到目标数量 TOTAL_NUMBER,
+就接着爬取,直到爬取完毕。其中就调用 get_element_title 方法提取了电影标题,然后将已经爬取
+的电影标题存储在全局变量 scraped_titles中,如果经判断,当前节点对应的电影已经爬取过了,就
+跳过,否则接着爬取,爬取完毕后将标题存到 scraped_titles 变量里,这样就实现去重了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 保存数据</h3>
+<p class="content-text">最后,可以再添加一个保存数据的逻辑,将爬取的数据保存到本地 movie 文件夹中,数据以 JSON
+形式保存,代码如下:</p>
+<pre class="code-block"><code>import os
+import json</code></pre>
+<pre class="code-block"><code>OUTPUT_FOLDER = &#x27;movie&#x27;
+os.path.exists(OUTPUT_FOLDER) or os.makedirs (OUTPUT_FOLDER)</code></pre>
+<pre class="code-block"><code>def save_data(element_data):
+with open(f&#x27;{OUTPUT_FOLDER}/{element_data.get(&quot;title&quot;)}.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as f:
+f.write(json.dumps(element_data, ensure_ascii=False, indent=2))
+logger.debug(f&#x27;saved as file {element_data.get(&quot;title&quot;)}.json&#x27;)</code></pre>
+<p class="content-text">在 main 方法添加调用逻辑即可:</p>
+<pre class="code-block"><code>save_data(element_data)</code></pre>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 运行结果</h3>
+<p class="content-text">我们再运行一下main方法,看看最后的爬取结果:</p>
+<pre class="result-block"><code>2021-02-24 01:01:04.269 | DEBUG | _main_:scrape_detail:33 - scraping &lt;appium.webdriver.webelement.
+WebElement (session=&quot;2776e217-8d9d-49b3-89ce-888bf8656c93&quot;, element=&quot;63b27a1f-8ecb-4ebb-b4c0-1621382eff4f&quot;)&gt;
+2021-02-24 01:01:05.724 | DEBUG</code></pre>
+<p class="content-text">|_main_:main: 107 - scraped data {&#x27;title&#x27;:&#x27;美丽人生&#x27;,&#x27;categories&#x27;: &#x27;
+战争、剧情、爱情&#x27;, &#x27;score&#x27;: &#x27;9.1&#x27;,&#x27;minute&#x27;:&#x27;116 分钟&#x27;,&#x27;published_at&#x27;: &#x27;2020-01-03&#x27;,&#x27;drama&#x27;:&#x27;犹太青年
+圭多(罗伯托·贝尼尼饰)邂逅美丽的女教师朵拉(尼可莱塔·布拉斯基饰),他彬彬有礼的向多拉鞠躬:“早安!公主!”
+历经诸多令人啼笑皆非的周折后,天遂人愿,...&#x27;}</p>
+<pre class="result-block"><code>2021-02-24 01:01:05.725 | DEBUG | _main_save_data:76 - saved as file 美丽人生.json</code></pre>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_59.jpg" alt="图12-59 movie 文件夹" loading="lazy"><figcaption>图12-59 movie 文件夹</figcaption></figure>
+<p class="content-text">至此，我们成功利用 Appium 爬取了示例 App 的所有电影数据，并把爬取结果保存成了 JSON
+文件。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">8. 总结</h3>
+<p class="content-text">本节我们通过一个实战案例介绍了利用 Appium 爬取 App 数据的过程，学完这节后，App 的自动
+化爬取不再是难题。
+本节代码见 https://github.com/Python3WebSpider/AppiumTest。</p>
+</section>
+<div class="section-heading" id="section-5"><h2>12.6 Airtest 的使用</h2></div>
+<p class="content-text">有了 Appium，我们已经可以方便地自动化控制 App，但在使用过程中或多或少还会有些不方便
+的地方，例如连接的稳定性一般、提供的 API 功能有限等。
+这里我们再介绍一个更好用的自动化测试工具——Airtest，它提供了一些更好用的 API，以及一
+个非常强大的 IDE，开发效率和响应速度与 Appium 相比也有提升。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. Airtest 介绍</h3>
+<p class="content-text">Airtest Project 是网易游戏推出的一款自动化测试框架，其项目由如下几部分构成。
+  □ Airtest：一个跨平台的、基于图像识别的 UI 自动化测试框架，适用于游戏和 App，支持
+    Windows、Android 和 iOS 平台，基于 Python 实现。
+  □ Poco：一款基于 UI 组件识别的自动化框架，目前支持 Unity3D、cocos2dx、Android 原生
+    App、iOS 原生 App 和微信小程序，也可以在其他引擎中自行接入 poco-sdk 使用，基于 Python
+    实现。
+  □ AirtestIDE：提供一个跨平台的 UI 自动化测试编辑器，内置了 Airtest 和 Poco 的相关插件功能，
+    能够快速、简单地编写 Airtest 和 Poco 代码。
+  □ AirLab：真机自动化云测试平台，目前提供 Top 100 手机兼容性测试、海外云真机兼容性测试
+    等服务。
+  □ 私有化手机集群技术：从硬件到软件，提供在企业内部私有化手机集群的解决方案。</p>
+<p class="content-text">总之,Airtest 建立了一个比较完善的自动化测试方案,我们能利用它实现所见即所爬,个人认为
+比 Appium 更加简单易用。本节我们先简单了解 Airtest IDE 的基本使用,同时介绍一些 Airtest 和 Poco
+的基本 API 用法,12.7 节用它实际爬取一个 App。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
+<p class="content-text">请确保已经安装好 AirtestIDE、Airtest Python 库和 Poco Python 库。
+只使用 AirtestIDE 实现自动化模拟和数据爬取也是没问题的,因为它里面已经内置了 Python 模
+块、Airtest Python 库和 Poco Python 库,并且提供了非常便捷的可视化点选和代码生成等功能,即使
+使用者没有任何 Python 基础,也能自动化控制 App 和完成数据爬取。
+但是对于需要爬取大量数据和控制页面跳转的场景而言,仅依靠可视化点选和自动生成代码来自
+动化控制 App,其实是不灵活的。进一步讲,如果我们加入一些代码逻辑,例如流程控制、循环控制
+语句,就可以爬取批量数据了,这时候需要依赖 Airtest、Poco 以及一些自定义逻辑和第三方库。
+Airtest 的官方文档(https://airtest.doc.io.netease.com/tutorial/1_quick_start_guide/)中已经详细介绍
+了 Airtest 的安装方式,包括 AirtestIDE、Airtest Python 库和 Poco Python 库。所以,这里建议同时安
+装 AirtestIDE、Airtest 和 Poco。
+安装完 AirtestIDE 之后,它还会安装一个 Python 环境,这个环境中附带安装了 Airtest Python 库
+和 Poco Python 库,不过这个被打包在 AirtestIDE 里面的环境,和系统里安装的 Python 环境并不是同
+一个,所以推荐直接使用 pip3 工具将 Airtest Python 库和 Poco Python 库安装到系统的 Python 环境下。
+安装 Airtest Python 库的命令如下:</p>
+<pre class="code-block"><code>pip3 install airtest</code></pre>
+<p class="content-text">安装 Poco Python 库的命令如下:</p>
+<pre class="code-block"><code>pip3 install pocoui</code></pre>
+<p class="content-text">安装完成后,在 AirtestIDE 中把默认的 Python 环境由 AirtestIDE 附带的 Python 环境更换成系统
+的 Python 环境。打开 AirtestIDE 菜单的“选项”→“设置”,页面如图 12-60 所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_60.jpg" alt="图12-60 AirtestIDE 的设置页面" loading="lazy"><figcaption>图12-60 AirtestIDE 的设置页面</figcaption></figure>
+<p class="content-text">第12章 App数据的爬取
+可以看到其中有一个选项是“自定义Python.exe 路径”,将其值修改为系统的Python 路径即可,具
+体的设置方法可以进一步参考https://airtest.doc.io.netease.com/IDEdocs/settings/1_ide_settings/#python。
+安装好 Airtest IDE、Airtest Python 库和 Poco Python库之后,准备一台Android 真机或者模拟器,
+真机的话还需要通过USB线和电脑相连,确保 adb 能够正常连接到手机,具体的设置方法可以参考</p>
+<pre class="result-block"><code>https://airtest.doc.io.netease.com/tutorial/1_quick_start_guide/#_4。</code></pre>
+<p class="content-text">如果以上的准备工作在操作过程中遇到问题,可以在 https://setup.scrape.center/airtest 参考更加详
+细的配置。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. AirtestIDE 体验</h3>
+<p class="content-text">我用一台 Android 真机演示 AirtestIDE 的使用方式。首先确保可以使用adb 正常获取手机的相关
+信息,如执行如下命令:
+adb devices
+如果能正常输出手机的相关信息,则证明连接成功,示例输出如下:
+adb server version (40) doesn&#x27;t match this client (41); killing...</p>
+<section class="minor-section">
+<h4 class="subsection-heading">daemon started successfully</h4>
+<p class="content-text">List of devices attached
+R5CN30RMOQL device
+从中能看到我的设备名称为R5CN30RM0QL。
+然后启动 AirtestIDE,打开菜单中的“文件”→“新
+建脚本”→“.air Airtest 项目”,新建一个脚本,页面
+如图12-61所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_61.jpg" alt="图12-61 新建一个脚本" loading="lazy"><figcaption>图12-61 新建一个脚本</figcaption></figure>
+<p class="content-text">选定一个路径,将脚本命名为script.air,之后点
+击“确定”,进入如图12-62所示的页面。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_62.jpg" alt="图12-62 将脚本保存为 script.air 文件" loading="lazy"><figcaption>图12-62 将脚本保存为 script.air 文件</figcaption></figure>
+<p class="content-text">正常情况下,在图12-62右侧可以看到已经连接的设备,如果没有看到,可以查看https://airtest.doc.
+io.netease.com/IDEdocs/device_connection/2_android_faq/来排查问题出在哪。接下来点击设备列表右侧
+的connect 按钮,如图12-63所示。
+此时往往就可以在AirtestIDE 中看到手机的屏幕了,如图12-64所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_63.jpg" alt="图12-63 点击设备列表右侧的 connect 按钮" loading="lazy"><figcaption>图12-63 点击设备列表右侧的 connect 按钮</figcaption></figure>
+<p class="content-text">我们可以点击页面中的屏幕对手机进行控制,如果出现了连接问题,可以参考https://airtest.doc.io.
+netease.com/IDEdocs/device_connection/2_android_faq/中的描述来排查常见问题并尝试解决。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_64.jpg" alt="图12-64 AirtestIDE 中出现手机屏幕" loading="lazy"><figcaption>图12-64 AirtestIDE 中出现手机屏幕</figcaption></figure>
+<p class="content-text">至此,请一定确保已完成的步骤都成功了,否则之后的内容将无法进行。
+我们再来观察一下整个 AirtestIDE页面,分为左、中、右三部分,以下内容为对各组件的介绍。</p>
+<p class="content-text list-like">左侧靠上的部分是Airtest 辅助窗,可以通过一些点选操作实现基于图像识别的自动化配置。</p>
+<p class="content-text list-like">左侧中间偏上的部分是Poco 辅助窗,可以通过一些点选操作实现基于UI组件识别的自动化
+  配置。</p>
+<p class="content-text">第12章 App数据的爬取</p>
+<p class="content-text list-like">中间靠上的部分是脚本编辑窗,即代码编写区域,可以
+  通过 Airtest 辅助窗和Poco 辅助窗自动生成代码,也可以
+  自己编写代码,这个代码是基于Python语言的。</p>
+<p class="content-text list-like">中间靠下的部分是 Log 查看窗,即日志区域,会输出运
+  行、调试时的一些日志。</p>
+<p class="content-text list-like">右侧是设备窗,内容为手机屏幕,用鼠标直接点击这个
+  屏幕,真机或模拟器的屏幕也会跟着变化,而且响应速
+  度非常快。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. Airtest 的图像识别与自动化控制</h3>
+<p class="content-text">Airtest 可以基于图像识别来自动化控制App,本节我们就体
+验一下这个功能。例如先点击左侧的touch 按钮,意思是点击屏
+幕上的某个位置,如图12-65所示。</p>
+<p class="content-text">这时 AirtestIDE 会提示我们在右侧的手机屏幕上截图,这里
+我截取的是“大众点评”App的图标,会发现script.air 脚本中出
+现了一行代码。代码内容为touch方法,其参数是刚截取的图片,
+如图12-66所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_65.jpg" alt="图12-65 点击 touch 按钮" loading="lazy"><figcaption>图12-65 点击 touch 按钮</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_66.jpg" alt="图12-66 script.air 脚本中生成了 touch 方法" loading="lazy"><figcaption>图12-66 script.air 脚本中生成了 touch 方法</figcaption></figure>
+<p class="content-text">然后在右侧的手机屏幕上点击“大众点评”的图标,进入这个App,再点击左侧的wait按钮,意
+思是等待指定内容加载出来,之后同样根据提示截图,如截取首页左上角的“美食”图标,如图12-67
+所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_67.jpg" alt="图12-67 等待首页左上角的“美食”图标加载出来" loading="lazy"><figcaption>图12-67 等待首页左上角的“美食”图标加载出来</figcaption></figure>
+<p class="content-text">再后点击左侧的 swipe 按钮,意思是滑动屏幕,操作示意和结果如图12-68所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_68.jpg" alt="图12-68 点击 swipe 按钮" loading="lazy"><figcaption>图12-68 点击 swipe 按钮</figcaption></figure>
+<p class="content-text">这时 AirtestIDE 会提示我们框选一个位置。联想自己平时滑动屏幕的场景,手指一开始先放在一
+个位置,然后滑动,到某个位置后停止。那么这时第一步需要框选的位置就是手指一开始需要放置的</p>
+<p class="content-text">位置,例如图12-68中标1的地方——中间的菜单栏(菜单栏下方加载的内容会变化,故选择相比之
+下更加通用不变的菜单栏作为识别目标)。框选完毕后,AirtestIDE 会提示我们点选一个滑动的目标位置,
+这时选择框选位置上方的一个点即可,如图 12-68 中标2的地方。此时会发现 script.air 脚本中生成了
+swipe 方法,其第一个参数是我们框选的菜单栏的图片,第二个参数是一个 vector,代表滑动方向。
+这样我们就通过一些可视化的配置完成了自动化控制。
+最后我们再通过左侧的keyevent 按钮添加两个键盘事件,在已经生成的代码的开头和结尾分别添
+加一个HOME键盘事件,代表进入首页和返回首页,添加结果如图12-69所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_69.jpg" alt="图12-69 添加了两个键盘事件" loading="lazy"><figcaption>图12-69 添加了两个键盘事件</figcaption></figure>
+<p class="content-text">现在总结一下我们实现自动化控制的流程,分以下几步。
+(1)进入手机首页。
+(2)点击“大众点评”App的图标。
+(3)等待左上角的“美食”图标加载出来。
+(4)向上滑动手机屏幕。
+(5)返回手机主页。
+怎么样,是不是很简单?
+注意每个手机的内容可能不一样,灵活配置就好了，示例的作用主要是让大家
+熟悉一些操作流程。
+接下来点击 script.air 脚本上方的运行按钮(三角按钮),会发现 AirtestIDE 可以驱动手机完成指
+定操作了,和我们期望的流程——模一样,点击、等待、滑动操作顺次执行,且“Log查看窗”会显示
+执行的具体过程,如图12-70所示。
+以上便是 Airtest 提供的基于图像识别来自动化控制 App的过程,利用这项技术,我们不用编写
+任何代码就可以让手机自动操作。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_70.jpg" alt="图12-70 运行 script.air 脚本" loading="lazy"><figcaption>图12-70 运行 script.air 脚本</figcaption></figure>
+<p class="content-text">其实 script.air 脚本内部对应的就是Python代码,只不过利用 AirtestIDE封装了一层,使得编写和
+操作更加简单了。我们可以追踪一下源码,在当前脚本的选项卡上右击,在弹出的菜单项中选择“打
+开当前项目目录”,如图12-71所示。
+会看到源码内容如图12-72所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_71.jpg" alt="图12-71 选择“打开当前项目目录”" loading="lazy"><figcaption>图12-71 选择“打开当前项目目录”</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_72.jpg" alt="图12-72 script.air 的源码内容" loading="lazy"><figcaption>图12-72 script.air 的源码内容</figcaption></figure>
+<p class="content-text">可以看到其中有 1 个 Python 脚本,和3张刚才截取的图片,打开Python 脚本:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+auto_setup(_file_)
+keyevent(&quot;HOME&quot;)
+touch(Template(r&quot;tpl1622349860646.png&quot;, record_pos=(-0.12, 0.103), resolution=(1080, 2400)))
+wait(Template(r&quot;tpl1622350037160.png&quot;, record_pos=(-0.394, -0.826), resolution=(1080, 2400)))
+swipe (Template(r&quot;tpl1622350197166.png&quot;, record_pos=(-0.004, -0.419), resolution=(1080, 2400)),
+vector=(-0.0278, -0.2121])
+keyevent(&quot;HOME&quot;)</code></pre>
+<p class="content-text">可以看到其内容和AirtestIDE中自动生成的代码基本一致,不同之处在于这里用一个Template 对
+象代替了图片,该对象包含图片名、位置、分辨率三个参数,而AirtestIDE 对图片进行了可视化,使
+其更加直观。
+我们可以直接使用Python环境运行这个脚本吗?可以,但是需要在代码开始的 auto_setup(_file_)
+和 keyevent(&quot;HOME&quot;)之间添加一行代码 init_device()。调用init_device 方法的作用完成一些手机的
+初始化配置,不做这一步可能会有错误。运行脚本之后,会产生同样的效果———————手机被自动化控制执
+行了一系列操作,同时控制台输出对应的操作日志,如图12-73所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_73.jpg" alt="图12-73 控制台输出的操作日志" loading="lazy"><figcaption>图12-73 控制台输出的操作日志</figcaption></figure>
+<p class="content-text">至此,基于图像识别来自动化控制手机App的流程就介绍清楚了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. Airtest 的相关 API</h3>
+<p class="content-text">上面的内容仅展示了Airtest Python库的冰山一角,本节列举一些它提供的便捷API。从刚才添加
+的 init_device 方法说起,这个方法就是用来连接设备并初始化一些连接对象的。如果设备没有初始
+化则会先初始化设备,并把初始化后的设备当作当前设备。这个方法定义如下:</p>
+<pre class="code-block"><code>def init_device(platform=&quot;Android&quot;, uuid=None, **kwargs):</code></pre>
+<p class="content-text">用法示例如下:</p>
+<pre class="code-block"><code>device = init_device(&#x27;Android&#x27;)
+print(device)</code></pre>
+<p class="content-text">示例代码的运行结果如下:</p>
+<pre class="result-block"><code>&lt;airtest.core.android.android.Android object at 0x1018f3a58&gt;</code></pre>
+<p class="content-text">可以发现返回结果是一个 Android 对象。这个 Android 对象实际上属于airtest.core.android包,继
+承自 airtest.core.device.Device类,与之并列的对象还有airtest.core.ios.ios.IOS、airtest.core.
+linux.linux.Linux、airtest.core.win.win.Windows等。这些对象都有一些用来操作设备的API,下
+面我们以这个 Android 对象的API为例总结一下。
+  get_default_device:获取默认设备。
+  □ uuid:获取当前设备的UUID。
+  □ list_app:列举设备上的所有App。</p>
+<p class="content-text list-like"><strong class="term-label">path_app:</strong>打印出某个App的完整路径。</p>
+<p class="content-text list-like"><strong class="term-label">check_app:</strong>检查某个App 是否在当前设备上。</p>
+<p class="content-text list-like"><strong class="term-label">start_app:</strong>启动某个App。</p>
+<p class="content-text list-like"><strong class="term-label">start_app_timing:</strong>启动某个App,并计算启动时间。</p>
+<p class="content-text list-like"><strong class="term-label">stop_app:</strong>停止某个App。</p>
+<p class="content-text list-like"><strong class="term-label">clear_app:</strong>清空某个App的全部数据。</p>
+<p class="content-text list-like"><strong class="term-label">install_app:</strong>安装某个App。</p>
+<p class="content-text list-like"><strong class="term-label">install_multiple_app:</strong>安装多个App。</p>
+<p class="content-text list-like"><strong class="term-label">uninstall_app:</strong>卸载某个App。</p>
+<p class="content-text list-like"><strong class="term-label">snapshot:</strong>获取屏幕截图。</p>
+<p class="content-text list-like"><strong class="term-label">shell:</strong>获取 adb shell命令的执行结果。</p>
+<p class="content-text list-like"><strong class="term-label">keyevent:</strong>执行键盘操作。</p>
+<p class="content-text list-like"><strong class="term-label">wake:</strong>唤醒当前设备。</p>
+<p class="content-text list-like"><strong class="term-label">home:</strong>点击 HOME 键。</p>
+<p class="content-text list-like"><strong class="term-label">text:</strong>向设备输入内容。</p>
+<p class="content-text list-like"><strong class="term-label">touch:</strong>点击屏幕上的某处。</p>
+<p class="content-text list-like"><strong class="term-label">double_click:</strong>双击屏幕上的某处。</p>
+<p class="content-text list-like"><strong class="term-label">swipe:</strong>滑动屏幕,由一点滑动到另外一点。</p>
+<p class="content-text list-like"><strong class="term-label">pinch:</strong>通过手指的捏合操作放大或缩小手机屏幕。</p>
+<p class="content-text list-like"><strong class="term-label">logcat:</strong>记录日志。</p>
+<p class="content-text list-like"><strong class="term-label">getprop:</strong>获取某个特定属性的值。</p>
+<p class="content-text list-like"><strong class="term-label">get_ip_address:</strong>获取IP地址。</p>
+<p class="content-text list-like"><strong class="term-label">get_top_activity:</strong>获取当前 Activity。</p>
+<p class="content-text list-like"><strong class="term-label">get_top_activity_name_and_pid:</strong>获取当前 Activity的名称和进程号。</p>
+<p class="content-text list-like"><strong class="term-label">get_top_activity_name:</strong>获取当前 Activity 的名称。</p>
+<p class="content-text list-like"><strong class="term-label">is_keyboard_shown:</strong>判断当前是否显示键盘了。</p>
+<p class="content-text list-like"><strong class="term-label">is_locked:</strong>判断设备是否锁定了。</p>
+<p class="content-text list-like"><strong class="term-label">unlock:</strong>解锁设备。</p>
+<p class="content-text list-like"><strong class="term-label">display_info:</strong>获取当前的显示信息,如屏幕宽高等。</p>
+<p class="content-text list-like"><strong class="term-label">get_display_info:</strong>同 display_info。</p>
+<p class="content-text list-like"><strong class="term-label">get_current_resolution:</strong>获取当前设备的分辨率。</p>
+<p class="content-text list-like"><strong class="term-label">get_render_resolution:</strong>获取当前渲染的分辨率。</p>
+<p class="content-text list-like"><strong class="term-label">start_recording:</strong>开始录制。</p>
+<p class="content-text list-like"><strong class="term-label">stop_recording:</strong>结束录制。</p>
+<p class="content-text list-like"><strong class="term-label">adjust_all_screen:</strong>调整屏幕的适配分辨率。</p>
+<p class="content-text">了解了这些API的功能之后,下面用一个实例感受一下它们的用法:</p>
+<pre class="code-block" data-lang="python"><code>from airtest.core.android import Android
+from airtest.core.api import *
+import logging
+
+logging.getLogger(&quot;airtest&quot;).setLevel(logging.WARNING)
+
+device: Android = init_device(&#x27;Android&#x27;)
+is_locked = device.is_locked()
+print(f&#x27;is_locked: {is_locked}&#x27;)</code></pre>
+<p class="content-text">578 第12章 App数据的爬取</p>
+<pre class="code-block"><code>if is_locked:
+device.unlock()</code></pre>
+<pre class="code-block"><code>device.wake()</code></pre>
+<pre class="code-block"><code>app_list = device.list_app()
+print(f&#x27;app list {app_list}&#x27;)</code></pre>
+<pre class="code-block"><code>uuid = device.uuid
+print(f&#x27;uuid {uuid}&#x27;)</code></pre>
+<pre class="code-block"><code>display_info = device.get_display_info()
+print(f&#x27;display info {display_info}&#x27;)</code></pre>
+<pre class="code-block"><code>resolution = device.get_render_resolution()
+print(f&#x27;resolution {resolution}&#x27;)</code></pre>
+<pre class="code-block"><code>ip_address = device.get_ip_address()
+print(f&#x27;ip address {ip_address}&#x27;)</code></pre>
+<pre class="code-block"><code>top_activity = device.get_top_activity()
+print(f&#x27;top activity {top_activity}&#x27;)</code></pre>
+<pre class="code-block"><code>is_keyboard_shown = device.is_keyboard_shown()
+print(f&#x27;is keyboard shown {is_keyboard_shown}&#x27;)</code></pre>
+<p class="content-text">这里我们调用API获取了设备的一些基本状态,运行结果如下:
+is locked: False
+app list [&#x27;com.kimcy929.screenrecorder&#x27;, &#x27;com.android.providers.telephony&#x27;, &#x27;io.appium.settings&#x27;,
+&#x27;com.android.providers.calendar&#x27;, &#x27;com.android.providers.media&#x27;, &#x27;com.goldze.mvvmhabit&#x27;,
+&#x27;com.android.wallpapercropper&#x27;, &#x27;com.android.documentsui&#x27;, &#x27;com.android.galaxy4&#x27;,
+&#x27;com.android.externalstorage&#x27;, &#x27;com.android.htmlviewer&#x27;, &#x27;com.android.quicksearchbox&#x27;,
+&#x27;com.android.mms.service&#x27;, &#x27;com.android.providers.downloads&#x27;, &#x27;mark.qrcode&#x27;,
+&#x27;com.google.android.play.games&#x27;, &#x27;io.kkzs&#x27;, &#x27;tv.danmaku.bili&#x27;, &#x27;com.android.captiveportallogin&#x27;]
+uuid emulator-5554</p>
+<pre class="result-block"><code>display info {&#x27;id&#x27;: 0, &#x27;width&#x27;: 1080, &#x27;height&#x27;: 1920, &#x27;xdpi&#x27;: 320.0, &#x27;ydpi&#x27;: 320.0, &#x27;size&#x27;: 6.88, &#x27;density&#x27;: 2.0,
+&#x27;fps&#x27;: 60.0, &#x27;secure&#x27;: True, &#x27;rotation&#x27;: 0, &#x27;orientation&#x27;: 0.0, &#x27;physical_width&#x27;: 1080, &#x27;physical_height&#x27;: 1920}</code></pre>
+<p class="content-text">resolution (0.0, 0.0, 1080.0, 1920.0)
+ip address 10.0.2.15
+top activity (&#x27;com.microsoft.launcher.dev&#x27;, &#x27;com.microsoft.launcher.Launcher&#x27;, &#x27;16040&#x27;)
+is keyboard shown False</p>
+<p class="content-text">从结果可以看到,借助一些常用的API,我们就完成了唤醒手机和获取App列表、UUID、显示
+器信息、分辨率、IP地址、当前运行的Activity、是否显示键盘等一系列操作。</p>
+<section class="minor-section">
+<h4 class="subsection-heading">获取当前设备</h4>
+<p class="content-text">Airtest 中有一个全局变量 G,它的 DEVICE 属性代表当前的设备对象。直接调用 device 方法即可
+获取当前设备,该方法定义如下:</p>
+<pre class="code-block"><code>def device():
+return G.DEVICE</code></pre>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">获取所有设备</h4>
+<p class="content-text">获取所有设备的方法如下:</p>
+<pre class="code-block"><code>from airtest.core.android import Android
+from airtest.core.api import *</code></pre>
+<pre class="code-block"><code>print(G.DEVICE_LIST)
+uri= &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+device: Android = connect_device(uri)
+print(G.DEVICE_LIST)</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>[]
+[&lt;airtest.core.android.android.Android object at 0x10ba03978&gt;]</code></pre>
+<p class="content-text">DEVICE_LIST 是一个列表,元素是 Airtest 当前已经连接的设备。需要注意一点,在没有调用
+connect_device 方法时,DEVICE_LIST 是空的,调用connect_device 方法之后,DEVICE_LIST 中会自动
+添加已经连接的设备。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">执行命令行</h4>
+<p class="content-text">可以调用shell 方法,传入cmd 参数来执行命令行,该方法定义如下:
+    @logwrap</p>
+<pre class="code-block"><code>def shell(cmd):
+return G.DEVICE.shell (cmd)</code></pre>
+<p class="content-text">直接调用adb命令就可以了,例如执行如下命令获取内存信息:</p>
+<pre class="code-block"><code>from airtest.core.api import *</code></pre>
+<pre class="code-block"><code>uri = &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+connect_device(uri)</code></pre>
+<pre class="code-block"><code>result = shell(&#x27;cat /proc/meminfo&#x27;)
+print(result)</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>MemTotal:         3627908 kB
+MemFree:          2655560 kB
+MemAvailable:     2725928 kB
+Buffers:             3496 kB
+Cached:            147472 kB
+...</code></pre>
+<p class="content-text">DirectMap4k:        16376 kB
+DirectMap4M:       892928 kB
+这样我们就成功获取到了设备的内存信息描述。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">启动和停止 App</h4>
+<p class="content-text">调用设备的 start_app和 stop_app方法,然后传入App的包名,即可启动和停止这个App,两个
+方法的定义如下:
+    @logwrap</p>
+<pre class="code-block"><code>def start_app(package, activity=None):
+G.DEVICE.start_app(package, activity)</code></pre>
+<p class="content-text">    @logwrap</p>
+<pre class="code-block"><code>def stop_app(package):
+G.DEVICE.stop_app(package)</code></pre>
+<p class="content-text">用法示例如下:</p>
+<pre class="code-block"><code>from airtest.core.api import *</code></pre>
+<pre class="code-block"><code>uri = &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+connect_device(uri)</code></pre>
+<pre class="code-block"><code>package = &#x27;com.tencent.mm&#x27;
+start_app(package)
+sleep(10)
+stop_app(package)</code></pre>
+<p class="content-text">这里我指定 package 为微信的包名,然后调用 start_app 方法启动了微信,等待10秒后,调用
+stop_app 方法停止了微信运行。</p>
+<p class="content-text">第12章 App数据的爬取</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">安装和卸载App</h4>
+<p class="content-text">调用设备的 install 和 uninstall 方法,前者传入App的保存
+路径,后者传入 App的包名,即可安装和卸载对应的App,两个
+方法的定义如下:
+    @logwrap</p>
+<pre class="code-block"><code>def install(filepath, **kwargs):
+return G.DEVICE.install_app(filepath, **kwargs)</code></pre>
+<p class="content-text">    @logwrap</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">截图</h4>
+<pre class="code-block"><code>def uninstall(package):
+return G.DEVICE.uninstall_app(package)</code></pre>
+<p class="content-text">调用 snapshot 方法获取屏幕截图,可以通过参数设置存储截
+图的文件名称和图片的质量等。该方法的声明如下:</p>
+<pre class="code-block"><code>def snapshot (filename=None, msg=&quot;&quot;, quality=ST.SNAPSHOT_QUALITY)</code></pre>
+<p class="content-text">用法示例如下:</p>
+<pre class="code-block"><code>from airtest.core.api import *</code></pre>
+<pre class="code-block"><code>uri = &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+connect_device(uri)</code></pre>
+<pre class="code-block"><code>package = &#x27;com.tencent.mm&#x27;
+start_app(package)
+sleep(3)
+snapshot(&#x27;weixin.png&#x27;, quality=30)</code></pre>
+<p class="content-text">运行这段示例代码后,当前目录下会生成一个名为weixin.png
+的图片,如图12-74所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_74.jpg" alt="图12-74 生成微信截图" loading="lazy"><figcaption>图12-74 生成微信截图</figcaption></figure>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">唤醒和回到首页</h4>
+<p class="content-text">调用设备的 wake 和 home 方法,即可唤醒 App和回到首页,两
+个方法定义如下:
+    @logwrap</p>
+<pre class="code-block"><code>def wake():
+G.DEVICE.wake()</code></pre>
+<p class="content-text">    @logwrap</p>
+<pre class="code-block"><code>def home():
+G.DEVICE.home()</code></pre>
+<p class="content-text">这两个方法不需要任何参数,直接调用即可。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">点击屏幕</h4>
+<p class="content-text">调用 touch 方法点击屏幕,可以传入要点击的图片或者绝对位
+置,还可以指定点击次数,该方法声明如下:
+    @logwrap</p>
+<pre class="code-block"><code>def touch(v, times=1, **kwargs)</code></pre>
+<p class="content-text">例如我的手机屏幕现在如图12-75所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_75.jpg" alt="图12-75 当前的手机屏幕" loading="lazy"><figcaption>图12-75 当前的手机屏幕</figcaption></figure>
+<p class="content-text">截一张图片,如图12-76所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_76.jpg" alt="图12-76 从手机屏幕上截一张图片" loading="lazy"><figcaption>图12-76 从手机屏幕上截一张图片</figcaption></figure>
+<p class="content-text">然后把这张图片声明成一个 Template 对象传人 touch 方法:</p>
+<p class="content-text">运行这段代码,设备启动后,就会识别这张图片所在的位置,然后点击。这个例子是传入了要点
+击的图片,我们也可以传入要点击的绝对位置,示例代码如下:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+uri = &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+connect_device(uri)
+touch (Template(&#x27;tpl.png&#x27;))</code></pre>
+<p class="content-text">另外,touch 方法完全等同于 click 方法。如果要双击,还可以调用 double_click 方法,其参数
+和 touch 方法一样。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">滑动</h4>
+<p class="content-text">调用 swipe 方法滑动屏幕,可以传入起始位置和结束位置,两个位置都可以是图片或者绝对位置,
+该方法的声明如下:</p>
+<pre class="code-block"><code>@logwrap
+def swipe(v1, v2=None, vector=None, **kwargs)</code></pre>
+<p class="content-text">例如这时候我想让控制手机向右滑动即可实现如下代码:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+uri = &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+connect_device(uri)
+home()
+swipe ((200, 300), (900, 300))</code></pre>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">放大缩小</h4>
+<p class="content-text">放大缩小调用的是 pinch 方法,可以通过 in_or_out 参数指定放大还是缩小,还可以指定手指捏
+合的中心位置点和放大缩小的比例。该方法的声明如下:</p>
+<pre class="code-block"><code>@logwrap
+def pinch(in_or_out=&#x27;in&#x27;, center=None, percent=0.5)</code></pre>
+<p class="content-text">用法示例如下:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+uri = &#x27;Android://127.0.0.1:5037/emulator-5554&#x27;
+connect_device(uri)
+home()
+pinch(in_or_out=&#x27;out&#x27;, center=(300, 300), percent=0.4)</code></pre>
+<p class="content-text">这里我们调用了 pinch方法,并且指定了放大动作 out,同时指定了捏合中心点和放大的比例,
+运行代码之后手机上便会模拟执行此操作。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">键盘事件</h4>
+<p class="content-text">调用 keyevent 方法来按下某个键,例如HOME键、返回键等。该方法的声明如下:</p>
+<pre class="code-block"><code>def keyevent (keyname, **kwargs)</code></pre>
+<p class="content-text">用法示例如下:</p>
+<pre class="code-block"><code>keyevent(&quot;HOME&quot;)</code></pre>
+<p class="content-text">这行代码的意思是按下HOME键。</p>
+</section>
+<section class="minor-section">
+<h4 class="subsection-heading">输入内容</h4>
+<p class="content-text">调用 text 方法来输入内容,前提是目标 Widget 需要处于 active 状态。该方法的声明如下:
+@logwrap</p>
+<pre class="code-block"><code>def text(text, enter=True, **kwargs)</code></pre>
+<p class="content-text">调用该方法之后,目标 Widget 就会输入相应的字符,输入完之后会执行一次确认(按回车键)。
+以上就是对 Airtest 常用一些的API的用法总结。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 基于Poco 的UI组件自动化控制</h3>
+<p class="content-text">在某些场景下,基于图像识别来自动化控制App是比较方
+便的,但也存在一定的局限性。例如图像识别的速度可能并不
+快,以及App中的某些UI 如果更换了,就无法和之前截的图
+片匹配成功,这些很可能会影响自动化测试的流程。
+所以,这里再介绍一个基于Poco的UI组件自动化控制,
+说白了就是基于UI名称和属性选择器的自动化控制,有点类
+似于Appium、Selenium 中的XPath。
+新建一个脚本,命名为script2.air,右侧同样连接好手机,
+然后点击左侧“Poco辅助窗”的下拉菜单,选择“Android&quot;,
+如图12-77所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_77.jpg" alt="图12-77 选择“Android”" loading="lazy"><figcaption>图12-77 选择“Android”</figcaption></figure>
+<p class="content-text">这时 AirtestIDE 会提示我们更新代码,点击确定后脚本中自动添加了如下代码:</p>
+<pre class="code-block"><code>from poco.drivers.android.uiautomation import AndroidUiautomation Poco
+poco AndroidUiautomation Poco(use_airtest_input=True, screenshot_each_action=False)</code></pre>
+<p class="content-text">意思就是导入了Poco包的AndroidUiautomationPoco AndroidUiautomationPoco 模块,然后声明了一个poco 对象。接下来就可以
+通过 poco 对象选择一些内容了。例如点击左侧UI组件树中的“Dianping”节点,会发现右侧手机屏幕上
+对应的App 高亮显示了,在“Log查看窗”中还可以看到该节点对应的所有属性,如图12-78所示。这个
+操作有点像在浏览器开发者工具里选取网页源代码,其中的UI组件树就相当于网页里的HTML DOM DOM树。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_78.jpg" alt="图12-78 点击“Dianping”节点" loading="lazy"><figcaption>图12-78 点击“Dianping”节点</figcaption></figure>
+<p class="content-text">直接双击“Dianping”节点,script2.air 脚本中便会出现对应的代码:</p>
+<pre class="code-block"><code>poco(&quot;Dianping&quot;)</code></pre>
+<p class="content-text">这是什么意思呢?为什么这么写?我们来看一下 poco这个API,它是一个 AndroidUiautomationPoco
+对象,查阅 Poco 官方文档 https://poco.readthedocs.io/zh_CN/latest/source/poco.pocofw.html 可以得知,
+其用法类似如下这样:</p>
+<pre class="code-block"><code>poco = AndroidUiautomationPoco(...)
+close_btn = poco(&#x27;close&#x27;, type=&#x27;Button&#x27;)</code></pre>
+<p class="content-text">会发现,poco 本身就是一个对象,但可以直接调用UI组件的名称,这归根结底是因
+个_call_方法:</p>
+<pre class="code-block"><code>def_call_(self, name=None, **kw):
+if not name and len(kw) == 0:</code></pre>
+<p class="content-text">    warnings.warn(&quot;Wildcard selector may cause performance trouble. Please give at least one condition
+    to shrink range of results&quot;)</p>
+<pre class="code-block"><code>return UIObjectProxy(self, name, **kw)</code></pre>
+<p class="content-text">可以看到_call_方法的第一个参数就是
+name,其他参数都以kw的形式传入,可以任意指
+定,最后返回一个UIObjectProxy 对象。
+回过头来,我们看看“Dianping”这个节点的
+name 参数值是什么,这个在“Log查看窗”内显示
+得很清楚,如图12-79所示。
+可以看到其 name 值就是 Dianping,而且整个
+UI 组件树中没有与其同名的节点,于是可以直接
+调用 poco(&#x27;Dianping&#x27;)选取这个节点。当然,也
+可以任意指定 poco的其他参数,例如:</p>
+<pre class="code-block"><code>poco(&#x27;Dianping&#x27;, type=&#x27;android.widget.TextView&#x27;)
+poco(&#x27;Dianping&#x27;, text=&#x27;Dianping&#x27;)
+poco(&#x27;Dianping&#x27;, text=&#x27;Dianping&#x27;, desc=&#x27;Dianping&#x27;)</code></pre>
+<p class="content-text">这3种写法都能选取同样的节点。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_79.jpg" alt="图12-79 “Dianping”节点的 name 参数" loading="lazy"><figcaption>图12-79 “Dianping”节点的 name 参数</figcaption></figure>
+<p class="content-text">刚才说到,_call_方法会返回一个 UIObjectProxy对象,现在我们来看一下这个对象的实现,
+其 API 链接为 https://poco.readthedocs.io/zh_CN/latest/source/poco.proxy.html。从中可以看到它实现了
+_getitem_、_iter_、_len_、child、children、offspring等方法,所以可以实现链式调用、索
+引操作和循环遍历。
+其中一些比较常用的方法如下。
+  □ child:选择子节点。第一个参数是name,即UI组件的名称,如android.widget.LinearLayout
+    等,还可以额外传入一些属性辅助选择,其返回结果也是 UIObjectProxy 对象。
+  □ parent:选择父节点。该方法无须传入参数,可以直接返回当前节点的父节点,返回结果同样
+    是 UIObjectProxy 对象。
+  □ sibling:选择兄弟节点。第一个参数是 name,即UI组件的名称,同样可以额外传入一些属性
+    辅助选择,返回结果依然是 UIObjectProxy 对象。
+  □ click、rclick、double_click、long_click:分别是点击、右击、双击、长按。UIObjectProxy
+    对象可以直接调用这几个方法,参数 focus 用于指定点击的偏移位置,sleep_interval 用于指
+    定点击完成后等待的时间(单位为秒)。</p>
+<p class="content-text list-like">swipe:滑动操作。参数 direction 用于指导滑动方向,focus 用于指导滑动焦点的偏移量,
+  duration 用于指导完成滑动所需的时间。</p>
+<p class="content-text list-like"><strong class="term-label">wait、wait_for_appearance:</strong>等待某节点出现。参数 timeout 用于指定最长等待时间。</p>
+<p class="content-text list-like">attr:获取节点的属性值。参数 name 用于指定要获取的属性名,如 visable、text、type、pos、
+  size 等。</p>
+<p class="content-text list-like">get_text:获取节点的文本值。这个方法非常有用,可以获取某个文本节点内部的文本数据。
+下面调用一下click方法,将代码改写为:</p>
+<pre class="code-block"><code>poco(&quot;Dianping&quot;).click()</code></pre>
+<p class="content-text">这样就可以选中并点击“Dianping”节点了。点击之后,就进入了“大众点评”这个App,然后
+可以设置一下等待条件,等待某个节点加载出来,证明已经进入App,例如设置图 12-80 中框选的
+部分。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_80.jpg" alt="图12-80 设置等待条件" loading="lazy"><figcaption>图12-80 设置等待条件</figcaption></figure>
+<p class="content-text">通过左侧的 Poco Pause 按钮,可以在右侧屏幕上点击想要查看的位置,左侧的UI组件树会自动
+定位到对应节点,同时“Log查看窗”会实时显示节点信息。双击左侧 UI 组件树中定位到的节点,
+script2.air 脚本中又会增加如下内容:</p>
+<pre class="code-block"><code>poco(&quot;android.widget.LinearLayout&quot;).offspring(&quot;android:id/tabhost&quot;).offspring(&quot;com.dianping.v1:id/id_main
+_fragment&quot;).offspring(&quot;com.dianping.v1:id/main_listview&quot;).offspring(&quot;com.dianping.v1:id/home_category_layout&quot;)</code></pre>
+<p class="content-text">可以看到其中包含一系列链式调用,通过连续调用offspring 方法选取了一层层节点。
+提示刚才我们分析 API 的时候也了解到,UIObjectProxy 对象实现了_getitem_、_iter__、
+  _len_、child、children、offspring等方法,这些方法的返回结果都是 UIObjectProxy 对
+  象,所以 UIObjectProxy 可以实现链式调用。</p>
+<p class="content-text">12.7 基于Airtest的App爬取实战 585
+由于 offspring 方法返回的结果依然是 UIObjectProxy对象,因此可以继续调用相关方法,例如
+wait_for_appearance 方法,等待结果加载出来,代码改写如下:</p>
+<pre class="code-block"><code>poco(&quot;android.widget.LinearLayout&quot;).offspring(&quot;android:id/tabhost&quot;).offspring(&quot;com.dianping.v1:id/id_main
+_fragment&quot;).offspring(&quot;com.dianping.v1:id/main_listview&quot;).offspring(&quot;com.dianping.v1:id/home_category_lay
+out&quot;).wait_for_appearance(10)</code></pre>
+<p class="content-text">这里往 wait_for_appearance 方法的参数中传入了10,代表最长等待10秒,如果超出10秒还没
+有加载出结果,就报错。
+同理,可以选中中间菜单栏的位置,然后向上滑动,代码如下:</p>
+<pre class="code-block"><code>poco(&quot;android.widget.LinearLayout&quot;).offspring(&quot;android:id/tabhost&quot;).offspring(&quot;com.dianping.v1:id/id_main_fragm</code></pre>
+<p class="content-text">-0.1])</p>
+<pre class="code-block"><code>ent&quot;).offspring(&quot;com.dianping.v1:id/tab_layout&quot;).child(&quot;android.widget.LinearLayout&quot;).swipe([0,</code></pre>
+<p class="content-text">这里往 swipe 方法的参数中传入了一个列表,代表滑动方向,列表的第一个元素代表横向偏移量,
+第二个元素代表纵向偏移量,由于我们要向上滑动,因此第一个元素是0,第二个元素取了-0.1。
+最后在代码的开头和结尾添加键盘事件,回到首页,整理代码如下:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+from poco.drivers.android.uiautomation import AndroidUiautomationPoco
+poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=False)
+auto_setup(_file_)
+keyevent(&#x27;HOME&#x27;)
+poco(&quot;Dianping&quot;).click()
+poco(&quot;android.widget.LinearLayout&quot;).offspring(&quot;android:id/tabhost&quot;).offspring(&quot;com.dianping.v1:id/id_main
+_fragment&quot;).offspring(&quot;com.dianping.v1:id/main_listview&quot;).offspring(&quot;com.dianping.v1:id/home_category_lay</code></pre>
+<p class="content-text">out&quot;).wait_for_appearance (10)</p>
+<pre class="code-block"><code>poco(&quot;android.widget.LinearLayout&quot;).offspring(&quot;android:id/tabhost&quot;).offspring(&quot;com.dianping.v1:id/id_main
+_fragment&quot;).offspring(&quot;com.dianping.v1:id/tab_layout&quot;).child(&quot;android.widget.LinearLayout&quot;).swipe([0,</code></pre>
+<p class="content-text">-0.1], duration=1)</p>
+<pre class="code-block"><code>keyevent(&#x27;HOME&#x27;)</code></pre>
+<p class="content-text">运行这段代码,之后手机上的操作和用 Airtest 实现的一样,都是先进入首页,然后点击大众点评
+的图标进入App,等待相应内容加载出来,之后向上滑动,最后返回首页。
+可以看出,Poco 使用起来灵活度更高。可以选定某个UI节点,然后调用其各种操作方法执行一
+些特定的动作,API设计也更灵活,支持链式调用,功能非常强大。
+更多 API 的使用方法可以直接参考官方文档 https://poco.readthedocs.io/zh_CN/latest/source/poco.
+proxy.html,掌握了这些API,就可以更加得心应手地使用 Poco 控制 App操作,做爬虫自然也变得易
+如反掌。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 总结</h3>
+<p class="content-text">本节我们讲解了Airtest 和Poco 的基本用法,并用它们体验了一下控制App操作的流程。
+本节代码见 https://github.com/Python3 WebSpider/AirtestTest。</p>
+<p class="content-text">本节中我们通过实例讲述如何使用 Airtest 爬取一个App。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
+<p class="content-text">我们要爬取的示例 App依然是app5,因此准备工作请参考12.5节。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 思路分析</h3>
+<p class="content-text">由于这里的爬取流程和12.5节的一样,因此可以通过对比感受使用 Airtest 和Appium的不同。具</p>
+<p class="content-text">体的爬取原理这里不再赘述,同样可以参考12.5节。下面再总结一次基本的爬取流程。
+    □ 遍历首页已有的所有电影条目,依次模拟点击每个电影条目,进入详情页。
+    □ 爬取详情页的数据,之后模拟点击回退按钮返回首页。
+    □ 当首页已有的电影条目即将爬取完毕时,模拟上拉操作,加载更多数据。
+    □ 爬取过程中将已经爬取的数据记录下来,以免重复爬取。
+    □ 100条数据全部爬取完毕后,终止爬取。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 实战爬取</h3>
+<p class="content-text">请再次确保 app5已经正常安装在了 Android 手机上,并且可以正常启动,然后打开 AirtestIDE,
+切换到 Poco 模式,如图12-81所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_81.jpg" alt="图12-81 做好准备后的 AirtestIDE 界面" loading="lazy"><figcaption>图12-81 做好准备后的 AirtestIDE 界面</figcaption></figure>
+<p class="content-text">本节中,AirtestIDE仅仅是辅助我们审查节点属性的,所以界面左侧可以只展示“Poco 辅助窗”,
+中间栏只保留“Log查看窗”,右侧依旧展示“设备窗”。至于代码,可以在单独的Python文件中编写,
+不一定非要在这里。
+首先引入一些必要的库,并初始化一些变量:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+from poco.drivers.android.uiautomation import AndroidUiautomationPoco</code></pre>
+<pre class="code-block"><code>poco = AndroidUiautomationPoco(
+use_airtest_input=True, screenshot_each_action=False)
+window_width, window_height = poco.get_screen_size()
+PACKAGE_NAME = &#x27;com.goldze.mvvmhabit&#x27;
+TOTAL_NUMBER = 100</code></pre>
+<p class="content-text">这里引入了 Airtest的API和AndroidUiautomationPoco类,然后初始化了 poco对象。接着调用 poco
+对象的 get_screen_size方法获取了屏幕的宽高,并分别赋值为 window_width 和 window_height。之后</p>
+<p class="content-text">定义了两个常量,PACKAGE_NAME 代表包名,TOTAL_NUMBER 代表爬取数据的总条数。
+接下来就先爬取首页的所有电影数据,用AirtestIDE来查看一下节点的属性,选中一个电影条目,
+如图12-82所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_82.jpg" alt="图12-82 选中首页的一个电影条目" loading="lazy"><figcaption>图12-82 选中首页的一个电影条目</figcaption></figure>
+<p class="content-text">从图12-82可以看到,所选中节点的name 是com.goldze.mvvmhabit:id/item,而且不会和其他层
+及节点的 name 有重复,所以我们可以直接使用 name 属性选择节点,实现一个 scrape_index 方法:</p>
+<pre class="code-block"><code>def scrape_index():
+elements = poco(f&#x27;{PACKAGE_NAME}:id/item&#x27;)
+elements.wait_for_appearance()
+return elements</code></pre>
+<p class="content-text">这里直接将 name 作为参数传给了 poco 对象,并赋值为 elements 变量,然后调用它的 wait_for_
+appearance 方法等待节点加载出来,加载出来后返回。在正常情况下,scrape_index 方法可以获得首
+页当前呈现的所有电影条目。和12.5节一样,我们定义一个main方法来调用scrape_index 方法:</p>
+<pre class="code-block"><code>from loguru import logger
+def main():
+elements = scrape_index()
+for element in elements:
+element_data = scrape_detail(element)
+logger.debug(f&#x27;scraped data {element_data}&#x27;)
+if __name__ == &#x27;__main__&#x27;:
+init_device(&quot;Android&quot;)
+stop_app(PACKAGE_NAME)
+start_app(PACKAGE_NAME)
+main()</code></pre>
+<p class="content-text">在 main 方法中,我们首先调用scrape_index方法提取了首页当前已有的所有电影条目,赋值为
+elements 变量。然后就遍历这个变量中的元素,并希望通过一个 scrape_detail 方法爬取每部电影的</p>
+<p class="content-text">详情信息,之后输出日志,返回。
+这里提到的 scrape_detail 方法也和12.5节一样,基本实现思路如下。</p>
+<p class="content-text list-like">模拟点击 element,即首页中的某个电影条目。
+口进入电影详情页之后,爬取详情信息。</p>
+<p class="content-text list-like">点击回退按钮返回首页。
+在AirtestIDE中,点击首页的任意一个电影条目,进入详情页,查看节点信息,如图12-83 所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_83.jpg" alt="图12-83 《霸王别姬》电影的详情页" loading="lazy"><figcaption>图12-83 《霸王别姬》电影的详情页</figcaption></figure>
+<p class="content-text">可以看到整体详情信息的最外侧是 name为com.goldze.mvvmhabit:id/content 的面板,内部是一个个具体的 TextView,所以这里可以先选定这个面板节点,然后等待其加载,加载出来之后,再依次选择标题、类别、评分等节点,通过调用attr方法并传入对应的属性名称text,即可获取节点文本。
+scrape_detail 方法的实现如下:</p>
+<pre class="code-block"><code>def scrape_detail(element):
+element.click()
+panel = poco(f&#x27;{PACKAGE_NAME}:id/content&#x27;)
+panel.wait_for_appearance()
+title = poco(f&#x27;{PACKAGE_NAME}:id/title&#x27;).attr(&#x27;text&#x27;)
+categories = poco(f&#x27;{PACKAGE_NAME}:id/categories_value&#x27;).attr(&#x27;text&#x27;)
+score = poco(f&#x27; {PACKAGE_NAME}:id/score_value&#x27;).attr(&#x27;text&#x27;)
+published_at = poco(f&#x27; {PACKAGE_NAME}:id/published_at_value&#x27;).attr(&#x27;text&#x27;)
+drama = poco(f&#x27;{PACKAGE_NAME}:id/drama_value&#x27;).attr(&#x27;text&#x27;)
+keyevent(&#x27;BACK&#x27;)
+return {
+&#x27;title&#x27;: title,
+&#x27;categories&#x27;: categories,
+&#x27;score&#x27;: score,
+&#x27;published_at&#x27;: published_at,
+&#x27;drama&#x27;: drama
+}</code></pre>
+<p class="content-text">这里 scrapy_detail 方法的 element 参数就是某个电影条目,对应一个UIObjectProxy对象,调
+用其 click 方法就会跳转到对应的详情页,然后爬取其中的信息,爬取完毕后调用 keyevent 方法并传
+入 BACK 参数返回首页,最后将爬取的信息返回即可。
+运行一下代码,结果如下:</p>
+<pre class="result-block"><code>[16:53:29][DEBUG]&lt;airtest.core.android.adb&gt; /usr/local/adb -s R5CN30RMOQL shell input keyevent BACK
+2021-02-30 16:53:30.446 | DEBUG | _main_main:45 scraped data {&#x27;title&#x27;: &#x27;霸王别姬&#x27;, &#x27;categories&#x27;: &#x27;</code></pre>
+<p class="content-text">剧情、爱情&#x27;,&#x27;score&#x27;: &#x27;9.5&#x27;, &#x27;published_at&#x27;: &#x27;1993-07-26&#x27;, &#x27;drama&#x27;:&#x27;影片借一出《霸王别姬》的京戏,牵扯出
+三个人之间一段随时代风云变幻的爱恨情仇。段小楼(张丰毅饰)与程蝶衣(张国荣饰)是一对打小一起长大的师兄弟,
+两人一个演生,一个饰旦,一向配合天衣无缝,...&#x27;}</p>
+<pre class="code-block"><code>[16:53:32][DEBUG]&lt;airtest.core.android.adb&gt; /usr/local/adb -s R5CN30RMOQL shell input keyevent BACK</code></pre>
+<p class="content-text">会发现,到目前为止,我们已经可以成功获取首页最开始加载的几条电影信息了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 上拉加载逻辑</h3>
+<p class="content-text">现在添加上拉加载逻辑———当爬取的节点对应的电影条目差不多位于页面高度的80%以下时,
+就触发加载。将main方法改写如下:</p>
+<pre class="code-block"><code>def main():
+elements = scrape_index()
+for element in elements:
+element_y = element.get_position()
+if element_y &gt; 0.8:
+scroll_up()
+element_data = scrape_detail(element)
+logger.debug(f&#x27;scraped data {element_data}&#x27;)</code></pre>
+<p class="content-text">这里调用 element 的get_position 方法获取了当前节点的纵坐标,返回结果是0和1之间的数字,
+而非绝对的像素点位置,所以这里可以直接做判断,当返回的数字大于0.8时,就调用scroll_up 方
+法模拟上拉,以加载新的数据。scroll_up方法的定义如下:</p>
+<pre class="code-block"><code>def scroll_up():
+swipe((window_width * 0.5, window_height * 0.8),
+vector=[0, -0.5], duration=1)</code></pre>
+<p class="content-text">这里我们直接调用了Airtest API里的swipe方法,第一个参数是初始点击位置,第二个参数是滑
+动方向,第三个参数是滑动时间(这里传入1,代表1秒)。
+这样,在爬取过程中就可以自动触发下一页数据的加载了。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 去重、终止和保存数据</h3>
+<p class="content-text">我们需要额外添加根据标题进行去重和判断终止的逻辑,所以在遍历首页中每个电影条目的时候
+还需要爬取一下标题,并将其存入一个全局变量中。将 main方法改写如下:</p>
+<pre class="code-block"><code>def main():
+while len(scraped_titles) &lt; TOTAL_NUMBER:
+elements = scrape_index()
+for element in elements:
+element_title = element.offspring(f&#x27;{PACKAGE_NAME}:id/tv_title&#x27;)
+if not element_title.exists():</code></pre>
+<p class="content-text">                continue</p>
+<pre class="code-block"><code>title = element_title.attr(&#x27;text&#x27;)
+logger.debug(f&#x27;get title {title}&#x27;)
+if title in scraped_titles:</code></pre>
+<p class="content-text">                continue</p>
+<pre class="code-block"><code>element_y = element.get_position()
+if element_y &gt; 0.7:
+scroll_up()
+element_data = scrape_detail(element)
+scraped_titles.append(title)</code></pre>
+<p class="content-text">这里我们调用 element 的 offspring 方法传入了标题对应的name,并提取了其内容,然后声明全
+局变量 scraped_titles 来存储已经爬取的电影标题。每次爬取之前,先判断 title 是否已经存在于
+scraped_titles 中,如果已经存在,就跳过,否则接着爬取,爬取完后将得到的标题存到 scraped_titles
+里,这样就实现去重了。另外,我们在main方法中添加了while循环,如果爬取的电影条目数尚未达
+到目标数量 TOTAL_NUMBER,就接着爬取,直到爬取完毕。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 保存数据</h3>
+<p class="content-text">现在再添加一个保存数据的逻辑,将爬取的数据以JSON形式保存保存到本地的movie文件夹,
+相关方法的定义如下:</p>
+<pre class="code-block" data-lang="python"><code>import os
+import json
+
+OUTPUT_FOLDER = &#x27;movie&#x27;
+os.path.exists(OUTPUT_FOLDER) or os.makedirs(OUTPUT_FOLDER)
+
+def save_data(element_data):
+    with open(f&#x27;{OUTPUT_FOLDER}/{element_data.get(&quot;title&quot;)}.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as f:
+        f.write(json.dumps(element_data, ensure_ascii=False, indent=2))
+        logger.debug(f&#x27;saved as file (element_data.get(&quot;title&quot;)}.json&#x27;)</code></pre>
+<p class="content-text">最后在 main 方法添加对 save_data 方法的调用逻辑即可。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">7. 运行结果</h3>
+<p class="content-text">运行一下最终的main方法,控制台会输出如下结果:</p>
+<pre class="code-block"><code>[17:05:36][DEBUG]&lt;airtest.core.android.adb&gt; /usr/local/adb -s R5CN30RMOQL shell input keyevent BACK
+2021-02-30 17:05:37.501 | DEBUG | _main_main:74 scraped data {&#x27;title&#x27;: &#x27;霸王别姬&#x27;, &#x27;categories&#x27;:
+剧情、爱情&#x27;,&#x27;Sscore&#x27;: &#x27;9.5&#x27;, &#x27;published_at&#x27;: &#x27;1993-07-26&#x27;, &#x27;drama&#x27;:&#x27;影片借一出《霸王别姬》的京戏,本
+三个人之间一段随时代风云变幻的爱恨情仇。段小楼(张丰毅饰)与程蝶衣(张国荣饰)是一对打小一起长大的师兄弟,
+两人一个演生,一个饰旦,一向配合天衣无缝,...&#x27;}
+2021-02-30 17:05:37.503 | DEBUG
+2021-02-30 17:05:37.584 | DEBUG
+_main_save_data: 26 saved as file 霸王别姬.json
+_main_main:67 - get title 这个杀手不太冷
+[17:05:39][DEBUG]&lt;airtest.core.android.adb&gt; /usr/local/adb -s R5CN30RMOQL shell input keyevent BACK</code></pre>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_84.jpg" alt="图12-84 本地生成的 JSON 文件" loading="lazy"><figcaption>图12-84 本地生成的 JSON 文件</figcaption></figure>
+<p class="content-text">至此,我们成功爬取了示例App的所有电影数据,并保存为JSON文件,和12.5节的结果是一样的。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">8. 总结</h3>
+<p class="content-text">本节介绍了利用 Airtest 爬取 App 数据的过程,可以发现和Appium 相比,Airtest的API更加方便
+易用,同时使用体验也更好,是实现App爬虫的一个不错的选择。
+本节代码见 https://github.com/Python3WebSpider/AirtestTest。</p>
+</section>
+<div class="section-heading" id="section-7"><h2>12.8 手机群控爬取实战</h2></div>
+<p class="content-text">我们已经学习的使用 Airtest 爬取 App 数据的流程,仅限爬取一部手机,如果想同时爬取多部手
+机,该怎么办呢?
+本节就来探讨一下如何基于Airtest 实现手机群控,即同时爬取两部及以上手机的数据。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
+<p class="content-text">请准备好多部移动设备,真机或模拟器都可以,然后将它们与电脑相连(能通过adb命令访问即
+可)。这里我配置了三部手机,运行如下命令可以查看当前的连接状态:
+adb devices
+运行结果如下:</p>
+<p class="content-text list-like">daemon not running; starting now at tcp:5037</p>
+<section class="minor-section">
+<h4 class="subsection-heading">daemon started successfully</h4>
+<p class="content-text">List of devices attached
+R5CNCOF9QEX device
+emulator-5554 device
+emulator-5556 device
+如果结果中的第二列显示的不是 device,请检查手机的配置,例如检查 USB调试有没有打开、
+手机和电脑有没有正常连接。如果检查完还是没有显示 device,可以重启adb的服务器:
+adb kill-server
+然后重新运行 adb devices命令。按这个步骤依次检查每部设备,直到电脑可以通过adb命令正
+常访问到它们。另外,这里还需要额外安装 adbutils库,通过pip3工具安装即可:</p>
+<pre class="code-block"><code>pip3 install adbutils</code></pre>
+<p class="content-text">更详细的安装方式可以参考https://setup.scrape.center/adbutils。</p>
+</section>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 群控</h3>
+<p class="content-text">群控其实很简单,说白了就是同时控制,具体到实现上,就是新建多个进程,让它们同时执行同
+一个逻辑。第一步,为了能访问到已经连接的多部手机,我们使用adbutils 命令替代adb命令:</p>
+<pre class="code-block"><code>import adbutils
+adb = adbutils.AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+print(adb.devices())</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>[AdbDevice(serial=R5CNCOF9QEX), AdbDevice (serial=emulator-5554), AdbDevice(serial=emulator-5556)]</code></pre>
+<p class="content-text">可以看到返回了一个列表,列表中的每个元素都是 AdbDevice对象,这个AdbDevice 对象包含一
+个 serial 属性,代表设备序列号,这和运行adb devcies 命令获取的结果是一致的。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 群控实战</h3>
+<p class="content-text">为了更加方便地实现群控,建议将12.7节的实战代码封装成单独的一个类,由这个类维护对应的
+device 对象和 poco对象,继而执行一系列操作。下面就新建一个类 Controller,并初始化一些内容:</p>
+<p class="content-text">第12章 App数据的爬取</p>
+<pre class="code-block"><code>class Controller(object):
+def __init__(self, device_name, package_name, apk_path, need_reinstall=False):
+self.device_name = device_name
+self.package_name = package_name
+self.apk_path = apk_path
+self.need_reintall = need_reinstall</code></pre>
+<p class="content-text">对于群控,需要批量实现一些操作,包括初始化设备和安装apk安装包等。所以这里在构造方法
+中声明了4个参数。
+  device_name:刚才使用adb devices 命令获取的各个设备的序列名称。
+  package_name:包名。
+  apk_path:安装包文件的路径,这个参数是为安装所用的,因为很多手机可能没有安装过安装
+包,所以用该参数来指定安装包的路径。
+  need_install;是否需要重装安装包,因为有时候不需要重装,所以预留该参数来控制是否需
+要重装。
+然后添加一些常用的初始化方法:</p>
+<pre class="code-block"><code>from airtest.core.api import *
+from poco.drivers.android.uiautomation import AndroidUiautomationPoco
+class Controller(object):
+def __init__(self, device_uri, package_name, apk_path, need_reinstall=False, need_restart=False):
+self.device_uri = device_uri
+self.package_name = package_name
+self.apk_path = apk_path
+self.need_reintall = need_reinstall
+self.need_restart = need_restart
+def connect_device(self):
+self.device = connect_device(self.device_uri)
+def install_app(self):
+if self.device.check_app(self.package_name) and not self.need_reintall:
+return
+self.device.uninstall_app(self.package_name)
+self.device.install_app(self.apk_path)
+def start_app(self):
+if self.need restart:
+self.device.stop_app(self.package_name)
+self.device.start_app(self.package_name)
+def init_device(self):
+self.connect_device()
+self.poco = AndroidUiautomationPoco(self.device)
+self.window_width, self.window_height = self.poco.get_screen_size()
+self.install_app()
+self.start_app()</code></pre>
+<p class="content-text">下面介绍一下添加的几个方法。
+  connect_device:里面直接调用了Airtest的connect_device方法,需要传入一个参数 device_uri,
+会返回一个 device对象,这里其实是airtest.core.android.android.Android对象,并将该对
+象赋值给全局变量 device。
+  install_app:里面使用 device 变量的check_app方法检查App有没有安装,使用need_resintall
+方法检查是否需要重装App,只有在App已经安装且不需要重装的时候才不做任何操作。在其
+他情况下,都需要重装这个App,先使用 uninstall_app方法卸载App,再通过 install_app安装。</p>
+<p class="content-text list-like">start_app: 里面使用 need_restart 判断是否需要重启 App,如果需要,就先停止 App 再启用,
+否则直接启用 App。</p>
+<p class="content-text list-like">init_device: 这是一个初始化方法,里面先调用 connect_device 方法连接了设备,接着将
+device 对象传给 AndroidUiautomationPoco 构造了一个 poco 对象,然后获取了一些基础参数,
+例如 Window 屏幕的宽高,最后调用 install_app 和 start_app 方法完成了 App 的安装和启动。
+到这里,其实我们就能控制手机安装和重启 App 了。下面继续往 Controller 类中添加两个方法:</p>
+<pre class="code-block"><code>class Controller(object):
+def scroll_up(self):
+self.device.swipe((self.window_width * 0.5, self.window_height * 0.8),</code></pre>
+<p class="content-text">                          (self.window_width * 0.5, self.window_height * 0.3), duration=1)</p>
+<pre class="code-block"><code>def run(self):
+for _ in range(10):
+self.scroll_up()</code></pre>
+<p class="content-text">添加的方法一个是 scroll_up,里面调用了 device 对象的 swipe 方法。另一个是 run,里面调用
+了 10 次上滑操作。下面再实现一个总的调用方法:</p>
+<pre class="code-block"><code>PACKAGE_NAME = &#x27;com.goldze.mvvmhabit&#x27;
+APK_PATH = &#x27;scrape-app5.apk&#x27;</code></pre>
+<pre class="code-block"><code>def run(device_uri):
+controller = Controller (device_uri=device_uri,
+package_name=PACKAGE_NAME,
+apk_path=APK_PATH,
+need_reinstall=False,
+need_restart=True)
+controller.init_device()
+controller.run()</code></pre>
+<div class="note-box"><span class="note-icon">注</span><div class="note-text">这里的 scrape-app5.apk 需要下载下来,和当前代码放在同一
+文件夹下,这样在安装 apk 的时候才能找到对应的安装包。最后完善
+一下群控的调用逻辑即可:</div></div>
+<pre class="code-block"><code>from multiprocessing import Process</code></pre>
+<pre class="code-block"><code>if __name__ == &#x27;__main__&#x27;:
+processes = []
+adb = adbutils.AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+for device in adb.devices():
+device_name = device.serial
+device_uri= f&#x27;Android:///{device_name}&#x27;
+p = Process (target=run, args=[device_uri])
+processes.append(p)
+p.start()
+for p in processes:
+p.join()</code></pre>
+<p class="content-text">这里我们就是使用多进程实现了手机群控,一个爬取进程对应一
+个 Process 进程,声明进程的时候直接指定目标方法为 run,参数就设
+置为设备的连接字符串,格式为 Android: ///{device_name},例如
+Android:///emulator-5554。
+在本节的案例中,由于我连接了三部手机,所以就新建了三个进
+程,它们同时执行数据爬取操作。运行代码之后,可以发现三部手机
+同时运行着爬取流程,如图 12-85 所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_85.jpg" alt="图12-85 运行着爬取流程的手机" loading="lazy"><figcaption>图12-85 运行着爬取流程的手机</figcaption></figure>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 总结</h3>
+<p class="content-text">本节介绍了手机群控爬取的简单实现,由于我们使用的是 Python 脚本,所以可以直接使用多进
+程 multiprocessing 库中的 Process 模块为每个爬取进程建立单独的进程,最终成功实现
+本节代码见 https://github.com/Python3WebSpider/AirtestTest。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. 商业服务</h3>
+<p class="content-text">以上演示的仅是一个简单案例,通过多进程实现群控爬取自然没有问题,不过距离真正商业级的
+手机群控还是有一定差距的。
+现在市面上的手机群控系统支持同时控制上百部手机长时间稳定运行,并不仅仅满足于爬取一个
+简单的项目,手机也几乎都是真机,被统一放置在一个支架上维护起来,如图12-86所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_86.jpg" alt="图12-86 利用支架维护手机" loading="lazy"><figcaption>图12-86 利用支架维护手机</figcaption></figure>
+<p class="content-text">关于商业级群控系统,由于其类型五花八门且经常发生变动和更新,故这里不再展开介绍,大家
+可以参考 https://setup.scrape.center/multi-control 了解更多信息。</p>
+</section>
+<div class="section-heading" id="section-8"><h2>12.9 云手机的使用</h2></div>
+<p class="content-text">云服务器大家肯定不陌生了,有了云服务器,我们可以通过ssh连接云服务器,并可以执行相应
+的命令对云服务器进行控制。
+云服务器大多是Linux、Windows Server 系统,这些其实都是电脑,于是有的朋友就会好奇:既
+然有云电脑,那有没有云手机呢?答案当然是有。
+所谓的云手机就是一种搭建在云服务器上的虚拟手机,云手机的功能和真手机的基本相同,只不
+过我们拿不到真机。云手机平台会提供一些控制面板或者API,使我们可以通过操控手机或者执行相
+应命令实现需求。</p>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">1. 平台</h3>
+<p class="content-text">目前的云手机平台还是比较多的,个人比较推荐河马云手机平台(http://www.longene.com.cn/),
+其首页如图12-87所示。</p>
+<p class="content-text">在这个平台上,我们可以选购相应的云手机并开通相应的服务。购买云手机之后,就可以在河马云
+手机平台的网页中控制相应的云手机,其功能非常丰富,包括基础控制、应用管理、IP切换、数据备份、
+日志调试、实时直播、adb调试、远程虚拟相机等,平台官网也提供了相应介绍，如图12-88所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_87.jpg" alt="图12-87 河马云手机平台的首页" loading="lazy"><figcaption>图12-87 河马云手机平台的首页</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_88.jpg" alt="图12-88 平台官网提供的功能介绍" loading="lazy"><figcaption>图12-88 平台官网提供的功能介绍</figcaption></figure>
+<p class="content-text">下面我就使用河马云手机平台来演示云手机的申请和使用过程。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">2. 购买云手机</h3>
+<p class="content-text">先注册一个河马云手机平台的账号,注册之后登录,然后点击页面右上角的订购入口,即可进入
+订购页面，如图12-89所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_89.jpg" alt="图12-89 订购云手机的页面" loading="lazy"><figcaption>图12-89 订购云手机的页面</figcaption></figure>
+<p class="content-text">这里有多个套餐供选择——基础版、标准版、高级版和荣耀版,不同套餐对云主机的基本配置也
+不同,配置信息包括分辨率、DPI、内存、flash、cpu和版本号。本节我们是用来测试,先购买“试用
+1天的荣耀版”套餐。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">3. 管理云手机</h3>
+<p class="content-text">支付金额后便可以看到控制台出现了一部云手机,同时菜单栏中显示了很多配置信息,如应用安
+装/卸载、云机同步、多路实时直播等,如图12-90所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_90.jpg" alt="图12-90 支付金额后的控制台" loading="lazy"><figcaption>图12-90 支付金额后的控制台</figcaption></figure>
+<p class="content-text">可以点击该云手机打开控制面板,如图12-91所示。
+在这里,我们可以控制手机屏幕做任何操作,如打开某个App、下拉查看通知栏等,和使用真机
+时的操作基本一致。另外,云手机的右侧有一栏基本控制项,如音量控制、返回首页键、返回上一
+步等。
+接下来我们尝试在云手机上装一个App,在此之前,先对云手机分组,直接在控制面板操作即可,
+如图12-92所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_91.jpg" alt="图12-91 打开云手机的控制面板" loading="lazy"><figcaption>图12-91 打开云手机的控制面板</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_92.jpg" alt="图12-92 对云手机分组" loading="lazy"><figcaption>图12-92 对云手机分组</figcaption></figure>
+<p class="content-text">分组完成后,点击“应用安装/卸载”按钮来安装App。这里安装我们的示例 App,访问https://app5.
+scrape.center 下载安装包,安装包保存为 scrape-app5.apk文件,然后上传这个文件,如图12-93 所示。
+上传应用 试用用户上传的应用仅保留90天,超过会被自动清理。
+选择应用支持断点续传,批量多选,上传的应用文件名不能包含空格、中文、括号、斜杠等特殊字符。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_93.jpg" alt="图12-93 上传下载的安装包" loading="lazy"><figcaption>图12-93 上传下载的安装包</figcaption></figure>
+<p class="content-text">上传之后,即可看到云主机提示“应用同步中...”,如图12-94所示。稍等片刻,App就安装好了。
+我们可以在云手机上查看其运行效果,如图12-95所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_94.jpg" alt="图12-94 即将安装好 App" loading="lazy"><figcaption>图12-94 即将安装好 App</figcaption></figure>
+<p class="content-text">至此我们成功实现了在云手机上安装和启动App。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 高级服务</h3>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_95.jpg" alt="图12-95 示例 App 的运行效果" loading="lazy"><figcaption>图12-95 示例 App 的运行效果</figcaption></figure>
+<p class="content-text">云手机还有很多高级服务,如切换IP、远程相机、消息转发、ADB调试等,点击“配套服务”
+即可查看,如图12-96所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_96.jpg" alt="图12-96 查看云手机的高级服务" loading="lazy"><figcaption>图12-96 查看云手机的高级服务</figcaption></figure>
+<p class="content-text">点击“云机预览”→“批量操作”,会弹出操作菜单,如图12-97所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_97.jpg" alt="图12-97 一些基本操作" loading="lazy"><figcaption>图12-97 一些基本操作</figcaption></figure>
+<p class="content-text">对于切换IP服务,选择地域并点击“确定”,即可切换到对应地域的IP,如图12-98所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_98.jpg" alt="图12-98 切换新 IP" loading="lazy"><figcaption>图12-98 切换新 IP</figcaption></figure>
+<p class="content-text">对于云机扫码功能,选择扫码云机,然后在被扫码云机上打开二维码页面,点击“扫码”按钮,
+即可开始扫码,扫码成功后会执行相应的处理流程,如图12-99所示。</p>
+<p class="content-text">第12章 App数据的爬取
+请选择扫码云机:(该云机为已安装微信、支付宝等有扫码功能的应用》</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_99.jpg" alt="图12-99 云机扫码" loading="lazy"><figcaption>图12-99 云机扫码</figcaption></figure>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. ADB 调试</h3>
+<p class="content-text">云手机的ADB 调试功能需要单独付费购买,购买之后,我们可以点击云机菜单中的“调试。
+选项获取ADB 远程连接信息,如图12-100所示。</p>
+<p class="content-text">点击之后,页面会弹出一个包含远程连接IP和远程连接端口的提示框,分别是183.220.196.75和
+15998,如图12-101所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_100.jpg" alt="图12-100 点击“调试 ADB”" loading="lazy"><figcaption>图12-100 点击“调试 ADB”</figcaption></figure>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_101.jpg" alt="图12-101 页面提示框" loading="lazy"><figcaption>图12-101 页面提示框</figcaption></figure>
+<p class="content-text">那怎么连接呢?运行 adb connect 命令即可:
+adb connect 183.220.196.75:15988</p>
+<p class="content-text">如果顺利的话,运行结果会包含 connected to 183.220.196.75: 15998,如图12-102所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_102.jpg" alt="图12-102 连接结果" loading="lazy"><figcaption>图12-102 连接结果</figcaption></figure>
+<p class="content-text">连接成功后,运行 adb devices 命令,返回结果的设备列表中就会包含一部远程的手机,如图
+12-103 所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_103.jpg" alt="图12-103 返回的设备列表" loading="lazy"><figcaption>图12-103 返回的设备列表</figcaption></figure>
+<p class="content-text">现在尝试修改一下12.7节的内容,将手机的连接信息修改为该远程主机:</p>
+<pre class="code-block"><code>PACKAGE_NAME = &#x27;com.goldze.mvvmhabit&#x27;
+APK_PATH = &#x27;scrape-app5.apk&#x27;
+def run(device_uri):
+controller = Controller (device_uri=device_uri,
+package_name=PACKAGE_NAME,
+apk_path=APK_PATH,
+need_reinstall=False,
+need_restart=True)
+controller.init_device()
+controller.run()
+if __name__ == &#x27;__main__&#x27;:
+device_uri = &#x27;Android://183.220.196.75:15998&#x27;
+run(device_uri)</code></pre>
+<p class="content-text">运行这段代码后,Airtest进行了一系列初始化操作,在云手机上安装了一些和Airtest 相关的App,
+如图12-104所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_104.jpg" alt="图12-104 安装了和 Airtest 相关的 App" loading="lazy"><figcaption>图12-104 安装了和 Airtest 相关的 App</figcaption></figure>
+<p class="content-text">然后示例 App 自动启动了,运行界面如图 12-105所示。</p>
+<figure class="inline-figure"><img src="figures/ch12/fig-12_105.jpg" alt="图12-105 示例 App 的运行界面" loading="lazy"><figcaption>图12-105 示例 App 的运行界面</figcaption></figure>
+<p class="content-text">其最终的运行结果和12.7节的是相同的,爬虫控制手机点击了一个个电影条目并爬取了每部电影
+的详情信息,最后将信息保存下来。</p>
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">6. 总结</h3>
+<p class="content-text">本节中我们了解了云手机的申请和使用方法,云手机和真机没有太大差别,甚至还在真机的基础
+上提供了增值服务,这在一定程度上使我们的开发和数据爬取变得更为便利。</p>
+</section>
+      </article>
+      <nav class="chapter-nav">
+        <a href="ch11.html">&larr; 第11章 JavaScript逆向爬虫</a>
+        <a href="ch13.html">第13章 Android逆向 &rarr;</a>
+      </nav>
+    </main>
+  </div>
+  <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第12章 APP数据的爬取</footer>
+  <script src="../js/sidebar.js?v=20260605-text-indent"></script>
+  <script>buildSidebarForChapter("ch12");</script>
+</body>
+</html>

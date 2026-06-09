@@ -471,9 +471,9 @@ for index, row in df.iterrows():
 下面,我们就来讲解使用PyMySQL 操作 MySQL数据库的方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">在开始之前,请确保已经安装好了 MySQL 数据库并保证它能正常运行,安装方式可以参考:
-https://setup.scrape.center/mysql。
-除了安装好 MySQL数据库外,还需要安装好PyMySQL库,如尚未安装PyMySQL,可以使用pip3
+<p class="content-text">在开始之前,请确保已经安装好了 MySQL 数据库并保证它能正常运行,安装方式可以参考:</p>
+<pre class="result-block"><code>https://setup.scrape.center/mysql。</code></pre>
+<p class="content-text">除了安装好 MySQL数据库外,还需要安装好PyMySQL库,如尚未安装PyMySQL,可以使用pip3
 来安装:</p>
 <pre class="code-block" data-lang="text"><code>pip3 install pymysql</code></pre>
 <p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/pymysql。
@@ -507,7 +507,7 @@ db.close()</code></pre>
 <h3 class="subsection-heading numbered-heading">3. 创建表</h3>
 <p class="content-text">一般来讲，创建数据库的操作执行一次就可以了。当然，也可以手动创建数据库。我们之后的操作都在 spiders 数据库上完成。
 接下来，新创建一个数据表 students，此时执行创建表的 SQL 语句即可。这里指定 3 个字段，结构如表 4-1 所示。</p>
-<p class="content-text">表 4-1 数据表 students</p>
+<p class="table-caption">表 4-1 数据表 students</p>
 <table class="content-table"><thead><tr><th>字段名</th><th>含义</th><th>类型</th></tr></thead><tbody><tr><td>id</td><td>学号</td><td>varchar</td></tr>
 <tr><td>name</td><td>姓名</td><td>varchar</td></tr>
 <tr><td>age</td><td>年龄</td><td>int</td></tr></tbody></table>
@@ -552,7 +552,7 @@ db.close()</code></pre>
 全没有发生。例如插入一条数据，不会存在插入一半的情况——要么全部插入、要么都不插入，这就
 是事务的原子性。事务还有其他 3 个属性——一致性、隔离性和持久性。这 4 个属性通常称为 ACID 特
 性，具体如表 4-2 所示。</p>
-<p class="content-text">表4-2 事务的4个属性</p>
+<p class="table-caption">表4-2 事务的4个属性</p>
 <table class="content-table"><thead><tr><th>属性</th><th>解释</th></tr></thead><tbody><tr><td>原子性(atomicity)</td><td>事务是一个不可分割的工作单位,事务中包括的诸操作要么都做、要么都不做</td></tr>
 <tr><td>一致性(consistency)</td><td>事务必须使数据库从一个一致性状态变到另一个一致性状态。一致性与原子性是密切相关的</td></tr>
 <tr><td>隔离性(isolation)</td><td>一个事务的执行不能被其他事务干扰,即一个事务内部的操作及使用的数据对并发的其他事务是隔离的,并发执行的各个事务之间不能互相干扰</td></tr>
@@ -894,8 +894,8 @@ for result in results:
 <pre class="code-block"><code>results = collection.find({&#x27;age&#x27;: {&#x27;$gt&#x27;: 20}})</code></pre>
 <p class="content-text">这里查询条件中的键值已经不是单纯的数字了,而是一个字典,其键名为比较符号 $gt,意思是
 大于;键值为20。
-这里将比较符号归纳为表4-3。
-表4-3 比较符号</p>
+这里将比较符号归纳为表4-3。</p>
+<p class="table-caption">表4-3 比较符号</p>
 <table class="content-table"><thead><tr><th>符 号</th><th>含 义</th><th>实 例</th></tr></thead><tbody><tr><td>$lt</td><td>小于</td><td>{&#x27;age&#x27;: {&#x27;$lt&#x27;: 20}}</td></tr>
 <tr><td>$gt</td><td>大于</td><td>{&#x27;age&#x27;: {&#x27;$gt&#x27;: 20}}</td></tr>
 <tr><td>$lte</td><td>小于等于</td><td>{&#x27;age&#x27;: {&#x27;$lte&#x27;: 20}}</td></tr>
@@ -907,7 +907,7 @@ for result in results:
 <pre class="code-block"><code>results = collection.find({&#x27;name&#x27;: {&#x27;$regex&#x27;: &#x27;^M.*&#x27;}})</code></pre>
 <p class="content-text">这里使用 $regex来指定正则匹配,^M.*代表以M为开头的正则表达式。
 下面将一些功能符号归类为表4-4。</p>
-<p class="content-text">表4-4 功能符号</p>
+<p class="table-caption">表4-4 功能符号</p>
 <table class="content-table"><thead><tr><th>符号</th><th>含义</th><th>实例</th><th>实例含义</th></tr></thead><tbody><tr><td>$regex</td><td>匹配正则表达式</td><td>`{&#x27;name&#x27;: {&#x27;$regex&#x27;: &#x27;^M.*&#x27;}}`</td><td>name 以M为开头</td></tr>
 <tr><td>$exists</td><td>属性是否存在</td><td>`{&#x27;name&#x27;: {&#x27;$exists&#x27;: True}}`</td><td>存在 name 属性</td></tr>
 <tr><td>$type</td><td>类型判断</td><td>`{&#x27;age&#x27;: {&#x27;$type&#x27;: &#x27;int&#x27;}}`</td><td>age 的类型为 int</td></tr>
@@ -1098,8 +1098,8 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 键操作</h3>
-<p class="content-text">　　表 4-5 总结了键的一些判断和操作方法。</p>
-<p class="content-text">表4-5 键的一些判断和操作方法</p>
+<p class="table-caption">表 4-5 总结了键的一些判断和操作方法。</p>
+<p class="table-caption">表4-5 键的一些判断和操作方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>exists(name)</td><td>判断一个键是否存在</td><td>name:键名</td><td>redis.exists(&#x27;name&#x27;)</td><td>是否存在 name 这个键</td><td>True</td></tr>
 <tr><td>delete(name)</td><td>删除一个键</td><td>name:键名</td><td>redis.delete(&#x27;name&#x27;)</td><td>删除 name 这个键</td><td>1</td></tr>
 <tr><td>type(name)</td><td>判断键类型</td><td>name:键名</td><td>redis.type(&#x27;name&#x27;)</td><td>判断 name 这个键 的类型</td><td>b&#x27;string&#x27;</td></tr>
@@ -1116,7 +1116,7 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 字符串操作</h3>
 <p class="content-text">　　Redis 支持最基本的键值对存储，相关方法的总结如表 4-6 所示。</p>
-<p class="content-text">表4-6 键值对存储的相关方法</p>
+<p class="table-caption">表4-6 键值对存储的相关方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>set(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value</td><td>name: 键名&lt;br&gt;value: 值</td><td>`redis.set(&#x27;name&#x27;, &#x27;Bob&#x27;)`</td><td>将 name 这个键对应的键值赋值为 Bob</td><td>True</td></tr>
 <tr><td>get(name)</td><td>返回数据库中指定键名对应的键值</td><td>name: 键名</td><td>`redis.get(&#x27;name&#x27;)`</td><td>返回 name 这个键对应的键值</td><td>b&#x27;Bob&#x27;</td></tr>
 <tr><td>getset(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value,并返回上次的 value</td><td>name: 键名&lt;br&gt;value: 新值</td><td>`redis.getset(&#x27;name&#x27;, &#x27;Mike&#x27;)`</td><td>将 name 这个键对应的键值赋值为 Mike,并返回上次的 value</td><td>b&#x27;Bob&#x27;</td></tr>
@@ -1136,7 +1136,7 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 列表操作</h3>
 <p class="content-text">Redis 提供了列表存储,列表内的元素可以重复,而且可以从两端存储,操作列表的方法见表4-7。</p>
-<p class="content-text">表4-7 列表的操作方法</p>
+<p class="table-caption">表4-7 列表的操作方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>rpush(name, *values)</td><td>在键名为 name 的列表末尾添加值为 value 的元素,可以传入多个 value</td><td>name: 键名&lt;br&gt;values: 值</td><td>redis.rpush(&#x27;list&#x27;, 1, 2, 3)</td><td>向键名为 list 的列表末尾添加 1、2、3</td><td>3,即列表大小</td></tr>
 <tr><td>lpush(name, *values)</td><td>在键名为 name 的列表头部添加值为 value 的元素,可以传入多个 value</td><td>name: 键名&lt;br&gt;values: 值</td><td>redis.lpush(&#x27;list&#x27;, 0)</td><td>向键名为 list 的列表头部添加 0</td><td>4,即列表大小</td></tr>
 <tr><td>llen(name)</td><td>返回键名为 name 的列表的长度</td><td>name: 键名</td><td>redis.llen(&#x27;list&#x27;)</td><td>返回键名为 list 的列表的长度</td><td>4</td></tr>
@@ -1155,7 +1155,7 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 集合操作</h3>
 <p class="content-text">Redis 还提供了集合存储，集合中的元素都是不重复的，操作集合的方法见表 4-8。</p>
-<p class="content-text">表 4-8 集合的操作方法</p>
+<p class="table-caption">表 4-8 集合的操作方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>sadd(name, *values)</td><td>向键名为 name 的集合中添加元素</td><td>name: 键名&lt;br&gt;values: 值，可以为多个</td><td>redis.sadd(&#x27;tags&#x27;, &#x27;Book&#x27;, &#x27;Tea&#x27;, &#x27;Coffee&#x27;)</td><td>向键名为 tags 的集合中添加 Book、Tea 和 Coffee 这 3 项内容</td><td>3, 即添加的数据个数</td></tr>
 <tr><td>srem(name, *values)</td><td>从键名为 name 的集合中删除元素</td><td>name: 键名&lt;br&gt;values: 值，可以为多个</td><td>redis.srem(&#x27;tags&#x27;, &#x27;Book&#x27;)</td><td>从键名为 tags 的集合中删除 Book</td><td>1, 即删除的数据个数</td></tr>
 <tr><td>spop(name)</td><td>随机返回并删除键名为 name 的集合中的一个元素</td><td>name: 键名</td><td>redis.spop(&#x27;tags&#x27;)</td><td>随机删除并返回键名为 tags 的集合中的某元素</td><td>b&#x27;Tea&#x27;</td></tr></tbody></table>
@@ -1176,7 +1176,7 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 <h3 class="subsection-heading numbered-heading">8. 有序集合操作</h3>
 <p class="content-text">有序集合比集合多了一个分数字段,利用该字段可以对集合中的数据进行排序,操作有序集合的
 方法总结见表4-9。</p>
-<p class="content-text">表4-9 有序集合的操作方法</p>
+<p class="table-caption">表4-9 有序集合的操作方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>zadd(name, args, *kwargs)</td><td>向键名为 name 的有序集合中添加元素。score 字段用于排序,如果该元素存在,则更新各元素的顺序</td><td>name: 键名&lt;br&gt;args: 可变参数</td><td>redis.zadd(&#x27;grade&#x27;, 100, &#x27;Bob&#x27;, 98, &#x27;Mike&#x27;)</td><td>向键名为 grade 的有序集合中添加 Bob(对应 score 为 100)、Mike(对应 score 为 98)</td><td>2,即添加的元素个数</td></tr>
 <tr><td>zrem(name, *values)</td><td>删除键名为 name 的有序集合中的元素</td><td>name: 键名&lt;br&gt;values: 元素</td><td>redis.zrem(&#x27;grade&#x27;, &#x27;Mike&#x27;)</td><td>从键名为 grade 的有序集合中删除 Mike</td><td>1,即删除的元素个数</td></tr>
 <tr><td>zincrby(name, value, amount=1)</td><td>如果键名为 name 的有序集合中已经存在元素 value,则将该元素的 score 增加 amount;否则向该集合中添加 value 元素,其 score 的值为 amount</td><td>name: 键名&lt;br&gt;value: 元素&lt;br&gt;amount: 增长的 score 值</td><td>redis.zincrby(&#x27;grade&#x27;, &#x27;Bob&#x27;, -2)</td><td>将键名为 grade 的有序集合中 Bob 元素的 score 减 2</td><td>98.0,即修改后的值</td></tr>
@@ -1193,7 +1193,7 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 散列操作</h3>
 <p class="content-text">Redis 还提供了散列表这种数据结构,我们可以用name 指定一个散列表的名称,表内存储着多个键值对,操作散列表的方法总结见表4-10。</p>
-<p class="content-text">表4-10 散列表的操作方法</p>
+<p class="table-caption">表4-10 散列表的操作方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>hset(name, key, value)</td><td>向键名为 name的散列表中添加映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;value: 映射键值</td><td>hset(&#x27;price&#x27;, &#x27;cake&#x27;, 5)</td><td>向键名为 price 的散列表中添加映射关系,cake 的值为 5</td><td>1,即添加的映射个数</td></tr>
 <tr><td>hsetnx(name, key, value)</td><td>如果键名为 name 的散列表中不存在给定映射,则向其中添加此映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;value: 映射键值</td><td>hsetnx(&#x27;price&#x27;, &#x27;book&#x27;, 6)</td><td>向键名为 price 的散列表中添加映射关系,book 的值为 6</td><td>1,即添加的映射个数</td></tr>
 <tr><td>hget(name, key)</td><td>返回键名为 name 的散列表中 key 对应的值</td><td>name: 散列表键名 key:映射键名</td><td>redis.hget(&#x27;price&#x27;, &#x27;cake&#x27;)</td><td>获取键名为price的散列表中键名cake的值</td><td>5</td></tr>
@@ -1281,9 +1281,9 @@ Elasticsearch → Indices → Types → Documents → Fields
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">在开始本节实际操作之前,请确保已经正确安装好了 Elasticsearch,安装方式可以参考:
-https://setup.scrape.center/elasticsearch,安装完成之后确保它可以在本地9200端口上正常运行即可。
-Elasticsearch 实际上提供了一系列Restful API来进行存取和查询操作,我们可以使用curl等命令
+<p class="content-text">在开始本节实际操作之前,请确保已经正确安装好了 Elasticsearch,安装方式可以参考:</p>
+<pre class="result-block"><code>https://setup.scrape.center/elasticsearch,安装完成之后确保它可以在本地9200端口上正常运行即可。</code></pre>
+<p class="content-text">Elasticsearch 实际上提供了一系列Restful API来进行存取和查询操作,我们可以使用curl等命令
 或者直接调用API来进行数据存储和修改操作,但总归来说不是很方便。所以这里我们直接介绍一个
 专门用来对接 Elasticsearch 操作的Python库,名称也叫作 Elasticsearch,使用pip3安装即可:</p>
 <pre class="code-block"><code>pip3 install elasticsearch</code></pre>
@@ -1305,9 +1305,9 @@ verify_certs=True,#是否验证 SSL证书
 )</code></pre>
 <p class="content-text">第一个参数我们可以构造特定格式的链接字符串并传入,hostname 和port 即 Elasticsearch 运行
 的地址和端口,username 和 password 是可选的,代表连接 Elasticsearch 需要的用户名和密码,另外
-而且还有其他的参数设置,比如 verify_certs 代表是否验证证书有效性。更多参数的设置可以参考
-https://elasticsearch-py.readthedocs.io/en/latest/api.html#elasticsearch。
-声明 Elasticsearch 对象之后,我们调用了es的indices 对象的 create 方法传入了 index 的名
+而且还有其他的参数设置,比如 verify_certs 代表是否验证证书有效性。更多参数的设置可以参考</p>
+<pre class="result-block"><code>https://elasticsearch-py.readthedocs.io/en/latest/api.html#elasticsearch。</code></pre>
+<p class="content-text">声明 Elasticsearch 对象之后,我们调用了es的indices 对象的 create 方法传入了 index 的名
 称,如果创建成功,会返回如下结果:</p>
 <pre class="code-block"><code>{&#x27;acknowledged&#x27;: True, &#x27;shards_acknowledged&#x27;: True, &#x27;index&#x27;: &#x27;news&#x27;}</code></pre>
 <p class="content-text">可以看到,返回结果是JSON 格式,其中 acknowledged 字段表示创建操作执行成功。

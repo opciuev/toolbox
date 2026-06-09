@@ -544,9 +544,9 @@ www.baidu.com</code></pre>
 data = [&#x27;https&#x27;, &#x27;www.baidu.com&#x27;, &#x27;index.html&#x27;, &#x27;user&#x27;, &#x27;a=6&#x27;, &#x27;comment&#x27;]
 print(urlunparse(data))</code></pre>
 <p class="content-text">这里参数 data 用了列表类型。当然，也可以用其他类型，例如元组或者特定的数据结构。</p>
-<p class="content-text">运行结果如下:
-https://www.baidu.com/index.html;user?a=6#comment
-这样我们就成功实现了URL的构造。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>https://www.baidu.com/index.html;user?a=6#comment</code></pre>
+<p class="content-text">这样我们就成功实现了URL的构造。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">urlsplit</h4>
@@ -713,9 +713,9 @@ Disallow: /</code></pre>
 <p class="content-text">爬虫名称
 大家可能会疑惑，爬虫名是从哪儿来的？
 为什么叫这个名？
-其实爬虫是有固定名字的，例如百度的爬虫就叫作 BaiduSpider。
-表 2-1 列出了一些常见搜索爬虫的名称及对应的网站。</p>
-<p class="content-text">表 2-1 一些常见搜索爬虫的名称及其对应的网站</p>
+其实爬虫是有固定名字的，例如百度的爬虫就叫作 BaiduSpider。</p>
+<p class="table-caption">表 2-1 列出了一些常见搜索爬虫的名称及对应的网站。</p>
+<p class="table-caption">表 2-1 一些常见搜索爬虫的名称及其对应的网站</p>
 <table class="content-table"><thead><tr><th>爬虫名称</th><th>网站名称</th></tr></thead><tbody><tr><td>BaiduSpider</td><td>百度</td></tr>
 <tr><td>Googlebot</td><td>谷歌</td></tr>
 <tr><td>360Spider</td><td>360 搜索</td></tr>
@@ -1471,7 +1471,7 @@ print(r.text)</code></pre>
 不论这个字符串里面有什么，只要符合我们写的规则，统统可以找出来。
 对于网页来说，如果想找出网页源代码里有多少URL，只要用匹配URL的正则表达式去匹配即可。</p>
 <p class="content-text">上面我们介绍了几个匹配规则，表2-2列出了常用的一些匹配规则。</p>
-<p class="content-text">表2-2 常用的匹配规则</p>
+<p class="table-caption">表2-2 常用的匹配规则</p>
 <table class="content-table"><thead><tr><th>模 式</th><th>描 述</th></tr></thead><tbody><tr><td>`\w`</td><td>匹配字母、数字及下划线</td></tr>
 <tr><td>`\W`</td><td>匹配不是字母、数字及下划线的字符</td></tr>
 <tr><td>`\s`</td><td>匹配任意空白字符，等价于`[\t\n\r\f]`</td></tr>
@@ -1638,7 +1638,7 @@ AttributeError: &#x27;NoneType&#x27; object has no attribute &#x27;group&#x27;</
 <pre class="result-block"><code>1234567</code></pre>
 <p class="content-text">这个 <code class="inline-code">re.S</code> 在网页匹配中经常用到。因为 HTML 节点经常会有换行,加上它,就可以匹配节点与节点之间的换行了。
 另外,还有一些修饰符,在必要的情况下也可以使用,如表2-3所示。</p>
-<p class="content-text">表2-3 修饰符</p>
+<p class="table-caption">表2-3 修饰符</p>
 <table class="content-table"><thead><tr><th>修饰符</th><th>描述</th></tr></thead><tbody><tr><td>`re.I`</td><td>使匹配对大小写不敏感</td></tr>
 <tr><td>`re.L`</td><td>实现本地化识别(`locale-aware`)匹配</td></tr>
 <tr><td>`re.M`</td><td>多行匹配,影响`^`和`$`</td></tr>
@@ -1885,8 +1885,8 @@ connection without response&#x27;)))</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 安装</h3>
 <p class="content-text">httpx 可以直接使用 pip3 工具安装，所需的 Python 版本是 3.6 及以上，安装命令如下：</p>
-<p class="content-text">pip3 install httpx
-但这样安装完的 httpx 是不支持 HTTP/2.0 的，如果想支持，可以这样安装:</p>
+<pre class="code-block"><code>pip3 install httpx</code></pre>
+<p class="content-text">但这样安装完的 httpx 是不支持 HTTP/2.0 的，如果想支持，可以这样安装:</p>
 <pre class="code-block"><code>pip3 install &#x27;httpx[http2]&#x27;</code></pre>
 <p class="content-text">这样就既安装了 httpx, 又安装了 httpx 对 HTTP/2.0 的支持模块。</p>
 </section>
@@ -1930,12 +1930,12 @@ print(response.text)</code></pre>
     &quot;Accept-Encoding&quot;: &quot;gzip, deflate&quot;,
     &quot;Host&quot;: &quot;www.httpbin.org&quot;,
     &quot;User-Agent&quot;: &quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36&quot;,</code></pre>
-<p class="content-text">&quot;X-Amzn-Trace-Id&quot;: &quot;Root=1-60a293b9-1042225a73778881454d1f62&quot;</p>
-<pre class="code-block"><code>},
-}</code></pre>
-<p class="content-text">&quot;origin&quot;: &quot;203.184.131.36&quot;,
-&quot;url&quot;: &quot;https://www.httpbin.org/get&quot;
-可以发现更换后的User-Agent 生效了。
+<pre class="code-block"><code>&quot;X-Amzn-Trace-Id&quot;: &quot;Root=1-60a293b9-1042225a73778881454d1f62&quot;
+},
+}
+&quot;origin&quot;: &quot;203.184.131.36&quot;,
+&quot;url&quot;: &quot;https://www.httpbin.org/get&quot;</code></pre>
+<p class="content-text">可以发现更换后的User-Agent 生效了。
 回到本节开头提到的示例网站,我们试着用httpx请求一下这个网站,看看效果如何,代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import httpx
 
@@ -2085,8 +2085,8 @@ if __name__ == &#x27;__main__&#x27;:
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 爬取列表页</h3>
-<p class="content-text">第一步爬取肯定要从列表页入手，我们首先观察一下列表页的结构和翻页规则。在浏览器中访问
-https://ssr1.scrape.center/，然后打开浏览器开发者工具，如图2-16所示。</p>
+<p class="content-text">第一步爬取肯定要从列表页入手，我们首先观察一下列表页的结构和翻页规则。在浏览器中访问</p>
+<pre class="result-block"><code>https://ssr1.scrape.center/，然后打开浏览器开发者工具，如图2-16所示。</code></pre>
 <figure class="inline-figure"><img src="figures/ch02/fig-2_16.jpg" alt="图2-16 列表页及其 HTML" loading="lazy"><figcaption>图2-16 列表页及其 HTML</figcaption></figure>
 <p class="content-text">观察每一个电影信息区块对应的 HTML 以及进入到详情页的 URL，可以发现每部电影对应的区块都是一个 div 节点，这些节点的 class 属性中都有 el-card 这个值。
 每个列表页有 10 个这样的 div 节点，也就对应着 10 部电影的信息。</p>

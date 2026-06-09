@@ -161,7 +161,7 @@ Chrome 为我们自动做了解析，单击左侧箭头即可展开和收起相�
 也出现了一个个新的 Ajax 请求，这样我们就可以捕获所有的 Ajax 请求了。</p>
 <p class="content-text">　　随意点开其中一个条目，都可以清楚地看到其 Request URL、Request Headers、Response Headers、
 Response Body 等内容，此时想要模拟 Ajax 请求的发送和数据的提取就非常简单了。</p>
-<p class="content-text">图 5-9 展示的内容便是我的某一页微博的列表信息。</p>
+<p class="figure-caption">图 5-9 展示的内容便是我的某一页微博的列表信息。</p>
 <figure class="inline-figure"><img src="figures/ch05/fig-5_9.jpg" alt="图5-9 某一个 Ajax 请求的具体内容" loading="lazy"><figcaption>图5-9 某一个 Ajax 请求的具体内容</figcaption></figure>
 <p class="content-text">　　到现在为止，我们已经可以得到 Ajax 请求的详细信息了，接下来只需要用程序模拟这些 Ajax 请
 求，就可以轻松提取我们所需的信息。</p>
@@ -218,8 +218,8 @@ d1db5eda.b564504d.js rel=prefetch&gt;&lt;link href=/css/app.ea9d802a.css rel=pre
 href=/css/app.ea9d802a.css rel=stylesheet&gt;&lt;/head&gt;&lt;body&gt;&lt;noscript&gt;&lt;strong&gt;We&#x27;re sorry but portal doesn&#x27;t work
 properly without JavaScript enabled. Please enable it to continue.&lt;/strong&gt;&lt;/noscript&gt;&lt;div id=app&gt;&lt;/div&gt;
 &lt;script src=/js/chunk-vendors.77daf991.js&gt;&lt;/script&gt;&lt;script src=/js/app.1435ecd5.js&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;</code></pre>
-<p class="content-text">　　可以看到，爬取结果就只有这么一点 HTML 内容，而我们在浏览器中打开这个网站，却能看到如
-图 5-13 所示的页面。</p>
+<p class="content-text">　　可以看到，爬取结果就只有这么一点 HTML 内容，而我们在浏览器中打开这个网站，却能看到如</p>
+<p class="figure-caption">图 5-13 所示的页面。</p>
 <figure class="inline-figure"><img src="figures/ch05/fig-5_13.jpg" alt="图5-13 在浏览器中打开示例网站呈现的页面" loading="lazy"><figcaption>图5-13 在浏览器中打开示例网站呈现的页面</figcaption></figure>
 <p class="content-text">　　在 HTML 中，我们只能看到源码引用的一些 JavaScript 和 CSS 文件，并没有观察到任何电影数据
 信息。</p>
@@ -415,7 +415,7 @@ collection = db[&#x27;movies&#x27;]</code></pre>
             logging.info(&#x27;data saved successfully&#x27;)</code></pre>
 <p class="content-text">　　其实就是增加了对 save_data 方法的调用，并添加了一些日志信息。</p>
 <p class="content-text">重新运行，我们来看一下输出结果：</p>
-<pre class="code-block" data-lang="text"><code>2020-03-19 02:51:06,323 - INFO: scraping https://spa1.scrape.center/api/movie/?limit=10&amp;offset=0...
+<pre class="result-block" data-lang="text"><code>2020-03-19 02:51:06,323 - INFO: scraping https://spa1.scrape.center/api/movie/?limit=10&amp;offset=0...
 2020-03-19 02:51:06,440 - INFO: scraping https://spa1.scrape.center/api/movie/1...
 2020-03-19 02:51:06,551 - INFO: detail data {&#x27;id&#x27;: 1, &#x27;name&#x27;: &#x27;霸王别姬&#x27;, &#x27;alias&#x27;: &#x27;Farewell My Concubine&#x27;,
 &#x27;cover&#x27;: &#x27;https://p0.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c&#x27;,
@@ -441,8 +441,8 @@ collection = db[&#x27;movies&#x27;]</code></pre>
 所以我直接在 Robo 3T 里面输入 localhost 的连接信息即可，这里请替换成自己的 MongoDB 连接信息，
 如图 5-21 所示。</p>
 <figure class="inline-figure"><img src="figures/ch05/fig-5_21.jpg" alt="图5-21 输入 MongoDB 连接信息" loading="lazy"><figcaption>图5-21 输入 MongoDB 连接信息</figcaption></figure>
-<p class="content-text">　　连接之后，我们便可以在 movies 这个数据库中 movies 这个集合下看到刚才爬取的数据了，如
-图 5-22 所示。</p>
+<p class="content-text">　　连接之后，我们便可以在 movies 这个数据库中 movies 这个集合下看到刚才爬取的数据了，如</p>
+<p class="figure-caption">图 5-22 所示。</p>
 <figure class="inline-figure"><img src="figures/ch05/fig-5_22.jpg" alt="图5-22 爬取的数据存入了数据库" loading="lazy"><figcaption>图5-22 爬取的数据存入了数据库</figcaption></figure>
 <p class="content-text">　　可以看到，数据就是以 JSON 格式存储的，一条数据对应一部电影的信息，各种嵌套关系也一目
 了然，同时第三列还标识出了数据类型。</p>

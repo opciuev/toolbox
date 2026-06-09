@@ -1,0 +1,233 @@
+{
+  "图9-1 代理池的整体架构": {
+    "src": "figures/ch09/fig-9_1.jpg",
+    "page": "page-011",
+    "box": {
+      "x": 0.47,
+      "y": 0.715,
+      "w": 0.43,
+      "h": 0.175
+    },
+    "manual": true
+  },
+  "图9-2 代理池系统的首页": {
+    "src": "figures/ch09/fig-9_2.jpg",
+    "page": "page-020",
+    "box": {
+      "x": 0.075,
+      "y": 0.8,
+      "w": 0.425,
+      "h": 0.07
+    },
+    "manual": true
+  },
+  "图9-3 获取随机的可用代理": {
+    "src": "figures/ch09/fig-9_3.jpg",
+    "page": "page-020",
+    "box": {
+      "x": 0.535,
+      "y": 0.8,
+      "w": 0.405,
+      "h": 0.07
+    },
+    "manual": true
+  },
+  "图9-4 套餐的订单号": {
+    "src": "figures/ch09/fig-9_4.jpg",
+    "page": "page-023",
+    "box": {
+      "x": 0.075,
+      "y": 0.69,
+      "w": 0.82,
+      "h": 0.04
+    },
+    "manual": true
+  },
+  "图9-5 配置参数": {
+    "src": "figures/ch09/fig-9_5.jpg",
+    "page": "page-024",
+    "box": {
+      "x": 0.22,
+      "y": 0.095,
+      "w": 0.585,
+      "h": 0.285
+    },
+    "manual": true
+  },
+  "图9-6 代理列表": {
+    "src": "figures/ch09/fig-9_6.jpg",
+    "page": "page-024",
+    "box": {
+      "x": 0.205,
+      "y": 0.455,
+      "w": 0.61,
+      "h": 0.14
+    },
+    "manual": true
+  },
+  "图9-7 通过百度查询 IP": {
+    "src": "figures/ch09/fig-9_7.jpg",
+    "page": "page-024",
+    "box": {
+      "x": 0.245,
+      "y": 0.8,
+      "w": 0.595,
+      "h": 0.11
+    },
+    "manual": true
+  },
+  "图9-8 隧道代理套餐": {
+    "src": "figures/ch09/fig-9_8.jpg",
+    "page": "page-026",
+    "box": {
+      "x": 0.075,
+      "y": 0.3,
+      "w": 0.84,
+      "h": 0.22
+    },
+    "manual": true
+  },
+  "图9-9 查看云服务器的相关信息": {
+    "src": "figures/ch09/fig-9_9.jpg",
+    "page": "page-028",
+    "box": {
+      "x": 0.075,
+      "y": 0.39,
+      "w": 0.845,
+      "h": 0.11
+    },
+    "manual": true
+  },
+  "图9-10 连接到远程服务器": {
+    "src": "figures/ch09/fig-9_10.jpg",
+    "page": "page-028",
+    "box": {
+      "x": 0.245,
+      "y": 0.64,
+      "w": 0.515,
+      "h": 0.245
+    },
+    "manual": true
+  },
+  "图9-11 拨号前后的IP变化": {
+    "src": "figures/ch09/fig-9_11.jpg",
+    "page": "page-029",
+    "box": {
+      "x": 0.25,
+      "y": 0.43,
+      "w": 0.52,
+      "h": 0.3
+    },
+    "manual": true
+  },
+  "图9-12 成功运行的 Squid": {
+    "src": "figures/ch09/fig-9_12.jpg",
+    "page": "page-030",
+    "box": {
+      "x": 0.245,
+      "y": 0.485,
+      "w": 0.515,
+      "h": 0.255
+    },
+    "manual": true
+  },
+  "图9-13 使用代理请求测试网站": {
+    "src": "figures/ch09/fig-9_13.jpg",
+    "page": "page-031",
+    "box": {
+      "x": 0.245,
+      "y": 0.075,
+      "w": 0.515,
+      "h": 0.33
+    },
+    "manual": true
+  },
+  "图9-14 我们设置的环境变量": {
+    "src": "figures/ch09/fig-9_14.jpg",
+    "page": "page-033",
+    "box": {
+      "x": 0.23,
+      "y": 0.485,
+      "w": 0.535,
+      "h": 0.1
+    },
+    "manual": true
+  },
+  "图9-15 Redis 数据库中存储的各个代理": {
+    "src": "figures/ch09/fig-9_15.jpg",
+    "page": "page-034",
+    "box": {
+      "x": 0.175,
+      "y": 0.21,
+      "w": 0.675,
+      "h": 0.12
+    },
+    "manual": true
+  },
+  "图9-16 访问代理服务的首页": {
+    "src": "figures/ch09/fig-9_16.jpg",
+    "page": "page-034",
+    "box": {
+      "x": 0.09,
+      "y": 0.7,
+      "w": 0.4,
+      "h": 0.14
+    },
+    "manual": true
+  },
+  "图9-17 获取一个随机代理": {
+    "src": "figures/ch09/fig-9_17.jpg",
+    "page": "page-034",
+    "box": {
+      "x": 0.525,
+      "y": 0.715,
+      "w": 0.39,
+      "h": 0.105
+    },
+    "manual": true
+  },
+  "图9-18 爬取的目标网站": {
+    "src": "figures/ch09/fig-9_18.jpg",
+    "page": "page-035",
+    "box": {
+      "x": 0.14,
+      "y": 0.585,
+      "w": 0.75,
+      "h": 0.32
+    },
+    "manual": true
+  },
+  "图9-19 连续刷新10次后的页面": {
+    "src": "figures/ch09/fig-9_19.jpg",
+    "page": "page-036",
+    "box": {
+      "x": 0.25,
+      "y": 0.135,
+      "w": 0.52,
+      "h": 0.155
+    },
+    "manual": true
+  },
+  "图9-20 生成的可用代理": {
+    "src": "figures/ch09/fig-9_20.jpg",
+    "page": "page-038",
+    "box": {
+      "x": 0.155,
+      "y": 0.475,
+      "w": 0.69,
+      "h": 0.205
+    },
+    "manual": true
+  },
+  "图9-21 获取的一个可用代理": {
+    "src": "figures/ch09/fig-9_21.jpg",
+    "page": "page-038",
+    "box": {
+      "x": 0.545,
+      "y": 0.77,
+      "w": 0.37,
+      "h": 0.105
+    },
+    "manual": true
+  }
+}
