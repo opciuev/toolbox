@@ -191,7 +191,7 @@ function renderContent(section) {
               class="original-page"
               src="${pageImagePath(page.page)}"
               alt="PDF 第 ${page.page} 页原版"
-              loading="lazy"
+              loading="${page === pages[0] ? "eager" : "lazy"}"
             />
           </div>
           ${renderPageText(page, query)}
