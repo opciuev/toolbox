@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的第一本专门日语文法书</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img src="./assets/cover.png" alt="书籍封面" />
+          <div>
+            <p class="eyebrow">JLPT N3 / N4</p>
+            <h1>专门日语文法书</h1>
+          </div>
+        </div>
+
+        <label class="search-box">
+          <span>搜索</span>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="助词、敬语、条件..." />
+        </label>
+
+        <nav id="sectionNav" class="section-nav" aria-label="章节"></nav>
+      </aside>
+
+      <main class="reader">
+        <header class="reader-header">
+          <div>
+            <p id="readerKicker" class="eyebrow">简体网页版</p>
+            <h2 id="readerTitle">加载中</h2>
+          </div>
+          <div class="header-actions">
+            <div class="zoom-controls" aria-label="缩放控制">
+              <button id="zoomOut" class="zoom-button" type="button" aria-label="缩小" title="缩小">−</button>
+              <span id="zoomValue" class="zoom-value">100%</span>
+              <button id="zoomIn" class="zoom-button" type="button" aria-label="放大" title="放大">+</button>
+              <button id="zoomReset" class="zoom-reset" type="button">重置</button>
+            </div>
+            <button id="textToggle" class="text-toggle" type="button">显示简体文字</button>
+            <div class="stats" aria-label="阅读统计">
+              <span id="pageStat">0 页</span>
+              <span id="matchStat">0 条</span>
+            </div>
+          </div>
+        </header>
+
+        <div id="childTabs" class="child-tabs" aria-label="小节"></div>
+        <section id="content" class="content" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
