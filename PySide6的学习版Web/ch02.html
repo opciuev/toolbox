@@ -4,34 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>第 2 章 Qt 基础对象 - PySide6 教程</title>
-  <link rel="stylesheet" href="../opencv/css/style.css?v=20260518">
+  <link rel="stylesheet" href="../opencv/css/style.css?v=20260422">
   <style>
-    .book-pages {
+    .figure-pair {
       display: grid;
-      gap: 28px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      align-items: start;
     }
 
-    .book-page {
-      margin: 0;
-      padding: 0;
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-      overflow: hidden;
-    }
-
-    .book-page img {
-      display: block;
+    .figure-pair img {
       width: 100%;
-      height: auto;
     }
 
-    .section-anchor {
-      display: block;
-      position: relative;
-      top: -88px;
-      visibility: hidden;
+    @media (max-width: 768px) {
+      .figure-pair {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -60,9 +49,424 @@
     <main class="main-content">
       <span class="chapter-badge">第 2 章</span>
       <h1 class="chapter-title">Qt 基础对象</h1>
-      <div class="chapter-meta">原书页复刻 &middot; PySide6 Basic Tutorial</div>
+      <div class="chapter-meta">本章共 10 个小节 &middot; PySide6 Basic Tutorial</div>
 
-      <div class="book-pages" id="pdf-pages"></div>
+      <div class="chapter-intro">
+        本章要点：
+        <ol class="content-list" style="margin-top:8px; margin-bottom:0;">
+          <li>了解 QObject 类。</li>
+          <li>事件的处理与过滤。</li>
+          <li>信号与槽。</li>
+          <li>QByteArray 与 QBitArray。</li>
+          <li>QBuffer。</li>
+          <li>QSysInfo。</li>
+          <li>动态属性。</li>
+          <li>生成随机数。</li>
+        </ol>
+      </div>
+
+      <div class="section-heading" id="section-0">
+        <span class="section-number">2.1</span>
+        <h2>QObject 类与 Qt 对象模型</h2>
+      </div>
+
+      <p class="content-text">QObject 类是所有 Qt 对象的基类。所有从 QObject 派生的对象都可以组成对象树。例如，有 A、B、C、D 4 个对象，B 可以作为 A 的子级，C 和 D 可以作为 B 的子级，于是就形成了如图 2-1 所示的对象树。</p>
+      <p class="content-text">QObject 对象之间使用信号（signal）和槽（slot）进行通信。当某对象（发送者）的内部状态发生改变或发生特定事件时，它会发出信号。接收者会马上做出响应。信号与槽之间可以是一对一的关系，也可以是多对一或多对多的关系。即一个信号可以连接多个槽，一个槽可以被多个信号连接。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-1</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_01.png" alt="Qt 对象树" style="max-width:260px;">
+          <div class="caption">Qt 对象树</div>
+        </div>
+      </div>
+
+      <p class="content-text">QObject 对象也支持事件的处理和筛选。派生类可以重写 event 方法来处理接收到的事件。若返回 True，表示当前对象已处理完毕，并且事件不会传递给基类。一般来说，在 event 方法返回前，应调用基类的 event 方法，把未处理的事件传递给基类去处理。</p>
+
+      <div class="section-heading" id="section-1">
+        <span class="section-number">2.2</span>
+        <h2>建立对象的层级关系</h2>
+      </div>
+
+      <p class="content-text">前文已述，Qt 对象可通过建立父子关系来组成对象树。两个对象之间建立父子关系有两种方法。</p>
+      <ol class="content-list">
+        <li>调用类构造函数时，将要作为父级的对象传递给 parent 参数。</li>
+        <li>调用当前对象的 setParent 方法，使当前对象成为另一个对象的子级。</li>
+      </ol>
+
+      <p class="content-text">下面来看一个简单的示例。AObject、BObject、CObject 都从 QObject 类派生。</p>
+
+      <div class="code-block"># 导入 QObject 类
+from PySide6.QtCore import QObject
+
+# 定义三个类，均派生自 QObject
+class AObject(QObject):
+    # 构造函数
+    def __init__(self, parent=None) -&gt; None:
+        # 调用基类的构造函数
+        super().__init__(parent)
+
+class BObject(QObject):
+    # 构造函数
+    def __init__(self, parent=None) -&gt; None:
+        # 调用基类的构造函数
+        super().__init__(parent)
+
+class CObject(QObject):
+    # 构造函数
+    def __init__(self, parent=None) -&gt; None:
+        # 调用基类的构造函数
+        super().__init__(parent)</div>
+
+      <p class="content-text">从 QObject 派生的类，其构造函数应包含一个 parent 参数，用于引用其他对象。parent 参数所引用的对象将作为当前对象的父级。</p>
+      <p class="content-text">接下来依次实例化上述三个类，注意 AObject 实例为父级对象，其余两个都是它的子级对象。</p>
+
+      <div class="code-block"># 创建 AObject 实例，它没有父级对象，parent 参数可忽略
+obj1 = AObject()
+
+# 创建 BObject 实例，它的父级对象是 obj1
+obj2 = BObject(obj1)
+
+# 创建 CObject 实例，它的父级对象也是 obj1
+obj3 = CObject(obj1)</div>
+
+      <p class="content-text">也可以用 setParent 方法来建立层级关系。</p>
+
+      <div class="code-block">obj1 = AObject()
+obj2 = BObject()
+obj3 = CObject()
+
+obj2.setParent(obj1)
+obj3.setParent(obj1)</div>
+
+      <p class="content-text">若要获取某对象中所包含的子级对象，可以调用 findChildren 方法。例如，在本示例中，调用 obj1 的 findChildren 方法可以返回 obj2 和 obj3。该方法至少需要一个参数，提供待查找对象的类型。在本示例中，需要同时找出 obj2 和 obj3，因此传递给方法的类型应为 QObject 类，因为 AObject 和 BObject 的共同基类是 QObject。</p>
+
+      <div class="code-syntax">chdobjs = obj1.findChildren(QObject)</div>
+
+      <p class="content-text">此时，chdobjs 变量中应该包含 obj2 和 obj3，下面代码将输出它们的类名称（访问 __class__ 成员）。</p>
+
+      <div class="code-block">for obj in chdobjs:
+    print(obj.__class__)</div>
+
+      <p class="content-text">执行后会输出以下内容：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">&lt;class '__main__.BObject'&gt;<br>&lt;class '__main__.CObject'&gt;</div>
+      </div>
+
+      <div class="section-heading" id="section-2">
+        <span class="section-number">2.3</span>
+        <h2>事件与 event 方法</h2>
+      </div>
+
+      <p class="content-text">当 Qt 对象接收到某个事件后，会调用 event 方法。派生类可以重写该方法，以实现自定义的事件响应行为。</p>
+      <p class="content-text">event 方法包含一个参数，类型为 QEvent。此参数包含与事件有关的信息，其中最为核心的是 type 属性，它返回当前事件的类型（由枚举类型 QEvent.Type 定义）。QEvent 只是基类，程序在实际运行时会根据事件的类型，向 event 方法传递不同的参数值。</p>
+      <p class="content-text">例如，若当前发生的事件类型为 Show（当窗口或窗口上的可视化组件呈现之后发生），那传递给 event 方法的参数值就是 QShowEvent 类。再如，当事件类型 MouseButtonPress 时，表示用户按下了鼠标上的某个键，event 方法的参数将接收到 QMouseEvent 类型的对象。该对象将包含与此鼠标事件相关的附加信息——当前鼠标指针所处的位置坐标、哪个键被按下。</p>
+      <p class="content-text">下面示例将重写 event 方法，捕捉键盘按下事件（事件类型为 KeyPress），当用户按下的是方向键（上、下、左、右）时，调用 print 函数向控制台输出文本信息。</p>
+      <p class="content-text">定义 MyUI 类，它派生自 QWindow，而 QWindow 派生自 QObject 类。因此，MyUI 类也是 QObject 的子类，可以重写 event 方法。</p>
+
+      <div class="code-block">from PySide6.QtCore import *
+from PySide6.QtGui import *
+
+class MyUI(QWindow):
+    # 构造函数
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        # 设置窗口标题
+        self.setTitle("示例程序")
+        # 设置窗口大小
+        self.resize(280, 245)
+
+    # 处理事件
+    def event(self, e: QEvent) -&gt; bool:
+        # 判断是否为键盘按下事件
+        if e.type() == QEvent.KeyPress:
+            keyevent: QKeyEvent = e
+            if keyevent.key() == Qt.Key_Left:
+                print("你按下了【向左】键")
+            if keyevent.key() == Qt.Key_Right:
+                print("你按下了【向右】键")
+            if keyevent.key() == Qt.Key_Up:
+                print("你按下了【向上】键")
+            if keyevent.key() == Qt.Key_Down:
+                print("你按下了【向下】键")
+            # 已处理过，返回 True
+            return True
+        # 其他事件交由基类去处理
+        return super().event(e)</div>
+
+      <p class="content-text">在 event 方法中，先判断当前接收到的事件类型是否 KeyPress。若是则表明参数 e 的类型是 QKeyEvent。为了便于访问，上述代码定义了新的变量 keyevent，并批注其类型为 QKeyEvent，后面的代码将使用此变量。</p>
+      <p class="content-text">key 属性表示被按下的键（键码），由枚举类型 Qt.Key 定义。Key_Up 表示向上键，Key_Down 表示向下键。同理，Key_Left、Key_Right 对应的是向左键和向右键。</p>
+      <p class="content-text">实例化 MyUI 类，并显示窗口。</p>
+
+      <div class="code-block">if __name__ == "__main__":
+    app = QGuiApplication()
+    obj = MyUI()
+    # 显示窗口
+    obj.show()
+    # 开始消息循环
+    app.exec()</div>
+
+      <p class="content-text">带有用户界面的应用程序，需要先创建一个 QGuiApplication 实例，用于处理当前应用程序的消息循环。创建 MyUI 实例后，调用 show 方法即可显示窗口（此方法继承自 QWindow 类）。最后调用 QGuiApplication 实例的 exec 方法，消息循环正式运行。exec 方法调用后会一直处于等待状态，直到应用程序即将退出时才会返回。</p>
+      <p class="content-text">待窗口显示后，随意按下键盘上的方向键，控制台窗口会打印以下信息：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">你按下了【向左】键<br>你按下了【向右】键<br>你按下了【向上】键<br>你按下了【向下】键<br>你按下了【向右】键<br>你按下了【向左】键</div>
+      </div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">2.3.1</span>
+        <h2>接受与忽略事件</h2>
+      </div>
+
+      <p class="content-text">在重写 event 方法时，如果调用 QEvent 对象的 accept 方法，表示当前 Qt 对象已接受该事件，这会使事件不会传播给父级对象。若调用了 QEvent 对象的 ignore 方法，表示当前 Qt 对象将忽略该事件，事件会传播给父级对象。</p>
+      <p class="content-text">注意，此处 accept 和 ignore 方法只是控制事件是否向 Qt 对象树的父级传播，而不是向基类传播。</p>
+      <p class="content-text">接下来将完成一个示例，该示例定义两个从 QWidget 派生的类。其中，MyWindow 类表示应用程序窗口，MyElement 表示位于窗口上的可视化组件。在 MyElement 类中重写 event 方法，将类型为 MouseButtonPress 的事件（鼠标按下时发生）标记为“忽略”。MouseButtonPress 事件将向上传播到 MyWindow 对象的 event 方法中。</p>
+      <p class="content-text">首先要导入需要的类型。</p>
+
+      <div class="code-block">from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import QWidget, QApplication, QMessageBox</div>
+
+      <p class="content-text">下面代码实现 MyElement 类，派生自 QWidget 类。</p>
+
+      <div class="code-block">class MyElement(QWidget):
+    # 构造函数
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+        # 设置大小
+        self.resize(180, 70)
+
+    # 重写 event 方法
+    def event(self, e: QEvent) -&gt; bool:
+        if e.type() == QEvent.MouseButtonPress:
+            # 忽略此事件
+            e.ignore()
+            return True
+        return super().event(e)</div>
+
+      <p class="content-text">如果上述代码调用的是 e.accept() 方法，那么 MouseButtonPress 类型的事件就不会传给 MyWindow 对象了。但本示例调用的是 e.ignore() 方法，所以 MyWindow 对象会接收到 MouseButtonPress 类型的事件。</p>
+      <p class="content-text">接下来实现 MyWindow 类，它的基类也是 QWidget 类。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+    # 构造函数
+    def __init__(self, parent=None) -&gt; None:
+        super().__init__(parent, Qt.Window)
+        # 窗口标题
+        self.setWindowTitle("示例程序")
+        # 窗口大小
+        self.resize(260, 200)
+
+    # 重写 event 方法
+    def event(self, e: QEvent) -&gt; bool:
+        # 如果是鼠标按下事件
+        if e.type() == QEvent.MouseButtonPress:
+            # 弹出消息框
+            QMessageBox.information(self, "提示", "父窗口接收到鼠标事件", QMessageBox.Ok)
+            # 已处理，返回 True
+            return True
+        return super().event(e)</div>
+
+      <p class="content-text">MyWindow 类也重写了 event 方法，如果接收到的事件类型是 MouseButtonPress 就调用 QMessageBox.information 静态方法弹出消息对话框。</p>
+      <p class="content-text">最后，实例化 MyWindow 类，并且作为 MyElement 对象的父级对象。调用 show 方法将显示窗口。</p>
+
+      <div class="code-block">if __name__ == "__main__":
+    app = QApplication()
+    # 实例化 MyWindow 类
+    win = MyWindow()
+    # 实例化 MyElement 类，它的父级对象是 win
+    elm = MyElement(win)
+    # 调整可视化对象在窗口上的位置
+    elm.move(36, 30)
+    # 显示窗口
+    win.show()
+    app.exec()</div>
+
+      <p class="content-text">若应用程序中使用了 QWidget 类或其子类，应用程序应使用 QApplication 类管理消息循环。</p>
+      <p class="content-text">应用程序运行后，主窗口如图 2-2 所示。窗口上有颜色的区域就是 MyElement 对象。此时单击该区域，会弹出消息“父窗口接收到鼠标事件”，如图 2-3 所示。被单击的是 MyElement 对象，MyWindow 对象却接收到了鼠标事件，这表明事件已成功向上传播。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-2 / 图 2-3</span>
+        <div class="result-box-image">
+          <div class="figure-pair">
+            <div>
+              <img src="images/ch02/ch02_fig_02.png" alt="示例窗口">
+              <div class="caption">图 2-2 示例窗口</div>
+            </div>
+            <div>
+              <img src="images/ch02/ch02_fig_03.png" alt="弹出消息框">
+              <div class="caption">图 2-3 弹出消息框</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">2.3.2</span>
+        <h2>sendEvent 与 postEvent</h2>
+      </div>
+
+      <p class="content-text">QCoreApplication 类提供了两个静态方法，可以在代码中手动发送事件。</p>
+      <ol class="content-list">
+        <li><strong>sendEvent 方法</strong>：直接将事件发送给目标对象。事件会立即被处理，并等待事件处理完毕此方法才返回。</li>
+        <li><strong>postEvent 方法</strong>：将事件发送给目标对象后立即返回（不会等待），事件被添加到事件队列中。事件的处理需要排队，可能不会马上处理。</li>
+      </ol>
+
+      <p class="content-text">典型的使用场景是模拟键盘按键——每个按键需要发送两个事件，模拟键盘按下时发送 KeyPress 事件，模拟键盘松开（释放）时发送 KeyRelease 事件。</p>
+      <p class="content-text">下面示例中，窗口上有 5 个按钮，依次模拟以下按键。</p>
+      <ol class="content-list">
+        <li>“全选”按钮：模拟快捷键【Ctrl+A】。</li>
+        <li>“删除”按钮：模拟【Delete】按键。</li>
+        <li>“退格”按钮：模拟【BackSpace】按键。</li>
+        <li>“&lt;-”按钮：模拟向左的箭头键。</li>
+        <li>“-&gt;”按钮：模拟向右的箭头键。</li>
+      </ol>
+
+      <p class="content-text">应用程序窗口为自定义的 MyWindow 类，派生自 QWidget 类。窗口左半部分为 5 个垂直排列的按钮部件（类型为 QPushButton）。窗口右半部分放置的是多行文本输入部件（类型 QTextEdit）。5 个按钮被单击后将模拟上述 5 个键盘按键，按键将作用于输入部件。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+    # 构造函数
+    def __init__(self):
+        super().__init__(None)
+        # 初始化可视化元素
+        self.initUI()
+        # 窗口标题
+        self.setWindowTitle("发送键盘事件")
+
+    def initUI(self):
+        self.btnSelAll = QPushButton("全选")
+        self.btnDelete = QPushButton("删除")
+        self.btnBackspace = QPushButton("退格")
+        self.btnMoveLeft = QPushButton("&lt;-")
+        self.btnMoveRight = QPushButton("-&gt;")
+        self.text = QTextEdit()
+
+        self.grid = QGridLayout(self)
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(self.btnSelAll)
+        self.vbox.addWidget(self.btnDelete)
+        self.vbox.addWidget(self.btnBackspace)
+        self.vbox.addWidget(self.btnMoveLeft)
+        self.vbox.addWidget(self.btnMoveRight)
+
+        self.grid.addLayout(self.vbox, 0, 0)
+        self.grid.addItem(QSpacerItem(15, 0), 0, 1)
+        self.grid.addWidget(self.text, 0, 2)
+
+        # 连接信号和槽
+        self.btnSelAll.clicked.connect(self.onSelAll)
+        self.btnDelete.clicked.connect(self.onDel)
+        self.btnBackspace.clicked.connect(self.onBackSpace)
+        self.btnMoveLeft.clicked.connect(self.onMoveLeft)
+        self.btnMoveRight.clicked.connect(self.onMoveRight)</div>
+
+      <div class="code-block">    def onSelAll(self):
+        # Ctrl + A
+        key = Qt.Key_A
+        modf = Qt.ControlModifier
+        # 发送键盘按下事件
+        keyEvt = QKeyEvent(QKeyEvent.KeyPress, key, modf)
+        QApplication.sendEvent(self.text, keyEvt)
+        # 发送键盘释放事件
+        keyEvt = QKeyEvent(QKeyEvent.KeyRelease, key, modf)
+        QApplication.sendEvent(self.text, keyEvt)
+
+    def onDel(self):
+        # Delete
+        key = Qt.Key_Delete
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyPress, key, Qt.NoModifier))
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyRelease, key, Qt.NoModifier))
+
+    def onBackSpace(self):
+        # BackSpace
+        key = Qt.Key_Backspace
+        modif = Qt.NoModifier
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyPress, key, modif))
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyRelease, key, modif))
+
+    def onMoveLeft(self):
+        # Left
+        key = Qt.Key_Left
+        mod = Qt.NoModifier
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyPress, key, mod))
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyRelease, key, mod))
+
+    def onMoveRight(self):
+        # Right
+        key = Qt.Key_Right
+        mod = Qt.NoModifier
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyPress, key, mod))
+        QApplication.sendEvent(self.text, QKeyEvent(QKeyEvent.KeyRelease, key, mod))</div>
+
+      <p class="content-text">QPushButton 被单击后会发出 clicked 信号，onSelAll、onDel 等方法用于接收信号并做出响应（槽函数）。一条完整的键盘消息应包括键被按下和释放两个动作，因此在调用 sendEvent 方法进行事件模拟时，应依次发送 KeyPress 和 KeyRelease 两个事件。</p>
+      <p class="content-text">运行示例程序后，在输入框中随意输入一些字符，然后可以单击窗口左侧的按钮进行测试，如图 2-4 所示。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-4</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_04.png" alt="模拟键盘按键">
+          <div class="caption">模拟键盘按键</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">2.3.3</span>
+        <h2>自定义事件</h2>
+      </div>
+
+      <p class="content-text">QEvent.Type 定义了许多内置的事件类型，如 KeyPress、Resize、MouseButtonPress 等。同时，它也为开发人员保留了自定义事件类型的空间。</p>
+      <p class="content-text">事件类型本质上是一个整数值，其中 User 的值为 0x3e8（十进制值 1000），MaxUser 的值为 0xffff（十进制值为 65535）。自定义的事件类型的取值必须在 User 与 MaxUser 之间，不能与内置的事件类型重复。</p>
+      <p class="content-text">在确定自定义事件类型的值后，需要调用 QEvent 类的静态方法 registerEventType 进行注册。事件注册后，若要触发事件，就可以调用 sendEvent 或 postEvent 方法将事件发送给目标 Qt 对象。</p>
+      <p class="content-text">下面示例注册了两个自定义的事件——MyCustomEvent1 和 MyCustomEvent2。窗口上放置了两个按钮（QPushButton 部件），分别用于触发上述自定义事件。具体实现步骤如下。</p>
+
+      <p class="content-text">定义两个变量，设置自定义事件的值。</p>
+      <div class="code-block">MyCustomEvent1 = QEvent.Type(QEvent.Type.User + 1)
+MyCustomEvent2 = QEvent.Type(QEvent.Type.User + 2)</div>
+
+      <p class="content-text">注意，变量在赋值时要明确使用 QEvent.Type 数据类型。表达式 QEvent.Type.User + 1 和 QEvent.Type.User + 2 返回的值都会被解析为 int，因此要将其转换为 QEvent.Type 类型。</p>
+      <p class="content-text">定义 AppWindow 类，派生自 QWidget。在构造函数中调用 initUI 方法，初始化应用窗口的可视化对象。</p>
+
+      <div class="code-block">def __init__(self):
+    super().__init__(None)
+    # 初始化用户界面
+    self.initUI()</div>
+
+      <p class="content-text">下面是 initUI 方法的实现代码。</p>
+
+      <div class="code-block">def initUI(self):
+    # 布局
+    layout = QVBoxLayout(self)
+    # 标签部件
+    self.label = QLabel()
+    # 按钮部件
+    self.btn1 = QPushButton("自定义事件 1")
+    self.btn2 = QPushButton("自定义事件 2")
+
+    # 将以上部件添加到布局中
+    layout.addWidget(self.label)
+    layout.addWidget(self.btn1)
+    layout.addWidget(self.btn2)
+    # 应用布局
+    self.setLayout(layout)
+
+    # 为按钮的 clicked 信号绑定槽函数
+    self.btn1.clicked.connect(self.onClicked1)
+    self.btn2.clicked.connect(self.onClicked2)
+    # 窗口标题
+    self.setWindowTitle("示例程序")
+    # 窗口大小
+    self.resize(200, 160)</div>
+
+      <p class="content-text">QLabel 部件用于显示文本信息，两个 QPushButton 部件被单击后会发出 clicked 信号，并由 onClicked1、onClicked2 接收。</p>
+      <p class="content-text">以下为 onClicked1 和 onClicked2 的实现代码。</p>
+
+      <div class="code-block">def onClicked1(self):
+    QApplication.postEvent(self, QEvent(MyCustomEvent1))
+
+def onClicked2(self):
+    QApplication.postEvent(self, QEvent(MyCustomEvent2))</div>
 
       <div class="page-nav">
         <a href="index.html#chapter-1">
@@ -72,10 +476,10 @@
             <div class="nav-title">第 1 章 搭建 PySide 开发环境</div>
           </span>
         </a>
-        <a href="ch03.html">
+        <a href="#section-0">
           <span>
-            <div class="nav-label">下一章 &rarr;</div>
-            <div class="nav-title">第 3 章 Qt 应用程序</div>
+            <div class="nav-label">返回顶部</div>
+            <div class="nav-title">第 2 章 Qt 基础对象</div>
           </span>
         </a>
       </div>
@@ -87,26 +491,6 @@
   </footer>
 
   <script src="js/sidebar.js"></script>
-  <script src="js/pdfChapter.js"></script>
-  <script>
-    buildSidebar("ch02");
-    renderPdfChapter({
-      title: "第 2 章 Qt 基础对象",
-      imageDir: "images/ch02_pages",
-      pageCount: 36,
-      anchors: {
-        "section-0": 1,
-        "section-1": 1,
-        "section-2": 2,
-        "section-3": 11,
-        "section-4": 21,
-        "section-5": 27,
-        "section-6": 30,
-        "section-7": 31,
-        "section-8": 32,
-        "section-9": 33
-      }
-    });
-  </script>
+  <script>buildSidebar("ch02");</script>
 </body>
 </html>
