@@ -1,28 +1,28 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第10章 模拟登录 - Python3 网络爬虫开发实战 第2版</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="../css/style.css?v=20260605-text-indent">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>第10章 模拟登录 - Python3 网络爬虫开发实战 第2版</title>
+<link href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E" rel="icon"/>
+<link href="../css/style.css?v=20260605-text-indent" rel="stylesheet"/>
 </head>
 <body>
-  <header class="header">
-    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
-    <a href="../index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
-    <div class="header-right"><a href="../index.html">首页</a></div>
-  </header>
-  <div class="overlay" onclick="toggleSidebar()"></div>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">章节目录</div>
-      <nav class="sidebar-nav" id="sidebar-nav"></nav>
-    </aside>
-    <main class="main-content">
-      <h1 class="chapter-title">第10章 模拟登录</h1>
-
-      <article class="ocr-content preserve-lines">
+<header class="header">
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<a class="logo" href="../index.html"><span class="logo-icon">📚</span>Python3 网络爬虫开发实战 第2版</a>
+<div class="header-right"><a href="../index.html">首页</a></div>
+</header>
+<div class="overlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">章节目录</div>
+<nav class="sidebar-nav" id="sidebar-nav"></nav>
+</aside>
+<main class="main-content">
+<h1 class="chapter-title">第10章 模拟登录</h1>
+<article class="ocr-content">
 <p class="content-text">很多情况下,网站的一些数据需要登录才能查看,如果想要爬取这部分数据的话,就需要实现模拟登录的一些机制。</p>
 <p class="content-text">模拟登录现在主要分为两种模式,一种是基于 Session 和 Cookie 的模拟登录,一种是基于 JWT (JSON Web Token)的模拟登录。</p>
 <p class="content-text">对于第一种模式,我们已经学习过 Session 和 Cookie 的用法。简单来说,打开网页后模拟登录,服务器会返回带有 Set-Cookie 字段的响应头,客户端会生成对应的 Cookie,其中保存着与 SessionID 相关的信息,之后发送给服务器的请求都会携带这个生成的 Cookie。服务器接收到请求后,会根据 Cookie 中保存的 SessionID 找到对应的 Session,同时校验 Cookie 里的相关信息,如果当前 Session 是有效的并且校验成功,服务器就判断当前用户已经登录,返回所请求的页面信息。所以,这种模式的核心是获取客户端登录后生成的 Cookie。</p>
@@ -37,52 +37,20 @@
 <h3 class="subsection-heading numbered-heading">1. 网站登录验证的实现</h3>
 <p class="content-text">要实现模拟登录,首先得了解网站如何验证登录内容。</p>
 <p class="content-text">登录一般需要两个内容——用户名和密码,也有的网站是填写手机号获取验证码,或者微信扫码,或者 OAuth 验证等,从根本上看,这些方式都是把一些可供认证的信息提交给服务器。</p>
-<p class="content-text">就拿用户名和密码来说,用户在一个网页表单里面输入这两个内容,然后在点击登录按钮的一瞬
-间,浏览器客户端会向服务器发送一个登录请求,这个请求里肯定包含刚输入的用户名和密码,这时
-服务器需要处理这些内容,然后返回给客户端一个类似凭证的东西,有了这个凭证,客户端再去访问
-某些需要登录才能查看的页面时,服务器自然就会“放行”,并返回对应的内容或执行对应的操作。
-形象点说,坐火车前,乘客要先用钱买票,有了票之后,让进站口查验一下,没问题就可以去候
-车了,这个票就是坐火车时的凭证。
-那么问题来了,这个凭证是怎么生成的,服务器又是怎么校验的呢?答案其实在本章开头已经介
-绍过了,一种是基于 Session 和 Cookie,一种是基于JWT。</p>
+<p class="content-text">就拿用户名和密码来说,用户在一个网页表单里面输入这两个内容,然后在点击登录按钮的一瞬间,浏览器客户端会向服务器发送一个登录请求,这个请求里肯定包含刚输入的用户名和密码,这时服务器需要处理这些内容,然后返回给客户端一个类似凭证的东西,有了这个凭证,客户端再去访问某些需要登录才能查看的页面时,服务器自然就会“放行”,并返回对应的内容或执行对应的操作。形象点说,坐火车前,乘客要先用钱买票,有了票之后,让进站口查验一下,没问题就可以去候车了,这个票就是坐火车时的凭证。那么问题来了,这个凭证是怎么生成的,服务器又是怎么校验的呢?答案其实在本章开头已经介绍过了,一种是基于 Session 和 Cookie,一种是基于JWT。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 基于 Session 和 Cookie</h3>
-<p class="content-text">不同网站对于用户登录状态的实现可能是不同的,但Session 和 Cookie 一定是相互配合工作的,
-下面梳理一下。</p>
-<p class="content-text list-like">Cookie 里可能只保存了 SessionID 相关的信息,服务器能根据这个信息找到对应的Session。当
-用户登录后,服务器会在对应的 Session 里标记一个字段,代表用户已处于登录状态或者其他
-(如角色、登录时间)。这样一来,用户每次访问网站的时候都带着Cookie,服务器每次都找到
-对应的 Session,然后看一下用户的状态是否为登录状态,再决定返回什么结果或执行什么操作。</p>
-<p class="content-text list-like">Cookie 里直接保存了某些凭证信息。例如用户发起登录请求,服务器校验通过后,返回给客
-户端的响应头里面可能带有 Set-Cookie 字段,里面就包含着类似凭证的信息,这样客户端会
-执行设置 Cookie 的操作,将那些类似凭证的信息保存到Cookie里,以后再访问网站时都携带
-着 Cookie,服务器拿着其中的信息进行校验,自然也能检测登录状态。
-以上两种情况几乎能涵盖大部分这种模式的实现,具体的实现逻辑因服务器而异,但 Session 和
-Cookie一定是要相互配合的。</p>
+<p class="content-text">不同网站对于用户登录状态的实现可能是不同的,但Session 和 Cookie 一定是相互配合工作的,下面梳理一下。</p>
+<p class="content-text list-like">Cookie 里可能只保存了 SessionID 相关的信息,服务器能根据这个信息找到对应的Session。当用户登录后,服务器会在对应的 Session 里标记一个字段,代表用户已处于登录状态或者其他(如角色、登录时间)。这样一来,用户每次访问网站的时候都带着Cookie,服务器每次都找到对应的 Session,然后看一下用户的状态是否为登录状态,再决定返回什么结果或执行什么操作。</p>
+<p class="content-text list-like">Cookie 里直接保存了某些凭证信息。例如用户发起登录请求,服务器校验通过后,返回给客户端的响应头里面可能带有 Set-Cookie 字段,里面就包含着类似凭证的信息,这样客户端会执行设置 Cookie 的操作,将那些类似凭证的信息保存到Cookie里,以后再访问网站时都携带着 Cookie,服务器拿着其中的信息进行校验,自然也能检测登录状态。以上两种情况几乎能涵盖大部分这种模式的实现,具体的实现逻辑因服务器而异,但 Session 和Cookie一定是要相互配合的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 基于JWT</h3>
-<p class="content-text">Web开发技术一直在发展,近几年前后端分离的开发模式越来越火,传统的基于Session 和 Cookie
-的校验又存在一定问题,例如服务器需要维护登录用户的 Session信息,而且分布式部署也不方便,
-不太适合前后端分离的项目,所以JWT技术应运而生。
-JWT的英文全称为JSON Web Token,是为了在网络应用环境中传递声明而执行的一种基于JSON
-的开放标准,实际上就是在每次登录时都通过一个Token 字段校验登录状态。JWT的声明一般用来在
-身份提供者和服务提供者之间传递要认证的用户身份信息,以便从资源服务器获取资源,此外可以增
-加一些业务逻辑必需的声明信息,总之 Token 可以直接用于认证,也可以传递一些额外信息。
-有了JWT,一些认证就不需要借助于 Session 和 Cookie了,服务器也无须维护 Session 信息,从
-而减少了开销,只需要有一个校验JWT的功能就够了,同时还支持分布式部署和跨语言开发。
-JWT一般是一个经过Base64编码技术加密的字符串,有自己的标准,格式类似下面这样:
-eyJ0eXAxIjoiMTIzNCIsImFsZzIiOiJhZG1pbiIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2Ino.eyJVc2VySWQiOjEyMywiVXNlck5hb
-WUiOiJhZG1pbiIsImV4cCI6MTU1MjI4Njc0Ni44NzcOMDE4fQ.pEgdmFAy73walFonEm2zbxg460th3dlTo2HR9iVzXa8
-其中有两个起分隔作用的“.”,因此可以把JWT 看成一个三段式的加密字符串。这三部分分别
-是Header、Payload 和 Signature。</p>
+<p class="content-text">Web开发技术一直在发展,近几年前后端分离的开发模式越来越火,传统的基于Session 和 Cookie的校验又存在一定问题,例如服务器需要维护登录用户的 Session信息,而且分布式部署也不方便,不太适合前后端分离的项目,所以JWT技术应运而生。JWT的英文全称为JSON Web Token,是为了在网络应用环境中传递声明而执行的一种基于JSON的开放标准,实际上就是在每次登录时都通过一个Token 字段校验登录状态。JWT的声明一般用来在身份提供者和服务提供者之间传递要认证的用户身份信息,以便从资源服务器获取资源,此外可以增加一些业务逻辑必需的声明信息,总之 Token 可以直接用于认证,也可以传递一些额外信息。有了JWT,一些认证就不需要借助于 Session 和 Cookie了,服务器也无须维护 Session 信息,从而减少了开销,只需要有一个校验JWT的功能就够了,同时还支持分布式部署和跨语言开发。JWT一般是一个经过Base64编码技术加密的字符串,有自己的标准,格式类似下面这样:eyJ0eXAxIjoiMTIzNCIsImFsZzIiOiJhZG1pbiIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2Ino.eyJVc2VySWQiOjEyMywiVXNlck5hb WUiOiJhZG1pbiIsImV4cCI6MTU1MjI4Njc0Ni44NzcOMDE4fQ.pEgdmFAy73walFonEm2zbxg460th3dlTo2HR9iVzXa8其中有两个起分隔作用的“.”,因此可以把JWT 看成一个三段式的加密字符串。这三部分分别是Header、Payload 和 Signature。</p>
 <p class="content-text list-like"><strong class="term-label">Header:</strong>声明了JWT的签名算法(如RSA、SHA256等),还可能包含JWT编号或类型等数据。</p>
-<p class="content-text list-like">Payload:通常是一些业务需要但不敏感的信息(如UserID),另外还有很多默认字段,如JWT
-签发者、JWT接受者、JWT过期时间等。</p>
-<p class="content-text list-like">Signature:这就是一个签名,是利用密钥 secret 对 Header、Payload 的信息进行加密后形成的,这个密钥保存在服务端,不会轻易泄露。如此一来,如果Payload的信息被篡改,服务器就能通过 Signature 判断出这是非法请求,拒绝提供服务。
-登录认证流程也很简单了,用户通过用户名和密码登录,然后服务器生成 JWT 字符串返回给客户端,之后客户端每次请求都带着这个JWT,服务器会自动判断其有效情况,如果有效就返回对应的数据。JWT的传递方式多种多样,可以放在请求头中,也可以放在URL里,甚至有的网站把它放在Cookie里,但总而言之,把它传给服务器进行校验就可以了。
-好,到此为止,我们就了解了网站登录验证的具体实现。</p>
+<p class="content-text list-like">Payload:通常是一些业务需要但不敏感的信息(如UserID),另外还有很多默认字段,如JWT签发者、JWT接受者、JWT过期时间等。</p>
+<p class="content-text list-like">Signature:这就是一个签名,是利用密钥 secret 对 Header、Payload 的信息进行加密后形成的,这个密钥保存在服务端,不会轻易泄露。如此一来,如果Payload的信息被篡改,服务器就能通过 Signature 判断出这是非法请求,拒绝提供服务。登录认证流程也很简单了,用户通过用户名和密码登录,然后服务器生成 JWT 字符串返回给客户端,之后客户端每次请求都带着这个JWT,服务器会自动判断其有效情况,如果有效就返回对应的数据。JWT的传递方式多种多样,可以放在请求头中,也可以放在URL里,甚至有的网站把它放在Cookie里,但总而言之,把它传给服务器进行校验就可以了。好,到此为止,我们就了解了网站登录验证的具体实现。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 模拟登录</h3>
@@ -92,33 +60,20 @@ WUiOiJhZG1pbiIsImV4cCI6MTU1MjI4Njc0Ni44NzcOMDE4fQ.pEgdmFAy73walFonEm2zbxg460th3d
 <p class="content-text">如果要用爬虫实现基于 Session 和 Cookie 的模拟登录,最主要的是要维护好 Cookie 的信息,因为爬虫相当于客户端的浏览器,我们把浏览器做的事情模拟好就行。接下来结合本书之前所讲的技术总结一下如何用爬虫模拟登录。</p>
 <p class="content-text list-like">第一,如果已经在浏览器中登录了自己的账号,那么可以直接把 Cookie 复制给爬虫。这是最省时省力的方式,相当于手动在浏览器中登录。我们把 Cookie 放到爬虫代码里,爬虫每次请求的时候都将其放到请求头中,可以说完全模拟了浏览器的操作。之后服务器的动作和前面一样,通过 Cookie 校验登录状态,如果校验没问题,就执行某些操作或返回某些内容。</p>
 <p class="content-text list-like">第二,如果想让爬虫完全自动化操作,那么可以直接使用爬虫模拟登录过程。大多数时候,登录过程其实就是一个POST请求。用爬虫把用户名、密码等信息提交给服务器,服务器返回的响应头里面可能会有 Set-Cookie字段,我们只需要把这个字段里的内容保存下来就行了。所以,最主要的是把这个过程中的Cookie 维持好。当然,可能会遭遇一些困难,例如登录过程中伴随着各种校验参数,不好直接模拟请求;客户端设置 Cookie的过程是通过 JavaScript 语言实现的,所以可能还得仔细分析其中的逻辑,尤其是用requests 这样的请求库进行模拟登录时,遇到的问题总是会比较多。</p>
-<p class="content-text list-like">第三,可以用一些简单的方式模拟登录,即实现登录过程的自动化。例如用 Selenium、Pyppeteer或Playwright 驱动浏览器模拟执行一些操作(如填写用户名和密码、提交表单等)。登录成功后,通过 Selenium 或Pyppeteer 获取当前浏览器的Cookie 并保存。同样之后就可以拿着 Cookie 的内容发起请求,实现模拟登录。
-以上介绍的就是一些常用的利用爬虫模拟登录的方案,核心是维护好客户端的 Cookie信息。总之,每次请求时都携带 Cookie 信息就能实现模拟登录了。</p>
+<p class="content-text list-like">第三,可以用一些简单的方式模拟登录,即实现登录过程的自动化。例如用 Selenium、Pyppeteer或Playwright 驱动浏览器模拟执行一些操作(如填写用户名和密码、提交表单等)。登录成功后,通过 Selenium 或Pyppeteer 获取当前浏览器的Cookie 并保存。同样之后就可以拿着 Cookie 的内容发起请求,实现模拟登录。以上介绍的就是一些常用的利用爬虫模拟登录的方案,核心是维护好客户端的 Cookie信息。总之,每次请求时都携带 Cookie 信息就能实现模拟登录了。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">基于JWT 模拟登录</h4>
-<p class="content-text">基于JWT 的模拟登录思路也比较清晰,由于JWT的字符串就是用户访问的凭证,所以模拟登录只需要做到下面几步。
-(1) 模拟登录操作。例如拿着用户名和密码信息请求登录接口,获取服务器返回的结果,这个结果中通常包含 JWT信息,将其保存下来即可。
-(2)之后发送给服务器的请求均携带JWT。在JWT不过期的情况下,通常能正常访问和执行操作。携带方式多种多样,因网站而异。
-(3) 如果 JWT 过期了,可能需要再次做第一步,重新获取JWT。
-当然,模拟登录的过程肯定会带一些其他加密参数,需要根据实际情况具体分析。</p>
+<p class="content-text">基于JWT 的模拟登录思路也比较清晰,由于JWT的字符串就是用户访问的凭证,所以模拟登录只需要做到下面几步。(1) 模拟登录操作。例如拿着用户名和密码信息请求登录接口,获取服务器返回的结果,这个结果中通常包含 JWT信息,将其保存下来即可。(2)之后发送给服务器的请求均携带JWT。在JWT不过期的情况下,通常能正常访问和执行操作。携带方式多种多样,因网站而异。(3) 如果 JWT 过期了,可能需要再次做第一步,重新获取JWT。当然,模拟登录的过程肯定会带一些其他加密参数,需要根据实际情况具体分析。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 账号池</h3>
-<p class="content-text">如果爬虫要求爬取的数据量比较大或爬取速度比较快,网站又有单账号并发限制或者访问状态检
-测等反爬虫手段,我们的账号可能就无法访问网站或者面临封号的风险。
-这时一般怎么处理呢?可以分流,建立一个账号池,用多个账号随机访问网站或爬取数据,这样
-能大幅提高爬虫的并发量,降低被封号的风险。例如准备100个账号,然后这100个账号都模拟登录,
-并保存对应的 Cookie 或 JWT,每次都随机从中选取一个来访问,账号多,所以每个账号被选取的概
-率就小,也就避免了单账号并发量过大的问题,从而降低封号风险。</p>
+<p class="content-text">如果爬虫要求爬取的数据量比较大或爬取速度比较快,网站又有单账号并发限制或者访问状态检测等反爬虫手段,我们的账号可能就无法访问网站或者面临封号的风险。这时一般怎么处理呢?可以分流,建立一个账号池,用多个账号随机访问网站或爬取数据,这样能大幅提高爬虫的并发量,降低被封号的风险。例如准备100个账号,然后这100个账号都模拟登录,并保存对应的 Cookie 或 JWT,每次都随机从中选取一个来访问,账号多,所以每个账号被选取的概率就小,也就避免了单账号并发量过大的问题,从而降低封号风险。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 总结</h3>
-<p class="content-text">本节中我们首先了解了基于Session 和Cookie,以及基于JWT模拟登录的原理,接着初步了解了
-两种方式的实现思路,最后初步介绍了一下账号池。
-后面我们会通过几个实战案例实现上述两种模拟登录,为了更好地理解实战内容,建议好好学习
-本节的知识。</p>
+<p class="content-text">本节中我们首先了解了基于Session 和Cookie,以及基于JWT模拟登录的原理,接着初步了解了两种方式的实现思路,最后初步介绍了一下账号池。后面我们会通过几个实战案例实现上述两种模拟登录,为了更好地理解实战内容,建议好好学习本节的知识。</p>
 </section>
 <div class="section-heading" id="section-1"><h2>10.2 基于 Session 和 Cookie 的模拟登录爬取实战</h2></div>
 <p class="content-text">本节我们通过实例讲解基于 Session 和 Cookie 模拟登录并爬取数据的流程。</p>
@@ -130,250 +85,181 @@ WUiOiJhZG1pbiIsImV4cCI6MTU1MjI4Njc0Ni44NzcOMDE4fQ.pEgdmFAy73walFonEm2zbxg460th3d
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 案例介绍</h3>
-<p class="content-text">这里用到的案例网站是 https://login2.scrape.center/,访问这个网站,会打开一个登录页面,如图 10-1
-所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_1.jpg" alt="图10-1 案例网站的登录页面" loading="lazy"><figcaption>图10-1 案例网站的登录页面</figcaption></figure>
-<p class="content-text">输入用户名和密码(都是admin),然后点击登录按钮。登录成功后,我们便可以看到一个熟悉的
-页面,如图10-2所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_2.jpg" alt="图10-2 登录成功后的页面" loading="lazy"><figcaption>图10-2 登录成功后的页面</figcaption></figure>
+<p class="content-text">这里用到的案例网站是 https://login2.scrape.center/,访问这个网站,会打开一个登录页面,如图 10-1所示。</p>
+<figure class="inline-figure"><img alt="图10-1 案例网站的登录页面" loading="lazy" src="figures/ch10/fig-10_1.jpg"/><figcaption>图10-1 案例网站的登录页面</figcaption></figure>
+<p class="content-text">输入用户名和密码(都是admin),然后点击登录按钮。登录成功后,我们便可以看到一个熟悉的页面,如图10-2所示。</p>
+<figure class="inline-figure"><img alt="图10-2 登录成功后的页面" loading="lazy" src="figures/ch10/fig-10_2.jpg"/><figcaption>图10-2 登录成功后的页面</figcaption></figure>
 <p class="content-text">这个网站是基于传统的MVC模式开发的,因此比较适合基于Session 加 Cookie 的模式模拟登录。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 模拟登录</h3>
 <p class="content-text">对于这个网站,如果要模拟登录,需要先分析登录过程中发生了什么。打开开发者工具,重新执行登录操作,查看登录过程中产生的请求,如图10-3所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_3.jpg" alt="图10-3 登录过程中产生的请求" loading="lazy"><figcaption>图10-3 登录过程中产生的请求</figcaption></figure>
+<figure class="inline-figure"><img alt="图10-3 登录过程中产生的请求" loading="lazy" src="figures/ch10/fig-10_3.jpg"/><figcaption>图10-3 登录过程中产生的请求</figcaption></figure>
 <p class="content-text">从图10-3 中可以看到,在登录的瞬间,浏览器发起了一个POST请求,目标URL是https://login2.scrape.center/login,并通过表单提交的方式向服务器提交了登录数据,其中包括 username 和 password</p>
-<p class="content-text">两个字段,返回的状态码是302,Response Headers 的location 字段为根页面,同时 Response Headers
-还包含 Set-Cookie字段,其中设置了 sessionid。
-由此我们可以想到,要实现模拟登录,只需要模拟这个POST请求就好了。那我们用代码实现一
-下吧!
-每次发出的请求默认都是独立且互不干扰的,例如第一次调用 post 方法模拟登录了网站,紧接
-着调用get 方法请求了主页面。这两个请求是完全独立的,第一次请求获取的Cookie并不能传给第二
-次请求,因此常规的顺序调用无法达到模拟登录的效果。下面用代码实现这个例子:</p>
+<p class="content-text">两个字段,返回的状态码是302,Response Headers 的location 字段为根页面,同时 Response Headers还包含 Set-Cookie字段,其中设置了 sessionid。由此我们可以想到,要实现模拟登录,只需要模拟这个POST请求就好了。那我们用代码实现一下吧!每次发出的请求默认都是独立且互不干扰的,例如第一次调用 post 方法模拟登录了网站,紧接着调用get 方法请求了主页面。这两个请求是完全独立的,第一次请求获取的Cookie并不能传给第二次请求,因此常规的顺序调用无法达到模拟登录的效果。下面用代码实现这个例子:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 from urllib.parse import urljoin
 
-BASE_URL = &#x27;https://login2.scrape.center/&#x27;
-LOGIN_URL = urljoin(BASE_URL, &#x27;/login&#x27;)
-INDEX_URL = urljoin(BASE_URL, &#x27;/page/1&#x27;)
-USERNAME = &#x27;admin&#x27;
-PASSWORD = &#x27;admin&#x27;
+BASE_URL = 'https://login2.scrape.center/'
+LOGIN_URL = urljoin(BASE_URL, '/login')
+INDEX_URL = urljoin(BASE_URL, '/page/1')
+USERNAME = 'admin'
+PASSWORD = 'admin'
 
 response_login = requests.post(LOGIN_URL, data={
-    &#x27;username&#x27;: USERNAME,
-    &#x27;password&#x27;: PASSWORD
+    'username': USERNAME,
+    'password': PASSWORD
 })
 response_index = requests.get(INDEX_URL)
-print(&#x27;Response Status&#x27;, response_index.status_code)
-print(&#x27;Response URL&#x27;, response_index.url)</code></pre>
-<p class="content-text">这里我们先定义了3个URL、用户名和密码,然后调用requests 库的post方法请求了登录页面进行
-模拟登录,紧接着调用get 方法请求网站首页来获取页面内容,它能正常获取数据吗?由于 requests 可
-以自动处理重定向,所以在最后把响应的URL打印出来,如果结果是 INDEX_URL,就证明模拟登录成
-功并成功获取了网站首页的内容,如果结果是LOGIN URL,就说明跳回了登录页面,模拟登录失败。
-运行一下代码,结果如下:</p>
+print('Response Status', response_index.status_code)
+print('Response URL', response_index.url)</code></pre>
+<p class="content-text">这里我们先定义了3个URL、用户名和密码,然后调用requests 库的post方法请求了登录页面进行模拟登录,紧接着调用get 方法请求网站首页来获取页面内容,它能正常获取数据吗?由于 requests 可以自动处理重定向,所以在最后把响应的URL打印出来,如果结果是 INDEX_URL,就证明模拟登录成功并成功获取了网站首页的内容,如果结果是LOGIN URL,就说明跳回了登录页面,模拟登录失败。运行一下代码,结果如下:</p>
 <pre class="result-block"><code>Response Status 200
 Response URL https://login2.scrape.center/login?next=/page/1</code></pre>
-<p class="content-text">可以看到,最后打印的页面URL是登录页面的URL。这里也可以通过 response_index的text 属
-性来看一下页面源码,这里就是登录页面的源码内容,由于内容较多,这里就不再输出对比了。
-总之,这个现象说明我们并没有成功完成模拟登录,这就印证了按序调用requests 的post、get方
-法是发出了两个请求,两次对应的 Session 不是同一个，这里我们只是模拟了第一个Session，并不能影响第二个 Session的状态,因此模拟登录也就无效了。
-那怎样才能实现正确的模拟登录呢? Session 和 Cookie的用法我们在本章开头就介绍了,模拟登
-录的关键在于两次发出的请求的Cookie相同。因此这里可以把第一次模拟登录后的Cookie 保存下来,
-在第二次请求的时候加上这个Cookie,代码改写如下:</p>
+<p class="content-text">可以看到,最后打印的页面URL是登录页面的URL。这里也可以通过 response_index的text 属性来看一下页面源码,这里就是登录页面的源码内容,由于内容较多,这里就不再输出对比了。总之,这个现象说明我们并没有成功完成模拟登录,这就印证了按序调用requests 的post、get方法是发出了两个请求,两次对应的 Session 不是同一个，这里我们只是模拟了第一个Session，并不能影响第二个 Session的状态,因此模拟登录也就无效了。那怎样才能实现正确的模拟登录呢? Session 和 Cookie的用法我们在本章开头就介绍了,模拟登录的关键在于两次发出的请求的Cookie相同。因此这里可以把第一次模拟登录后的Cookie 保存下来,在第二次请求的时候加上这个Cookie,代码改写如下:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 from urllib.parse import urljoin
 
-BASE_URL = &#x27;https://login2.scrape.center/&#x27;
-LOGIN_URL = urljoin(BASE_URL, &#x27;/login&#x27;)
-INDEX_URL = urljoin(BASE_URL, &#x27;/page/1&#x27;)
-USERNAME = &#x27;admin&#x27;
-PASSWORD = &#x27;admin&#x27;
+BASE_URL = 'https://login2.scrape.center/'
+LOGIN_URL = urljoin(BASE_URL, '/login')
+INDEX_URL = urljoin(BASE_URL, '/page/1')
+USERNAME = 'admin'
+PASSWORD = 'admin'
 
 response_login = requests.post(LOGIN_URL, data={
-    &#x27;username&#x27;: USERNAME,
-    &#x27;password&#x27;: PASSWORD
+    'username': USERNAME,
+    'password': PASSWORD
 })</code></pre>
 <pre class="code-block"><code>}, allow_redirects=False)
 cookies = response_login.cookies
-print(&#x27;Cookies&#x27;, cookies)
+print('Cookies', cookies)
 response_index = requests.get(INDEX_URL, cookies=cookies)
-print(&#x27;Response Status&#x27;, response_index.status_code)
-print(&#x27;Response URL&#x27;, response_index.url)</code></pre>
-<p class="content-text">由于 requests 具有自动处理重定向的能力,所以在模拟登录的过程中要加上 allow_redirects 参数并
-将值设置为 False,使requests 不自动处理重定向。这里将登录之后服务器返回的响应内容赋值为
-response_login 变量,然后调用response_login 的 cookies 属性就可以获取了网站的Cookie信息。由于
-requests 自动帮我们解析了响应头中的Set-Cookie字段并设置了Cookie,因此不需要我们再去手动解析。
-接着,调用 requests 的get 方法请求网站的首页。和之前不同,这里的get方法增加了一个参数
-cookies,传入的值是第一次模拟登录后获取的Cookie,这样第二次请求就携带上了第一次模拟登录
-获取的Cookie 信息,之后网站会根据里面的SessionID 信息找到同一个Session,并校验出当前发出请
-求的用户已经处于登录状态,然后返回正确的结果。
-最后我们还是输出最终的URL,如果结果是INDEX URL,就代表模拟登录成功并获取了有效数据,
-否则代表模拟登录失败。
-运行结果如下:</p>
+print('Response Status', response_index.status_code)
+print('Response URL', response_index.url)</code></pre>
+<p class="content-text">由于 requests 具有自动处理重定向的能力,所以在模拟登录的过程中要加上 allow_redirects 参数并将值设置为 False,使requests 不自动处理重定向。这里将登录之后服务器返回的响应内容赋值为response_login 变量,然后调用response_login 的 cookies 属性就可以获取了网站的Cookie信息。由于requests 自动帮我们解析了响应头中的Set-Cookie字段并设置了Cookie,因此不需要我们再去手动解析。接着,调用 requests 的get 方法请求网站的首页。和之前不同,这里的get方法增加了一个参数cookies,传入的值是第一次模拟登录后获取的Cookie,这样第二次请求就携带上了第一次模拟登录获取的Cookie 信息,之后网站会根据里面的SessionID 信息找到同一个Session,并校验出当前发出请求的用户已经处于登录状态,然后返回正确的结果。最后我们还是输出最终的URL,如果结果是INDEX URL,就代表模拟登录成功并获取了有效数据,否则代表模拟登录失败。运行结果如下:</p>
 <pre class="result-block"><code>Cookies &lt;RequestsCookie]ar[&lt;Cookie sessionid=psnu8ij69f0ltecd5wasccyzc6ud41tc for login2.scrape.center/&gt;]&gt;</code></pre>
-<p class="content-text">Response Status 200
-Response URL https://login2.scrape.center/page/1
-返回的是 INDEX_URL,这下没有问题了,模拟登录成功!此时还可以进一步输出 response_index 的
-text 属性,看一下数据是否获取成功。
-但其实可以发现,这种实现方式比较烦琐,每次请求都需要处理并传递一次Cookie,有没有更简
-便的方法呢?
-有的,可以直接借助 requests 内置的Session 对象帮我们自动处理 Cookie,使用Session 对象之
-后,requests 会自动保存每次请求后设置的 Cookie,并在下次请求时携带上它,这样就变方便了。把
-刚才的代码简化一下:</p>
+<p class="content-text">Response Status 200 Response URL https://login2.scrape.center/page/1返回的是 INDEX_URL,这下没有问题了,模拟登录成功!此时还可以进一步输出 response_index 的text 属性,看一下数据是否获取成功。但其实可以发现,这种实现方式比较烦琐,每次请求都需要处理并传递一次Cookie,有没有更简便的方法呢?有的,可以直接借助 requests 内置的Session 对象帮我们自动处理 Cookie,使用Session 对象之后,requests 会自动保存每次请求后设置的 Cookie,并在下次请求时携带上它,这样就变方便了。把刚才的代码简化一下:</p>
 <pre class="code-block"><code>import requests
 from urllib.parse import urljoin
-BASE_URL = &#x27;https://login2.scrape.center/&#x27;
-LOGIN_URL = urljoin(BASE_URL, &#x27;/login&#x27;)
-INDEX_URL = urljoin(BASE_URL, &#x27;/page/1&#x27;)
-USERNAME = &#x27;admin&#x27;
-PASSWORD = &#x27;admin&#x27;
+BASE_URL = 'https://login2.scrape.center/'
+LOGIN_URL = urljoin(BASE_URL, '/login')
+INDEX_URL = urljoin(BASE_URL, '/page/1')
+USERNAME = 'admin'
+PASSWORD = 'admin'
 session = requests.Session()
 response_login = session.post(LOGIN_URL, data={
-&#x27;username&#x27;: USERNAME,
-&#x27;password&#x27;: PASSWORD
+'username': USERNAME,
+'password': PASSWORD
 })
 cookies = session.cookies
-print(&#x27;Cookies&#x27;, cookies)
+print('Cookies', cookies)
 response_index = session.get(INDEX_URL)
-print(&#x27;Response Status&#x27;, response_index.status_code)
-print(&#x27;Response URL&#x27;, response_index.url)</code></pre>
+print('Response Status', response_index.status_code)
+print('Response URL', response_index.url)</code></pre>
 <p class="content-text">可以看到,这里声明了一个 Session对象,然后每次发出请求的时候都直接调用 Session 对象的</p>
-<p class="content-text">post 方法或 get 方法就好了,使我们无须再关心 Cookie 的处理和传递问题。
-运行结果如下:</p>
+<p class="content-text">post 方法或 get 方法就好了,使我们无须再关心 Cookie 的处理和传递问题。运行结果如下:</p>
 <pre class="result-block"><code>Cookies &lt;RequestsCookieJar [&lt;Cookie sessionid=ssngkl4i7en9vm73bb36hxif05k10k13 for login2.scrape.center/&gt;]&gt;
 Response Status 200
 Response URL https://login2.scrape.center/page/1</code></pre>
-<p class="content-text">和刚才的结果完全一样。因此建议大家使用 Session 对象进行请求,这样实现起来会更加方便。
-这个案例整体来讲其实比较简单,如果碰上复杂一点的网站,例如带有验证码、带有加密参数的
-网站,直接用 requests 并不能很好地处理模拟登录,那登录不了,整个页面不就没法爬取了吗?有没
-有其他方式来解决这个问题呢?当然有,例如可以使用Selenium模拟浏览器的操作,进而实现模拟登
-录,然后获取登录成功后的Cookie,再把获取的Cookie 交由 requests 等爬取。
-还是同样的页面,由Selenium 实现模拟登录,后续的爬取则交给 requests,相关代码如下:</p>
+<p class="content-text">和刚才的结果完全一样。因此建议大家使用 Session 对象进行请求,这样实现起来会更加方便。这个案例整体来讲其实比较简单,如果碰上复杂一点的网站,例如带有验证码、带有加密参数的网站,直接用 requests 并不能很好地处理模拟登录,那登录不了,整个页面不就没法爬取了吗?有没有其他方式来解决这个问题呢?当然有,例如可以使用Selenium模拟浏览器的操作,进而实现模拟登录,然后获取登录成功后的Cookie,再把获取的Cookie 交由 requests 等爬取。还是同样的页面,由Selenium 实现模拟登录,后续的爬取则交给 requests,相关代码如下:</p>
 <pre class="code-block" data-lang="python"><code>from urllib.parse import urljoin
 from selenium import webdriver
 import requests
 import time
 
-BASE_URL = &#x27;https://login2.scrape.center/&#x27;
-LOGIN_URL = urljoin(BASE_URL, &#x27;/login&#x27;)
-INDEX_URL = urljoin(BASE_URL, &#x27;/page/1&#x27;)
-USERNAME = &#x27;admin&#x27;
-PASSWORD = &#x27;admin&#x27;
+BASE_URL = 'https://login2.scrape.center/'
+LOGIN_URL = urljoin(BASE_URL, '/login')
+INDEX_URL = urljoin(BASE_URL, '/page/1')
+USERNAME = 'admin'
+PASSWORD = 'admin'
 
 browser = webdriver.Chrome()
 browser.get(BASE_URL)
-browser.find_element_by_css_selector(&#x27;input[name=&quot;username&quot;]&#x27;).send_keys (USERNAME)
-browser.find_element_by_css_selector(&#x27;input[name=&quot;password&quot;]&#x27;).send_keys (PASSWORD)
-browser.find_element_by_css_selector(&#x27;input[type=&quot;submit&quot;]&#x27;).click()
+browser.find_element_by_css_selector('input[name="username"]').send_keys (USERNAME)
+browser.find_element_by_css_selector('input[name="password"]').send_keys (PASSWORD)
+browser.find_element_by_css_selector('input[type="submit"]').click()
 time.sleep(10)</code></pre>
 <pre class="code-block" data-lang="python"><code>cookies = browser.get_cookies()
-print(&#x27;Cookies&#x27;, cookies)
+print('Cookies', cookies)
 browser.close()</code></pre>
 <pre class="code-block" data-lang="python"><code>session = requests.Session()
 for cookie in cookies:
-    session.cookies.set(cookie[&#x27;name&#x27;], cookie[&#x27;value&#x27;])
+    session.cookies.set(cookie['name'], cookie['value'])
 
 response_index = session.get(INDEX_URL)
-print(&#x27;Response Status&#x27;, response_index.status_code)
-print(&#x27;Response URL&#x27;, response_index.url)</code></pre>
-<p class="content-text">这里我们先使用 Selenium 打开 Chrome浏览器,然后访问登录页面,模拟输入用户名和密码,并
-点击登录按钮。浏览器会提示登录成功,并跳转到主页面。
-这时,调用get_cookies 方法便能获取当前浏览器的所有Cookie信息,这就是模拟登录成功之后
-的Cookie,用它就能访问其他数据了。
-之后,我们声明了一个Session对象,赋值给 session 变量,然后遍历了刚才获取的所有 Cookie
-信息,将每个Cookie信息依次设置到 session 的cookies 属性上,随后拿这个session 请求网站首页,
-就能够获取想要的信息了而不会跳转到登录页面。
-运行结果如下:</p>
-<pre class="result-block"><code>Cookies [{&#x27;domain&#x27;: &#x27;login2.scrape.center&#x27;, &#x27;expiry&#x27;: 1589043753.553155, &#x27;httpOnly&#x27;: True, &#x27;name&#x27;: &#x27;sessionid&#x27;, &#x27;path&#x27;: &#x27;/&#x27;, &#x27;sameSite&#x27;: &#x27;Lax&#x27;, &#x27;secure&#x27;: False, &#x27;value&#x27;: &#x27;rdag7ttjqhvazavpxjz31y0tmze81zur&#x27;}]
+print('Response Status', response_index.status_code)
+print('Response URL', response_index.url)</code></pre>
+<p class="content-text">这里我们先使用 Selenium 打开 Chrome浏览器,然后访问登录页面,模拟输入用户名和密码,并点击登录按钮。浏览器会提示登录成功,并跳转到主页面。这时,调用get_cookies 方法便能获取当前浏览器的所有Cookie信息,这就是模拟登录成功之后的Cookie,用它就能访问其他数据了。之后,我们声明了一个Session对象,赋值给 session 变量,然后遍历了刚才获取的所有 Cookie信息,将每个Cookie信息依次设置到 session 的cookies 属性上,随后拿这个session 请求网站首页,就能够获取想要的信息了而不会跳转到登录页面。运行结果如下:</p>
+<pre class="result-block"><code>Cookies [{'domain': 'login2.scrape.center', 'expiry': 1589043753.553155, 'httpOnly': True, 'name': 'sessionid', 'path': '/', 'sameSite': 'Lax', 'secure': False, 'value': 'rdag7ttjqhvazavpxjz31y0tmze81zur'}]
 Response Status 200
 Response URL https://login2.scrape.center/page/1</code></pre>
-<p class="content-text">可以看到,这里的模拟登录和获取 Cookie 信息后的爬取都成功了。因此当碰到难以模拟登录的
-情况时,可以使用 Selenium 等模拟浏览器的操作方式,使用它获取模拟登录后的Cookie,再用这个
-Cookie 爬取其他页面就好了。
-这里也再一次巩固了对前面结论的认识,即对于基于 Session 和 Cookie 验证的网站,模拟登录的
-关键是获取 Cookie。可以把这个 Cookie 保存下来或传递给其他程序继续使用,甚至可以持久化存储
-或传输给其他终端使用。另外,为了提高 Cookie 的利用率和降低封号风险,可以搭建一个账号池实
-现 Cookie 的随机取用。</p>
+<p class="content-text">可以看到,这里的模拟登录和获取 Cookie 信息后的爬取都成功了。因此当碰到难以模拟登录的情况时,可以使用 Selenium 等模拟浏览器的操作方式,使用它获取模拟登录后的Cookie,再用这个Cookie 爬取其他页面就好了。这里也再一次巩固了对前面结论的认识,即对于基于 Session 和 Cookie 验证的网站,模拟登录的关键是获取 Cookie。可以把这个 Cookie 保存下来或传递给其他程序继续使用,甚至可以持久化存储或传输给其他终端使用。另外,为了提高 Cookie 的利用率和降低封号风险,可以搭建一个账号池实现 Cookie 的随机取用。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">本节我们通过一个实例来演示了基于Session 和 Cookie 模拟登录并爬取数据的过程,以后遇到这
-种情形的时候可以用类似的思路解决。
-本节代码见 https://github.com/Python3 WebSpider/ScrapeLogin2。</p>
+<p class="content-text">本节我们通过一个实例来演示了基于Session 和 Cookie 模拟登录并爬取数据的过程,以后遇到这种情形的时候可以用类似的思路解决。本节代码见 https://github.com/Python3 WebSpider/ScrapeLogin2。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>10.3 基于JWT 的模拟登录爬取实战</h2></div>
 <p class="content-text">本节中我们通过实例讲解基于JWT 模拟登录并爬取数据的流程。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">请确保已经了解了JWT 相关的知识,可以回顾10.1节。另外还需要安装好 requests 库并了解其
-基本的使用方法,可以回顾2.2节。</p>
+<p class="content-text">请确保已经了解了JWT 相关的知识,可以回顾10.1节。另外还需要安装好 requests 库并了解其基本的使用方法,可以回顾2.2节。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 案例介绍</h3>
-<p class="content-text">这里用到的案例网站是 https://login3.scrape.center/,访问这个网站,同样会打开一个登录页面,
-如图10-4所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_4.jpg" alt="图10-4 案例网站的登录页面" loading="lazy"><figcaption>图10-4 案例网站的登录页面</figcaption></figure>
+<p class="content-text">这里用到的案例网站是 https://login3.scrape.center/,访问这个网站,同样会打开一个登录页面,如图10-4所示。</p>
+<figure class="inline-figure"><img alt="图10-4 案例网站的登录页面" loading="lazy" src="figures/ch10/fig-10_4.jpg"/><figcaption>图10-4 案例网站的登录页面</figcaption></figure>
 <p class="content-text">用户名和密码依然都是admin,输入后点击登录按钮会跳转到首页,证明登录成功。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 模拟登录</h3>
-<p class="content-text">基于JWT 的网站通常采用的是前后端分离式,前后端的数据传输依赖于 Ajax,登录验证依赖于
-JWT 这个本身就是token 的值,如果JWT经验证是有效的,服务器就会返回相应的数据。</p>
-<p class="content-text">和上一节一样,下面先打开开发者工具,重新执行登录操作,查看一下登录过程中产生的请求,
-如图10-5所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_5.jpg" alt="图10-5 登录过程中产生的请求" loading="lazy"><figcaption>图10-5 登录过程中产生的请求</figcaption></figure>
-<p class="content-text">从图10-5可以看出,登录时的请求 URL为https://login3.scrape.center/api/login,是通过 Ajax请求
-的。请求体是JSON 格式的数据,而不是表单数据,返回状态码为200。然后看一下返回结果是怎样
-的,如图10-6所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_6.jpg" alt="图10-6 返回结果" loading="lazy"><figcaption>图10-6 返回结果</figcaption></figure>
-<p class="content-text">从图10-6可以看出,返回结果也是JSON 格式的数据,包含一个token 字段,其内容为:
-eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjI1OTg1MDA3LCJ1bWF
-pbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjI1OTQxODA3fQ.YzOfWYhy_GwcmonfXUTJAAqnBbJo6hen751b82ds0j8
-这和我们在10.1节讲的一样,由“.”把整个字符串分为三段。那么有了这个JWT之后,怎么获
-取后续的数据呢?我们翻一下页,观察下后续的请求内容,如图10-7所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_7.jpg" alt="图10-7 翻页后的请求内容" loading="lazy"><figcaption>图10-7 翻页后的请求内容</figcaption></figure>
+<p class="content-text">基于JWT 的网站通常采用的是前后端分离式,前后端的数据传输依赖于 Ajax,登录验证依赖于JWT 这个本身就是token 的值,如果JWT经验证是有效的,服务器就会返回相应的数据。</p>
+<p class="content-text">和上一节一样,下面先打开开发者工具,重新执行登录操作,查看一下登录过程中产生的请求,如图10-5所示。</p>
+<figure class="inline-figure"><img alt="图10-5 登录过程中产生的请求" loading="lazy" src="figures/ch10/fig-10_5.jpg"/><figcaption>图10-5 登录过程中产生的请求</figcaption></figure>
+<p class="content-text">从图10-5可以看出,登录时的请求 URL为https://login3.scrape.center/api/login,是通过 Ajax请求的。请求体是JSON 格式的数据,而不是表单数据,返回状态码为200。然后看一下返回结果是怎样的,如图10-6所示。</p>
+<figure class="inline-figure"><img alt="图10-6 返回结果" loading="lazy" src="figures/ch10/fig-10_6.jpg"/><figcaption>图10-6 返回结果</figcaption></figure>
+<p class="content-text">从图10-6可以看出,返回结果也是JSON 格式的数据,包含一个token 字段,其内容为:eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjI1OTg1MDA3LCJ1bWF pbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjI1OTQxODA3fQ.YzOfWYhy_GwcmonfXUTJAAqnBbJo6hen751b82ds0j8这和我们在10.1节讲的一样,由“.”把整个字符串分为三段。那么有了这个JWT之后,怎么获取后续的数据呢?我们翻一下页,观察下后续的请求内容,如图10-7所示。</p>
+<figure class="inline-figure"><img alt="图10-7 翻页后的请求内容" loading="lazy" src="figures/ch10/fig-10_7.jpg"/><figcaption>图10-7 翻页后的请求内容</figcaption></figure>
 <p class="content-text">从图10-7可以看出,在后续发出的用于获取数据的Ajax请求中,请求头里多了一个Authorization 字段,其内容为jwt 加上刚才图 10-6 中 token 字段的内容,返回结果也是JSON 格式的数据,如图10-8所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_8.jpg" alt="图10-8 返回结果" loading="lazy"><figcaption>图10-8 返回结果</figcaption></figure>
+<figure class="inline-figure"><img alt="图10-8 返回结果" loading="lazy" src="figures/ch10/fig-10_8.jpg"/><figcaption>图10-8 返回结果</figcaption></figure>
 <p class="content-text">可以看出,返回结果正是网站首页显示的内容,这也是我们应该模拟爬取的内容。那么现在,模拟登录的整个思路就简单了,其实就是如下两个步骤:</p>
 <p class="content-text list-like">模拟登录请求,带上必要的登录信息,获取返回的JWT;</p>
-<p class="content-text list-like">之后发送请求时,在请求头里面加上 Authorization 字段,值就是JWT 对应的内容。
-接下来我们用代码实现:</p>
+<p class="content-text list-like">之后发送请求时,在请求头里面加上 Authorization 字段,值就是JWT 对应的内容。接下来我们用代码实现:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 from urllib.parse import urljoin
 
-BASE_URL = &#x27;https://login3.scrape.center/&#x27;
-LOGIN_URL = urljoin(BASE_URL, &#x27;/api/login&#x27;)
-INDEX_URL = urljoin(BASE_URL, &#x27;/api/book&#x27;)
-USERNAME = &#x27;admin&#x27;
-PASSWORD = &#x27;admin&#x27;
+BASE_URL = 'https://login3.scrape.center/'
+LOGIN_URL = urljoin(BASE_URL, '/api/login')
+INDEX_URL = urljoin(BASE_URL, '/api/book')
+USERNAME = 'admin'
+PASSWORD = 'admin'
 
 response_login = requests.post(LOGIN_URL, json={
-    &#x27;username&#x27;: USERNAME,
-    &#x27;password&#x27;: PASSWORD
+    'username': USERNAME,
+    'password': PASSWORD
 })
 data = response_login.json()
-print(&#x27;Response JSON&#x27;, data)
-jwt = data.get(&#x27;token&#x27;)
-print(&#x27;JWT&#x27;, jwt)
+print('Response JSON', data)
+jwt = data.get('token')
+print('JWT', jwt)
 
 headers = {
-    &#x27;Authorization&#x27;: f&#x27;jwt {jwt}&#x27;
+    'Authorization': f'jwt {jwt}'
 }
 response_index = requests.get(INDEX_URL, params={
-    &#x27;limit&#x27;: 18,
-    &#x27;offset&#x27;: 0
+    'limit': 18,
+    'offset': 0
 }, headers=headers)
-print(&#x27;Response Status&#x27;, response_index.status_code)
-print(&#x27;Response URL&#x27;, response_index.url)
-print(&#x27;Response Data&#x27;, response_index.json())</code></pre>
-<p class="content-text">这里我们同样先定义了登录接口和获取数据的接口,分别是 LOGIN_URL 和 INDEX_URL,接着调用requests 的post 方法进行了模拟登录。由于这里提交的数据是JSON格式,所以使用json 参数来传递。接着获取并打印出了返回结果中包含的JWT。之后构造请求头,设置 Authorization 字段并传入刚获取的JWT,这样就能成功获取数据了。
-运行结果如下:</p>
-<pre class="result-block"><code>Response JSON {&#x27;token&#x27;: &#x27;eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTg3ODc4NzkxLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNTg3ODM1NTkxfQ.iUnu3Yhdi_a-Bupb2BLgCTUd5yHL6jgPhkBPorCPvm4&#x27;}
+print('Response Status', response_index.status_code)
+print('Response URL', response_index.url)
+print('Response Data', response_index.json())</code></pre>
+<p class="content-text">这里我们同样先定义了登录接口和获取数据的接口,分别是 LOGIN_URL 和 INDEX_URL,接着调用requests 的post 方法进行了模拟登录。由于这里提交的数据是JSON格式,所以使用json 参数来传递。接着获取并打印出了返回结果中包含的JWT。之后构造请求头,设置 Authorization 字段并传入刚获取的JWT,这样就能成功获取数据了。运行结果如下:</p>
+<pre class="result-block"><code>Response JSON {'token': 'eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTg3ODc4NzkxLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNTg3ODM1NTkxfQ.iUnu3Yhdi_a-Bupb2BLgCTUd5yHL6jgPhkBPorCPvm4'}
 JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTg3ODc4NzkxLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfawFoIjoxNTg3ODM1NTkxfQ.iUnu3Yhdi_a-Bupb2BLgCTUd5yHL6jgPhkBPorCPvm4
 Response Status 200
 Response URL https://login3.scrape.center/api/book/?limit=18&amp;offset=0
-Response Data {&#x27;count&#x27;: 9200, &#x27;results&#x27;: [{&#x27;id&#x27;: &#x27;27135877&#x27;, &#x27;name&#x27;:&#x27;校园市场:布局未来消费群,决战年轻人市场&#x27;,&#x27;authors&#x27;: [&#x27;单兴华&#x27;,&#x27;李烨&#x27;], &#x27;cover&#x27;: &#x27;https://img9.doubanio.com/view/subject/l/public/s2953985.jpg&#x27;, &#x27;score&#x27;: &#x27;5.5&#x27;},
-{&#x27;id&#x27;: &#x27;30289316&#x27;,&#x27;name&#x27;:&#x27;就算这样,还是喜欢你,笠原先生&#x27;, &#x27;authors&#x27;: [&#x27;おまる&#x27;], &#x27;cover&#x27;: &#x27;https://img3.doubanio.com/view/subject/l/public/s29875002.jpg&#x27;, &#x27;score&#x27;: &#x27;7.5&#x27;}]}</code></pre>
+Response Data {'count': 9200, 'results': [{'id': '27135877', 'name':'校园市场:布局未来消费群,决战年轻人市场','authors': ['单兴华','李烨'], 'cover': 'https://img9.doubanio.com/view/subject/l/public/s2953985.jpg', 'score': '5.5'},
+{'id': '30289316','name':'就算这样,还是喜欢你,笠原先生', 'authors': ['おまる'], 'cover': 'https://img3.doubanio.com/view/subject/l/public/s29875002.jpg', 'score': '7.5'}]}</code></pre>
 <p class="content-text">可以看到,这里成功输出了JWT的内容,同时获取了想要的数据,模拟登录成功!</p>
 </section>
 <section class="numbered-section">
@@ -381,76 +267,36 @@ Response Data {&#x27;count&#x27;: 9200, &#x27;results&#x27;: [{&#x27;id&#x27;: &
 <p class="content-text">本节我们通过一个实例成功实现了基于JWT 模拟登录以及爬取数据的流程,以后如果遇到基于JWT 认证的网站,也可以通过类似的方式实现模拟登录。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>10.4 大规模账号池的搭建</h2></div>
-<p class="content-text">我们在10.1节已经提过账号池,要想降低账号被封的风险,同时还能实现大规模爬取,自然而然
-想到的方法就是分流。在现在的场景中,分流是指将请求分摊到不同的账号上。我们利用分流可以达
-成下面两个目标。
-■ 如果单位时间内所有账号的总请求量一定,每次都随机选取一个账号请求,那么账号越多,单
-个账号访问网站的频率就降低,被封禁的概率也越低。
-■ 如果单位时间内单个账号的请求量一定,同样是每次随机选取一个账号请求,那么账号越多,
-单位时间内的总请求量就越大。
-所以,利用分流的思想,可以在保证爬取规模的情况下降低单个账号被封的概率。如何实现这个
-过程?如何维护多个账号的登录信息?这时就要用到账号池了。接下来看看账号池的搭建方法。</p>
+<p class="content-text">我们在10.1节已经提过账号池,要想降低账号被封的风险,同时还能实现大规模爬取,自然而然想到的方法就是分流。在现在的场景中,分流是指将请求分摊到不同的账号上。我们利用分流可以达成下面两个目标。■ 如果单位时间内所有账号的总请求量一定,每次都随机选取一个账号请求,那么账号越多,单个账号访问网站的频率就降低,被封禁的概率也越低。■ 如果单位时间内单个账号的请求量一定,同样是每次随机选取一个账号请求,那么账号越多,单位时间内的总请求量就越大。所以,利用分流的思想,可以在保证爬取规模的情况下降低单个账号被封的概率。如何实现这个过程?如何维护多个账号的登录信息?这时就要用到账号池了。接下来看看账号池的搭建方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 案例介绍</h3>
-<p class="content-text">我们本节所用的案例网站是https://antispider6.scrape.center/,访问该网站,会自动打开登录页面,
-如图10-9所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_9.jpg" alt="图10-9 案例网站的登录页面" loading="lazy"><figcaption>图10-9 案例网站的登录页面</figcaption></figure>
-<p class="content-text">用户名和密码还是填入 admin,登录后的页面如图10-10所示。
-此时如果多次在登录状态下刷新页面,刷新几次后就会发现,页面不再返回任何信息,只显示“403
-Forbidden”,如图10-11所示。
-此页面对应的状态码是403,代表当前账号已经被封,无法获取有效内容。过一段时间后,这个
-账号又可以正常访问该网站,但如果像之前一样多次刷新,会再次被封。虽然这个账号被封,但是新
-开一个独立的窗口,使用另一个账号(如用户名和密码都为 admin2 的账户)登录,还是可以正常地
-访问页面,如图10-12所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_10.jpg" alt="图10-10 登录后的页面" loading="lazy"><figcaption>图10-10 登录后的页面</figcaption></figure>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_11.jpg" alt="图10-11 刷新几次后的页面" loading="lazy"><figcaption>图10-11 刷新几次后的页面</figcaption></figure>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_12.jpg" alt="图10-12 换一个账号登录" loading="lazy"><figcaption>图10-12 换一个账号登录</figcaption></figure>
-<p class="content-text">所以说,如果有多个账号,在总请求量一定的情况下,可以将爬取请求分流到多个账号上,可以
-降低封号的概率。</p>
+<p class="content-text">我们本节所用的案例网站是https://antispider6.scrape.center/,访问该网站,会自动打开登录页面,如图10-9所示。</p>
+<figure class="inline-figure"><img alt="图10-9 案例网站的登录页面" loading="lazy" src="figures/ch10/fig-10_9.jpg"/><figcaption>图10-9 案例网站的登录页面</figcaption></figure>
+<p class="content-text">用户名和密码还是填入 admin,登录后的页面如图10-10所示。此时如果多次在登录状态下刷新页面,刷新几次后就会发现,页面不再返回任何信息,只显示“403 Forbidden”,如图10-11所示。此页面对应的状态码是403,代表当前账号已经被封,无法获取有效内容。过一段时间后,这个账号又可以正常访问该网站,但如果像之前一样多次刷新,会再次被封。虽然这个账号被封,但是新开一个独立的窗口,使用另一个账号(如用户名和密码都为 admin2 的账户)登录,还是可以正常地访问页面,如图10-12所示。</p>
+<figure class="inline-figure"><img alt="图10-10 登录后的页面" loading="lazy" src="figures/ch10/fig-10_10.jpg"/><figcaption>图10-10 登录后的页面</figcaption></figure>
+<figure class="inline-figure"><img alt="图10-11 刷新几次后的页面" loading="lazy" src="figures/ch10/fig-10_11.jpg"/><figcaption>图10-11 刷新几次后的页面</figcaption></figure>
+<figure class="inline-figure"><img alt="图10-12 换一个账号登录" loading="lazy" src="figures/ch10/fig-10_12.jpg"/><figcaption>图10-12 换一个账号登录</figcaption></figure>
+<p class="content-text">所以说,如果有多个账号,在总请求量一定的情况下,可以将爬取请求分流到多个账号上,可以降低封号的概率。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 本节目标</h3>
-<p class="content-text">本节的目标就是搭建一个账号池,例如在账号池内维护100个账号信息以及对应的Cookie,并存
-放到数据库中。每次爬取的时候,随机取用其中一个账号的Cookie。
-这个账号池需要具备如下几个功能。</p>
+<p class="content-text">本节的目标就是搭建一个账号池,例如在账号池内维护100个账号信息以及对应的Cookie,并存放到数据库中。每次爬取的时候,随机取用其中一个账号的Cookie。这个账号池需要具备如下几个功能。</p>
 <p class="content-text list-like">需要保存能登录目标站点的账号和登录后的Cookie信息。</p>
-<p class="content-text list-like">需要定时检测每个Cookie的有效性,如果检测到Cookie 无效,就删除它并模拟登录生成新的
-Cookie。
-口还需要一个接口,即获取随机 Cookie 的接口。账号池在运行中,只需请求该接口,即可随机
-获得一个 Cookie 并用其爬取数据。
-由此可见,账号池需要有自动生成Cookie、定时检测 Cookie、提供随机 Cookie 这几个核心功能。
-账号池有了,当然要使用它来爬取本章的案例网站,实现在不封任何一个账号的情况下高效完成全站
-数据的爬取。</p>
+<p class="content-text list-like">需要定时检测每个Cookie的有效性,如果检测到Cookie 无效,就删除它并模拟登录生成新的Cookie。口还需要一个接口,即获取随机 Cookie 的接口。账号池在运行中,只需请求该接口,即可随机获得一个 Cookie 并用其爬取数据。由此可见,账号池需要有自动生成Cookie、定时检测 Cookie、提供随机 Cookie 这几个核心功能。账号池有了,当然要使用它来爬取本章的案例网站,实现在不封任何一个账号的情况下高效完成全站数据的爬取。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">请确保已经安装好 Redis 数据库并使其能正常运行,安装方式可以参考https://setup.scrape.center/
-redis。另外需要安装Python 的 redis-py、requests、selelnium、flask、loguru environs库,安装命令
-如下:</p>
+<p class="content-text">请确保已经安装好 Redis 数据库并使其能正常运行,安装方式可以参考https://setup.scrape.center/redis。另外需要安装Python 的 redis-py、requests、selelnium、flask、loguru environs库,安装命令如下:</p>
 <pre class="code-block"><code>pip3 install redis requests selenium flask loguru environs</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 账号池的架构</h3>
-<p class="content-text">账号池的架构和代理池类似,也是分为4个
-核心模块:存储模块、获取模块、检测模块和接
-口模块,如图10-13所示。
-4个模块的功能分别如下。</p>
-<p class="content-text list-like">存储模块负责存储每个账号的用户名、密
-码,以及每个账号对应的Cookie信息,同
-时需要提供一些实现存取操作的方法。</p>
-<p class="content-text list-like">获取模块负责生成新的Cookie。该模块会
-从存储模块中逐个拿取账号对应的用户
-名和密码,然后模拟登录目标页面,如果
-登录成功,就把返回的Cookie交给存储模
-块存储。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_13.jpg" alt="图10-13 账号池的4个核心模块" loading="lazy"><figcaption>图10-13 账号池的4个核心模块</figcaption></figure>
-<p class="content-text list-like">检测模块需要定时检测存储模块中的Cookie。这里需要设置一个检测链接,不同的网站的检
-测链接不同。检测模块会逐个拿取账号对应的Cookie 去请求检测链接,如果返回的状态是有
-效的,就表示此Cookie 没有失效,否则代表此Cookie失效,需要将其删除,然后等待获取模
-块重新生成。</p>
-<p class="content-text list-like">接口模块需要用API提供对外服务的接口。由于可用的Cookie可能有多个,所以可以随机返
-回Cookie的接口,用这样的方式保证每个Cookie 都有被取到的可能。Cookie越多,每个Cookie
-被取到的概率就越小,从而减少了被封号的风险。</p>
+<p class="content-text">账号池的架构和代理池类似,也是分为4个核心模块:存储模块、获取模块、检测模块和接口模块,如图10-13所示。4个模块的功能分别如下。</p>
+<p class="content-text list-like">存储模块负责存储每个账号的用户名、密码,以及每个账号对应的Cookie信息,同时需要提供一些实现存取操作的方法。</p>
+<p class="content-text list-like">获取模块负责生成新的Cookie。该模块会从存储模块中逐个拿取账号对应的用户名和密码,然后模拟登录目标页面,如果登录成功,就把返回的Cookie交给存储模块存储。</p>
+<figure class="inline-figure"><img alt="图10-13 账号池的4个核心模块" loading="lazy" src="figures/ch10/fig-10_13.jpg"/><figcaption>图10-13 账号池的4个核心模块</figcaption></figure>
+<p class="content-text list-like">检测模块需要定时检测存储模块中的Cookie。这里需要设置一个检测链接,不同的网站的检测链接不同。检测模块会逐个拿取账号对应的Cookie 去请求检测链接,如果返回的状态是有效的,就表示此Cookie 没有失效,否则代表此Cookie失效,需要将其删除,然后等待获取模块重新生成。</p>
+<p class="content-text list-like">接口模块需要用API提供对外服务的接口。由于可用的Cookie可能有多个,所以可以随机返回Cookie的接口,用这样的方式保证每个Cookie 都有被取到的可能。Cookie越多,每个Cookie被取到的概率就越小,从而减少了被封号的风险。</p>
 <p class="content-text">以上账号池的基本设计思路和第 9 章讲的代理池有相似之处，下一节我们用代码实现。</p>
 </section>
 <section class="numbered-section">
@@ -458,18 +304,10 @@ redis。另外需要安装Python 的 redis-py、requests、selelnium、flask、l
 <p class="content-text">首先，分别了解各个模块的实现原理。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">存储模块</h4>
-<p class="content-text">其实，需要存储的内容无非就是账号信息和 Cookie 信息。账号由用户名和密码两部分组成，我
-们可以把它存成用户名和密码的映射。Cookie 可以存成字符串，但是新的 Cookie 需要根据账号生成，
-在生成的时候我们需要知道哪些账号已经生成了 Cookie，哪些没有，所以要同时保存和 Cookie 对应
-的用户名信息，其实也是用户名和 Cookie 的映射。加起来就是两组映射，我们自然而然能够想到 Redis
-的 Hash，于是就建立两个 Hash，结构分别如图 10-14 和图 10-15 所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_14.jpg" alt="图10-14 Hash 结构1" loading="lazy"><figcaption>图10-14 Hash 结构1</figcaption></figure>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_15.jpg" alt="图10-15 Hash 结构2" loading="lazy"><figcaption>图10-15 Hash 结构2</figcaption></figure>
-<p class="content-text">两个 Hash 结构中的键名都是用户名，键值分别是密码和 Cookie。需要注意，账号池具有可扩展
-性，其中存储的一些账号和 Cookie 不一定适用于本案例，其他网站也可以对接此账号池，所以这里
-可以对 Hash 结构的名称做二级分类，例如把存账号的 Hash 结构的名称设置为 account:antispider6，
-把存 Cookie 信息的 Hash 名称设置为 credential:antispider6。如果要扩展微博的账号池，可以使用
-account:weibo 和 credential:weibo，这样比较方便。</p>
+<p class="content-text">其实，需要存储的内容无非就是账号信息和 Cookie 信息。账号由用户名和密码两部分组成，我们可以把它存成用户名和密码的映射。Cookie 可以存成字符串，但是新的 Cookie 需要根据账号生成，在生成的时候我们需要知道哪些账号已经生成了 Cookie，哪些没有，所以要同时保存和 Cookie 对应的用户名信息，其实也是用户名和 Cookie 的映射。加起来就是两组映射，我们自然而然能够想到 Redis的 Hash，于是就建立两个 Hash，结构分别如图 10-14 和图 10-15 所示。</p>
+<figure class="inline-figure"><img alt="图10-14 Hash 结构1" loading="lazy" src="figures/ch10/fig-10_14.jpg"/><figcaption>图10-14 Hash 结构1</figcaption></figure>
+<figure class="inline-figure"><img alt="图10-15 Hash 结构2" loading="lazy" src="figures/ch10/fig-10_15.jpg"/><figcaption>图10-15 Hash 结构2</figcaption></figure>
+<p class="content-text">两个 Hash 结构中的键名都是用户名，键值分别是密码和 Cookie。需要注意，账号池具有可扩展性，其中存储的一些账号和 Cookie 不一定适用于本案例，其他网站也可以对接此账号池，所以这里可以对 Hash 结构的名称做二级分类，例如把存账号的 Hash 结构的名称设置为 account:antispider6，把存 Cookie 信息的 Hash 名称设置为 credential:antispider6。如果要扩展微博的账号池，可以使用account:weibo 和 credential:weibo，这样比较方便。</p>
 <p class="content-text">接下来我们就创建一个存储模块类，用来提供一些 Hash 结构的基本操作，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>import random
 import redis
@@ -484,7 +322,7 @@ class RedisClient(object):
         self.website = website
 
     def name(self):
-        return f&#x27;{self.type}:{self.website}&#x27;
+        return f'{self.type}:{self.website}'
 
     def set(self, username, value):
         return self.db.hset(self.name(), username, value)
@@ -505,22 +343,13 @@ class RedisClient(object):
 
     def all(self):
         return self.db.hgetall(self.name())</code></pre>
-<p class="content-text">这里我们新建了一个 RedisClient 类，其构造方法 __init__ 有 type 和 website 两个关键参数，
-分别代表存储的内容类型和网站名称，是用来拼接 Hash 结构名称的两个字段。如果这个 Hash 是用来
-存储账号的，那么 type 是 account，website 是 antispider6；如果是用来存储 Cookie 的，那么 type 是
-credential，website 是 antispider6。剩下几个参数代表 Redis 的连接信息，给这些参数传入值来初
-始化一个 StrictRedis 对象，建立 Redis 连接。</p>
-<p class="content-text">接下来的 name 方法将 type 和 website 拼接在了一起，组成 Hash 结构的名称。set 方法、get 方
-法和 delete 方法分别代表设置、获取和删除 Hash 结构中的某一个键值对，count 方法用于获取 Hash 结
-构的长度。</p>
-<p class="content-text">random 也是一个比较重要的方法，主要用于从 Hash 结构里随机选取一个 Cookie 并返回。每调用
-一次 random 方法，就会获得一个随机的 Cookie，将此方法与接口模块对接即可实现请求接口获取随
-机 Cookie。</p>
+<p class="content-text">这里我们新建了一个 RedisClient 类，其构造方法 __init__ 有 type 和 website 两个关键参数，分别代表存储的内容类型和网站名称，是用来拼接 Hash 结构名称的两个字段。如果这个 Hash 是用来存储账号的，那么 type 是 account，website 是 antispider6；如果是用来存储 Cookie 的，那么 type 是credential，website 是 antispider6。剩下几个参数代表 Redis 的连接信息，给这些参数传入值来初始化一个 StrictRedis 对象，建立 Redis 连接。</p>
+<p class="content-text">接下来的 name 方法将 type 和 website 拼接在了一起，组成 Hash 结构的名称。set 方法、get 方法和 delete 方法分别代表设置、获取和删除 Hash 结构中的某一个键值对，count 方法用于获取 Hash 结构的长度。</p>
+<p class="content-text">random 也是一个比较重要的方法，主要用于从 Hash 结构里随机选取一个 Cookie 并返回。每调用一次 random 方法，就会获得一个随机的 Cookie，将此方法与接口模块对接即可实现请求接口获取随机 Cookie。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取模块</h4>
-<p class="content-text">获取模块负责从存储模块中拿取各个账号信息并模拟登录，然后将登录成功后生成的 Cookie 保
-存到存储模块中。相关代码如下：</p>
+<p class="content-text">获取模块负责从存储模块中拿取各个账号信息并模拟登录，然后将登录成功后生成的 Cookie 保存到存储模块中。相关代码如下：</p>
 <pre class="code-block" data-lang="python"><code>from accountpool.exceptions.init import InitException
 from accountpool.storages.redis import RedisClient
 from loguru import logger
@@ -532,8 +361,8 @@ class BaseGenerator(object):
         self.website = website
         if not self.website:
             raise InitException
-        self.account_operator = RedisClient(type=&#x27;account&#x27;, website=self.website)
-        self.credential_operator = RedisClient(type=&#x27;credential&#x27;, website=self.website)
+        self.account_operator = RedisClient(type='account', website=self.website)
+        self.credential_operator = RedisClient(type='credential', website=self.website)
 
     def generate(self, username, password):
         raise NotImplementedError
@@ -543,49 +372,41 @@ class BaseGenerator(object):
 
     def run(self):
         self.init()
-        logger.debug(&#x27;start to run generator&#x27;)
+        logger.debug('start to run generator')
         for username, password in self.account_operator.all().items():
             if self.credential_operator.get(username):
                 continue
-            logger.debug(f&#x27;start to generate credential of {username}&#x27;)
+            logger.debug(f'start to generate credential of {username}')
             self.generate(username, password)</code></pre>
-<p class="content-text">这里新建了一个基类 BaseGenerator，在其构造方法中，初始化了两个 RedisClient 对象，分别是
-account_operator 和 credential_operator。</p>
-<p class="content-text">接着声明了 generate 方法和 init 方法，这两个方法目前都没有具体的实现。generate 方法用于接
-收用户名和密码，生成 Cookie 并返回，这里直接抛出了 NotImplementedError 异常，因此子类必须实
-现该方法，否则运行时会报错。init 方法则是在运行开始之前做一些准备工作，这里留空，子类可以
-选择性复写。</p>
-<p class="content-text">最后就是最主要的 run 方法了，其主要逻辑是找出那些还没有对应 Cookie 信息的账号，然后逐个
-调用 generate 方法获取 Cookie。</p>
+<p class="content-text">这里新建了一个基类 BaseGenerator，在其构造方法中，初始化了两个 RedisClient 对象，分别是account_operator 和 credential_operator。</p>
+<p class="content-text">接着声明了 generate 方法和 init 方法，这两个方法目前都没有具体的实现。generate 方法用于接收用户名和密码，生成 Cookie 并返回，这里直接抛出了 NotImplementedError 异常，因此子类必须实现该方法，否则运行时会报错。init 方法则是在运行开始之前做一些准备工作，这里留空，子类可以选择性复写。</p>
+<p class="content-text">最后就是最主要的 run 方法了，其主要逻辑是找出那些还没有对应 Cookie 信息的账号，然后逐个调用 generate 方法获取 Cookie。</p>
 <p class="content-text">对于本节的案例网站，我们可以直接实现 generate 方法来完成模拟登录，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>class Antispider6Generator(BaseGenerator):
 
     def generate(self, username, password):
         if self.credential_operator.get(username):
-            logger.debug(f&#x27;credential of {username} exists, skip&#x27;)
+            logger.debug(f'credential of {username} exists, skip')
             return
-        login_url = &#x27;https://antispider6.scrape.center/login&#x27;
+        login_url = 'https://antispider6.scrape.center/login'
         s = requests.Session()
         s.post(login_url, data={
-            &#x27;username&#x27;: username,
-            &#x27;password&#x27;: password
+            'username': username,
+            'password': password
         })
         result = []
         for cookie in s.cookies:
             print(cookie.name, cookie.value)
-            result.append(f&#x27;{cookie.name}={cookie.value}&#x27;)
-        result = &#x27;;&#x27;.join(result)
-        logger.debug(f&#x27;get credential {result}&#x27;)
+            result.append(f'{cookie.name}={cookie.value}')
+        result = ';'.join(result)
+        logger.debug(f'get credential {result}')
         self.credential_operator.set(username, result)</code></pre>
 <p class="content-text">运行这段代码，会遍历那些生成 Cookie 的账号，然后模拟登录生成新的 Cookie。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">检测模块</h4>
-<p class="content-text">我们现在可以利用获取模块生成 Cookie 了，但是免不了由于时间过长或者使用过于频繁等导致
-Cookie 失效。对于这样的 Cookie，肯定不能把它继续保存在存储模块里。</p>
-<p class="content-text">此时检测模块闪亮登场，它要做的就是检测出失效 Cookie，然后将其从存储模块中删除。把失效
-Cookie 删除后，获取模块就会检测到与之对应的账号没有了 Cookie 信息，继而用此账号重新模拟登
-录并获取新的 Cookie，从而实现了此账号对应 Cookie 的更新。相关代码如下：</p>
+<p class="content-text">我们现在可以利用获取模块生成 Cookie 了，但是免不了由于时间过长或者使用过于频繁等导致Cookie 失效。对于这样的 Cookie，肯定不能把它继续保存在存储模块里。</p>
+<p class="content-text">此时检测模块闪亮登场，它要做的就是检测出失效 Cookie，然后将其从存储模块中删除。把失效Cookie 删除后，获取模块就会检测到与之对应的账号没有了 Cookie 信息，继而用此账号重新模拟登录并获取新的 Cookie，从而实现了此账号对应 Cookie 的更新。相关代码如下：</p>
 <pre class="code-block" data-lang="python"><code>import requests
 from requests.exceptions import ConnectionError
 from accountpool.storages.redis import *
@@ -599,8 +420,8 @@ class BaseTester(object):
         self.website = website
         if not self.website:
             raise InitException
-        self.account_operator = RedisClient(type=&#x27;account&#x27;, website=self.website)
-        self.credential_operator = RedisClient(type=&#x27;credential&#x27;, website=self.website)
+        self.account_operator = RedisClient(type='account', website=self.website)
+        self.credential_operator = RedisClient(type='credential', website=self.website)
 
     def test(self, username, credential):
         raise NotImplementedError
@@ -609,80 +430,69 @@ class BaseTester(object):
         credentials = self.credential_operator.all()</code></pre>
 <pre class="code-block" data-lang="python"><code>        for username, credential in credentials.items():
             self.test(username, credential)</code></pre>
-<p class="content-text">为了实现通用性和可扩展性，我们定义了一个检测器父类，在其中声明一些通用组件。这个父类
-叫作 BaseTester，在其构造方法里指定了网站的名称 website，并且同样初始化了两个 RedisClient 对
-象，分别是 account_operator 和 credential_operator。</p>
-<p class="content-text">然后最主要的方法就是 run 了，其主要逻辑是遍历所有 Cookie 并逐个做测试，具体是利用
-credential_operator 拿到所有的 Cookie，然后调用 test 方法进行测试。这里的 test 方法同样抛出了
-NotImplementedError 异常，所以子类必须实现这个方法。下面我们再写一个子类继承这个 BaseTester，
-并重写其 test 方法，代码如下：</p>
+<p class="content-text">为了实现通用性和可扩展性，我们定义了一个检测器父类，在其中声明一些通用组件。这个父类叫作 BaseTester，在其构造方法里指定了网站的名称 website，并且同样初始化了两个 RedisClient 对象，分别是 account_operator 和 credential_operator。</p>
+<p class="content-text">然后最主要的方法就是 run 了，其主要逻辑是遍历所有 Cookie 并逐个做测试，具体是利用credential_operator 拿到所有的 Cookie，然后调用 test 方法进行测试。这里的 test 方法同样抛出了NotImplementedError 异常，所以子类必须实现这个方法。下面我们再写一个子类继承这个 BaseTester，并重写其 test 方法，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>class Antispider6Tester(BaseTester):
 
     def __init__(self, website=None):
         BaseTester.__init__(self, website)
 
     def test(self, username, credential):
-        logger.info(f&#x27;testing credential for {username}&#x27;)
+        logger.info(f'testing credential for {username}')
         try:
             test_url = TEST_URL_MAP[self.website]
             response = requests.get(test_url, headers={
-                &#x27;Cookie&#x27;: credential
+                'Cookie': credential
             }, timeout=5, allow_redirects=False)
             if response.status_code == 200:
-                logger.info(&#x27;credential is valid&#x27;)
+                logger.info('credential is valid')
             else:
-                logger.info(&#x27;credential is not valid, delete it&#x27;)
+                logger.info('credential is not valid, delete it')
                 self.credential_operator.delete(username)
         except ConnectionError:
-            logger.info(&#x27;test failed&#x27;)</code></pre>
-<p class="content-text">test 方法的主要逻辑是拿到测试 URL，然后获取 Cookie 进行模拟登录。如果返回的状态码是 200，
-就证明 Cookie 有效，否则 Cookie 无效，将其对应的记录删除。</p>
+            logger.info('test failed')</code></pre>
+<p class="content-text">test 方法的主要逻辑是拿到测试 URL，然后获取 Cookie 进行模拟登录。如果返回的状态码是 200，就证明 Cookie 有效，否则 Cookie 无效，将其对应的记录删除。</p>
 <p class="content-text">为了实现可配置化，我们将测试 URL 也定义成字典，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>TEST_URL_MAP = {
-    &#x27;antispider6&#x27;: &#x27;https://antispider6.scrape.center/&#x27;
+    'antispider6': 'https://antispider6.scrape.center/'
 }</code></pre>
 <p class="content-text">如果要扩展其他网站，可以统一添加在字典里。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">接口模块</h4>
-<p class="content-text">如果获取模块和检测模块定时运行，就可以完成 Cookie 的实时检测和更新。此处的 Cookie 最终
-是要为爬虫所用的，一个账号池可同时供多个爬虫使用，所以有必要定义一个 Web 接口，爬虫访
-问此接口便可以获取随机的 Cookie。我们采用 Flask 来实现接口的搭建，代码如下：</p>
+<p class="content-text">如果获取模块和检测模块定时运行，就可以完成 Cookie 的实时检测和更新。此处的 Cookie 最终是要为爬虫所用的，一个账号池可同时供多个爬虫使用，所以有必要定义一个 Web 接口，爬虫访问此接口便可以获取随机的 Cookie。我们采用 Flask 来实现接口的搭建，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>import json
 from flask import Flask, g
 
 app = Flask(__name__)
 
 GENERATOR_MAP = {
-    &#x27;antispider6&#x27;: &#x27;Antispider6Generator&#x27;
+    'antispider6': 'Antispider6Generator'
 }
 
-@app.route(&#x27;/&#x27;)
+@app.route('/')
 def index():
-    return &#x27;&lt;h2&gt;Welcome to Cookie Pool System&lt;/h2&gt;&#x27;
+    return '&lt;h2&gt;Welcome to Cookie Pool System&lt;/h2&gt;'
 
 def get_conn():
     for website in GENERATOR_MAP:
         if not hasattr(g, website):</code></pre>
-<pre class="code-block" data-lang="python"><code>            setattr(g, f&#x27;{website}_{credential}&#x27;, RedisClient(credential, website))
-            setattr(g, f&#x27;{website}_{account}&#x27;, RedisClient(account, website))
+<pre class="code-block" data-lang="python"><code>            setattr(g, f'{website}_{credential}', RedisClient(credential, website))
+            setattr(g, f'{website}_{account}', RedisClient(account, website))
     return g
 
 
-@app.route(&#x27;/&lt;website&gt;/random&#x27;)
+@app.route('/&lt;website&gt;/random')
 def random(website):
     g = get_conn()
-    result = getattr(g, f&#x27;{website}_{credential}&#x27;).random()
-    logger.debug(f&#x27;get credential {result}&#x27;)
+    result = getattr(g, f'{website}_{credential}').random()
+    logger.debug(f'get credential {result}')
     return result</code></pre>
-<p class="content-text">这里同样需要实现通用的配置以对接不同的站点，所以接口链接的第一个字段定义为网站名称，
-第二个字段定义为获取方法，例如 /antispider/random 代表获取当前案例网站的随机 Cookie，如果要
-扩展其他站点，可以更改 website 参数，例如 /weibo/random 代表获取微博的随机 Cookie。</p>
+<p class="content-text">这里同样需要实现通用的配置以对接不同的站点，所以接口链接的第一个字段定义为网站名称，第二个字段定义为获取方法，例如 /antispider/random 代表获取当前案例网站的随机 Cookie，如果要扩展其他站点，可以更改 website 参数，例如 /weibo/random 代表获取微博的随机 Cookie。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">调度模块</h4>
-<p class="content-text">调度模块的作用是让前面 4 个模块配合运行，主要工作是驱动几个模块定时运行，同时各个模块
-需要运行在不同进程上，相关代码如下：</p>
+<p class="content-text">调度模块的作用是让前面 4 个模块配合运行，主要工作是驱动几个模块定时运行，同时各个模块需要运行在不同进程上，相关代码如下：</p>
 <pre class="code-block" data-lang="python"><code>import time
 import multiprocessing
 from accountpool.processors.server import app
@@ -702,57 +512,57 @@ class Scheduler(object):
 
     def run_tester(self, website, cycle=CYCLE_TESTER):
         if not ENABLE_TESTER:
-            logger.info(&#x27;tester not enabled, exit&#x27;)
+            logger.info('tester not enabled, exit')
             return
         tester = getattr(testers, TESTER_MAP[website])(website)
         loop = 0
         while True:
-            logger.debug(f&#x27;tester loop {loop} start...&#x27;)
+            logger.debug(f'tester loop {loop} start...')
             tester.run()
             loop += 1
             time.sleep(cycle)
 
     def run_generator(self, website, cycle=CYCLE_GENERATOR):
         if not ENABLE_GENERATOR:
-            logger.info(&#x27;getter not enabled, exit&#x27;)
+            logger.info('getter not enabled, exit')
             return
         generator = getattr(generators, GENERATOR_MAP[website])(website)
         loop = 0
         while True:
-            logger.debug(f&#x27;getter loop {loop} start...&#x27;)
+            logger.debug(f'getter loop {loop} start...')
             generator.run()
             loop += 1
             time.sleep(cycle)
 
     def run_server(self, _):
         if not ENABLE_SERVER:
-            logger.info(&#x27;server not enabled, exit&#x27;)
+            logger.info('server not enabled, exit')
             return
         app.run(host=API_HOST, port=API_PORT, threaded=API_THREADED)</code></pre>
 <pre class="code-block" data-lang="python"><code>    def run(self, website):
         global tester_process, generator_process, server_process
         try:
-            logger.info(&#x27;starting account pool...&#x27;)
+            logger.info('starting account pool...')
             if ENABLE_TESTER:
                 tester_process = multiprocessing.Process(target=self.run_tester, args=(website,))
-                logger.info(f&#x27;starting tester, pid {tester_process.pid}...&#x27;)
+                logger.info(f'starting tester, pid {tester_process.pid}...')
                 tester_process.start()
 
             if ENABLE_GENERATOR:
                 generator_process = multiprocessing.Process(target=self.run_generator, args=(website,))
-                logger.info(f&#x27;starting getter, pid{generator_process.pid}...&#x27;)
+                logger.info(f'starting getter, pid{generator_process.pid}...')
                 generator_process.start()
 
             if ENABLE_SERVER:
                 server_process = multiprocessing.Process(target=self.run_server, args=(website,))
-                logger.info(f&#x27;starting server, pid{server_process.pid}...&#x27;)
+                logger.info(f'starting server, pid{server_process.pid}...')
                 server_process.start()
 
             tester_process.join()
             generator_process.join()
             server_process.join()
         except KeyboardInterrupt:
-            logger.info(&#x27;received keyboard interrupt signal&#x27;)
+            logger.info('received keyboard interrupt signal')
             tester_process.terminate()
             generator_process.terminate()
             server_process.terminate()
@@ -760,44 +570,40 @@ class Scheduler(object):
             tester_process.join()
             generator_process.join()
             server_process.join()
-            logger.info(f&#x27;tester is {&quot;alive&quot; if tester_process.is_alive() else &quot;dead&quot;}&#x27;)
-            logger.info(f&#x27;getter is {&quot;alive&quot; if generator_process.is_alive() else &quot;dead&quot;}&#x27;)
-            logger.info(f&#x27;server is {&quot;alive&quot; if server_process.is_alive() else &quot;dead&quot;}&#x27;)
-            logger.info(&#x27;accountpool terminated&#x27;)</code></pre>
+            logger.info(f'tester is {"alive" if tester_process.is_alive() else "dead"}')
+            logger.info(f'getter is {"alive" if generator_process.is_alive() else "dead"}')
+            logger.info(f'server is {"alive" if server_process.is_alive() else "dead"}')
+            logger.info('accountpool terminated')</code></pre>
 <p class="content-text">这里用到了两个重要的配置，即产生模块类和测试模块类的字典配置，代码如下：</p>
 <pre class="code-block" data-lang="python"><code># 产生模块类的字典配置
 GENERATOR_MAP = {
-    &#x27;antispider6&#x27;: &#x27;Antispider6Generator&#x27;
+    'antispider6': 'Antispider6Generator'
 }
 
 # 测试模块类的字典配置
 TESTER_MAP = {
-    &#x27;antispider6&#x27;: &#x27;Antispider6Tester&#x27;
+    'antispider6': 'Antispider6Tester'
 }</code></pre>
-<p class="content-text">这样的配置是为了方便动态扩展，键名为网站名称，键值为类名。如果要扩展其他站点，可以在
-字典中添加，例如扩展微博的产生模块可以配置成这样：</p>
+<p class="content-text">这样的配置是为了方便动态扩展，键名为网站名称，键值为类名。如果要扩展其他站点，可以在字典中添加，例如扩展微博的产生模块可以配置成这样：</p>
 <pre class="code-block" data-lang="python"><code>GENERATOR_MAP = {
-    &#x27;weibo&#x27;: &#x27;WeiboCookiesGenerator&#x27;,
-    &#x27;antispider6&#x27;: &#x27;Antispider6Generator&#x27;
+    'weibo': 'WeiboCookiesGenerator',
+    'antispider6': 'Antispider6Generator'
 }</code></pre>
-<p class="content-text">在 Scheduler 类里对字典进行遍历，利用 module 的 getattr 方法获取对应的类，调用其入口 run 方
-法运行各个模块。同时，各个模块的多进程使用了 multiprocessing 中的 Process 类，调用其 start 方
-法即可启动各个进程。</p>
+<p class="content-text">在 Scheduler 类里对字典进行遍历，利用 module 的 getattr 方法获取对应的类，调用其入口 run 方法运行各个模块。同时，各个模块的多进程使用了 multiprocessing 中的 Process 类，调用其 start 方法即可启动各个进程。</p>
 <p class="content-text">另外，各个模块还设有模块开关，可以在配置文件中自由设置此开关的开启和关闭，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>from environs import Env
 
 env = Env()
 env.read_env()
 
-ENABLE_TESTER = env.bool(&#x27;ENABLE_TESTER&#x27;, True)</code></pre>
-<pre class="code-block" data-lang="python"><code>ENABLE_GENERATOR = env.bool(&#x27;ENABLE_GENERATOR&#x27;, True)
-ENABLE_SERVER = env.bool(&#x27;ENABLE_SERVER&#x27;, True)</code></pre>
-<p class="content-text">设置为 True 代表开启模块，为 False 则代表关闭模块，这里借助了 environs 库来实现测试。至此，
-我们的配置就全部完成了。接下来将所有模块同时开启，启动调度器，命令如下所示：</p>
+ENABLE_TESTER = env.bool('ENABLE_TESTER', True)</code></pre>
+<pre class="code-block" data-lang="python"><code>ENABLE_GENERATOR = env.bool('ENABLE_GENERATOR', True)
+ENABLE_SERVER = env.bool('ENABLE_SERVER', True)</code></pre>
+<p class="content-text">设置为 True 代表开启模块，为 False 则代表关闭模块，这里借助了 environs 库来实现测试。至此，我们的配置就全部完成了。接下来将所有模块同时开启，启动调度器，命令如下所示：</p>
 <pre class="code-block" data-lang="shell"><code>python3 run.py antispider6</code></pre>
 <p class="content-text">控制台的输出结果如下：</p>
 <pre class="result-block" data-lang="text"><code>2020-10-13 00:34:27.308 | DEBUG    | accountpool.scheduler:run_tester:31 - tester loop 0 start...
-* Serving Flask app &quot;accountpool.processors.server&quot; (lazy loading)
+* Serving Flask app "accountpool.processors.server" (lazy loading)
 * Environment: production
   WARNING: This is a development server. Do not use it in a production deployment.
   Use a production WSGI server instead.
@@ -820,42 +626,39 @@ credential of admin3
 2020-10-13 00:34:32.678 | DEBUG    | accountpool.processors.generator:generate:76 - get credential
 2020-10-13 00:34:32.680 | DEBUG    | accountpool.processors.generator:run:41 - start to generate
 credential of admin4</code></pre>
-<p class="content-text">从控制台的输出内容可以看出，各个模块都正常启动，检测模块逐个测试 Cookie，获取模块获取
-尚未生成 Cookie 的账号，各个模块并行运行，互不干扰。</p>
+<p class="content-text">从控制台的输出内容可以看出，各个模块都正常启动，检测模块逐个测试 Cookie，获取模块获取尚未生成 Cookie 的账号，各个模块并行运行，互不干扰。</p>
 <p class="content-text">我们可以访问接口模块获取随机的 Cookie，如图 10-16 所示。</p>
-<figure class="inline-figure"><img src="figures/ch10/fig-10_16.jpg" alt="图10-16 访问接口模块" loading="lazy"><figcaption>图10-16 访问接口模块</figcaption></figure>
+<figure class="inline-figure"><img alt="图10-16 访问接口模块" loading="lazy" src="figures/ch10/fig-10_16.jpg"/><figcaption>图10-16 访问接口模块</figcaption></figure>
 <p class="content-text">爬虫只需要请求该接口就可以获取随机的 Cookie。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 账号池的使用</h3>
-<p class="content-text">我们先将账号池运行一段时间，让其模拟登录一些账号并维护起来。接着便可以使用账号池实现
-全站数据的爬取了。这里我们使用 aiohttp 来实现，由于案例网站中每个电影详情页的 URL 是有一定
-规律的，所以我们直接构造 100 个详情页 URL 来进行爬取，整体代码实现如下：</p>
+<p class="content-text">我们先将账号池运行一段时间，让其模拟登录一些账号并维护起来。接着便可以使用账号池实现全站数据的爬取了。这里我们使用 aiohttp 来实现，由于案例网站中每个电影详情页的 URL 是有一定规律的，所以我们直接构造 100 个详情页 URL 来进行爬取，整体代码实现如下：</p>
 <pre class="code-block" data-lang="python"><code>import asyncio
 import aiohttp
 from pyquery import PyQuery as pq
 from loguru import logger</code></pre>
 <pre class="code-block" data-lang="python"><code>MAX_ID = 100
 CONCURRENCY = 5
-TARGET_URL = &#x27;https://antispider6.scrape.center&#x27;
-ACCOUNTPOOL_URL = &#x27;http://localhost:6789/antispider6/random&#x27;
+TARGET_URL = 'https://antispider6.scrape.center'
+ACCOUNTPOOL_URL = 'http://localhost:6789/antispider6/random'
 
 semaphore = asyncio.Semaphore(CONCURRENCY)
 
 async def parse_detail(html):
     doc = pq(html)
-    title = doc(&#x27;.item h2&#x27;).text()
-    categories = [item.text() for item in doc(&#x27;.item .categories span&#x27;).items()]
-    cover = doc(&#x27;.item .cover&#x27;).attr(&#x27;src&#x27;)
-    score = doc(&#x27;.item .score&#x27;).text()
-    drama = doc(&#x27;.item .drama&#x27;).text().strip()
+    title = doc('.item h2').text()
+    categories = [item.text() for item in doc('.item .categories span').items()]
+    cover = doc('.item .cover').attr('src')
+    score = doc('.item .score').text()
+    drama = doc('.item .drama').text().strip()
     return {
-        &#x27;title&#x27;: title,
-        &#x27;categories&#x27;: categories,
-        &#x27;cover&#x27;: cover,
-        &#x27;score&#x27;: score,
-        &#x27;drama&#x27;: drama
+        'title': title,
+        'categories': categories,
+        'cover': cover,
+        'score': score,
+        'drama': drama
     }
 
 async def fetch_credential(session):
@@ -865,34 +668,29 @@ async def fetch_credential(session):
 async def scrape_detail(session, url):
     async with semaphore:
         credential = await fetch_credential(session)
-        headers = {&#x27;cookie&#x27;: credential}
-        logger.debug(f&#x27;scrape {url} using credential {credential}&#x27;)
+        headers = {'cookie': credential}
+        logger.debug(f'scrape {url} using credential {credential}')
         async with session.get(url, headers=headers) as response:
             html = await response.text()
             data = await parse_detail(html)
-            logger.debug(f&#x27;data {data}&#x27;)
+            logger.debug(f'data {data}')
 
 async def main():
     session = aiohttp.ClientSession()
     tasks = []
     for i in range(1, MAX_ID + 1):
-        url = f&#x27;{TARGET_URL}/detail/{i}&#x27;
+        url = f'{TARGET_URL}/detail/{i}'
         task = asyncio.ensure_future(scrape_detail(session, url))
         tasks.append(task)
     await asyncio.gather(*tasks)
 
-if __name__ == &#x27;__main__&#x27;:
+if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(main())</code></pre>
 <p class="content-text">我们一共实现了 4 个方法。</p>
-<p class="content-text list-like">main：入口方法。这里我们构造了 100 个详情页 URL，然后调用 asyncio 的 ensure_future 方
-法将 scrape_detail 方法初始化为一个个异步任务，再调用 gather 方法使它们运行起来。</p>
-<p class="content-text list-like">scrape_detail：爬取方法。主要用来爬取详情页的信息，这里的关键点就是在爬取之前先调
-用 fetch_credential 方法获取一个 Cookie，然后利用 Cookie 进行数据爬取。如果不这样做，
-是爬取不到任何数据的，爬取完毕之后会调用 parse_detail 方法对页面数据进行解析。</p>
-<p class="content-text list-like">fetch_credential：主要用来从账号池获取 Cookie 信息。这里我们将账号池的 API 定义为
-ACCOUNTPOOL_URL，每请求一次，就可以获取一个 Cookie。</p>
-<p class="content-text list-like">parse_detail：解析方法。主要用来解析爬取的详情页，提取想要的电影名称、类别、封面、
-评分和简介等信息。</p>
+<p class="content-text list-like">main：入口方法。这里我们构造了 100 个详情页 URL，然后调用 asyncio 的 ensure_future 方法将 scrape_detail 方法初始化为一个个异步任务，再调用 gather 方法使它们运行起来。</p>
+<p class="content-text list-like">scrape_detail：爬取方法。主要用来爬取详情页的信息，这里的关键点就是在爬取之前先调用 fetch_credential 方法获取一个 Cookie，然后利用 Cookie 进行数据爬取。如果不这样做，是爬取不到任何数据的，爬取完毕之后会调用 parse_detail 方法对页面数据进行解析。</p>
+<p class="content-text list-like">fetch_credential：主要用来从账号池获取 Cookie 信息。这里我们将账号池的 API 定义为ACCOUNTPOOL_URL，每请求一次，就可以获取一个 Cookie。</p>
+<p class="content-text list-like">parse_detail：解析方法。主要用来解析爬取的详情页，提取想要的电影名称、类别、封面、评分和简介等信息。</p>
 <p class="content-text">另外，为了限制爬取速度，这里还引入了信号量，限制并发量为 5。</p>
 <p class="content-text">上述代码的运行结果如下：</p>
 <pre class="result-block" data-lang="text"><code>2020-10-14 00:51:40.685 | DEBUG    | __main__:scrape_detail:39 - scrape https://antispider6.scrape.center/
@@ -905,38 +703,35 @@ detail/5 using credential sessionid=nb1e6tmv7bfmOkOkclot16081ck8qp9m
 detail/2 using credential sessionid=dhiaxb1zd8xqaf8p7wyqgvwbm4teueid
 2020-10-14 00:51:40.696 | DEBUG    | __main__:scrape_detail:39 - scrape https://antispider6.scrape.center/
 detail/4 using credential sessionid=a3hcakqoszw7jlwqktdbar4g190nayh1
-2020-10-14 00:51:49.121 | DEBUG    | __main__:scrape_detail:43 - data {&#x27;title&#x27;: &#x27;泰坦尼克号 - Titanic&#x27;,
-&#x27;categories&#x27;: [&#x27;剧情&#x27;, &#x27;爱情&#x27;, &#x27;灾难&#x27;], &#x27;cover&#x27;: &#x27;https://p1.meituan.net/movie/b607fba7513e7f15eab170
-aac1e1400d878112.jpg@464w_644h_1e_1c&#x27;, &#x27;score&#x27;: &#x27;9.5&#x27;, &#x27;drama&#x27;: &#x27;剧情简介\n1912 年 4 月 15 日，... 让它
-陪着杰克和这段爱情长眠海底。&#x27;}
+2020-10-14 00:51:49.121 | DEBUG    | __main__:scrape_detail:43 - data {'title': '泰坦尼克号 - Titanic',
+'categories': ['剧情', '爱情', '灾难'], 'cover': 'https://p1.meituan.net/movie/b607fba7513e7f15eab170
+aac1e1400d878112.jpg@464w_644h_1e_1c', 'score': '9.5', 'drama': '剧情简介\n1912 年 4 月 15 日，... 让它
+陪着杰克和这段爱情长眠海底。'}
 2020-10-14 00:51:49.127 | DEBUG    | __main__:scrape_detail:39 - scrape https://antispider6.scrape.center/
 detail/6 using credential sessionid=flw58kz3vo7d89mb1mmy2jsocejk63qz
-2020-10-14 00:51:52.126 | DEBUG    | __main__:scrape_detail:43 - data {&#x27;title&#x27;: &#x27;这个杀手不太冷 - Léon&#x27;,
-&#x27;categories&#x27;: [&#x27;剧情&#x27;, &#x27;动作&#x27;, &#x27;犯罪&#x27;], &#x27;cover&#x27;: &#x27;https://p1.meituan.net/movie/6bea9af4524dfbd0b668eaa
-7e187c3df767253.jpg@464w_644h_1e_1c&#x27;, &#x27;score&#x27;: &#x27;9.5&#x27;, &#x27;drama&#x27;: &#x27;剧情简介\n里昂（让·雷诺 饰）是名孤独的
-职业杀手，...，更大的冲突在所难免...&#x27;}
+2020-10-14 00:51:52.126 | DEBUG    | __main__:scrape_detail:43 - data {'title': '这个杀手不太冷 - Léon',
+'categories': ['剧情', '动作', '犯罪'], 'cover': 'https://p1.meituan.net/movie/6bea9af4524dfbd0b668eaa
+7e187c3df767253.jpg@464w_644h_1e_1c', 'score': '9.5', 'drama': '剧情简介\n里昂（让·雷诺 饰）是名孤独的
+职业杀手，...，更大的冲突在所难免...'}
 2020-10-14 00:51:52.129 | DEBUG    | __main__:scrape_detail:39 - scrape https://antispider6.scrape.center/
 detail/7 using credential sessionid=dqdbftlrflica9j81f5fcncy9nvqc1wb</code></pre>
-<p class="content-text">可以看到此时的并发量被限制为了 5，每次爬取都会获取一个 Cookie，接着便会打印爬取的结果，
-不会再产生封号问题。</p>
+<p class="content-text">可以看到此时的并发量被限制为了 5，每次爬取都会获取一个 Cookie，接着便会打印爬取的结果，不会再产生封号问题。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">本节我们了解了账号池的基本作用、设计原理和基本实现，并通过一个案例结合账号池进行了数
-据爬取，突破了单账号爬取频率的限制。</p>
+<p class="content-text">本节我们了解了账号池的基本作用、设计原理和基本实现，并通过一个案例结合账号池进行了数据爬取，突破了单账号爬取频率的限制。</p>
 <p class="content-text">本节代码见 https://github.com/Python3WebSpider/AccountPool。</p>
-<p class="content-text">本节内容比较重要，需要好好掌握，后面我们会利用账号池和第 9 章所讲的代理池进行分布式大
-规模的爬取。</p>
+<p class="content-text">本节内容比较重要，需要好好掌握，后面我们会利用账号池和第 9 章所讲的代理池进行分布式大规模的爬取。</p>
 </section>
-      </article>
-      <nav class="chapter-nav">
-        <a href="ch09.html">&larr; 第9章 代理的使用</a>
-        <a href="ch11.html">第11章 JavaScript逆向爬虫 &rarr;</a>
-      </nav>
-    </main>
-  </div>
-  <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第10章 模拟登录</footer>
-  <script src="../js/sidebar.js?v=20260605-text-indent"></script>
-  <script>buildSidebarForChapter("ch10");</script>
+</article>
+<nav class="chapter-nav">
+<a href="ch09.html">← 第9章 代理的使用</a>
+<a href="ch11.html">第11章 JavaScript逆向爬虫 →</a>
+</nav>
+</main>
+</div>
+<footer class="footer">Python3 网络爬虫开发实战 第2版 · 第10章 模拟登录</footer>
+<script src="../js/sidebar.js?v=20260605-text-indent"></script>
+<script>buildSidebarForChapter("ch10");</script>
 </body>
 </html>

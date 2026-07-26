@@ -1,42 +1,36 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第4章 数据的存储 - Python3 网络爬虫开发实战 第2版</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="../css/style.css?v=20260605-text-indent">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>第4章 数据的存储 - Python3 网络爬虫开发实战 第2版</title>
+<link href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23155e75%27/%3E%3Cpath d=%27M18 16h21a7 7 0 0 1 7 7v25H23a5 5 0 0 0-5 5V16z%27 fill=%27%23e0f2fe%27/%3E%3Cpath d=%27M18 16h20a5 5 0 0 1 5 5v24H23a5 5 0 0 0-5 5V16z%27 fill=%27white%27/%3E%3Cpath d=%27M26 26h10M26 34h10%27 stroke=%27%23155e75%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E" rel="icon"/>
+<link href="../css/style.css?v=20260605-text-indent" rel="stylesheet"/>
 </head>
 <body>
-  <header class="header">
-    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
-    <a href="../index.html" class="logo"><span class="logo-icon">&#128218;</span>Python3 网络爬虫开发实战 第2版</a>
-    <div class="header-right"><a href="../index.html">首页</a></div>
-  </header>
-  <div class="overlay" onclick="toggleSidebar()"></div>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">章节目录</div>
-      <nav class="sidebar-nav" id="sidebar-nav"></nav>
-    </aside>
-    <main class="main-content">
-      <h1 class="chapter-title">第4章 数据的存储</h1>
-
-      <article class="ocr-content preserve-lines">
-<p class="content-text">　　用解析器解析出数据后，接下来就是存储数据了。数据的存储形式多种多样，其中最简单的一种
-是将数据直接保存为文本文件，如 TXT、JSON、CSV 等。还可以将数据保存到数据库中，如关系型
-数据库 MySQL，非关系型数据库 MongoDB、Redis 等。除了这两种，也可以直接把数据存储到一些
-搜索引擎（如 Elasticsearch）中，以便检索和查看。</p>
+<header class="header">
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<a class="logo" href="../index.html"><span class="logo-icon">📚</span>Python3 网络爬虫开发实战 第2版</a>
+<div class="header-right"><a href="../index.html">首页</a></div>
+</header>
+<div class="overlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">章节目录</div>
+<nav class="sidebar-nav" id="sidebar-nav"></nav>
+</aside>
+<main class="main-content">
+<h1 class="chapter-title">第4章 数据的存储</h1>
+<article class="ocr-content">
+<p class="content-text">　　用解析器解析出数据后，接下来就是存储数据了。数据的存储形式多种多样，其中最简单的一种是将数据直接保存为文本文件，如 TXT、JSON、CSV 等。还可以将数据保存到数据库中，如关系型数据库 MySQL，非关系型数据库 MongoDB、Redis 等。除了这两种，也可以直接把数据存储到一些搜索引擎（如 Elasticsearch）中，以便检索和查看。</p>
 <p class="content-text">　　本章我们就来了解一些基本的数据存储的操作。</p>
 <div class="section-heading" id="section-0"><h2>4.1 TXT 文本文件存储</h2></div>
-<p class="content-text">　　将数据保存为 TXT 文本的操作非常简单，而且 TXT 文本几乎兼容任何平台，但是这也有个缺点，
-就是不利于检索。所以如果对检索和数据结构的要求不高，追求方便第一的话，就可以采用 TXT 文
-本存储。</p>
+<p class="content-text">　　将数据保存为 TXT 文本的操作非常简单，而且 TXT 文本几乎兼容任何平台，但是这也有个缺点，就是不利于检索。所以如果对检索和数据结构的要求不高，追求方便第一的话，就可以采用 TXT 文本存储。</p>
 <p class="content-text">　　我们接下来看一下利用 Python 保存 TXT 文本文件的方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 本节目标</h3>
-<p class="content-text">　　我们以电影实例网站 https://ssr1.scrape.center/ 为例，爬取首页 10 部电影的数据，然后将相关信息
-存储为 TXT 文本格式。</p>
+<p class="content-text">　　我们以电影实例网站 https://ssr1.scrape.center/ 为例，爬取首页 10 部电影的数据，然后将相关信息存储为 TXT 文本格式。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 基本实例</h3>
@@ -45,341 +39,267 @@
 from pyquery import PyQuery as pq
 import re
 
-url = &#x27;https://ssr1.scrape.center/&#x27;
+url = 'https://ssr1.scrape.center/'
 html = requests.get(url).text
 doc = pq(html)
-items = doc(&#x27;.el-card&#x27;).items()
+items = doc('.el-card').items()
 
-file = open(&#x27;movies.txt&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;)
+file = open('movies.txt', 'w', encoding='utf-8')
 for item in items:
     # 电影名称
-    name = item.find(&#x27;a &gt; h2&#x27;).text()
-    file.write(f&#x27;名称: {name}\n&#x27;)
+    name = item.find('a &gt; h2').text()
+    file.write(f'名称: {name}\n')
     # 类别
-    categories = [item.text() for item in item.find(&#x27;.categories button span&#x27;).items()]
-    file.write(f&#x27;类别: {categories}\n&#x27;)
+    categories = [item.text() for item in item.find('.categories button span').items()]
+    file.write(f'类别: {categories}\n')
     # 上映时间
-    published_at = item.find(&#x27;.info:contains(上映)&#x27;).text()
-    published_at = re.search(&#x27;(\d{4}-\d{2}-\d{2})&#x27;, published_at).group(1) \
-        if published_at and re.search(&#x27;\d{4}-\d{2}-\d{2}&#x27;, published_at) else None
-    file.write(f&#x27;上映时间: {published_at}\n&#x27;)
+    published_at = item.find('.info:contains(上映)').text()
+    published_at = re.search('(\d{4}-\d{2}-\d{2})', published_at).group(1) \
+        if published_at and re.search('\d{4}-\d{2}-\d{2}', published_at) else None
+    file.write(f'上映时间: {published_at}\n')
     # 评分</code></pre>
-<pre class="code-block"><code>    score = item.find(&#x27;p.score&#x27;).text()
-    file.write(f&#x27;评分: {score}\n&#x27;)
-    file.write(f&#x27;{&quot;=&quot; * 50}\n&#x27;)
+<pre class="code-block"><code>    score = item.find('p.score').text()
+    file.write(f'评分: {score}\n')
+    file.write(f'{"=" * 50}\n')
 file.close()</code></pre>
-<p class="content-text">　　这里的目的主要是演示文件的存储方式，因此省去了 requests 异常处理部分。首先，用 requests 库
-提取网站首页的 HTML 代码，然后利用 pyquery 解析库将电影的名称、类别、上映时间、评分信息提
-取出来。</p>
-<p class="content-text">　　利用 Python 提供的 open 方法打开一个文本文件，获取一个文件操作对象，这里赋值为 file，每
-提取一部分信息，就利用 file 对象的 write 方法将这部分信息写入文件。</p>
-<p class="content-text">　　全部提取完毕之后，调用 close 方法将 file 对象关闭，这样抓取的网站首页的内容就成功写入
-文本中了。</p>
+<p class="content-text">　　这里的目的主要是演示文件的存储方式，因此省去了 requests 异常处理部分。首先，用 requests 库提取网站首页的 HTML 代码，然后利用 pyquery 解析库将电影的名称、类别、上映时间、评分信息提取出来。</p>
+<p class="content-text">　　利用 Python 提供的 open 方法打开一个文本文件，获取一个文件操作对象，这里赋值为 file，每提取一部分信息，就利用 file 对象的 write 方法将这部分信息写入文件。</p>
+<p class="content-text">　　全部提取完毕之后，调用 close 方法将 file 对象关闭，这样抓取的网站首页的内容就成功写入文本中了。</p>
 <p class="content-text">　　运行程序，可以发现在本地生成了一个 movies.txt 文件，其内容如图 4-1 所示。</p>
-<figure class="inline-figure"><img src="figures/ch04/fig-4_1.jpg" alt="图4-1 movies.txt 文件中的内容" loading="lazy"><figcaption>图4-1 movies.txt 文件中的内容</figcaption></figure>
+<figure class="inline-figure"><img alt="图4-1 movies.txt 文件中的内容" loading="lazy" src="figures/ch04/fig-4_1.jpg"/><figcaption>图4-1 movies.txt 文件中的内容</figcaption></figure>
 <p class="content-text">　　可以看出，电影信息的内容已经被保存成了文本形式。</p>
-<p class="content-text">　　回过头来看下本节重点需要了解的内容，即文本写入操作，其实就是 open、write、close 这三个
-方法的用法。</p>
-<p class="content-text">　　open 方法的第一个参数是要保存的目标文件名称；第二个参数代表数据以何种方式写入文本，此
-处为 w，表示以覆盖的方式写入；第三个参数指定了文件的编码为 utf-8。最后，写入完成后，还需要
-调用 close 方法来关闭文件对象。</p>
+<p class="content-text">　　回过头来看下本节重点需要了解的内容，即文本写入操作，其实就是 open、write、close 这三个方法的用法。</p>
+<p class="content-text">　　open 方法的第一个参数是要保存的目标文件名称；第二个参数代表数据以何种方式写入文本，此处为 w，表示以覆盖的方式写入；第三个参数指定了文件的编码为 utf-8。最后，写入完成后，还需要调用 close 方法来关闭文件对象。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 打开方式</h3>
-<p class="content-text">　　在刚才的实例中，open 方法的第二个参数设置成了 w，这样在每次写入文本时都会清空源文件，
-然后将新的内容写入文件。w 只是文件打开方式的一种，下面简要介绍一下其他几种。</p>
+<p class="content-text">　　在刚才的实例中，open 方法的第二个参数设置成了 w，这样在每次写入文本时都会清空源文件，然后将新的内容写入文件。w 只是文件打开方式的一种，下面简要介绍一下其他几种。</p>
 <p class="content-text list-like"><strong class="term-label">r:</strong>以只读方式打开一个文件，意思是只能读取文件内容，而不能写入。这也是默认模式。</p>
 <p class="content-text list-like"><strong class="term-label">rb:</strong>以二进制只读方式打开一个文件，通常用于打开二进制文件，例如音频、图片、视频等。</p>
 <p class="content-text list-like"><strong class="term-label">r+:</strong>以读写方式打开一个文件，既可以读文件又可以写文件。</p>
-<p class="content-text list-like">rb+: 以二进制读写方式打开一个文件，同样既可以读又可以写，只不过读取和写入的都是二
-进制数据。</p>
-<p class="content-text list-like">w: 以写入方式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，则创建
-新文件。</p>
-<p class="content-text list-like">wb: 以二进制写入方式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，
-则创建新文件。</p>
-<p class="content-text list-like">w+: 以读写方式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，则创建
-新文件。</p>
-<p class="content-text list-like">wb+: 以二进制读写格式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，
-则创建新文件。</p>
-<p class="content-text list-like">a: 以追加方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。也就是说，
-新的内容将会被写到已有内容之后。如果该文件不存在，则创建新文件来写入。</p>
-<p class="content-text list-like">ab: 以二进制追加方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。也
-就是说，新的内容将会被写到已有内容之后。如果该文件不存在，则创建新文件来写入。</p>
-<p class="content-text list-like">a+: 以读写方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。文件打开
-时会是追加模式。如果该文件不存在，则创建新文件用于读写。</p>
-<p class="content-text list-like">ab+: 以二进制追加方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。
-如果该文件不存在，则创建新文件用于读写。</p>
+<p class="content-text list-like">rb+: 以二进制读写方式打开一个文件，同样既可以读又可以写，只不过读取和写入的都是二进制数据。</p>
+<p class="content-text list-like">w: 以写入方式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，则创建新文件。</p>
+<p class="content-text list-like">wb: 以二进制写入方式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，则创建新文件。</p>
+<p class="content-text list-like">w+: 以读写方式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，则创建新文件。</p>
+<p class="content-text list-like">wb+: 以二进制读写格式打开一个文件。如果该文件已存在，则将其覆盖。如果该文件不存在，则创建新文件。</p>
+<p class="content-text list-like">a: 以追加方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。也就是说，新的内容将会被写到已有内容之后。如果该文件不存在，则创建新文件来写入。</p>
+<p class="content-text list-like">ab: 以二进制追加方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。也就是说，新的内容将会被写到已有内容之后。如果该文件不存在，则创建新文件来写入。</p>
+<p class="content-text list-like">a+: 以读写方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。文件打开时会是追加模式。如果该文件不存在，则创建新文件用于读写。</p>
+<p class="content-text list-like">ab+: 以二进制追加方式打开一个文件。如果该文件已存在，则文件指针将会放在文件结尾。如果该文件不存在，则创建新文件用于读写。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 简化写法</h3>
-<p class="content-text">　　文件写入还有一种简写方法，就是使用 with as 语法。当 with 控制块结束时，文件会自动关闭，
-意味着不需要再调用 close 方法。</p>
+<p class="content-text">　　文件写入还有一种简写方法，就是使用 with as 语法。当 with 控制块结束时，文件会自动关闭，意味着不需要再调用 close 方法。</p>
 <p class="content-text">　　这种保存方式可以简写如下:</p>
-<pre class="code-block" data-lang="python"><code>with open(&#x27;movies.txt&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as file:
-    file.write(f&#x27;名称: {name}\n&#x27;)
-    file.write(f&#x27;类别: {categories}\n&#x27;)
-    file.write(f&#x27;上映时间: {published_at}\n&#x27;)
-    file.write(f&#x27;评分: {score}\n&#x27;)</code></pre>
-<p class="content-text">　　以上便是利用 Python 将结果保存为 TXT 文件的方法，这种方法简单易用、操作高效，是一种最
-基本的数据存储方法。</p>
+<pre class="code-block" data-lang="python"><code>with open('movies.txt', 'w', encoding='utf-8') as file:
+    file.write(f'名称: {name}\n')
+    file.write(f'类别: {categories}\n')
+    file.write(f'上映时间: {published_at}\n')
+    file.write(f'评分: {score}\n')</code></pre>
+<p class="content-text">　　以上便是利用 Python 将结果保存为 TXT 文件的方法，这种方法简单易用、操作高效，是一种最基本的数据存储方法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 总结</h3>
-<p class="content-text">　　本节我们了解了基本 TXT 文件存储的实现方式，建议熟练掌握。
-　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
+<p class="content-text">　　本节我们了解了基本 TXT 文件存储的实现方式，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-1"><h2>4.2 JSON 文件存储</h2></div>
-<p class="content-text">　　JSON，全称为 JavaScript Object Notation，也就是 JavaScript 对象标记，通过对象和数组的组合来
-表示数据，虽构造简洁但是结构化程度非常高，是一种轻量级的数据交换格式。</p>
+<p class="content-text">　　JSON，全称为 JavaScript Object Notation，也就是 JavaScript 对象标记，通过对象和数组的组合来表示数据，虽构造简洁但是结构化程度非常高，是一种轻量级的数据交换格式。</p>
 <p class="content-text">　　本节我们就来了解如何利用 Python 将数据存储为 JSON 文件。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 对象和数组</h3>
-<p class="content-text">　　在 JavaScript 语言中，一切皆为对象，因此任何支持的数据类型都可以通过 JSON 表示，例如字
-符串、数字、对象、数组等。其中对象和数组是比较特殊且常用的两种类型，下面简要介绍一下这
-两者。</p>
-<p class="content-text">　　对象在 JavaScript 中是指用花括号 {} 包围起来的内容，数据结构是 {key1: value1, key2:
-value2, ...} 这种键值对结构。在面向对象的语言中，key 表示对象的属性、value 表示属性对应的值，</p>
-<p class="content-text">前者可以使用整数和字符串表示,后者可以是任意类型。
-数组在 JavaScript 中是指用方括号[]包围起来的内容,数据结构是[&quot;java&quot;, &quot;javascript&quot;,
-&quot;vb&quot;,...]这种索引结构。在JavaScript中,数组是一种比较特殊的数据类型,因为它也可以像对象
-那样使用键值对结构,但还是索引结构用得更多。同样,它的值可以是任意类型。
-所以,一个JSON对象可以写为如下形式:</p>
+<p class="content-text">　　在 JavaScript 语言中，一切皆为对象，因此任何支持的数据类型都可以通过 JSON 表示，例如字符串、数字、对象、数组等。其中对象和数组是比较特殊且常用的两种类型，下面简要介绍一下这两者。</p>
+<p class="content-text">　　对象在 JavaScript 中是指用花括号 {} 包围起来的内容，数据结构是 {key1: value1, key2:value2, ...} 这种键值对结构。在面向对象的语言中，key 表示对象的属性、value 表示属性对应的值，</p>
+<p class="content-text">前者可以使用整数和字符串表示,后者可以是任意类型。数组在 JavaScript 中是指用方括号[]包围起来的内容,数据结构是["java", "javascript","vb",...]这种索引结构。在JavaScript中,数组是一种比较特殊的数据类型,因为它也可以像对象那样使用键值对结构,但还是索引结构用得更多。同样,它的值可以是任意类型。所以,一个JSON对象可以写为如下形式:</p>
 <pre class="result-block" data-lang="json"><code>[{
-    &quot;name&quot;: &quot;Bob&quot;,
-    &quot;gender&quot;: &quot;male&quot;,
-    &quot;birthday&quot;: &quot;1992-10-18&quot;
+    "name": "Bob",
+    "gender": "male",
+    "birthday": "1992-10-18"
 }, {
-    &quot;name&quot;: &quot;Selina&quot;,
-    &quot;gender&quot;: &quot;female&quot;,
-    &quot;birthday&quot;: &quot;1995-10-18&quot;
+    "name": "Selina",
+    "gender": "female",
+    "birthday": "1995-10-18"
 }]</code></pre>
-<p class="content-text">由[]包围的内容相当于数组,数组中的每个元素都可以是任意类型,这个实例中的元素是对象,
-由{}包围。
-JSON 可以由以上两种形式自由组合而成,能够嵌套无限次,并且结构清晰,是数据交换的极佳
-实现方式。</p>
+<p class="content-text">由[]包围的内容相当于数组,数组中的每个元素都可以是任意类型,这个实例中的元素是对象,由{}包围。JSON 可以由以上两种形式自由组合而成,能够嵌套无限次,并且结构清晰,是数据交换的极佳实现方式。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 读取 JSON</h3>
-<p class="content-text">Python 为我们提供了简单易用的JSON库,用来实现JSON文件的读写操作,我们可以调用JSON
-库中的loads 方法将 JSON 文本字符串转为 JSON对象。实际上,JSON对象就是 Python 中列表和字
-典的嵌套与组合。反过来,我们可以通过dumps方法将 JSON对象转为文本字符串。
-例如,这里有一段JSON形式的字符串,是str类型,我们用Python将其转换为可操作的数据结
-构,如列表或字典:</p>
+<p class="content-text">Python 为我们提供了简单易用的JSON库,用来实现JSON文件的读写操作,我们可以调用JSON库中的loads 方法将 JSON 文本字符串转为 JSON对象。实际上,JSON对象就是 Python 中列表和字典的嵌套与组合。反过来,我们可以通过dumps方法将 JSON对象转为文本字符串。例如,这里有一段JSON形式的字符串,是str类型,我们用Python将其转换为可操作的数据结构,如列表或字典:</p>
 <pre class="code-block" data-lang="python"><code>import json
 
-str = &quot;&quot;&quot;
+str = """
 [{
-    &quot;name&quot;: &quot;Bob&quot;,
-    &quot;gender&quot;: &quot;male&quot;,
-    &quot;birthday&quot;: &quot;1992-10-18&quot;
+    "name": "Bob",
+    "gender": "male",
+    "birthday": "1992-10-18"
 }, {
-    &quot;name&quot;: &quot;Selina&quot;,
-    &quot;gender&quot;: &quot;female&quot;,
-    &quot;birthday&quot;: &quot;1995-10-18&quot;
+    "name": "Selina",
+    "gender": "female",
+    "birthday": "1995-10-18"
 }]
-&quot;&quot;&quot;
+"""
 print(type(str))
 data = json.loads(str)
 print(data)
 print(type(data))</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="text"><code>&lt;class &#x27;str&#x27;&gt;
-[{&#x27;name&#x27;: &#x27;Bob&#x27;, &#x27;gender&#x27;: &#x27;male&#x27;, &#x27;birthday&#x27;: &#x27;1992-10-18&#x27;}, {&#x27;name&#x27;: &#x27;Selina&#x27;, &#x27;gender&#x27;: &#x27;female&#x27;, &#x27;birthday&#x27;: &#x27;1995-10-18&#x27;}]
-&lt;class &#x27;list&#x27;&gt;</code></pre>
-<p class="content-text">这里使用 loads 方法将字符串转为了JSON对象。由于最外层是中括号,所以最终的数据类型是
-列表类型。
-这样一来,我们就可以用索引获取对应的内容了。例如,要想获取第一个元素里的name属性,
-可以使用如下方式:</p>
-<pre class="code-block" data-lang="python"><code>data[0][&#x27;name&#x27;]
-data[0].get(&#x27;name&#x27;)</code></pre>
+<pre class="result-block" data-lang="text"><code>&lt;class 'str'&gt;
+[{'name': 'Bob', 'gender': 'male', 'birthday': '1992-10-18'}, {'name': 'Selina', 'gender': 'female', 'birthday': '1995-10-18'}]
+&lt;class 'list'&gt;</code></pre>
+<p class="content-text">这里使用 loads 方法将字符串转为了JSON对象。由于最外层是中括号,所以最终的数据类型是列表类型。这样一来,我们就可以用索引获取对应的内容了。例如,要想获取第一个元素里的name属性,可以使用如下方式:</p>
+<pre class="code-block" data-lang="python"><code>data[0]['name']
+data[0].get('name')</code></pre>
 <p class="content-text">得到的结果都是:</p>
 <pre class="code-block" data-lang="text"><code>Bob</code></pre>
-<p class="content-text">　　以中括号加 0 作为索引，可以得到第一个字典元素，再调用其键名即可得到相应的键值。获取键
-值的方式有两种，一种是中括号加键名，另一种是利用 get 方法传入键名。这里推荐使用 get 方法，
-这样即使键名不存在，也不会报错，而是会返回 None。另外，get 方法还可以传入第二个参数（即默
-认值），实例如下:</p>
-<pre class="code-block" data-lang="python"><code>data[0].get(&#x27;age&#x27;)
-data[0].get(&#x27;age&#x27;, 25)</code></pre>
+<p class="content-text">　　以中括号加 0 作为索引，可以得到第一个字典元素，再调用其键名即可得到相应的键值。获取键值的方式有两种，一种是中括号加键名，另一种是利用 get 方法传入键名。这里推荐使用 get 方法，这样即使键名不存在，也不会报错，而是会返回 None。另外，get 方法还可以传入第二个参数（即默认值），实例如下:</p>
+<pre class="code-block" data-lang="python"><code>data[0].get('age')
+data[0].get('age', 25)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>None
 25</code></pre>
-<p class="content-text">　　这里我们尝试获取年龄 age，原字典中并不存在该键名，因此会默认返回 None。此时如果传入了
-第二个参数，就会返回传入的这个值。</p>
-<p class="content-text">　　值得注意的是，JSON 的数据需要用双引号包围起来，而不能使用单引号。例如使用如下形式，
-就会出现错误:</p>
+<p class="content-text">　　这里我们尝试获取年龄 age，原字典中并不存在该键名，因此会默认返回 None。此时如果传入了第二个参数，就会返回传入的这个值。</p>
+<p class="content-text">　　值得注意的是，JSON 的数据需要用双引号包围起来，而不能使用单引号。例如使用如下形式，就会出现错误:</p>
 <pre class="code-block" data-lang="python"><code>import json
 
-str = &#x27;&#x27;&#x27;
+str = '''
 [{
-&#x27;name&#x27;: &#x27;Bob&#x27;,
-&#x27;gender&#x27;: &#x27;male&#x27;,
-&#x27;birthday&#x27;: &#x27;1992-10-18&#x27;
+'name': 'Bob',
+'gender': 'male',
+'birthday': '1992-10-18'
 }]
-&#x27;&#x27;&#x27;
+'''
 data = json.loads(str)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 3 column 5 (char 8)</code></pre>
-<p class="content-text">　　这里出现了 JSON 解析错误的提示，其原因就是数据由单引号包围着。再次强调，请千万注意
-JSON 字符串的表示需要用双引号，否则 loads 方法会解析失败。</p>
-<p class="content-text">　　下面实现从 JSON 文本中读取内容，例如有一个 data.json 文本文件，其内容是刚才定义的 JSON 字
-符串，我们可以先将文本文件中的内容读出，再利用 loads 方法将之转化为 JSON 对象:</p>
+<p class="content-text">　　这里出现了 JSON 解析错误的提示，其原因就是数据由单引号包围着。再次强调，请千万注意JSON 字符串的表示需要用双引号，否则 loads 方法会解析失败。</p>
+<p class="content-text">　　下面实现从 JSON 文本中读取内容，例如有一个 data.json 文本文件，其内容是刚才定义的 JSON 字符串，我们可以先将文本文件中的内容读出，再利用 loads 方法将之转化为 JSON 对象:</p>
 <pre class="code-block" data-lang="python"><code>import json
 
-with open(&#x27;data.json&#x27;, encoding=&#x27;utf-8&#x27;) as file:
+with open('data.json', encoding='utf-8') as file:
     str = file.read()
     data = json.loads(str)
     print(data)</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="text"><code>[{&#x27;name&#x27;: &#x27;Bob&#x27;, &#x27;gender&#x27;: &#x27;male&#x27;, &#x27;birthday&#x27;: &#x27;1992-10-18&#x27;}, {&#x27;name&#x27;: &#x27;Selina&#x27;, &#x27;gender&#x27;: &#x27;female&#x27;, &#x27;birthday&#x27;: &#x27;1995-10-18&#x27;}]</code></pre>
-<p class="content-text">　　这里我们使用 open 方法读取文本文件，使用的是默认的读模式，编码指定为 utf-8，并将文件操作
-对象赋值为 file。然后我们调用 file 对象的 read 方法读取了文本中的所有内容，赋值为 str。接着
-再调用 loads 方法解析 JSON 字符串，将其转化为 JSON 对象。</p>
+<pre class="result-block" data-lang="text"><code>[{'name': 'Bob', 'gender': 'male', 'birthday': '1992-10-18'}, {'name': 'Selina', 'gender': 'female', 'birthday': '1995-10-18'}]</code></pre>
+<p class="content-text">　　这里我们使用 open 方法读取文本文件，使用的是默认的读模式，编码指定为 utf-8，并将文件操作对象赋值为 file。然后我们调用 file 对象的 read 方法读取了文本中的所有内容，赋值为 str。接着再调用 loads 方法解析 JSON 字符串，将其转化为 JSON 对象。</p>
 <p class="content-text">　　其实上述实例有更简便的写法，可以直接使用 load 方法传入文件操作对象，同样也可以将文本</p>
 <p class="content-text">转化为 JSON 对象，写法如下:</p>
 <pre class="code-block" data-lang="python"><code>import json
-data = json.load(open(&#x27;data.json&#x27;, encoding=&#x27;utf-8&#x27;))
+data = json.load(open('data.json', encoding='utf-8'))
 print(data)</code></pre>
-<p class="content-text">　　注意这里使用的是 load 方法，而不是 loads 方法。前者的参数是一个文件操作对象，后者的参数
-是一个 JSON 字符串。</p>
-<p class="content-text">　　这两种写法的运行结果是完全一样的。只不过 load 方法是将整个文件中的内容转化为 JSON 对
-象，而 loads 方法可以更灵活地控制要转化哪些内容。两种方法可以在适当的场景下选择使用。</p>
+<p class="content-text">　　注意这里使用的是 load 方法，而不是 loads 方法。前者的参数是一个文件操作对象，后者的参数是一个 JSON 字符串。</p>
+<p class="content-text">　　这两种写法的运行结果是完全一样的。只不过 load 方法是将整个文件中的内容转化为 JSON 对象，而 loads 方法可以更灵活地控制要转化哪些内容。两种方法可以在适当的场景下选择使用。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 输出 JSON</h3>
-<p class="content-text">　　可以调用 dumps 方法将 JSON 对象转化为字符串。例如，将上面例子的运行结果中的列表重新写
-入文本:</p>
+<p class="content-text">　　可以调用 dumps 方法将 JSON 对象转化为字符串。例如，将上面例子的运行结果中的列表重新写入文本:</p>
 <pre class="code-block" data-lang="python"><code>import json
 data = [{
-    &#x27;name&#x27;: &#x27;Bob&#x27;,
-    &#x27;gender&#x27;: &#x27;male&#x27;,
-    &#x27;birthday&#x27;: &#x27;1992-10-18&#x27;
+    'name': 'Bob',
+    'gender': 'male',
+    'birthday': '1992-10-18'
 }]
-with open(&#x27;data.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as file:
+with open('data.json', 'w', encoding='utf-8') as file:
     file.write(json.dumps(data))</code></pre>
-<p class="content-text">　　这里利用 dumps 方法，将 JSON 对象转为了字符串，然后调用文件的 write 方法将字符串写入文
-本，结果如图 4-2 所示。</p>
-<figure class="inline-figure"><img src="figures/ch04/fig-4_2.jpg" alt="图4-2 将列表写入文本" loading="lazy"><figcaption>图4-2 将列表写入文本</figcaption></figure>
-<p class="content-text">　　另外，如果想保存 JSON 对象的缩进格式，可以再往 dumps 方法中添加一个参数 indent，代表缩
-进字符的个数。实例如下:</p>
-<pre class="code-block" data-lang="python"><code>with open(&#x27;data.json&#x27;, &#x27;w&#x27;) as file:
+<p class="content-text">　　这里利用 dumps 方法，将 JSON 对象转为了字符串，然后调用文件的 write 方法将字符串写入文本，结果如图 4-2 所示。</p>
+<figure class="inline-figure"><img alt="图4-2 将列表写入文本" loading="lazy" src="figures/ch04/fig-4_2.jpg"/><figcaption>图4-2 将列表写入文本</figcaption></figure>
+<p class="content-text">　　另外，如果想保存 JSON 对象的缩进格式，可以再往 dumps 方法中添加一个参数 indent，代表缩进字符的个数。实例如下:</p>
+<pre class="code-block" data-lang="python"><code>with open('data.json', 'w') as file:
     file.write(json.dumps(data, indent=2))</code></pre>
 <p class="content-text">　　此时写入结果如图 4-3 所示。</p>
-<figure class="inline-figure"><img src="figures/ch04/fig-4_3.jpg" alt="图4-3 将列表写入文本并保存缩进" loading="lazy"><figcaption>图4-3 将列表写入文本并保存缩进</figcaption></figure>
+<figure class="inline-figure"><img alt="图4-3 将列表写入文本并保存缩进" loading="lazy" src="figures/ch04/fig-4_3.jpg"/><figcaption>图4-3 将列表写入文本并保存缩进</figcaption></figure>
 <p class="content-text">　　能够看出，得到的内容自带缩进，格式更加清晰。</p>
-<p class="content-text">　　另外，如果 JSON 对象中包含中文字符，会怎么样呢？现在将之前 JSON 对象中的部分值改为中
-文，并且依然用之前的方法将之写入文本:</p>
+<p class="content-text">　　另外，如果 JSON 对象中包含中文字符，会怎么样呢？现在将之前 JSON 对象中的部分值改为中文，并且依然用之前的方法将之写入文本:</p>
 <pre class="code-block" data-lang="python"><code>import json
 data = [{
-    &#x27;name&#x27;: &#x27;王伟&#x27;,
-    &#x27;gender&#x27;: &#x27;男&#x27;,
-    &#x27;birthday&#x27;: &#x27;1992-10-18&#x27;
+    'name': '王伟',
+    'gender': '男',
+    'birthday': '1992-10-18'
 }]
-with open(&#x27;data.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as file:
+with open('data.json', 'w', encoding='utf-8') as file:
     file.write(json.dumps(data, indent=2))</code></pre>
 <p class="content-text">写入结果如图 4-4 所示。</p>
-<figure class="inline-figure"><img src="figures/ch04/fig-4_4.jpg" alt="图4-4 包含中文字符的错误写入结果" loading="lazy"><figcaption>图4-4 包含中文字符的错误写入结果</figcaption></figure>
+<figure class="inline-figure"><img alt="图4-4 包含中文字符的错误写入结果" loading="lazy" src="figures/ch04/fig-4_4.jpg"/><figcaption>图4-4 包含中文字符的错误写入结果</figcaption></figure>
 <p class="content-text">　　可以看到，文本中的中文字符都变成了 Unicode 字符，这显然不是我们想要的结果。</p>
 <p class="content-text">　　要想输出中文，还需要指定参数 ensure_ascii 为 False，以及规定文件输出的编码:</p>
-<pre class="code-block" data-lang="python"><code>with open(&#x27;data.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as file:
+<pre class="code-block" data-lang="python"><code>with open('data.json', 'w', encoding='utf-8') as file:
     file.write(json.dumps(data, indent=2, ensure_ascii=False))</code></pre>
 <p class="content-text">　　此时的写入结果如图 4-5 所示。</p>
-<figure class="inline-figure"><img src="figures/ch04/fig-4_5.jpg" alt="图4-5 包含中文字符的正确写入结果" loading="lazy"><figcaption>图4-5 包含中文字符的正确写入结果</figcaption></figure>
+<figure class="inline-figure"><img alt="图4-5 包含中文字符的正确写入结果" loading="lazy" src="figures/ch04/fig-4_5.jpg"/><figcaption>图4-5 包含中文字符的正确写入结果</figcaption></figure>
 <p class="content-text">　　能够发现，现在可以将 JSON 对象输出为中文了。</p>
-<p class="content-text">　　类比 loads 与 load 方法，dumps 同样也有对应的 dump 方法，它可以直接将 JSON 对象全部写入文
-件中，因此上述写法也可以写为如下形式:</p>
-<pre class="code-block" data-lang="python"><code>json.dump(data, open(&#x27;data.json&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;), indent=2, ensure_ascii=False)</code></pre>
-<p class="content-text">　　这里第一个参数是 JSON 对象，第二个参数可以传入文件操作对象，其他的 indent、ensure_ascii
-参数还是保持不变，运行结果是一样的。</p>
+<p class="content-text">　　类比 loads 与 load 方法，dumps 同样也有对应的 dump 方法，它可以直接将 JSON 对象全部写入文件中，因此上述写法也可以写为如下形式:</p>
+<pre class="code-block" data-lang="python"><code>json.dump(data, open('data.json', 'w', encoding='utf-8'), indent=2, ensure_ascii=False)</code></pre>
+<p class="content-text">　　这里第一个参数是 JSON 对象，第二个参数可以传入文件操作对象，其他的 indent、ensure_ascii参数还是保持不变，运行结果是一样的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">　　本节我们了解了用 Python 读写 JSON 文件的方法，这在后面进行数据解析时经常会用到，建议熟
-练掌握。
-　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
+<p class="content-text">　　本节我们了解了用 Python 读写 JSON 文件的方法，这在后面进行数据解析时经常会用到，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>4.3 CSV 文件存储</h2></div>
-<p class="content-text">　　CSV，全称为 Comma-Separated Values，中文叫作逗号分隔值或字符分隔值，其文件以纯文本形
-式存储表格数据。CSV 文件是一个字符序列，可以由任意数目的记录组成，各条记录以某种换行符分</p>
-<p class="content-text">隔开。每条记录都由若干字段组成，字段间的分隔符是其他字符或字符串，最常见的是逗号或制表符。
-不过所有记录都有完全相同的字段序列，相当于一个结构化表的纯文本形式。它比 Excel 文件更加简
-洁，XLS 文件是电子表格，包含文本、数值、公式和格式等内容，CSV 中则不包含这些，就是以特定
-字符作为分隔符的纯文本，结构简单清晰。所以，有时候使用 CSV 来存储数据是比较方便的。本节
-我们就来讲解 Python 读取数据和将数据写入 CSV 文件的过程。</p>
+<p class="content-text">　　CSV，全称为 Comma-Separated Values，中文叫作逗号分隔值或字符分隔值，其文件以纯文本形式存储表格数据。CSV 文件是一个字符序列，可以由任意数目的记录组成，各条记录以某种换行符分</p>
+<p class="content-text">隔开。每条记录都由若干字段组成，字段间的分隔符是其他字符或字符串，最常见的是逗号或制表符。不过所有记录都有完全相同的字段序列，相当于一个结构化表的纯文本形式。它比 Excel 文件更加简洁，XLS 文件是电子表格，包含文本、数值、公式和格式等内容，CSV 中则不包含这些，就是以特定字符作为分隔符的纯文本，结构简单清晰。所以，有时候使用 CSV 来存储数据是比较方便的。本节我们就来讲解 Python 读取数据和将数据写入 CSV 文件的过程。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 写入</h3>
 <p class="content-text">　　这里先看一个最简单的例子：</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;w&#x27;) as csvfile:
+with open('data.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow([&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;])
-    writer.writerow([&#x27;10001&#x27;, &#x27;Mike&#x27;, 20])
-    writer.writerow([&#x27;10002&#x27;, &#x27;Bob&#x27;, 22])
-    writer.writerow([&#x27;10003&#x27;, &#x27;Jordan&#x27;, 21])</code></pre>
-<p class="content-text">　　这里首先打开 data.csv 文件，然后指定打开的模式为 w（即写入），获得文件句柄，随后调用 csv 库
-的 writer 方法初始化写入对象，传入该句柄，然后调用 writerow 方法传入每行的数据，这样便完成
-了写入。</p>
-<p class="content-text">　　运行结束后，会生成一个名为 data.csv 的文件，此时数据就成功写入了。直接以文本形式打开，
-会显示如下内容：</p>
+    writer.writerow(['id', 'name', 'age'])
+    writer.writerow(['10001', 'Mike', 20])
+    writer.writerow(['10002', 'Bob', 22])
+    writer.writerow(['10003', 'Jordan', 21])</code></pre>
+<p class="content-text">　　这里首先打开 data.csv 文件，然后指定打开的模式为 w（即写入），获得文件句柄，随后调用 csv 库的 writer 方法初始化写入对象，传入该句柄，然后调用 writerow 方法传入每行的数据，这样便完成了写入。</p>
+<p class="content-text">　　运行结束后，会生成一个名为 data.csv 的文件，此时数据就成功写入了。直接以文本形式打开，会显示如下内容：</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21</code></pre>
-<p class="content-text">　　可以看到，写入 CSV 文件的文本默认以逗号分
-隔每条记录，每调用一次 writerow 方法即可写入一
-行数据。用 Excel 打开 data.csv 文件的结果如图 4-6
-所示。</p>
-<figure class="inline-figure"><img src="figures/ch04/fig-4_6.jpg" alt="图 4-6 用 Excel 打开 data.csv 文件" loading="lazy"><figcaption>图 4-6 用 Excel 打开 data.csv 文件</figcaption></figure>
-<p class="content-text">　　如果想修改列与列之间的分隔符，可以传入
-delimiter 参数，其代码如下：</p>
+<p class="content-text">　　可以看到，写入 CSV 文件的文本默认以逗号分隔每条记录，每调用一次 writerow 方法即可写入一行数据。用 Excel 打开 data.csv 文件的结果如图 4-6所示。</p>
+<figure class="inline-figure"><img alt="图 4-6 用 Excel 打开 data.csv 文件" loading="lazy" src="figures/ch04/fig-4_6.jpg"/><figcaption>图 4-6 用 Excel 打开 data.csv 文件</figcaption></figure>
+<p class="content-text">　　如果想修改列与列之间的分隔符，可以传入delimiter 参数，其代码如下：</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;w&#x27;) as csvfile:
-    writer = csv.writer(csvfile, delimiter=&#x27; &#x27;)
-    writer.writerow([&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;])
-    writer.writerow([&#x27;10001&#x27;, &#x27;Mike&#x27;, 20])
-    writer.writerow([&#x27;10002&#x27;, &#x27;Bob&#x27;, 22])
-    writer.writerow([&#x27;10003&#x27;, &#x27;Jordan&#x27;, 21])</code></pre>
-<p class="content-text">　　这里在初始化写入对象时，将空格传入了 delimiter 参数，此时输出结果中的列与列之间就是以
-空格分隔了，内容如下：</p>
+with open('data.csv', 'w') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerow(['id', 'name', 'age'])
+    writer.writerow(['10001', 'Mike', 20])
+    writer.writerow(['10002', 'Bob', 22])
+    writer.writerow(['10003', 'Jordan', 21])</code></pre>
+<p class="content-text">　　这里在初始化写入对象时，将空格传入了 delimiter 参数，此时输出结果中的列与列之间就是以空格分隔了，内容如下：</p>
 <pre class="code-block" data-lang="text"><code>id name age
 10001 Mike 20
 10002 Bob 22
 10003 Jordan 21</code></pre>
 <p class="content-text">　　另外，我们也可以调用 writerows 方法同时写入多行，此时参数需要传入二维列表，例如：</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;w&#x27;) as csvfile:
+with open('data.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)</code></pre>
-<pre class="code-block"><code>    writer.writerow([&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;])
-    writer.writerows([[&#x27;10001&#x27;, &#x27;Mike&#x27;, 20], [&#x27;10002&#x27;, &#x27;Bob&#x27;, 22], [&#x27;10003&#x27;, &#x27;Jordan&#x27;, 21]])</code></pre>
+<pre class="code-block"><code>    writer.writerow(['id', 'name', 'age'])
+    writer.writerows([['10001', 'Mike', 20], ['10002', 'Bob', 22], ['10003', 'Jordan', 21]])</code></pre>
 <p class="content-text">　　输出结果是相同的，内容如下:</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21</code></pre>
-<p class="content-text">　　但是一般情况下，爬虫爬取的都是结构化数据，我们一般会用字典表示这种数据。csv 库也提供
-了字典的写入方式，实例如下:</p>
+<p class="content-text">　　但是一般情况下，爬虫爬取的都是结构化数据，我们一般会用字典表示这种数据。csv 库也提供了字典的写入方式，实例如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;w&#x27;) as csvfile:
-    fieldnames = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;]
+with open('data.csv', 'w') as csvfile:
+    fieldnames = ['id', 'name', 'age']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
-    writer.writerow({&#x27;id&#x27;: &#x27;10001&#x27;, &#x27;name&#x27;: &#x27;Mike&#x27;, &#x27;age&#x27;: 20})
-    writer.writerow({&#x27;id&#x27;: &#x27;10002&#x27;, &#x27;name&#x27;: &#x27;Bob&#x27;, &#x27;age&#x27;: 22})
-    writer.writerow({&#x27;id&#x27;: &#x27;10003&#x27;, &#x27;name&#x27;: &#x27;Jordan&#x27;, &#x27;age&#x27;: 21})</code></pre>
-<p class="content-text">　　这里先定义了 3 个字段，用 fieldnames 表示，然后将其传给 DictWriter 方法以初始化一个字典
-写入对象，并将对象赋给 writer 变量。接着调用写入了对象的 writeheader 方法先写入头信息，再
-调用 writerow 方法传入了相应字典。最终写入的结果和之前是完全相同的，内容如下:</p>
+    writer.writerow({'id': '10001', 'name': 'Mike', 'age': 20})
+    writer.writerow({'id': '10002', 'name': 'Bob', 'age': 22})
+    writer.writerow({'id': '10003', 'name': 'Jordan', 'age': 21})</code></pre>
+<p class="content-text">　　这里先定义了 3 个字段，用 fieldnames 表示，然后将其传给 DictWriter 方法以初始化一个字典写入对象，并将对象赋给 writer 变量。接着调用写入了对象的 writeheader 方法先写入头信息，再调用 writerow 方法传入了相应字典。最终写入的结果和之前是完全相同的，内容如下:</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21</code></pre>
 <p class="content-text">　　这样就把字典写入了 CSV 文件中。</p>
-<p class="content-text">　　另外，如果想追加写入，可以修改文件的打开模式，即把 open 函数的第二个参数改成 a，代码
-如下:</p>
+<p class="content-text">　　另外，如果想追加写入，可以修改文件的打开模式，即把 open 函数的第二个参数改成 a，代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;a&#x27;) as csvfile:
-    fieldnames = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;]
+with open('data.csv', 'a') as csvfile:
+    fieldnames = ['id', 'name', 'age']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writerow({&#x27;id&#x27;: &#x27;10004&#x27;, &#x27;name&#x27;: &#x27;Durant&#x27;, &#x27;age&#x27;: 22})</code></pre>
+    writer.writerow({'id': '10004', 'name': 'Durant', 'age': 22})</code></pre>
 <p class="content-text">　　这样再次执行这段代码，文件内容便会变成:</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
@@ -387,13 +307,12 @@ with open(&#x27;data.csv&#x27;, &#x27;a&#x27;) as csvfile:
 10003,Jordan,21
 10004,Durant,22</code></pre>
 <p class="content-text">　　由结果可见，数据被追加写入到了文件中。</p>
-<p class="content-text">　　如果要写入中文内容，我们知道可能会遇到字符编码的问题，此时需要给 open 参数指定编码格
-式。例如，这里再写入一行包含中文的数据，代码改写如下:</p>
+<p class="content-text">　　如果要写入中文内容，我们知道可能会遇到字符编码的问题，此时需要给 open 参数指定编码格式。例如，这里再写入一行包含中文的数据，代码改写如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;a&#x27;, encoding=&#x27;utf-8&#x27;) as csvfile:
-    fieldnames = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;]
+with open('data.csv', 'a', encoding='utf-8') as csvfile:
+    fieldnames = ['id', 'name', 'age']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writerow({&#x27;id&#x27;: &#x27;10004&#x27;, &#x27;name&#x27;: &#x27;王伟&#x27;, &#x27;age&#x27;: 22})</code></pre>
+    writer.writerow({'id': '10004', 'name': '王伟', 'age': 22})</code></pre>
 <p class="content-text">　　这里要是没有给 open 函数指定编码，可能会发生编码错误。</p>
 <p class="content-text">　　另外，如果接触过 pandas 等库，可以调用 DataFrame 对象的 to_csv 方法将数据写入 CSV 文件中。</p>
 <p class="content-text">这种方法需要安装pandas库,安装命令为:</p>
@@ -401,112 +320,88 @@ with open(&#x27;data.csv&#x27;, &#x27;a&#x27;, encoding=&#x27;utf-8&#x27;) as cs
 <p class="content-text">安装完成之后,我们便可以使用 pandas 库将数据保存为CSV文件,实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pandas as pd
 data = [
-    {&#x27;id&#x27;: &#x27;10001&#x27;, &#x27;name&#x27;: &#x27;Mike&#x27;, &#x27;age&#x27;: 20},
-    {&#x27;id&#x27;: &#x27;10002&#x27;, &#x27;name&#x27;: &#x27;Bob&#x27;, &#x27;age&#x27;: 22},
-    {&#x27;id&#x27;: &#x27;10003&#x27;, &#x27;name&#x27;: &#x27;Jordan&#x27;, &#x27;age&#x27;: 21},
+    {'id': '10001', 'name': 'Mike', 'age': 20},
+    {'id': '10002', 'name': 'Bob', 'age': 22},
+    {'id': '10003', 'name': 'Jordan', 'age': 21},
 ]
 df = pd.DataFrame(data)
-df.to_csv(&#x27;data.csv&#x27;, index=False)</code></pre>
-<p class="content-text">这里我们先定义了几条数据,每条数据都是一个字典,然后将其组合成一个列表,赋值为data。
-紧接着我们使用 pandas的DataFrame 类新建了一个DataFrame对象,参数传入data,并把该对象赋值
-为df。最后我们调用df 的to_csv 方法也可以将数据保存为CSV文件。</p>
+df.to_csv('data.csv', index=False)</code></pre>
+<p class="content-text">这里我们先定义了几条数据,每条数据都是一个字典,然后将其组合成一个列表,赋值为data。紧接着我们使用 pandas的DataFrame 类新建了一个DataFrame对象,参数传入data,并把该对象赋值为df。最后我们调用df 的to_csv 方法也可以将数据保存为CSV文件。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 读取</h3>
 <p class="content-text">我们同样可以使用csv库来读取CSV文件。例如,将刚才写入的文件内容读取出来,相关代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
-with open(&#x27;data.csv&#x27;, &#x27;r&#x27;, encoding=&#x27;utf-8&#x27;) as csvfile:
+with open('data.csv', 'r', encoding='utf-8') as csvfile:
     reader = csv.reader(csvfile)
     for row in reader:
         print(row)</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="text"><code>[&#x27;id&#x27;, &#x27;name&#x27;, &#x27;age&#x27;]
-[&#x27;10001&#x27;, &#x27;Mike&#x27;, &#x27;20&#x27;]
-[&#x27;10002&#x27;, &#x27;Bob&#x27;, &#x27;22&#x27;]
-[&#x27;10003&#x27;, &#x27;Jordan&#x27;, &#x27;21&#x27;]</code></pre>
-<p class="content-text">这里我们构造的是Reader对象,通过遍历输出了文件中每行的内容,每一行都是一个列表。注意,如果CSV文件中包含中文,还需要指定文件编码。
-另外,我们也可以使用pandas的read_csv 方法将数据从CSV文件中读取出来,例如:</p>
+<pre class="result-block" data-lang="text"><code>['id', 'name', 'age']
+['10001', 'Mike', '20']
+['10002', 'Bob', '22']
+['10003', 'Jordan', '21']</code></pre>
+<p class="content-text">这里我们构造的是Reader对象,通过遍历输出了文件中每行的内容,每一行都是一个列表。注意,如果CSV文件中包含中文,还需要指定文件编码。另外,我们也可以使用pandas的read_csv 方法将数据从CSV文件中读取出来,例如:</p>
 <pre class="code-block" data-lang="python"><code>import pandas as pd
-df = pd.read_csv(&#x27;data.csv&#x27;)
+df = pd.read_csv('data.csv')
 print(df)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>      id    name  age
 0  10001    Mike   20
 1  10002     Bob   22
 2  10003  Jordan   21</code></pre>
-<p class="content-text">这里的df 实际上是一个 DataFrame 对象,如果你对此比较熟悉,则可以直接使用它完成一些数据的分析处理。
-如果只想读取文件里面的数据,可以把df再进一步转化为列表或者元组,实例代码如下:</p>
+<p class="content-text">这里的df 实际上是一个 DataFrame 对象,如果你对此比较熟悉,则可以直接使用它完成一些数据的分析处理。如果只想读取文件里面的数据,可以把df再进一步转化为列表或者元组,实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pandas as pd
-df = pd.read_csv(&#x27;data.csv&#x27;)
+df = pd.read_csv('data.csv')
 data = df.values.tolist()
 print(data)</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="text"><code>[[10001, &#x27;Mike&#x27;, 20], [10002, &#x27;Bob&#x27;, 22], [10003, &#x27;Jordan&#x27;, 21]]</code></pre>
+<pre class="result-block" data-lang="text"><code>[[10001, 'Mike', 20], [10002, 'Bob', 22], [10003, 'Jordan', 21]]</code></pre>
 <p class="content-text">这里我们调用了df的values 属性,再调用tolist方法,即可将数据转化为列表形式。</p>
 <p class="content-text">另外,直接对 df 进行逐行遍历,同样能得到列表类型的结果,代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pandas as pd
-df = pd.read_csv(&#x27;data.csv&#x27;)
+df = pd.read_csv('data.csv')
 for index, row in df.iterrows():
     print(row.tolist())</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="text"><code>[10001, &#x27;Mike&#x27;, 20]
-[10002, &#x27;Bob&#x27;, 22]
-[10003, &#x27;Jordan&#x27;, 21]</code></pre>
+<pre class="result-block" data-lang="text"><code>[10001, 'Mike', 20]
+[10002, 'Bob', 22]
+[10003, 'Jordan', 21]</code></pre>
 <p class="content-text">可以看到,我们同样获取了列表类型的结果。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 总结</h3>
-<p class="content-text">本节中,我们了解了 CSV 文件的写入和读取方式。这也是一种常用的数据存储方式,需要熟练掌握。
-本节代码参见:https://github.com/Python3WebSpider/FileStorageTest。</p>
+<p class="content-text">本节中,我们了解了 CSV 文件的写入和读取方式。这也是一种常用的数据存储方式,需要熟练掌握。本节代码参见:https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>4.4 MySQL 存储</h2></div>
-<p class="content-text">关系型数据库是基于关系模型的数据库,而关系模型是通过二维表来保存的,所以关系型数据库
-中数据的存储方式就是行列组成的表,每一列代表一个字段、每一行代表一条记录。表可以看作某个
-实体的集合,实体之间存在的联系需要通过表与表之间的关联关系体现,例如主键和外键的关联关系。
-由多个表组成的数据库,就是关系型数据库。
-　　关系型数据库有多种，例如 SQLite、MySQL、Oracle、SQL Server、DB2 等，本节我们主要来了
-解一下 MySQL 数据库的存储操作。
-在Python2中,连接MySQL的库大多是MySQLdb,但是此库的官方并不支持Python3,所以这
-里推荐使用的库是PyMySQL。
-下面,我们就来讲解使用PyMySQL 操作 MySQL数据库的方法。</p>
+<p class="content-text">关系型数据库是基于关系模型的数据库,而关系模型是通过二维表来保存的,所以关系型数据库中数据的存储方式就是行列组成的表,每一列代表一个字段、每一行代表一条记录。表可以看作某个实体的集合,实体之间存在的联系需要通过表与表之间的关联关系体现,例如主键和外键的关联关系。由多个表组成的数据库,就是关系型数据库。　　关系型数据库有多种，例如 SQLite、MySQL、Oracle、SQL Server、DB2 等，本节我们主要来了解一下 MySQL 数据库的存储操作。在Python2中,连接MySQL的库大多是MySQLdb,但是此库的官方并不支持Python3,所以这里推荐使用的库是PyMySQL。下面,我们就来讲解使用PyMySQL 操作 MySQL数据库的方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
 <p class="content-text">在开始之前,请确保已经安装好了 MySQL 数据库并保证它能正常运行,安装方式可以参考:</p>
 <pre class="result-block"><code>https://setup.scrape.center/mysql。</code></pre>
-<p class="content-text">除了安装好 MySQL数据库外,还需要安装好PyMySQL库,如尚未安装PyMySQL,可以使用pip3
-来安装:</p>
+<p class="content-text">除了安装好 MySQL数据库外,还需要安装好PyMySQL库,如尚未安装PyMySQL,可以使用pip3来安装:</p>
 <pre class="code-block" data-lang="text"><code>pip3 install pymysql</code></pre>
-<p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/pymysql。
-二者都安装好了之后,我们就可以开始本节的学习了。</p>
+<p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/pymysql。二者都安装好了之后,我们就可以开始本节的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 连接数据库</h3>
-<p class="content-text">首先尝试连接一下数据库。假设当前的MySQL 运行在本地,用户名为root,密码为123456,运行
-端口为3306。这里利用PyMySQL 先连接MySQL,然后创建一个新的数据库,叫作 spiders,代码如下:</p>
+<p class="content-text">首先尝试连接一下数据库。假设当前的MySQL 运行在本地,用户名为root,密码为123456,运行端口为3306。这里利用PyMySQL 先连接MySQL,然后创建一个新的数据库,叫作 spiders,代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pymysql
-db = pymysql.connect(host=&#x27;localhost&#x27;, user=&#x27;root&#x27;, password=&#x27;123456&#x27;, port=3306)
+db = pymysql.connect(host='localhost', user='root', password='123456', port=3306)
 cursor = db.cursor()
-cursor.execute(&#x27;SELECT VERSION()&#x27;)
+cursor.execute('SELECT VERSION()')
 data = cursor.fetchone()
-print(&#x27;Database version:&#x27;, data)
-cursor.execute(&quot;CREATE DATABASE spiders DEFAULT CHARACTER SET utf8mb4&quot;)
+print('Database version:', data)
+cursor.execute("CREATE DATABASE spiders DEFAULT CHARACTER SET utf8mb4")
 db.close()</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block" data-lang="text"><code>Database version: (&#x27;8.0.19&#x27;,)</code></pre>
-<p class="content-text">　　这里通过 PyMySQL 的 connect 方法声明了一个 MySQL 连接对象 db，此时需要传入的第一个参
-数是 MySQL 运行的 host（即 IP），由于 MySQL 运行在本地，所以传入的是 localhost，如果 MySQL
-在远程运行，则传入其公网 IP 地址。后续参数分别是 user（用户名）、password（密码）和 port（端
-口，默认为 3306）。</p>
-<p class="content-text">　　连接成功后，调用 cursor 方法获得了 MySQL 的操作游标，利用游标可以执行 SQL 语句。这里
-我们执行了两个 SQL 语句，直接调用 execute 方法即可执行。第一个 SQL 语句用于获得 MySQL 的
-当前版本，然后调用 fetchone 方法就得到了第一条数据，即版本号。第二个 SQL 语句用于创建数据
-库 spiders，默认编码为 UTF-8，由于该语句不是查询语句，所以执行后就成功创建了数据库 spiders，
-可以利用这个数据库完成后续的操作。</p>
+<pre class="result-block" data-lang="text"><code>Database version: ('8.0.19',)</code></pre>
+<p class="content-text">　　这里通过 PyMySQL 的 connect 方法声明了一个 MySQL 连接对象 db，此时需要传入的第一个参数是 MySQL 运行的 host（即 IP），由于 MySQL 运行在本地，所以传入的是 localhost，如果 MySQL在远程运行，则传入其公网 IP 地址。后续参数分别是 user（用户名）、password（密码）和 port（端口，默认为 3306）。</p>
+<p class="content-text">　　连接成功后，调用 cursor 方法获得了 MySQL 的操作游标，利用游标可以执行 SQL 语句。这里我们执行了两个 SQL 语句，直接调用 execute 方法即可执行。第一个 SQL 语句用于获得 MySQL 的当前版本，然后调用 fetchone 方法就得到了第一条数据，即版本号。第二个 SQL 语句用于创建数据库 spiders，默认编码为 UTF-8，由于该语句不是查询语句，所以执行后就成功创建了数据库 spiders，可以利用这个数据库完成后续的操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 创建表</h3>
-<p class="content-text">一般来讲，创建数据库的操作执行一次就可以了。当然，也可以手动创建数据库。我们之后的操作都在 spiders 数据库上完成。
-接下来，新创建一个数据表 students，此时执行创建表的 SQL 语句即可。这里指定 3 个字段，结构如表 4-1 所示。</p>
+<p class="content-text">一般来讲，创建数据库的操作执行一次就可以了。当然，也可以手动创建数据库。我们之后的操作都在 spiders 数据库上完成。接下来，新创建一个数据表 students，此时执行创建表的 SQL 语句即可。这里指定 3 个字段，结构如表 4-1 所示。</p>
 <p class="table-caption">表 4-1 数据表 students</p>
 <table class="content-table"><thead><tr><th>字段名</th><th>含义</th><th>类型</th></tr></thead><tbody><tr><td>id</td><td>学号</td><td>varchar</td></tr>
 <tr><td>name</td><td>姓名</td><td>varchar</td></tr>
@@ -514,25 +409,24 @@ db.close()</code></pre>
 <p class="content-text">创建该表的代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pymysql
 # 创建数据库后，在连接时需要额外指定一个参数 db
-db = pymysql.connect(host=&#x27;localhost&#x27;, user=&#x27;root&#x27;, password=&#x27;123456&#x27;, port=3306, db=&#x27;spiders&#x27;)
+db = pymysql.connect(host='localhost', user='root', password='123456', port=3306, db='spiders')
 cursor = db.cursor()
-sql = &#x27;CREATE TABLE IF NOT EXISTS students (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, age INT NOT NULL, PRIMARY KEY (id))&#x27;
+sql = 'CREATE TABLE IF NOT EXISTS students (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, age INT NOT NULL, PRIMARY KEY (id))'
 cursor.execute(sql)
 db.close()</code></pre>
-<p class="content-text">运行之后，便创建了一个名为 students 的数据表。
-当然，为了演示，这里只是指定了最简单的几个字段。实际上，在爬虫爬取的过程中，我们会根据爬取结果设计特定的字段。</p>
+<p class="content-text">运行之后，便创建了一个名为 students 的数据表。当然，为了演示，这里只是指定了最简单的几个字段。实际上，在爬虫爬取的过程中，我们会根据爬取结果设计特定的字段。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 插入数据</h3>
 <p class="content-text">下一步就是往数据库中插入数据了。例如，这里爬取到一个学生信息，学号为 20120001、名字为</p>
 <p class="content-text">Bob、年龄为20,如何将这条数据插入数据库呢?实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pymysql
-id = &#x27;20120001&#x27;
-user = &#x27;Bob&#x27;
+id = '20120001'
+user = 'Bob'
 age = 20
-db = pymysql.connect(host=&#x27;localhost&#x27;, user=&#x27;root&#x27;, password=&#x27;123456&#x27;, port=3306, db=&#x27;spiders&#x27;)
+db = pymysql.connect(host='localhost', user='root', password='123456', port=3306, db='spiders')
 cursor = db.cursor()
-sql = &#x27;INSERT INTO students (id, name, age) values (%s, %s, %s)&#x27;
+sql = 'INSERT INTO students (id, name, age) values (%s, %s, %s)'
 try:
     cursor.execute(sql, (id, user, age))
     db.commit()
@@ -540,295 +434,227 @@ except:
     db.rollback()
 db.close()</code></pre>
 <p class="content-text">　　这里首先构造了一个 SQL 语句，其值没有用如下字符串拼接的方式构造:</p>
-<pre class="code-block" data-lang="python"><code>sql = &#x27;INSERT INTO students (id, name, age) values(&#x27; + id + &#x27;, &#x27; + name + &#x27;, &#x27; + age + &#x27;)&#x27;</code></pre>
-<p class="content-text">　　这样的写法烦琐且不直观，所以我们直接用格式化符 %s 来构造，有几个 value 就写几个 %s。
-我们只需要在 execute 方法的第一个参数传入该 SQL 语句，value 值用统一的元组传过来就好了。这
-样的写法既可以避免字符串拼接的麻烦，又可以避免引号冲突问题。</p>
-<p class="content-text">　　之后值得注意的是，需要执行 db 对象的 commit 方法才可以实现数据插入，这个方法才是真正将
-语句提交到数据库执行的方法。对于数据插入、更新、删除操作，都需要调用该方法才能生效。</p>
-<p class="content-text">　　接下来，我们加了一层异常处理。如果执行失败，则调用 rollback 执行数据回滚，相当于什么都
-没有发生过。</p>
-<p class="content-text">　　这里涉及事务的问题。事务机制能够确保数据的一致性，也就是一件事要么发生完整了，要么完
-全没有发生。例如插入一条数据，不会存在插入一半的情况——要么全部插入、要么都不插入，这就
-是事务的原子性。事务还有其他 3 个属性——一致性、隔离性和持久性。这 4 个属性通常称为 ACID 特
-性，具体如表 4-2 所示。</p>
+<pre class="code-block" data-lang="python"><code>sql = 'INSERT INTO students (id, name, age) values(' + id + ', ' + name + ', ' + age + ')'</code></pre>
+<p class="content-text">　　这样的写法烦琐且不直观，所以我们直接用格式化符 %s 来构造，有几个 value 就写几个 %s。我们只需要在 execute 方法的第一个参数传入该 SQL 语句，value 值用统一的元组传过来就好了。这样的写法既可以避免字符串拼接的麻烦，又可以避免引号冲突问题。</p>
+<p class="content-text">　　之后值得注意的是，需要执行 db 对象的 commit 方法才可以实现数据插入，这个方法才是真正将语句提交到数据库执行的方法。对于数据插入、更新、删除操作，都需要调用该方法才能生效。</p>
+<p class="content-text">　　接下来，我们加了一层异常处理。如果执行失败，则调用 rollback 执行数据回滚，相当于什么都没有发生过。</p>
+<p class="content-text">　　这里涉及事务的问题。事务机制能够确保数据的一致性，也就是一件事要么发生完整了，要么完全没有发生。例如插入一条数据，不会存在插入一半的情况——要么全部插入、要么都不插入，这就是事务的原子性。事务还有其他 3 个属性——一致性、隔离性和持久性。这 4 个属性通常称为 ACID 特性，具体如表 4-2 所示。</p>
 <p class="table-caption">表4-2 事务的4个属性</p>
 <table class="content-table"><thead><tr><th>属性</th><th>解释</th></tr></thead><tbody><tr><td>原子性(atomicity)</td><td>事务是一个不可分割的工作单位,事务中包括的诸操作要么都做、要么都不做</td></tr>
 <tr><td>一致性(consistency)</td><td>事务必须使数据库从一个一致性状态变到另一个一致性状态。一致性与原子性是密切相关的</td></tr>
 <tr><td>隔离性(isolation)</td><td>一个事务的执行不能被其他事务干扰,即一个事务内部的操作及使用的数据对并发的其他事务是隔离的,并发执行的各个事务之间不能互相干扰</td></tr>
 <tr><td>持久性(durability)</td><td>持续性也称永久性(permanence),指一个事务一旦提交,它对数据库中数据做的改变就应该是永久性的。接下来的其他操作或故障不应该对数据有任何影响</td></tr></tbody></table>
-<p class="content-text">　　插入、更新和删除操作都是对数据库进行更改的操作，而更改操作都必须是一个事务，所以这些
-操作的标准写法是:</p>
+<p class="content-text">　　插入、更新和删除操作都是对数据库进行更改的操作，而更改操作都必须是一个事务，所以这些操作的标准写法是:</p>
 <pre class="code-block" data-lang="python"><code>try:
     cursor.execute(sql)
     db.commit()
 except:
     db.rollback()</code></pre>
 <p class="content-text">　　这样便可以保证数据的一致性。这里的 commit 和 rollback 方法就为事务的实现提供了支持。</p>
-<p class="content-text">　　上面数据插入的操作是通过构造 SQL 语句实现的，但是很明显，这里有一个极其不方便的地方，
-例如突然增加了性别字段 gender，此时 SQL 语句就需要改成:</p>
+<p class="content-text">　　上面数据插入的操作是通过构造 SQL 语句实现的，但是很明显，这里有一个极其不方便的地方，例如突然增加了性别字段 gender，此时 SQL 语句就需要改成:</p>
 <pre class="code-block" data-lang="sql"><code>INSERT INTO students (id, name, age, gender) values (%s, %s, %s, %s)</code></pre>
 <p class="content-text">相应的元组参数需要改成:</p>
 <pre class="code-block" data-lang="python"><code>(id, name, age, gender)</code></pre>
-<p class="content-text">　　这显然不是我们想要的。在很多情况下，我们要达到的效果是插入方法无须做改动，其作为通用
-方法，只需要传入一个动态变化的字典就好了。例如，构造这样一个字典:</p>
+<p class="content-text">　　这显然不是我们想要的。在很多情况下，我们要达到的效果是插入方法无须做改动，其作为通用方法，只需要传入一个动态变化的字典就好了。例如，构造这样一个字典:</p>
 <pre class="code-block" data-lang="python"><code>{
-    &#x27;id&#x27;: &#x27;20120001&#x27;,
-    &#x27;name&#x27;: &#x27;Bob&#x27;,
-    &#x27;age&#x27;: 20
+    'id': '20120001',
+    'name': 'Bob',
+    'age': 20
 }</code></pre>
-<p class="content-text">　　然后，SQL 语句会根据这个字典动态构造出来，元组也是，这样才是实现了通用的插入方法。于
-是我们改写一下插入方法:</p>
+<p class="content-text">　　然后，SQL 语句会根据这个字典动态构造出来，元组也是，这样才是实现了通用的插入方法。于是我们改写一下插入方法:</p>
 <pre class="code-block" data-lang="python"><code>data = {
-    &#x27;id&#x27;: &#x27;20120001&#x27;,
-    &#x27;name&#x27;: &#x27;Bob&#x27;,
-    &#x27;age&#x27;: 20
+    'id': '20120001',
+    'name': 'Bob',
+    'age': 20
 }
-table = &#x27;students&#x27;
-keys = &#x27;, &#x27;.join(data.keys())
-values = &#x27;, &#x27;.join([&#x27;%s&#x27;] * len(data))
-sql = &#x27;INSERT INTO {table} ({keys}) VALUES ({values})&#x27;.format(table=table, keys=keys, values=values)
+table = 'students'
+keys = ', '.join(data.keys())
+values = ', '.join(['%s'] * len(data))
+sql = 'INSERT INTO {table} ({keys}) VALUES ({values})'.format(table=table, keys=keys, values=values)
 try:
     if cursor.execute(sql, tuple(data.values())):
-        print(&#x27;Successful&#x27;)
+        print('Successful')
         db.commit()
 except:
-    print(&#x27;Failed&#x27;)
+    print('Failed')
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里我们传入的数据是字典，将其定义为了 data 变量，将 students 表定义为了变量 table。接下来，
-构造一个动态的 SQL 语句。</p>
-<p class="content-text">　　首先，需要构造插入的字段: id、name 和 age。这里只要将 data 的键名拿过来，并用逗号分隔即可。
-所以 &#x27;, &#x27;.join(data.keys()) 的结果就是 id, name, age，然后，需要构造多个 %s 当作占位符，有几个
-字段就构造几个。例如，这里有三个字段，就需要构造 %s, %s, %s。这里先是定义了一个长度为 1 的数
-组 [&#x27;%s&#x27;]，然后用乘法将其扩充为 [&#x27;%s&#x27;, &#x27;%s&#x27;, &#x27;%s&#x27;]，再调用 join 方法，就变成了 %s, %s, %s。最
-后，利用字符串的 format 方法将表名、字段名和占位符构造出来。于是 SQL 语句就动态构造出来了:</p>
+<p class="content-text">　　这里我们传入的数据是字典，将其定义为了 data 变量，将 students 表定义为了变量 table。接下来，构造一个动态的 SQL 语句。</p>
+<p class="content-text">　　首先，需要构造插入的字段: id、name 和 age。这里只要将 data 的键名拿过来，并用逗号分隔即可。所以 ', '.join(data.keys()) 的结果就是 id, name, age，然后，需要构造多个 %s 当作占位符，有几个字段就构造几个。例如，这里有三个字段，就需要构造 %s, %s, %s。这里先是定义了一个长度为 1 的数组 ['%s']，然后用乘法将其扩充为 ['%s', '%s', '%s']，再调用 join 方法，就变成了 %s, %s, %s。最后，利用字符串的 format 方法将表名、字段名和占位符构造出来。于是 SQL 语句就动态构造出来了:</p>
 <pre class="code-block" data-lang="sql"><code>INSERT INTO students(id, name, age) VALUES (%s, %s, %s)</code></pre>
-<p class="content-text">　　最后，为 execute 方法的第一个参数传入 sql 变量，第二个参数传入由 data 的键值构造的元组，
-就可以成功插入数据了。</p>
-<p class="content-text">　　如此一来，我们便实现了通过传入一个字典来插入数据的方法，不需要再去修改 SQL 语句和插
-入操作。</p>
+<p class="content-text">　　最后，为 execute 方法的第一个参数传入 sql 变量，第二个参数传入由 data 的键值构造的元组，就可以成功插入数据了。</p>
+<p class="content-text">　　如此一来，我们便实现了通过传入一个字典来插入数据的方法，不需要再去修改 SQL 语句和插入操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 更新数据</h3>
 <p class="content-text">　　数据更新操作实际上也是执行 SQL 语句，最简单的方式就是先构造一个 SQL 语句，然后执行:</p>
-<pre class="code-block" data-lang="python"><code>sql = &#x27;UPDATE students SET age = %s WHERE name = %s&#x27;
+<pre class="code-block" data-lang="python"><code>sql = 'UPDATE students SET age = %s WHERE name = %s'
 try:
-    cursor.execute(sql, (25, &#x27;Bob&#x27;))
+    cursor.execute(sql, (25, 'Bob'))
     db.commit()
 except:
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里同样用占位符的方式构造 SQL，然后执行 execute 方法，传入元组形式的参数，同样执行
-commit 方法执行操作。如果做的是简单的数据更新，完全可以使用此方法。</p>
-<p class="content-text">　　但是在实际的数据抓取过程中，大部分情况下需要插入数据，我们关心的是会不会出现重复数据，
-如果出现了，我们希望更新数据而不是重复保存一次。另外，就像前面所说的动态构造 SQL 的问题，
-所以这里可以再实现一种去重的方法: 如果数据存在，就更新数据；如果数据不存在，则插入数据。
-另外，这种做法支持灵活的字典传值。实例代码如下:</p>
+<p class="content-text">　　这里同样用占位符的方式构造 SQL，然后执行 execute 方法，传入元组形式的参数，同样执行commit 方法执行操作。如果做的是简单的数据更新，完全可以使用此方法。</p>
+<p class="content-text">　　但是在实际的数据抓取过程中，大部分情况下需要插入数据，我们关心的是会不会出现重复数据，如果出现了，我们希望更新数据而不是重复保存一次。另外，就像前面所说的动态构造 SQL 的问题，所以这里可以再实现一种去重的方法: 如果数据存在，就更新数据；如果数据不存在，则插入数据。另外，这种做法支持灵活的字典传值。实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>data = {
-    &#x27;id&#x27;: &#x27;20120001&#x27;,
-    &#x27;name&#x27;: &#x27;Bob&#x27;,
-    &#x27;age&#x27;: 21
+    'id': '20120001',
+    'name': 'Bob',
+    'age': 21
 }
-table = &#x27;students&#x27;
-keys = &#x27;,&#x27;.join(data.keys())
-values = &#x27;, &#x27;.join([&#x27;%s&#x27;] * len(data))
-sql = &#x27;INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE&#x27;.format(table=table,
+table = 'students'
+keys = ','.join(data.keys())
+values = ', '.join(['%s'] * len(data))
+sql = 'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'.format(table=table,
                                                                                        keys=keys, values=values)
-update = &#x27;,&#x27;.join([&quot;{key} = %s&quot;.format(key=key) for key in data])
+update = ','.join(["{key} = %s".format(key=key) for key in data])
 sql += update
 try:
     cursor.execute(sql, tuple(data.values())*2)
-    print(&#x27;Successful&#x27;)
+    print('Successful')
     db.commit()
 except:
-    print(&#x27;Failed&#x27;)
+    print('Failed')
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里构造的 SQL 语句其实是插入语句，但是我们在后面加了 ON DUPLICATE KEY UPDATE。这行代
-码的意思是如果主键已经存在，就执行更新操作。例如，我们传入的数据 id 仍然是 20120001，但是
-年龄有所变化，由 20 变成了 21，此时不会插入这条数据，而是直接更新 id 为 20120001 的数据。构
-造出来的完整 SQL 语句是这样的:</p>
+<p class="content-text">　　这里构造的 SQL 语句其实是插入语句，但是我们在后面加了 ON DUPLICATE KEY UPDATE。这行代码的意思是如果主键已经存在，就执行更新操作。例如，我们传入的数据 id 仍然是 20120001，但是年龄有所变化，由 20 变成了 21，此时不会插入这条数据，而是直接更新 id 为 20120001 的数据。构造出来的完整 SQL 语句是这样的:</p>
 <pre class="code-block" data-lang="sql"><code>INSERT INTO students (id, name, age) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE id = %s, name = %s, age = %s</code></pre>
-<p class="content-text">　　这里变成了 6 个 %s。所以后面 execute 方法的第二个参数元组就需要乘以 2，使长度变成原来的
-2 倍。</p>
+<p class="content-text">　　这里变成了 6 个 %s。所以后面 execute 方法的第二个参数元组就需要乘以 2，使长度变成原来的2 倍。</p>
 <p class="content-text">　　如此一来，我们就可以实现主键不存在便插入数据，主键存在则更新数据的功能。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 删除数据</h3>
-<p class="content-text">　　删除操作相对简单，直接使用 DELETE 语句即可，只是需要指定要删除的目标表名和删除条件，
-而且仍然需要使用 db 的 commit 方法才能生效。实例代码如下:</p>
-<pre class="code-block" data-lang="python"><code>table = &#x27;students&#x27;
-condition = &#x27;age &gt; 20&#x27;
-sql = &#x27;DELETE FROM {table} WHERE {condition}&#x27;.format(table=table, condition=condition)
+<p class="content-text">　　删除操作相对简单，直接使用 DELETE 语句即可，只是需要指定要删除的目标表名和删除条件，而且仍然需要使用 db 的 commit 方法才能生效。实例代码如下:</p>
+<pre class="code-block" data-lang="python"><code>table = 'students'
+condition = 'age &gt; 20'
+sql = 'DELETE FROM {table} WHERE {condition}'.format(table=table, condition=condition)
 try:
     cursor.execute(sql)
     db.commit()
 except:
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　因为删除条件多种多样，运算符有大于、小于、等于、LIKE 等，条件连接符有 AND、OR 等，所以
-不再继续构造复杂的判断条件。这里直接将条件当作字符串来传递，以实现删除操作。</p>
+<p class="content-text">　　因为删除条件多种多样，运算符有大于、小于、等于、LIKE 等，条件连接符有 AND、OR 等，所以不再继续构造复杂的判断条件。这里直接将条件当作字符串来传递，以实现删除操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 查询数据</h3>
-<p class="content-text">　　说完插入、修改和删除等操作，还剩下一个非常重要的操作，就是查询。查询会用到 SELECT 语
-句，实例代码如下:</p>
-<pre class="code-block" data-lang="python"><code>sql = &#x27;SELECT * FROM students WHERE age &gt;= 20&#x27;
+<p class="content-text">　　说完插入、修改和删除等操作，还剩下一个非常重要的操作，就是查询。查询会用到 SELECT 语句，实例代码如下:</p>
+<pre class="code-block" data-lang="python"><code>sql = 'SELECT * FROM students WHERE age &gt;= 20'
 try:
     cursor.execute(sql)
-    print(&#x27;Count:&#x27;, cursor.rowcount)
+    print('Count:', cursor.rowcount)
     one = cursor.fetchone()
-    print(&#x27;One:&#x27;, one)
+    print('One:', one)
     results = cursor.fetchall()
-    print(&#x27;Results:&#x27;, results)
-    print(&#x27;Results Type:&#x27;, type(results))
+    print('Results:', results)
+    print('Results Type:', type(results))
     for row in results:
         print(row)
 except:
-    print(&#x27;Error&#x27;)</code></pre>
+    print('Error')</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>Count: 4
-One: (&#x27;20120001&#x27;, &#x27;Bob&#x27;, 25)
-Results: ((&#x27;20120011&#x27;, &#x27;Mary&#x27;, 21), (&#x27;20120012&#x27;, &#x27;Mike&#x27;, 20), (&#x27;20120013&#x27;, &#x27;James&#x27;, 22))
-Results Type: &lt;class &#x27;tuple&#x27;&gt;
-(&#x27;20120011&#x27;, &#x27;Mary&#x27;, 21)
-(&#x27;20120012&#x27;, &#x27;Mike&#x27;, 20)
-(&#x27;20120013&#x27;, &#x27;James&#x27;, 22)</code></pre>
-<p class="content-text">　　这里我们构造了一个 SQL 语句，查询年龄为 20 及以上的学生，然后将其传给 execute 方法。注意，
-这里不再需要 db 的 commit 方法。接着，调用 cursor 的 rowcount 属性获取查询结果的条数，当前
-实例中是 4 条。</p>
-<p class="content-text">　　然后我们调用了 fetchone 方法，这个方法可以获取结果的第一条数据，返回结果以元组形式呈现，
-元组中元素的顺序跟字段一一对应，即第一个元素就是第一个字段 id、第二个元素就是第二个字段
-name，以此类推。随后，我们又调用了 fetchall 方法，可以得到结果的所有数据。之后将其结果和类
-型打印出来，是一个二重元组，其中每个元素都是一条记录，我们遍历这些元素并输出。</p>
-<p class="content-text">　　但是需要注意一个问题，这里结果显示的是 3 条数据而不是 4 条，fetchall 方法不是获取所有数据
-吗？这是因为它的内部实现有一个偏移指针，用来指向查询结果，偏移指针最开始指向第一条数据，
-取一次数据之后，指针偏移到下一条数据，于是再取就会取到下一条数据。我们最初调用了一次
-fetchone 方法，这样结果的偏移指针就指向下一条数据，fetchall 方法返回的是从偏移指针指向的
-数据一直到结束的所有数据，所以它获取的结果就只剩 3 个了。</p>
-<p class="content-text">　　此外，我们还可以用 while 循环加 fetchone 方法的组合来获取所有数据，而不是用 fetchall 全部
-获取出来。fetchall 会将结果以元组形式全部返回，如果数据量很大，那么占用的开销也会非常高。
-因此，推荐使用如下方法逐条获取数据:</p>
-<pre class="code-block" data-lang="python"><code>sql = &#x27;SELECT * FROM students WHERE age &gt;= 20&#x27;
+One: ('20120001', 'Bob', 25)
+Results: (('20120011', 'Mary', 21), ('20120012', 'Mike', 20), ('20120013', 'James', 22))
+Results Type: &lt;class 'tuple'&gt;
+('20120011', 'Mary', 21)
+('20120012', 'Mike', 20)
+('20120013', 'James', 22)</code></pre>
+<p class="content-text">　　这里我们构造了一个 SQL 语句，查询年龄为 20 及以上的学生，然后将其传给 execute 方法。注意，这里不再需要 db 的 commit 方法。接着，调用 cursor 的 rowcount 属性获取查询结果的条数，当前实例中是 4 条。</p>
+<p class="content-text">　　然后我们调用了 fetchone 方法，这个方法可以获取结果的第一条数据，返回结果以元组形式呈现，元组中元素的顺序跟字段一一对应，即第一个元素就是第一个字段 id、第二个元素就是第二个字段name，以此类推。随后，我们又调用了 fetchall 方法，可以得到结果的所有数据。之后将其结果和类型打印出来，是一个二重元组，其中每个元素都是一条记录，我们遍历这些元素并输出。</p>
+<p class="content-text">　　但是需要注意一个问题，这里结果显示的是 3 条数据而不是 4 条，fetchall 方法不是获取所有数据吗？这是因为它的内部实现有一个偏移指针，用来指向查询结果，偏移指针最开始指向第一条数据，取一次数据之后，指针偏移到下一条数据，于是再取就会取到下一条数据。我们最初调用了一次fetchone 方法，这样结果的偏移指针就指向下一条数据，fetchall 方法返回的是从偏移指针指向的数据一直到结束的所有数据，所以它获取的结果就只剩 3 个了。</p>
+<p class="content-text">　　此外，我们还可以用 while 循环加 fetchone 方法的组合来获取所有数据，而不是用 fetchall 全部获取出来。fetchall 会将结果以元组形式全部返回，如果数据量很大，那么占用的开销也会非常高。因此，推荐使用如下方法逐条获取数据:</p>
+<pre class="code-block" data-lang="python"><code>sql = 'SELECT * FROM students WHERE age &gt;= 20'
 try:
     cursor.execute(sql)
-    print(&#x27;Count:&#x27;, cursor.rowcount)
+    print('Count:', cursor.rowcount)
     row = cursor.fetchone()
     while row:
-        print(&#x27;Row:&#x27;, row)
+        print('Row:', row)
         row = cursor.fetchone()
 except:
-    print(&#x27;Error&#x27;)</code></pre>
+    print('Error')</code></pre>
 <p class="content-text">　　这样每循环一次，指针就会偏移一条数据，随用随取，简单高效。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 总结</h3>
-<p class="content-text">本节我们了解了如何使用PyMySQL 操作 MySQL数据库,以及一些SQL语句的构造方法,后面
-会在实战案例中应用这些操作来存储数据。
-本节代码参见:https://github.com/Python3WebSpider/MySQLTest。</p>
+<p class="content-text">本节我们了解了如何使用PyMySQL 操作 MySQL数据库,以及一些SQL语句的构造方法,后面会在实战案例中应用这些操作来存储数据。本节代码参见:https://github.com/Python3WebSpider/MySQLTest。</p>
 </section>
 <div class="section-heading" id="section-4"><h2>4.5 MongoDB 文档存储</h2></div>
-<p class="content-text">NoSQL,全称为Not Only SQL,意为不仅仅是SQL,泛指非关系型数据库。NoSQL 是基于键值
-对的,而且不需要经过 SQL 层的解析,数据之间没有耦合性,性能非常高。
-非关系型数据库又可细分如下。</p>
+<p class="content-text">NoSQL,全称为Not Only SQL,意为不仅仅是SQL,泛指非关系型数据库。NoSQL 是基于键值对的,而且不需要经过 SQL 层的解析,数据之间没有耦合性,性能非常高。非关系型数据库又可细分如下。</p>
 <p class="content-text list-like"><strong class="term-label">键值存储数据库:</strong>代表有 Redis、Voldemort 和 Oracle BDB等。</p>
 <p class="content-text list-like"><strong class="term-label">列存储数据库:</strong>代表有 Cassandra、HBase 和Riak等。</p>
 <p class="content-text list-like"><strong class="term-label">文档型数据库:</strong>代表有 CouchDB 和 MongoDB等。</p>
-<p class="content-text list-like">图形数据库:代表有 Neo4J、InfoGrid 和 Infinite Graph等。
-对于爬虫的数据存储来说,一条数据可能存在因某些字段提取失败而缺失的情况,而且数据可能
-随时调整。另外,数据之间还存在嵌套关系。如果使用关系型数据库存储这些数据,一是需要提前建
-表,二是如果数据存在嵌套关系,还需要进行序列化操作才可以存储,这非常不方便。如果使用非关
-系型数据库,就可以避免这些麻烦,更简单、高效。
-本节中,我们主要介绍 MongoDB 存储操作。
-MongoDB 是由C++语言编写的非关系型数据库,是一个基于分布式文件存储的开源数据库系统,
-其内容的存储形式类似 JSON对象。它的字段值可以包含其他文档、数组及文档数组,非常灵活。本
-节我们就来看看 Python 3下MongoDB的存储操作。</p>
+<p class="content-text list-like">图形数据库:代表有 Neo4J、InfoGrid 和 Infinite Graph等。对于爬虫的数据存储来说,一条数据可能存在因某些字段提取失败而缺失的情况,而且数据可能随时调整。另外,数据之间还存在嵌套关系。如果使用关系型数据库存储这些数据,一是需要提前建表,二是如果数据存在嵌套关系,还需要进行序列化操作才可以存储,这非常不方便。如果使用非关系型数据库,就可以避免这些麻烦,更简单、高效。本节中,我们主要介绍 MongoDB 存储操作。MongoDB 是由C++语言编写的非关系型数据库,是一个基于分布式文件存储的开源数据库系统,其内容的存储形式类似 JSON对象。它的字段值可以包含其他文档、数组及文档数组,非常灵活。本节我们就来看看 Python 3下MongoDB的存储操作。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">　　在开始之前，请确保已经安装好了 MongoDB 并启动了其服务，安装方式可以参考: https://setup.
-scrape.center/mongodb。
-除了安装好 MongoDB 数据库,我们还需要安装好 Python 的PyMongo库,如尚未安装,可以使
-用pip3 来安装:</p>
+<p class="content-text">　　在开始之前，请确保已经安装好了 MongoDB 并启动了其服务，安装方式可以参考: https://setup.scrape.center/mongodb。除了安装好 MongoDB 数据库,我们还需要安装好 Python 的PyMongo库,如尚未安装,可以使用pip3 来安装:</p>
 <pre class="code-block"><code>pip3 install pymongo</code></pre>
-<p class="content-text">更详细的安装说明可以参考:https://setup.scrape.center/pymongo。
-安装好 MongoDB 数据库和 PyMongo库之后,我们便可以开始本节的学习了。</p>
+<p class="content-text">更详细的安装说明可以参考:https://setup.scrape.center/pymongo。安装好 MongoDB 数据库和 PyMongo库之后,我们便可以开始本节的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 连接 MongoDB</h3>
-<p class="content-text">连接 MongoDB时,需要使用PyMongo 库里面的 MongoClient 方法,一般而言,传入MongoDB的
-IP 及端口即可。MongoClient 方法的第一个参数为地址host,第二个参数为端口 port(如果不传入此
-参数,默认取值为27017):</p>
+<p class="content-text">连接 MongoDB时,需要使用PyMongo 库里面的 MongoClient 方法,一般而言,传入MongoDB的IP 及端口即可。MongoClient 方法的第一个参数为地址host,第二个参数为端口 port(如果不传入此参数,默认取值为27017):</p>
 <pre class="code-block"><code>import pymongo
-client = pymongo.MongoClient(host=&#x27;localhost&#x27;, port=27017)</code></pre>
-<p class="content-text">这样就可以创建 MongoDB的连接对象了。
-另外,还可以直接给 MongoClient 的第一个参数 host传入 MongoDB 的连接字符串,它以 mongodb</p>
+client = pymongo.MongoClient(host='localhost', port=27017)</code></pre>
+<p class="content-text">这样就可以创建 MongoDB的连接对象了。另外,还可以直接给 MongoClient 的第一个参数 host传入 MongoDB 的连接字符串,它以 mongodb</p>
 <p class="content-text">开头,例如:</p>
-<pre class="code-block"><code>client = MongoClient(&#x27;mongodb://localhost:27017/&#x27;)</code></pre>
+<pre class="code-block"><code>client = MongoClient('mongodb://localhost:27017/')</code></pre>
 <p class="content-text">这可以达到同样的连接效果。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 指定数据库</h3>
-<p class="content-text">在MongoDB中,可以建立多个数据库,所以我们需要指定操作哪个数据库。这里我们以指定 test
-数据库为例来说明:</p>
+<p class="content-text">在MongoDB中,可以建立多个数据库,所以我们需要指定操作哪个数据库。这里我们以指定 test数据库为例来说明:</p>
 <pre class="code-block"><code>db = client.test</code></pre>
 <p class="content-text">这里调用 client 的test 属性即可返回 test 数据库。当然,也可以这样指定:</p>
-<pre class="code-block"><code>db = client[&#x27;test&#x27;]</code></pre>
+<pre class="code-block"><code>db = client['test']</code></pre>
 <p class="content-text">这两种方式是等价的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 指定集合</h3>
-<p class="content-text">MongoDB 的每个数据库又都包含许多集合(collection),这些集合类似于关系型数据库中的表。
-下一步需要指定要操作哪些集合,这里指定一个集合,名称为 students。与指定数据库类似,指
-定集合也有两种方式:</p>
+<p class="content-text">MongoDB 的每个数据库又都包含许多集合(collection),这些集合类似于关系型数据库中的表。下一步需要指定要操作哪些集合,这里指定一个集合,名称为 students。与指定数据库类似,指定集合也有两种方式:</p>
 <pre class="code-block"><code>collection = db.students</code></pre>
 <p class="content-text">或</p>
-<pre class="code-block"><code>collection = db[&#x27;students&#x27;]</code></pre>
+<pre class="code-block"><code>collection = db['students']</code></pre>
 <p class="content-text">这样我们便声明了一个集合对象。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 插入数据</h3>
-<p class="content-text">接下来,便可以插入数据了。在students 这个集合中,新建一条学生数据,这条数据以字典形式
-表示:</p>
+<p class="content-text">接下来,便可以插入数据了。在students 这个集合中,新建一条学生数据,这条数据以字典形式表示:</p>
 <pre class="code-block"><code>student = {
-&#x27;id&#x27;: &#x27;20170101&#x27;,
-&#x27;name&#x27;: &#x27;Jordan&#x27;,
-&#x27;age&#x27;: 20,
-&#x27;gender&#x27;: &#x27;male&#x27;
+'id': '20170101',
+'name': 'Jordan',
+'age': 20,
+'gender': 'male'
 }</code></pre>
-<p class="content-text">这里指定了学生的学号、姓名、年龄和性别。然后直接调用 collection 类的 insert 方法即可插
-入数据,代码如下:</p>
+<p class="content-text">这里指定了学生的学号、姓名、年龄和性别。然后直接调用 collection 类的 insert 方法即可插入数据,代码如下:</p>
 <pre class="code-block"><code>result = collection.insert(student)
 print(result)</code></pre>
-<p class="content-text">在MongoDB中,每条数据都有一个_id 属性作为唯一标识。如果没有显式指明该属性,那么
-MongoDB 会自动产生一个 ObjectId 类型的_id 属性,insert方法会在执行后返回_id值。
-运行结果如下:</p>
+<p class="content-text">在MongoDB中,每条数据都有一个_id 属性作为唯一标识。如果没有显式指明该属性,那么MongoDB 会自动产生一个 ObjectId 类型的_id 属性,insert方法会在执行后返回_id值。运行结果如下:</p>
 <pre class="result-block"><code>5932a68615c2606814c91f3d</code></pre>
 <p class="content-text">当然,也可以同时插入多条数据,只需要以列表形式传递即可,实例如下:</p>
 <pre class="code-block"><code>student1 = {
-&#x27;id&#x27;: &#x27;20170101&#x27;,
-&#x27;name&#x27;: &#x27;Jordan&#x27;,
-&#x27;age&#x27;: 20,
-&#x27;gender&#x27;: &#x27;male&#x27;
+'id': '20170101',
+'name': 'Jordan',
+'age': 20,
+'gender': 'male'
 }
 student2 = {
-&#x27;id&#x27;: &#x27;20170202&#x27;,
-&#x27;name&#x27;: &#x27;Mike&#x27;,
-&#x27;age&#x27;: 21,
-&#x27;gender&#x27;: &#x27;male&#x27;
+'id': '20170202',
+'name': 'Mike',
+'age': 21,
+'gender': 'male'
 }
 result = collection.insert([student1, student2])
 print(result)</code></pre>
 <p class="content-text">返回结果是对应的_id的集合:</p>
-<pre class="code-block"><code>[ObjectId(&#x27;5932a80115c2606a59e8a048&#x27;), ObjectId(&#x27;5932a80115c2606a59e8a049&#x27;)]</code></pre>
-<p class="content-text">实际上,在PyMongo 3.x 版本中,官方已经不推荐使用 insert方法了。当然,继续使用也没什么
-问题。官方推荐使用的是 insert_one 和 insert_many方法,分别用来插入单条记录和多条记录,实例
-代码如下:</p>
+<pre class="code-block"><code>[ObjectId('5932a80115c2606a59e8a048'), ObjectId('5932a80115c2606a59e8a049')]</code></pre>
+<p class="content-text">实际上,在PyMongo 3.x 版本中,官方已经不推荐使用 insert方法了。当然,继续使用也没什么问题。官方推荐使用的是 insert_one 和 insert_many方法,分别用来插入单条记录和多条记录,实例代码如下:</p>
 <pre class="code-block"><code>student = {
-&#x27;id&#x27;: &#x27;20170101&#x27;,
-&#x27;name&#x27;: &#x27;Jordan&#x27;,
-&#x27;age&#x27;: 20,
-&#x27;gender&#x27;: &#x27;male&#x27;
+'id': '20170101',
+'name': 'Jordan',
+'age': 20,
+'gender': 'male'
 }
 result = collection.insert_one(student)
 print(result)
@@ -836,84 +662,73 @@ print(result.inserted_id)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. InsertOneResult object at 0x10d68b558&gt;
 5932ab0f15c2606f0c1cf6c5</code></pre>
-<p class="content-text">与 insert 方法不同,这次返回的是 InsertOneResult对象,我们可以调用其 inserted_id 属性获
-取_id。
-对于 insert_many方法,我们可以将数据以列表形式传递,实例代码如下:</p>
+<p class="content-text">与 insert 方法不同,这次返回的是 InsertOneResult对象,我们可以调用其 inserted_id 属性获取_id。对于 insert_many方法,我们可以将数据以列表形式传递,实例代码如下:</p>
 <pre class="code-block"><code>student1 = {
-&#x27;id&#x27;: &#x27;20170101&#x27;,
-&#x27;name&#x27;: &#x27;Jordan&#x27;,
-&#x27;age&#x27;: 20,
-&#x27;gender&#x27;: &#x27;male&#x27;
+'id': '20170101',
+'name': 'Jordan',
+'age': 20,
+'gender': 'male'
 }
 student2 = {
-&#x27;id&#x27;: &#x27;20170202&#x27;,
-&#x27;name&#x27;: &#x27;Mike&#x27;,
-&#x27;age&#x27;: 21,
-&#x27;gender&#x27;: &#x27;male&#x27;
+'id': '20170202',
+'name': 'Mike',
+'age': 21,
+'gender': 'male'
 }
 result = collection.insert_many([student1, student2])
 print(result)
 print(result.inserted_ids)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. InsertManyResult object at 0x101dea558&gt;
-[ObjectId(&#x27;5932abf415c2607083d3b2ac&#x27;), ObjectId(&#x27;5932abf415c2607083d3b2ad&#x27;)]</code></pre>
-<p class="content-text">该方法返回的是 InsertManyResult 类型的对象,调用 inserted_ids 属性可以获取插入数据的_id
-列表。</p>
+[ObjectId('5932abf415c2607083d3b2ac'), ObjectId('5932abf415c2607083d3b2ad')]</code></pre>
+<p class="content-text">该方法返回的是 InsertManyResult 类型的对象,调用 inserted_ids 属性可以获取插入数据的_id列表。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 查询</h3>
-<p class="content-text">插入数据后,我们可以利用 find_one或find 方法进行查询,用前者查询得到的是单个结果,后
-者则会返回一个生成器对象。实例代码如下:</p>
-<pre class="code-block"><code>result = collection.find_one({&#x27;name&#x27;: &#x27;Mike&#x27;})
+<p class="content-text">插入数据后,我们可以利用 find_one或find 方法进行查询,用前者查询得到的是单个结果,后者则会返回一个生成器对象。实例代码如下:</p>
+<pre class="code-block"><code>result = collection.find_one({'name': 'Mike'})
 print(type(result))
 print(result)</code></pre>
 <p class="content-text">这里我们查询 name 值为Mike的数据,运行结果如下:</p>
-<pre class="result-block"><code>&lt;class &#x27;dict&#x27;&gt;
-{&#x27;_id&#x27;: ObjectId(&#x27;5932a80115c2606a59e8a049&#x27;), &#x27;id&#x27;: &#x27;20170202&#x27;, &#x27;name&#x27;: &#x27;Mike&#x27;, &#x27;age&#x27;: 21, &#x27;gender&#x27;: &#x27;male&#x27;}</code></pre>
-<p class="content-text">可以发现,结果是字典类型,它多了_id属性,这就是MongoDB在插入数据过程中自动添加的。
-此外,我们也可以根据 ObjectId 来查询数据,此时需要使用bson 库里面的 objectid:</p>
+<pre class="result-block"><code>&lt;class 'dict'&gt;
+{'_id': ObjectId('5932a80115c2606a59e8a049'), 'id': '20170202', 'name': 'Mike', 'age': 21, 'gender': 'male'}</code></pre>
+<p class="content-text">可以发现,结果是字典类型,它多了_id属性,这就是MongoDB在插入数据过程中自动添加的。此外,我们也可以根据 ObjectId 来查询数据,此时需要使用bson 库里面的 objectid:</p>
 <pre class="code-block"><code>from bson.objectid import ObjectId
-result = collection.find_one({&#x27;_id&#x27;: ObjectId(&#x27;593278c115c2602667ec6bae&#x27;)})
+result = collection.find_one({'_id': ObjectId('593278c115c2602667ec6bae')})
 print(result)</code></pre>
 <p class="content-text">其查询结果依然是字典类型,具体如下:</p>
-<pre class="code-block"><code>{&#x27;_id&#x27;: ObjectId(&#x27;593278c115c2602667ec6bae&#x27;), &#x27;id&#x27;: &#x27;20170101&#x27;, &#x27;name&#x27;: &#x27;Jordan&#x27;, &#x27;age&#x27;: 20, &#x27;gender&#x27;: &#x27;male&#x27;}</code></pre>
-<p class="content-text">当然,如果查询结果不存在,则会返回 None。
-若要查询多条数据,可以使用find方法。例如,查找age为20的数据,实例代码如下:</p>
-<pre class="code-block"><code>results = collection.find({&#x27;age&#x27;: 20})
+<pre class="code-block"><code>{'_id': ObjectId('593278c115c2602667ec6bae'), 'id': '20170101', 'name': 'Jordan', 'age': 20, 'gender': 'male'}</code></pre>
+<p class="content-text">当然,如果查询结果不存在,则会返回 None。若要查询多条数据,可以使用find方法。例如,查找age为20的数据,实例代码如下:</p>
+<pre class="code-block"><code>results = collection.find({'age': 20})
 print(results)
 for result in results:
     print(result)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.cursor. Cursor object at 0x1032d5128&gt;
-{&#x27;_id&#x27;: ObjectId(&#x27;593278c115c2602667ec6bae&#x27;), &#x27;id&#x27;: &#x27;20170101&#x27;, &#x27;name&#x27;: &#x27;Jordan&#x27;, &#x27;age&#x27;: 20, &#x27;gender&#x27;: &#x27;male&#x27;}
-{&#x27;_id&#x27;: ObjectId(&#x27;593278c815c2602678bb2b8d&#x27;), &#x27;id&#x27;: &#x27;20170102&#x27;, &#x27;name&#x27;: &#x27;Kevin&#x27;, &#x27;age&#x27;: 20, &#x27;gender&#x27;: &#x27;male&#x27;}
-{&#x27;_id&#x27;: ObjectId(&#x27;593278d815c260269d7645a8&#x27;), &#x27;id&#x27;: &#x27;20170103&#x27;, &#x27;name&#x27;: &#x27;Harden&#x27;, &#x27;age&#x27;: 20, &#x27;gender&#x27;: &#x27;male&#x27;}</code></pre>
-<p class="content-text">返回结果是 Cursor 类型,相当于一个生成器,通过遍历能够获取所有的结果,其中每个结果都
-是字典类型。
-如果要查询 age 大于20的数据,则写法如下:</p>
-<pre class="code-block"><code>results = collection.find({&#x27;age&#x27;: {&#x27;$gt&#x27;: 20}})</code></pre>
-<p class="content-text">这里查询条件中的键值已经不是单纯的数字了,而是一个字典,其键名为比较符号 $gt,意思是
-大于;键值为20。
-这里将比较符号归纳为表4-3。</p>
+{'_id': ObjectId('593278c115c2602667ec6bae'), 'id': '20170101', 'name': 'Jordan', 'age': 20, 'gender': 'male'}
+{'_id': ObjectId('593278c815c2602678bb2b8d'), 'id': '20170102', 'name': 'Kevin', 'age': 20, 'gender': 'male'}
+{'_id': ObjectId('593278d815c260269d7645a8'), 'id': '20170103', 'name': 'Harden', 'age': 20, 'gender': 'male'}</code></pre>
+<p class="content-text">返回结果是 Cursor 类型,相当于一个生成器,通过遍历能够获取所有的结果,其中每个结果都是字典类型。如果要查询 age 大于20的数据,则写法如下:</p>
+<pre class="code-block"><code>results = collection.find({'age': {'$gt': 20}})</code></pre>
+<p class="content-text">这里查询条件中的键值已经不是单纯的数字了,而是一个字典,其键名为比较符号 $gt,意思是大于;键值为20。这里将比较符号归纳为表4-3。</p>
 <p class="table-caption">表4-3 比较符号</p>
-<table class="content-table"><thead><tr><th>符 号</th><th>含 义</th><th>实 例</th></tr></thead><tbody><tr><td>$lt</td><td>小于</td><td>{&#x27;age&#x27;: {&#x27;$lt&#x27;: 20}}</td></tr>
-<tr><td>$gt</td><td>大于</td><td>{&#x27;age&#x27;: {&#x27;$gt&#x27;: 20}}</td></tr>
-<tr><td>$lte</td><td>小于等于</td><td>{&#x27;age&#x27;: {&#x27;$lte&#x27;: 20}}</td></tr>
-<tr><td>$gte</td><td>大于等于</td><td>{&#x27;age&#x27;: {&#x27;$gte&#x27;: 20}}</td></tr>
-<tr><td>$ne</td><td>不等于</td><td>{&#x27;age&#x27;: {&#x27;$ne&#x27;: 20}}</td></tr>
-<tr><td>$in</td><td>在范围内</td><td>{&#x27;age&#x27;: {&#x27;$in&#x27;: [20, 23]}}</td></tr>
-<tr><td>$nin</td><td>不在范围内</td><td>{&#x27;age&#x27;: {&#x27;$nin&#x27;: [20, 23]}}</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>符 号</th><th>含 义</th><th>实 例</th></tr></thead><tbody><tr><td>$lt</td><td>小于</td><td>{'age': {'$lt': 20}}</td></tr>
+<tr><td>$gt</td><td>大于</td><td>{'age': {'$gt': 20}}</td></tr>
+<tr><td>$lte</td><td>小于等于</td><td>{'age': {'$lte': 20}}</td></tr>
+<tr><td>$gte</td><td>大于等于</td><td>{'age': {'$gte': 20}}</td></tr>
+<tr><td>$ne</td><td>不等于</td><td>{'age': {'$ne': 20}}</td></tr>
+<tr><td>$in</td><td>在范围内</td><td>{'age': {'$in': [20, 23]}}</td></tr>
+<tr><td>$nin</td><td>不在范围内</td><td>{'age': {'$nin': [20, 23]}}</td></tr></tbody></table>
 <p class="content-text">另外,还可以进行正则匹配查询。例如,执行以下代码查询 name 以M为开头的学生数据:</p>
-<pre class="code-block"><code>results = collection.find({&#x27;name&#x27;: {&#x27;$regex&#x27;: &#x27;^M.*&#x27;}})</code></pre>
-<p class="content-text">这里使用 $regex来指定正则匹配,^M.*代表以M为开头的正则表达式。
-下面将一些功能符号归类为表4-4。</p>
+<pre class="code-block"><code>results = collection.find({'name': {'$regex': '^M.*'}})</code></pre>
+<p class="content-text">这里使用 $regex来指定正则匹配,^M.*代表以M为开头的正则表达式。下面将一些功能符号归类为表4-4。</p>
 <p class="table-caption">表4-4 功能符号</p>
-<table class="content-table"><thead><tr><th>符号</th><th>含义</th><th>实例</th><th>实例含义</th></tr></thead><tbody><tr><td>$regex</td><td>匹配正则表达式</td><td>`{&#x27;name&#x27;: {&#x27;$regex&#x27;: &#x27;^M.*&#x27;}}`</td><td>name 以M为开头</td></tr>
-<tr><td>$exists</td><td>属性是否存在</td><td>`{&#x27;name&#x27;: {&#x27;$exists&#x27;: True}}`</td><td>存在 name 属性</td></tr>
-<tr><td>$type</td><td>类型判断</td><td>`{&#x27;age&#x27;: {&#x27;$type&#x27;: &#x27;int&#x27;}}`</td><td>age 的类型为 int</td></tr>
-<tr><td>$mod</td><td>数字模操作</td><td>`{&#x27;age&#x27;: {&#x27;$mod&#x27;: [5, 0]}}`</td><td>age 模5余0</td></tr>
-<tr><td>$text</td><td>文本查询</td><td>`{&#x27;$text&#x27;: {&#x27;$search&#x27;: &#x27;Mike&#x27;}}`</td><td>text 类型的属性中包含 Mike 字符串</td></tr>
-<tr><td>$where</td><td>高级条件查询</td><td>`{&#x27;$where&#x27;: &#x27;obj.fans_count == obj.follows_count&#x27;}`</td><td>自身粉丝数等于关注数</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>符号</th><th>含义</th><th>实例</th><th>实例含义</th></tr></thead><tbody><tr><td>$regex</td><td>匹配正则表达式</td><td>`{'name': {'$regex': '^M.*'}}`</td><td>name 以M为开头</td></tr>
+<tr><td>$exists</td><td>属性是否存在</td><td>`{'name': {'$exists': True}}`</td><td>存在 name 属性</td></tr>
+<tr><td>$type</td><td>类型判断</td><td>`{'age': {'$type': 'int'}}`</td><td>age 的类型为 int</td></tr>
+<tr><td>$mod</td><td>数字模操作</td><td>`{'age': {'$mod': [5, 0]}}`</td><td>age 模5余0</td></tr>
+<tr><td>$text</td><td>文本查询</td><td>`{'$text': {'$search': 'Mike'}}`</td><td>text 类型的属性中包含 Mike 字符串</td></tr>
+<tr><td>$where</td><td>高级条件查询</td><td>`{'$where': 'obj.fans_count == obj.follows_count'}`</td><td>自身粉丝数等于关注数</td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 计数</h3>
@@ -921,85 +736,72 @@ for result in results:
 <pre class="code-block"><code>count = collection.find().count()
 print(count)</code></pre>
 <p class="content-text">统计符合某个条件的数据有多少条,代码如下:</p>
-<pre class="code-block"><code>count = collection.find({&#x27;age&#x27;: 20}).count()
+<pre class="code-block"><code>count = collection.find({'age': 20}).count()
 print(count)</code></pre>
 <p class="content-text">运行结果是一个数值,即符合条件的数据条数。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 排序</h3>
 <p class="content-text">排序时,直接调用sort方法,并传入排序的字段及升降序标志即可。实例代码如下:</p>
-<pre class="code-block"><code>results = collection.find().sort(&#x27;name&#x27;, pymongo.ASCENDING)
-print([result[&#x27;name&#x27;] for result in results])</code></pre>
+<pre class="code-block"><code>results = collection.find().sort('name', pymongo.ASCENDING)
+print([result['name'] for result in results])</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>`[&#x27;Harden&#x27;, &#x27;Jordan&#x27;, &#x27;Kevin&#x27;, &#x27;Mark&#x27;, &#x27;Mike&#x27;]`</code></pre>
+<pre class="result-block"><code>`['Harden', 'Jordan', 'Kevin', 'Mark', 'Mike']`</code></pre>
 <p class="content-text">这里我们调用 <code class="inline-code">pymongo.ASCENDING</code> 指定按升序排序。如果要降序排,可以传入 <code class="inline-code">pymongo.DESCENDING</code>。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 偏移</h3>
-<p class="content-text">在某些情况下,我们可能只想取某几个元素,这时可以利用skip方法偏移几个位置,例如偏移2,
-即忽略前两个元素,获取第三个及以后的元素:</p>
-<pre class="code-block"><code>results = collection.find().sort(&#x27;name&#x27;, pymongo.ASCENDING).skip(2)
-print([result[&#x27;name&#x27;] for result in results])</code></pre>
+<p class="content-text">在某些情况下,我们可能只想取某几个元素,这时可以利用skip方法偏移几个位置,例如偏移2,即忽略前两个元素,获取第三个及以后的元素:</p>
+<pre class="code-block"><code>results = collection.find().sort('name', pymongo.ASCENDING).skip(2)
+print([result['name'] for result in results])</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>`[&#x27;Kevin&#x27;, &#x27;Mark&#x27;, &#x27;Mike&#x27;]`</code></pre>
+<pre class="result-block"><code>`['Kevin', 'Mark', 'Mike']`</code></pre>
 <p class="content-text">另外,还可以使用limit方法指定要获取的结果个数,实例代码如下:</p>
-<pre class="code-block"><code>results = collection.find().sort(&#x27;name&#x27;, pymongo.ASCENDING).skip(2).limit(2)
-print([result[&#x27;name&#x27;] for result in results])</code></pre>
+<pre class="code-block"><code>results = collection.find().sort('name', pymongo.ASCENDING).skip(2).limit(2)
+print([result['name'] for result in results])</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>[&#x27;Kevin&#x27;, &#x27;Mark&#x27;]</code></pre>
-<p class="content-text">如果不使用 limit方法加以限制,原本会返回三个结果,而加了限制后,会截取两个结果并返回。
-值得注意的是,在数据库中数据量非常庞大的时候(例如千万、亿级别),最好不要使用大偏移
-量来查询数据,因为这样很可能导致内存溢出。此时可以使用类似如下操作来查询:</p>
+<pre class="result-block"><code>['Kevin', 'Mark']</code></pre>
+<p class="content-text">如果不使用 limit方法加以限制,原本会返回三个结果,而加了限制后,会截取两个结果并返回。值得注意的是,在数据库中数据量非常庞大的时候(例如千万、亿级别),最好不要使用大偏移量来查询数据,因为这样很可能导致内存溢出。此时可以使用类似如下操作来查询:</p>
 <pre class="code-block"><code>from bson.objectid import ObjectId
-collection.find({&#x27;_id&#x27;: {&#x27;$gt&#x27;: ObjectId(&#x27;593278c815c2602678bb2b8d&#x27;)}})</code></pre>
+collection.find({'_id': {'$gt': ObjectId('593278c815c2602678bb2b8d')}})</code></pre>
 <p class="content-text">这里需要记录好上次查询的_id。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 更新</h3>
 <p class="content-text">对于数据更新,我们可以使用 update方法,在其中指定更新的条件和更新后的数据即可。例如:</p>
-<pre class="code-block"><code>condition = {&#x27;name&#x27;: &#x27;Kevin&#x27;}
+<pre class="code-block"><code>condition = {'name': 'Kevin'}
 student = collection.find_one(condition)
-student[&#x27;age&#x27;] = 25
+student['age'] = 25
 result = collection.update(condition, student)
 print(result)</code></pre>
-<p class="content-text">这里我们更新的是name值为Kevin 的学生数据的age:首先指定查询条件,然后将数据查询出来,
-修改其 age 后调用 update 方法将原条件和修改后的数据传入。
-运行结果如下:</p>
-<pre class="result-block"><code>{&#x27;ok&#x27;: 1, &#x27;nModified&#x27;: 1, &#x27;n&#x27;: 1, &#x27;updatedExisting&#x27;: True}</code></pre>
-<p class="content-text">返回结果是字典形式,ok代表执行成功,nModified 代表影响的数据条数。
-另外,我们可以使用$set操作符实现数据更新,代码如下:</p>
-<pre class="code-block"><code>result = collection.update(condition, {&#x27;$set&#x27;: student})</code></pre>
-<p class="content-text">这样可以只更新 student 字典内存在的字段。如果原先还有其他字段,则既不会更新,也不会删除。
-而如果不用$set,就会把之前的数据全部用 student 字典替换;要是原本存在其他字段,会被删除。
-另外,update 其实也是官方不推荐使用的方法。官方推荐使用单独的 update_one 方法和
-update_many 方法来处理单条和多条数据更新过程,它们用法更加严格,第二个参数都需要使用$类
-型操作符作为字典的键名,实例代码如下:</p>
-<pre class="code-block"><code>condition = {&#x27;name&#x27;: &#x27;Kevin&#x27;}
+<p class="content-text">这里我们更新的是name值为Kevin 的学生数据的age:首先指定查询条件,然后将数据查询出来,修改其 age 后调用 update 方法将原条件和修改后的数据传入。运行结果如下:</p>
+<pre class="result-block"><code>{'ok': 1, 'nModified': 1, 'n': 1, 'updatedExisting': True}</code></pre>
+<p class="content-text">返回结果是字典形式,ok代表执行成功,nModified 代表影响的数据条数。另外,我们可以使用$set操作符实现数据更新,代码如下:</p>
+<pre class="code-block"><code>result = collection.update(condition, {'$set': student})</code></pre>
+<p class="content-text">这样可以只更新 student 字典内存在的字段。如果原先还有其他字段,则既不会更新,也不会删除。而如果不用$set,就会把之前的数据全部用 student 字典替换;要是原本存在其他字段,会被删除。另外,update 其实也是官方不推荐使用的方法。官方推荐使用单独的 update_one 方法和update_many 方法来处理单条和多条数据更新过程,它们用法更加严格,第二个参数都需要使用$类型操作符作为字典的键名,实例代码如下:</p>
+<pre class="code-block"><code>condition = {'name': 'Kevin'}
 student = collection.find_one(condition)
-student[&#x27;age&#x27;] = 26
-result = collection.update_one(condition, {&#x27;$set&#x27;: student})
+student['age'] = 26
+result = collection.update_one(condition, {'$set': student})
 print(result)
 print(result.matched_count, result.modified_count)</code></pre>
 <p class="content-text">这里调用的是 update_one 方法,其第二个参数不能再直接传入修改后的字典,而是需要使用</p>
-<pre class="code-block"><code>{&#x27;$set&#x27;: student}这种形式的数据。然后分别调用 matched_count 和 modified_count属性,可以获得</code></pre>
-<p class="content-text">匹配的数据条数和影响的数据条数。
-运行结果如下:</p>
+<pre class="code-block"><code>{'$set': student}这种形式的数据。然后分别调用 matched_count 和 modified_count属性,可以获得</code></pre>
+<p class="content-text">匹配的数据条数和影响的数据条数。运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. UpdateResult object at 0x10d17b678&gt;
 1 0</code></pre>
 <p class="content-text">可以发现 update_one 方法的返回结果是 UpdateResult 类型。我们再看一个例子:</p>
-<pre class="code-block"><code>condition = {&#x27;age&#x27;: {&#x27;$gt&#x27;: 20}}
-result = collection.update_one(condition, {&#x27;$inc&#x27;: {&#x27;age&#x27;: 1}})
+<pre class="code-block"><code>condition = {'age': {'$gt': 20}}
+result = collection.update_one(condition, {'$inc': {'age': 1}})
 print(result)
 print(result.matched_count, result.modified_count)</code></pre>
-<p class="content-text">这里指定查询条件为age 大于20,然后更新条件是{&#x27;$inc&#x27;: {&#x27;age&#x27;: 1}},也就是对 age加1,</p>
-<p class="content-text">因此执行 update_one 方法之后,会对第一条符合查询条件的学生数据的age 加1。
-运行结果如下:</p>
+<p class="content-text">这里指定查询条件为age 大于20,然后更新条件是{'$inc': {'age': 1}},也就是对 age加1,</p>
+<p class="content-text">因此执行 update_one 方法之后,会对第一条符合查询条件的学生数据的age 加1。运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. UpdateResult object at 0x10b8874c8&gt;
 1 1</code></pre>
-<p class="content-text">可以看到匹配条数为1条,影响条数也为1条。
-但如果调用 update_many方法,则会更新所有符合条件的数据,实例代码如下:</p>
-<pre class="code-block"><code>condition = {&#x27;age&#x27;: {&#x27;$gt&#x27;: 20}}
-result = collection.update_many(condition, {&#x27;$inc&#x27;: {&#x27;age&#x27;: 1}})
+<p class="content-text">可以看到匹配条数为1条,影响条数也为1条。但如果调用 update_many方法,则会更新所有符合条件的数据,实例代码如下:</p>
+<pre class="code-block"><code>condition = {'age': {'$gt': 20}}
+result = collection.update_many(condition, {'$inc': {'age': 1}})
 print(result)
 print(result.matched_count, result.modified_count)</code></pre>
 <p class="content-text">运行结果如下:</p>
@@ -1009,18 +811,16 @@ print(result.matched_count, result.modified_count)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">11. 删除</h3>
-<p class="content-text">删除操作比较简单,直接调用 remove 方法并指定删除条件即可,之后符合条件的所有数据均会
-被删除。实例代码如下:</p>
-<pre class="code-block"><code>result = collection.remove({&#x27;name&#x27;: &#x27;Kevin&#x27;})
+<p class="content-text">删除操作比较简单,直接调用 remove 方法并指定删除条件即可,之后符合条件的所有数据均会被删除。实例代码如下:</p>
+<pre class="code-block"><code>result = collection.remove({'name': 'Kevin'})
 print(result)</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>{&#x27;ok&#x27;: 1, &#x27;n&#x27;: 1}</code></pre>
-<p class="content-text">另外,这里依然存在两个新的官方推荐方法——delete_one 和 delete_many。delete_one 即删除
-第一条符合条件的数据,delete_many 即删除所有符合条件的数据。实例代码如下:</p>
-<pre class="code-block"><code>result = collection.delete_one({&#x27;name&#x27;: &#x27;Kevin&#x27;})
+<pre class="result-block"><code>{'ok': 1, 'n': 1}</code></pre>
+<p class="content-text">另外,这里依然存在两个新的官方推荐方法——delete_one 和 delete_many。delete_one 即删除第一条符合条件的数据,delete_many 即删除所有符合条件的数据。实例代码如下:</p>
+<pre class="code-block"><code>result = collection.delete_one({'name': 'Kevin'})
 print(result)
 print(result.deleted_count)
-result = collection.delete_many({&#x27;age&#x27;: {&#x27;$lt&#x27;: 25}})
+result = collection.delete_many({'age': {'$lt': 25}})
 print(result.deleted_count)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. DeleteResult object at 0x10e6ba4c8&gt;
@@ -1030,86 +830,67 @@ print(result.deleted_count)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">12. 其他操作</h3>
-<p class="content-text">除了以上操作,PyMongo还提供了一些组合方法,例如 find_one_and_delete、find_one_and_replace
-和 find_one_and_update,分别是查找后删除、替换和更新操作,用法与上述方法基本一致。
-另外,还可以对索引进行操作,相关方法有 create_index、create_indexes 和 drop_index等。</p>
+<p class="content-text">除了以上操作,PyMongo还提供了一些组合方法,例如 find_one_and_delete、find_one_and_replace和 find_one_and_update,分别是查找后删除、替换和更新操作,用法与上述方法基本一致。另外,还可以对索引进行操作,相关方法有 create_index、create_indexes 和 drop_index等。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">13. 总结</h3>
-<p class="content-text">本节讲解了使用PyMongo 操作 MongoDB 进行数据增删改查的方法,后面我们会在实战案例中应
-用这些操作完成数据存储。
-本节代码参见:https://github.com/Python3WebSpider/MongoDBTest。</p>
+<p class="content-text">本节讲解了使用PyMongo 操作 MongoDB 进行数据增删改查的方法,后面我们会在实战案例中应用这些操作完成数据存储。本节代码参见:https://github.com/Python3WebSpider/MongoDBTest。</p>
 </section>
 <div class="section-heading" id="section-5"><h2>4.6 Redis 缓存存储</h2></div>
-<p class="content-text">　　Redis 是一个基于内存的、高效的键值型非关系型数据库，存取效率极高，而且支持多种数据存
-储结构，使用起来也非常简单。本节我们就来介绍一下 Python 的 Redis 操作，主要介绍 redis-py 这个
-库的用法。</p>
+<p class="content-text">　　Redis 是一个基于内存的、高效的键值型非关系型数据库，存取效率极高，而且支持多种数据存储结构，使用起来也非常简单。本节我们就来介绍一下 Python 的 Redis 操作，主要介绍 redis-py 这个库的用法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">　　在开始之前，请确保已经安装好了 Redis 并能正常运行，安装方式可以参考: https://setup.scrape.center/
-redis。</p>
-<p class="content-text">　　除了安装好 Redis 数据库外，我们还需要安装好 redis-py 库，即用来操作 Redis 的 Python 包，可
-以使用 pip3 来安装:</p>
+<p class="content-text">　　在开始之前，请确保已经安装好了 Redis 并能正常运行，安装方式可以参考: https://setup.scrape.center/redis。</p>
+<p class="content-text">　　除了安装好 Redis 数据库外，我们还需要安装好 redis-py 库，即用来操作 Redis 的 Python 包，可以使用 pip3 来安装:</p>
 <pre class="code-block"><code>pip3 install redis</code></pre>
-<p class="content-text">　　更详细的安装说明可以参考: https://setup.scrape.center/redis-py。
-　　安装好 Redis 数据库和 redis-py 库之后，我们便可以开始本节的学习了。</p>
+<p class="content-text">　　更详细的安装说明可以参考: https://setup.scrape.center/redis-py。　　安装好 Redis 数据库和 redis-py 库之后，我们便可以开始本节的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Redis 和 StrictRedis</h3>
 <p class="content-text">　　redis-py 库提供 Redis 和 StrictRedis 两个类，用来实现 Redis 命令对应的操作。</p>
-<p class="content-text">　　StrictRedis 类实现了绝大部分官方的 Redis 命令，参数也一一对应，例如 set 方法就对应 Redis 命
-令的 set 方法。而 Redis 类是 StrictRedis 类的子类，其主要功能是向后兼容旧版本库里的几个方法。
-为了实现兼容，Redis 类对方法做了改写，例如将 lrem 方法中 value 和 num 参数的位置互换，这和 Redis
-命令行的命令参数是不一致的。</p>
+<p class="content-text">　　StrictRedis 类实现了绝大部分官方的 Redis 命令，参数也一一对应，例如 set 方法就对应 Redis 命令的 set 方法。而 Redis 类是 StrictRedis 类的子类，其主要功能是向后兼容旧版本库里的几个方法。为了实现兼容，Redis 类对方法做了改写，例如将 lrem 方法中 value 和 num 参数的位置互换，这和 Redis命令行的命令参数是不一致的。</p>
 <p class="content-text">　　官方推荐使用 StrictRedis 类，所以本节我们也用 StrictRedis 类的相关方法作为演示。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 连接 Redis</h3>
-<p class="content-text">　　我们先在本地安装好 Redis，并运行在 6379 端口，将密码设置为 foobared。可以用如下实例连接
-Redis 并测试:</p>
+<p class="content-text">　　我们先在本地安装好 Redis，并运行在 6379 端口，将密码设置为 foobared。可以用如下实例连接Redis 并测试:</p>
 <pre class="code-block"><code>from redis import StrictRedis
-redis = StrictRedis(host=&#x27;localhost&#x27;, port=6379, db=0, password=&#x27;foobared&#x27;)
-redis.set(&#x27;name&#x27;, &#x27;Bob&#x27;)
-print(redis.get(&#x27;name&#x27;))</code></pre>
-<p class="content-text">　　这里我们传入了 Redis 的地址、运行端口、使用的数据库和密码信息。在默认不传数据的情况下，
-这 4 个参数分别为 localhost、6379、0 和 None。然后声明了一个 StrictRedis 对象，并调用对象的 set()
-方法，设置了一个键值对。最后调用 get 方法获取了设置的键值并打印出来。</p>
+redis = StrictRedis(host='localhost', port=6379, db=0, password='foobared')
+redis.set('name', 'Bob')
+print(redis.get('name'))</code></pre>
+<p class="content-text">　　这里我们传入了 Redis 的地址、运行端口、使用的数据库和密码信息。在默认不传数据的情况下，这 4 个参数分别为 localhost、6379、0 和 None。然后声明了一个 StrictRedis 对象，并调用对象的 set()方法，设置了一个键值对。最后调用 get 方法获取了设置的键值并打印出来。</p>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>b&#x27;Bob&#x27;</code></pre>
+<pre class="result-block"><code>b'Bob'</code></pre>
 <p class="content-text">　　这说明我们成功连接了 Redis，并且可以执行 set 和 get 操作了。</p>
 <p class="content-text">　　当然，还可以使用 ConnectionPool 来连接 Redis，实例代码如下:</p>
 <pre class="code-block"><code>from redis import StrictRedis, ConnectionPool
-pool = ConnectionPool(host=&#x27;localhost&#x27;, port=6379, db=0, password=&#x27;foobared&#x27;)
+pool = ConnectionPool(host='localhost', port=6379, db=0, password='foobared')
 redis = StrictRedis(connection_pool=pool)</code></pre>
-<p class="content-text">　　这样的连接效果是一样的。观察源码可以发现，StrictRedis 内其实就是用 host 和 port 等参数又
-构造了一个 ConnectionPool，所以直接将 ConnectionPool 当作参数传给 StrictRedis 也一样。</p>
+<p class="content-text">　　这样的连接效果是一样的。观察源码可以发现，StrictRedis 内其实就是用 host 和 port 等参数又构造了一个 ConnectionPool，所以直接将 ConnectionPool 当作参数传给 StrictRedis 也一样。</p>
 <p class="content-text">　　另外，ConnectionPool 还支持通过 URL 来构建连接。URL 支持的格式有如下 3 种:</p>
 <pre class="code-block"><code>redis://[:password]@host:port/db
 rediss://[:password]@host:port/db
 unix://[:password]@/path/to/socket.sock?db=db</code></pre>
-<p class="content-text">　　这 3 种 URL 分别表示创建 Redis TCP 连接、Redis TCP+SSL 连接、Redis UNIX socket 连接。我们
-只需要构造其中任意一种即可，其中 password 部分如果有则可以写上，如果没有也可以省略。下面再
-用 URL 连接演示一下:</p>
-<pre class="code-block"><code>url = &#x27;redis://:foobared@localhost:6379/0&#x27;
+<p class="content-text">　　这 3 种 URL 分别表示创建 Redis TCP 连接、Redis TCP+SSL 连接、Redis UNIX socket 连接。我们只需要构造其中任意一种即可，其中 password 部分如果有则可以写上，如果没有也可以省略。下面再用 URL 连接演示一下:</p>
+<pre class="code-block"><code>url = 'redis://:foobared@localhost:6379/0'
 pool = ConnectionPool.from_url(url)
 redis = StrictRedis(connection_pool=pool)</code></pre>
-<p class="content-text">　　这里我们使用的是第一种格式。首先，声明一个 Redis 连接字符串，然后调用 from_url 方法创建
-ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使用 URL 的连接方式还是比较方便的。</p>
+<p class="content-text">　　这里我们使用的是第一种格式。首先，声明一个 Redis 连接字符串，然后调用 from_url 方法创建ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使用 URL 的连接方式还是比较方便的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 键操作</h3>
 <p class="table-caption">表 4-5 总结了键的一些判断和操作方法。</p>
 <p class="table-caption">表4-5 键的一些判断和操作方法</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>exists(name)</td><td>判断一个键是否存在</td><td>name:键名</td><td>redis.exists(&#x27;name&#x27;)</td><td>是否存在 name 这个键</td><td>True</td></tr>
-<tr><td>delete(name)</td><td>删除一个键</td><td>name:键名</td><td>redis.delete(&#x27;name&#x27;)</td><td>删除 name 这个键</td><td>1</td></tr>
-<tr><td>type(name)</td><td>判断键类型</td><td>name:键名</td><td>redis.type(&#x27;name&#x27;)</td><td>判断 name 这个键 的类型</td><td>b&#x27;string&#x27;</td></tr>
-<tr><td>keys(pattern)</td><td>获取所有符合规则的键</td><td>pattern:匹配规则</td><td>redis.keys(&#x27;n*&#x27;)</td><td>获取所有以 n 为开头的键</td><td>[b&#x27;name&#x27;]</td></tr>
-<tr><td>randomkey()</td><td>获取随机的一个键</td><td></td><td>randomkey()</td><td>获取随机的一个键</td><td>b&#x27;name&#x27;</td></tr>
-<tr><td>rename(src, dst)</td><td>对键重命名</td><td>src:原键名 dst:新键名</td><td>redis.rename(&#x27;name&#x27;, &#x27;nickname&#x27;)</td><td>将 name 重命名为 nickname</td><td>True</td></tr>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>exists(name)</td><td>判断一个键是否存在</td><td>name:键名</td><td>redis.exists('name')</td><td>是否存在 name 这个键</td><td>True</td></tr>
+<tr><td>delete(name)</td><td>删除一个键</td><td>name:键名</td><td>redis.delete('name')</td><td>删除 name 这个键</td><td>1</td></tr>
+<tr><td>type(name)</td><td>判断键类型</td><td>name:键名</td><td>redis.type('name')</td><td>判断 name 这个键 的类型</td><td>b'string'</td></tr>
+<tr><td>keys(pattern)</td><td>获取所有符合规则的键</td><td>pattern:匹配规则</td><td>redis.keys('n*')</td><td>获取所有以 n 为开头的键</td><td>[b'name']</td></tr>
+<tr><td>randomkey()</td><td>获取随机的一个键</td><td></td><td>randomkey()</td><td>获取随机的一个键</td><td>b'name'</td></tr>
+<tr><td>rename(src, dst)</td><td>对键重命名</td><td>src:原键名 dst:新键名</td><td>redis.rename('name', 'nickname')</td><td>将 name 重命名为 nickname</td><td>True</td></tr>
 <tr><td>dbsize()</td><td>获取当前数据库中键的数目</td><td></td><td>dbsize()</td><td>获取当前数据库中键的数目</td><td>100</td></tr>
-<tr><td>expire(name, time)</td><td>设定键的过期时间,单位为秒</td><td>name: 键名 time:秒数</td><td>redis.expire(&#x27;name&#x27;, 2)</td><td>将 name 键的过期时间设置为2秒</td><td>True</td></tr>
-<tr><td>ttl(name)</td><td>获取键的过期时间,单位为秒</td><td>name:键名</td><td>redis.ttl(&#x27;name&#x27;)</td><td>获取 name 这个键的过期时间</td><td>1(1表示永久不过期)</td></tr>
-<tr><td>move(name, db)</td><td>将键移动到其他数据库</td><td>name: 键名&lt;br&gt;db: 目标数据库代号</td><td>move(&#x27;name&#x27;, 2)</td><td>将 name 键移动到 2 号数据库</td><td>True</td></tr>
+<tr><td>expire(name, time)</td><td>设定键的过期时间,单位为秒</td><td>name: 键名 time:秒数</td><td>redis.expire('name', 2)</td><td>将 name 键的过期时间设置为2秒</td><td>True</td></tr>
+<tr><td>ttl(name)</td><td>获取键的过期时间,单位为秒</td><td>name:键名</td><td>redis.ttl('name')</td><td>获取 name 这个键的过期时间</td><td>1(1表示永久不过期)</td></tr>
+<tr><td>move(name, db)</td><td>将键移动到其他数据库</td><td>name: 键名&lt;br&gt;db: 目标数据库代号</td><td>move('name', 2)</td><td>将 name 键移动到 2 号数据库</td><td>True</td></tr>
 <tr><td>flushdb()</td><td>删除当前所选数据库中的所有键</td><td></td><td>flushdb()</td><td>删除当前所选数据库中的所有键</td><td>True</td></tr>
 <tr><td>flushall()</td><td>删除所有数据库中的所有键</td><td></td><td>flushall()</td><td>删除所有数据库中的所有键</td><td>True</td></tr></tbody></table>
 </section>
@@ -1117,264 +898,205 @@ ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使�
 <h3 class="subsection-heading numbered-heading">5. 字符串操作</h3>
 <p class="content-text">　　Redis 支持最基本的键值对存储，相关方法的总结如表 4-6 所示。</p>
 <p class="table-caption">表4-6 键值对存储的相关方法</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>set(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value</td><td>name: 键名&lt;br&gt;value: 值</td><td>`redis.set(&#x27;name&#x27;, &#x27;Bob&#x27;)`</td><td>将 name 这个键对应的键值赋值为 Bob</td><td>True</td></tr>
-<tr><td>get(name)</td><td>返回数据库中指定键名对应的键值</td><td>name: 键名</td><td>`redis.get(&#x27;name&#x27;)`</td><td>返回 name 这个键对应的键值</td><td>b&#x27;Bob&#x27;</td></tr>
-<tr><td>getset(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value,并返回上次的 value</td><td>name: 键名&lt;br&gt;value: 新值</td><td>`redis.getset(&#x27;name&#x27;, &#x27;Mike&#x27;)`</td><td>将 name 这个键对应的键值赋值为 Mike,并返回上次的 value</td><td>b&#x27;Bob&#x27;</td></tr>
-<tr><td>mget(keys, *args)</td><td>返回由多个键名对应的 value 组成的序列列表</td><td>keys: 键名序列</td><td>`redis.mget([&#x27;name&#x27;, &#x27;nickname&#x27;])`</td><td>返回 name 和 nickname 对应的 value</td><td>`[b&#x27;Mike&#x27;, b&#x27;Miker&#x27;]`</td></tr>
-<tr><td>setnx(name, value)</td><td>如果不存在指定的键值对,则更新 value,否则保持不变</td><td>name: 键名</td><td>`redis.setnx(&#x27;newname&#x27;, &#x27;James&#x27;)`</td><td>如果不存在 newname 这个键名,则设置相应键值对,对应键值为 James</td><td>第一次的运行结果是 True,&lt;br&gt;第二次的运行结果是 False</td></tr>
-<tr><td>setex(name, time, value)</td><td>设置键名对应的键值为字符串类型的 value,并指定此键值的有效期</td><td>name: 键名&lt;br&gt;time: 有效期&lt;br&gt;value: 值</td><td>`redis.setex(&#x27;name&#x27;, 1, &#x27;James&#x27;)`</td><td>将 name 这个键的值设置为 James,有效期设置为 1 秒</td><td>True</td></tr>
-<tr><td>setrange(name, offset, value)</td><td>设置指定键名对应的键值的子字符串</td><td>name: 键名&lt;br&gt;offset: 偏移量&lt;br&gt;value: 子字符串</td><td>`redis.set(&#x27;name&#x27;, &#x27;Hello&#x27;)`&lt;br&gt;`redis.setrange(&#x27;name&#x27;, 6, &#x27;World&#x27;)`</td><td>将 name 这个键对应的键值赋值为 Hello,并在该键值中 index 为 6 的位置补充 World</td><td>11,即修改后的字符串长度</td></tr>
-<tr><td>mset(mapping)</td><td>批量赋值</td><td>mapping: 字典或关键字参数</td><td>`redis.mset({&#x27;name1&#x27;: &#x27;Durant&#x27;, &#x27;name2&#x27;: &#x27;James&#x27;})`</td><td>将 name1 赋值为 Durant, name2 赋值为 James</td><td>True</td></tr>
-<tr><td>msetnx(mapping)</td><td>指定键名均不存在时,才批量赋值</td><td>mapping: 字典或关键字参数</td><td>`redis.msetnx({&#x27;name3&#x27;: &#x27;Smith&#x27;, &#x27;name4&#x27;: &#x27;Curry&#x27;})`</td><td>在 name3 和 name4 均不存在的情况下,才为二者赋值</td><td>True</td></tr>
-<tr><td>incr(name, amount=1)</td><td>对指定键名对应的键值做增值操作,默认增 1。如果指定的键名不存在,则创建一个,并将键值设为 amount</td><td>name: 键名&lt;br&gt;amount: 增加的值</td><td>`redis.incr(&#x27;age&#x27;, 1)`</td><td>将 age 对应的键值增加 1。如果不存在 age 这个键名,则创建一个,并设置键值为 1</td><td>1,即修改后的值</td></tr>
-<tr><td>decr(name, amount=1)</td><td>对指定键名对应的键值做减值操作,默认减 1。如果键不存在,则创建一个,并将键值设置为 amount</td><td>name: 键名&lt;br&gt;amount: 减少的值</td><td>`redis.decr(&#x27;age&#x27;, 1)`</td><td>将 age 对应的键值减 1。如果不存在 age 这个键名,则创建一个,并设置键值为 1</td><td>1,即修改后的值</td></tr>
-<tr><td>append(key, value)</td><td>对指定键名对应的键值附加字符串 value</td><td>key: 键名</td><td>`redis.append(&#x27;nickname&#x27;, &#x27;OK&#x27;)`</td><td>在键名 nickname 对应的键值后面追加字符串 OK</td><td>13,即修改后的字符串长度</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>set(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value</td><td>name: 键名&lt;br&gt;value: 值</td><td>`redis.set('name', 'Bob')`</td><td>将 name 这个键对应的键值赋值为 Bob</td><td>True</td></tr>
+<tr><td>get(name)</td><td>返回数据库中指定键名对应的键值</td><td>name: 键名</td><td>`redis.get('name')`</td><td>返回 name 这个键对应的键值</td><td>b'Bob'</td></tr>
+<tr><td>getset(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value,并返回上次的 value</td><td>name: 键名&lt;br&gt;value: 新值</td><td>`redis.getset('name', 'Mike')`</td><td>将 name 这个键对应的键值赋值为 Mike,并返回上次的 value</td><td>b'Bob'</td></tr>
+<tr><td>mget(keys, *args)</td><td>返回由多个键名对应的 value 组成的序列列表</td><td>keys: 键名序列</td><td>`redis.mget(['name', 'nickname'])`</td><td>返回 name 和 nickname 对应的 value</td><td>`[b'Mike', b'Miker']`</td></tr>
+<tr><td>setnx(name, value)</td><td>如果不存在指定的键值对,则更新 value,否则保持不变</td><td>name: 键名</td><td>`redis.setnx('newname', 'James')`</td><td>如果不存在 newname 这个键名,则设置相应键值对,对应键值为 James</td><td>第一次的运行结果是 True,&lt;br&gt;第二次的运行结果是 False</td></tr>
+<tr><td>setex(name, time, value)</td><td>设置键名对应的键值为字符串类型的 value,并指定此键值的有效期</td><td>name: 键名&lt;br&gt;time: 有效期&lt;br&gt;value: 值</td><td>`redis.setex('name', 1, 'James')`</td><td>将 name 这个键的值设置为 James,有效期设置为 1 秒</td><td>True</td></tr>
+<tr><td>setrange(name, offset, value)</td><td>设置指定键名对应的键值的子字符串</td><td>name: 键名&lt;br&gt;offset: 偏移量&lt;br&gt;value: 子字符串</td><td>`redis.set('name', 'Hello')`&lt;br&gt;`redis.setrange('name', 6, 'World')`</td><td>将 name 这个键对应的键值赋值为 Hello,并在该键值中 index 为 6 的位置补充 World</td><td>11,即修改后的字符串长度</td></tr>
+<tr><td>mset(mapping)</td><td>批量赋值</td><td>mapping: 字典或关键字参数</td><td>`redis.mset({'name1': 'Durant', 'name2': 'James'})`</td><td>将 name1 赋值为 Durant, name2 赋值为 James</td><td>True</td></tr>
+<tr><td>msetnx(mapping)</td><td>指定键名均不存在时,才批量赋值</td><td>mapping: 字典或关键字参数</td><td>`redis.msetnx({'name3': 'Smith', 'name4': 'Curry'})`</td><td>在 name3 和 name4 均不存在的情况下,才为二者赋值</td><td>True</td></tr>
+<tr><td>incr(name, amount=1)</td><td>对指定键名对应的键值做增值操作,默认增 1。如果指定的键名不存在,则创建一个,并将键值设为 amount</td><td>name: 键名&lt;br&gt;amount: 增加的值</td><td>`redis.incr('age', 1)`</td><td>将 age 对应的键值增加 1。如果不存在 age 这个键名,则创建一个,并设置键值为 1</td><td>1,即修改后的值</td></tr>
+<tr><td>decr(name, amount=1)</td><td>对指定键名对应的键值做减值操作,默认减 1。如果键不存在,则创建一个,并将键值设置为 amount</td><td>name: 键名&lt;br&gt;amount: 减少的值</td><td>`redis.decr('age', 1)`</td><td>将 age 对应的键值减 1。如果不存在 age 这个键名,则创建一个,并设置键值为 1</td><td>1,即修改后的值</td></tr>
+<tr><td>append(key, value)</td><td>对指定键名对应的键值附加字符串 value</td><td>key: 键名</td><td>`redis.append('nickname', 'OK')`</td><td>在键名 nickname 对应的键值后面追加字符串 OK</td><td>13,即修改后的字符串长度</td></tr></tbody></table>
 <p class="content-text">(续)</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>substr(name, start, end=-1)</td><td>返回指定键名对应的键值的子字符串</td><td>name: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引,默认为 -1,表示截取到末尾</td><td>redis.substr(&#x27;name&#x27;, 1, 4)</td><td>返回键名 name 对应的键值的子字符串,截取键值字符串中索引为 1~4 的字符</td><td>b&#x27;ello&#x27;</td></tr>
-<tr><td>getrange(key, start, end)</td><td>获取指定键名对应的键值中从 start 到 end 位置的子字符串</td><td>key: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引</td><td>redis.getrange(&#x27;name&#x27;, 1, 4)</td><td>返回键名 name 对应的键值的子字符串。截取键值字符串中索引为 1~4 的字符</td><td>b&#x27;ello&#x27;</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>substr(name, start, end=-1)</td><td>返回指定键名对应的键值的子字符串</td><td>name: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引,默认为 -1,表示截取到末尾</td><td>redis.substr('name', 1, 4)</td><td>返回键名 name 对应的键值的子字符串,截取键值字符串中索引为 1~4 的字符</td><td>b'ello'</td></tr>
+<tr><td>getrange(key, start, end)</td><td>获取指定键名对应的键值中从 start 到 end 位置的子字符串</td><td>key: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引</td><td>redis.getrange('name', 1, 4)</td><td>返回键名 name 对应的键值的子字符串。截取键值字符串中索引为 1~4 的字符</td><td>b'ello'</td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 列表操作</h3>
 <p class="content-text">Redis 提供了列表存储,列表内的元素可以重复,而且可以从两端存储,操作列表的方法见表4-7。</p>
 <p class="table-caption">表4-7 列表的操作方法</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>rpush(name, *values)</td><td>在键名为 name 的列表末尾添加值为 value 的元素,可以传入多个 value</td><td>name: 键名&lt;br&gt;values: 值</td><td>redis.rpush(&#x27;list&#x27;, 1, 2, 3)</td><td>向键名为 list 的列表末尾添加 1、2、3</td><td>3,即列表大小</td></tr>
-<tr><td>lpush(name, *values)</td><td>在键名为 name 的列表头部添加值为 value 的元素,可以传入多个 value</td><td>name: 键名&lt;br&gt;values: 值</td><td>redis.lpush(&#x27;list&#x27;, 0)</td><td>向键名为 list 的列表头部添加 0</td><td>4,即列表大小</td></tr>
-<tr><td>llen(name)</td><td>返回键名为 name 的列表的长度</td><td>name: 键名</td><td>redis.llen(&#x27;list&#x27;)</td><td>返回键名为 list 的列表的长度</td><td>4</td></tr>
-<tr><td>lrange(name, start, end)</td><td>返回键名为 name 的列表中索引从 start 到 end 之间的元素</td><td>name: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引</td><td>redis.lrange(&#x27;list&#x27;, 1, 3)</td><td>返回索引从 1 到 3 对应的列表元素</td><td>[b&#x27;3&#x27;, b&#x27;2&#x27;, b&#x27;1&#x27;]</td></tr>
-<tr><td>ltrim(name, start, end)</td><td>截取键名为 name 的列表,保留索引从 start 到 end 之间的元素</td><td>name: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引</td><td>ltrim(&#x27;list&#x27;, 1, 3)</td><td>保留键名为 list 的列表中索引从 1 到 3 之间的元素</td><td>True</td></tr>
-<tr><td>lindex(name, index)</td><td>返回键名为 name 的列表中 index 位置的元素</td><td>name: 键名&lt;br&gt;index: 索引</td><td>redis.lindex(&#x27;list&#x27;, 1)</td><td>返回键名为 list 的列表中索引为 1 的元素</td><td>b&#x27;2&#x27;</td></tr>
-<tr><td>lset(name, index, value)</td><td>给键名为 name 的列表中 index 位置的元素赋值,如果 index 越界就报错</td><td>name: 键名&lt;br&gt;index: 索引&lt;br&gt;value: 值</td><td>redis.lset(&#x27;list&#x27;, 1, 5)</td><td>将键名为 list 的列表中索引为 1 的位置赋值为 5</td><td>True</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>rpush(name, *values)</td><td>在键名为 name 的列表末尾添加值为 value 的元素,可以传入多个 value</td><td>name: 键名&lt;br&gt;values: 值</td><td>redis.rpush('list', 1, 2, 3)</td><td>向键名为 list 的列表末尾添加 1、2、3</td><td>3,即列表大小</td></tr>
+<tr><td>lpush(name, *values)</td><td>在键名为 name 的列表头部添加值为 value 的元素,可以传入多个 value</td><td>name: 键名&lt;br&gt;values: 值</td><td>redis.lpush('list', 0)</td><td>向键名为 list 的列表头部添加 0</td><td>4,即列表大小</td></tr>
+<tr><td>llen(name)</td><td>返回键名为 name 的列表的长度</td><td>name: 键名</td><td>redis.llen('list')</td><td>返回键名为 list 的列表的长度</td><td>4</td></tr>
+<tr><td>lrange(name, start, end)</td><td>返回键名为 name 的列表中索引从 start 到 end 之间的元素</td><td>name: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引</td><td>redis.lrange('list', 1, 3)</td><td>返回索引从 1 到 3 对应的列表元素</td><td>[b'3', b'2', b'1']</td></tr>
+<tr><td>ltrim(name, start, end)</td><td>截取键名为 name 的列表,保留索引从 start 到 end 之间的元素</td><td>name: 键名&lt;br&gt;start: 起始索引&lt;br&gt;end: 终止索引</td><td>ltrim('list', 1, 3)</td><td>保留键名为 list 的列表中索引从 1 到 3 之间的元素</td><td>True</td></tr>
+<tr><td>lindex(name, index)</td><td>返回键名为 name 的列表中 index 位置的元素</td><td>name: 键名&lt;br&gt;index: 索引</td><td>redis.lindex('list', 1)</td><td>返回键名为 list 的列表中索引为 1 的元素</td><td>b'2'</td></tr>
+<tr><td>lset(name, index, value)</td><td>给键名为 name 的列表中 index 位置的元素赋值,如果 index 越界就报错</td><td>name: 键名&lt;br&gt;index: 索引&lt;br&gt;value: 值</td><td>redis.lset('list', 1, 5)</td><td>将键名为 list 的列表中索引为 1 的位置赋值为 5</td><td>True</td></tr></tbody></table>
 <p class="content-text">(续)</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>lrem(name, count, value)</td><td>删除键名为 name 的列表中 count 个值为 value 的元素</td><td>name: 键名&lt;br&gt;count: 删除个数&lt;br&gt;value: 值</td><td>redis.lrem(&#x27;list&#x27;, 2, 3)</td><td>删除键名为 list 的列表中的两个 3</td><td>2,即删除的个数</td></tr>
-<tr><td>lpop(name)</td><td>返回并删除键名为 name 的列表中的首元素</td><td>name: 键名</td><td>redis.lpop(&#x27;list&#x27;)</td><td>返回并删除键名为 list 的列表中的第一个元素</td><td>b&#x27;5&#x27;</td></tr>
-<tr><td>rpop(name)</td><td>返回并删除键名为 name 的列表中的尾元素</td><td>name: 键名</td><td>redis.rpop(&#x27;list&#x27;)</td><td>返回并删除键名为 list 的列表中的最后一个元素</td><td>b&#x27;2&#x27;</td></tr>
-<tr><td>blpop(keys, timeout=0)</td><td>返回并删除指定键名对应的列表中的首个元素。如果列表为空，则一直阻塞等待</td><td>keys: 键名序列&lt;br&gt;timeout: 超时等待时间，0 表示一直等待</td><td>redis.blpop(&#x27;list&#x27;)</td><td>返回并删除键名为 list 的列表中的第一个元素</td><td>[b&#x27;5&#x27;]</td></tr>
-<tr><td>brpop(keys, timeout=0)</td><td>返回并删除键名为 name 的列表中的尾元素。如果列表为空，则一直阻塞等待</td><td>keys: 键名序列&lt;br&gt;timeout: 超时等待时间，0 表示一直等待</td><td>redis.brpop(&#x27;list&#x27;)</td><td>返回并删除键名为 list 的列表中的最后一个元素</td><td>[b&#x27;2&#x27;]</td></tr>
-<tr><td>rpoplpush(src, dst)</td><td>返回并删除键名为 src 的列表中的尾元素，并将该元素添加到键名为 dst 的列表的头部</td><td>src: 源列表的键名&lt;br&gt;dst: 目标列表的键名</td><td>redis.rpoplpush(&#x27;list&#x27;, &#x27;list2&#x27;)</td><td>删除键名为 list 的列表中的最后一个元素，并将其添加到键名为 list2 的列表的头部，然后返回</td><td>b&#x27;2&#x27;</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>lrem(name, count, value)</td><td>删除键名为 name 的列表中 count 个值为 value 的元素</td><td>name: 键名&lt;br&gt;count: 删除个数&lt;br&gt;value: 值</td><td>redis.lrem('list', 2, 3)</td><td>删除键名为 list 的列表中的两个 3</td><td>2,即删除的个数</td></tr>
+<tr><td>lpop(name)</td><td>返回并删除键名为 name 的列表中的首元素</td><td>name: 键名</td><td>redis.lpop('list')</td><td>返回并删除键名为 list 的列表中的第一个元素</td><td>b'5'</td></tr>
+<tr><td>rpop(name)</td><td>返回并删除键名为 name 的列表中的尾元素</td><td>name: 键名</td><td>redis.rpop('list')</td><td>返回并删除键名为 list 的列表中的最后一个元素</td><td>b'2'</td></tr>
+<tr><td>blpop(keys, timeout=0)</td><td>返回并删除指定键名对应的列表中的首个元素。如果列表为空，则一直阻塞等待</td><td>keys: 键名序列&lt;br&gt;timeout: 超时等待时间，0 表示一直等待</td><td>redis.blpop('list')</td><td>返回并删除键名为 list 的列表中的第一个元素</td><td>[b'5']</td></tr>
+<tr><td>brpop(keys, timeout=0)</td><td>返回并删除键名为 name 的列表中的尾元素。如果列表为空，则一直阻塞等待</td><td>keys: 键名序列&lt;br&gt;timeout: 超时等待时间，0 表示一直等待</td><td>redis.brpop('list')</td><td>返回并删除键名为 list 的列表中的最后一个元素</td><td>[b'2']</td></tr>
+<tr><td>rpoplpush(src, dst)</td><td>返回并删除键名为 src 的列表中的尾元素，并将该元素添加到键名为 dst 的列表的头部</td><td>src: 源列表的键名&lt;br&gt;dst: 目标列表的键名</td><td>redis.rpoplpush('list', 'list2')</td><td>删除键名为 list 的列表中的最后一个元素，并将其添加到键名为 list2 的列表的头部，然后返回</td><td>b'2'</td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 集合操作</h3>
 <p class="content-text">Redis 还提供了集合存储，集合中的元素都是不重复的，操作集合的方法见表 4-8。</p>
 <p class="table-caption">表 4-8 集合的操作方法</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>sadd(name, *values)</td><td>向键名为 name 的集合中添加元素</td><td>name: 键名&lt;br&gt;values: 值，可以为多个</td><td>redis.sadd(&#x27;tags&#x27;, &#x27;Book&#x27;, &#x27;Tea&#x27;, &#x27;Coffee&#x27;)</td><td>向键名为 tags 的集合中添加 Book、Tea 和 Coffee 这 3 项内容</td><td>3, 即添加的数据个数</td></tr>
-<tr><td>srem(name, *values)</td><td>从键名为 name 的集合中删除元素</td><td>name: 键名&lt;br&gt;values: 值，可以为多个</td><td>redis.srem(&#x27;tags&#x27;, &#x27;Book&#x27;)</td><td>从键名为 tags 的集合中删除 Book</td><td>1, 即删除的数据个数</td></tr>
-<tr><td>spop(name)</td><td>随机返回并删除键名为 name 的集合中的一个元素</td><td>name: 键名</td><td>redis.spop(&#x27;tags&#x27;)</td><td>随机删除并返回键名为 tags 的集合中的某元素</td><td>b&#x27;Tea&#x27;</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>sadd(name, *values)</td><td>向键名为 name 的集合中添加元素</td><td>name: 键名&lt;br&gt;values: 值，可以为多个</td><td>redis.sadd('tags', 'Book', 'Tea', 'Coffee')</td><td>向键名为 tags 的集合中添加 Book、Tea 和 Coffee 这 3 项内容</td><td>3, 即添加的数据个数</td></tr>
+<tr><td>srem(name, *values)</td><td>从键名为 name 的集合中删除元素</td><td>name: 键名&lt;br&gt;values: 值，可以为多个</td><td>redis.srem('tags', 'Book')</td><td>从键名为 tags 的集合中删除 Book</td><td>1, 即删除的数据个数</td></tr>
+<tr><td>spop(name)</td><td>随机返回并删除键名为 name 的集合中的一个元素</td><td>name: 键名</td><td>redis.spop('tags')</td><td>随机删除并返回键名为 tags 的集合中的某元素</td><td>b'Tea'</td></tr></tbody></table>
 <p class="content-text">(续)</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>smove(src, dst, value)</td><td>从键名为 src 的集合中移除 value,并将其添加到 dst 对应的集合中</td><td>src: 源集合&lt;br&gt;dst: 目标集合&lt;br&gt;value: 元素值</td><td>redis.smove(&#x27;tags&#x27;, &#x27;tags2&#x27;, &#x27;Coffee&#x27;)</td><td>从键名为 tags 的集合中删除元素 Coffee,并将其添加到键名为 tags2 的集合中</td><td>True</td></tr>
-<tr><td>scard(name)</td><td>返回键名为 name 的集合中的元素个数</td><td>name: 键名</td><td>redis.scard(&#x27;tags&#x27;)</td><td>获取键名为 tags 的集合中的元素个数</td><td>3</td></tr>
-<tr><td>sismember(name, value)</td><td>测试 member 是否是键名为 name 的集合中的元素</td><td>name: 键名&lt;br&gt;value: 元素值</td><td>redis.sismember(&#x27;tags&#x27;, &#x27;Book&#x27;)</td><td>判断 Book 是否是键名为 tags 的集合中的元素</td><td>True</td></tr>
-<tr><td>sinter(keys, *args)</td><td>返回所有给定键名的集合的交集</td><td>keys: 键名序列</td><td>redis.sinter([&#x27;tags&#x27;, &#x27;tags2&#x27;])</td><td>返回键名为 tags 的集合和键名为 tags2 的集合的交集</td><td>{b&#x27;Coffee&#x27;}</td></tr>
-<tr><td>sinterstore(dest, keys, *args)</td><td>求多个集合的交集,并将交集保存到键名为 dest 的集合</td><td>dest: 结果集合&lt;br&gt;keys: 键名序列</td><td>redis.sinterstore(&#x27;inttag&#x27;, [&#x27;tags&#x27;, &#x27;tags2&#x27;])</td><td>求键名为 tags 的集合和键名为 tags2 的集合的交集,并将其保存为键名是 inttag 的集合</td><td>1</td></tr>
-<tr><td>sunion(keys, *args)</td><td>返回所有给定键名的集合的并集</td><td>keys: 键名序列</td><td>redis.sunion([&#x27;tags&#x27;, &#x27;tags2&#x27;])</td><td>返回键名为 tags 的集合和键名为 tags2 的集合的并集</td><td>{b&#x27;Coffee&#x27;, b&#x27;Book&#x27;, b&#x27;Pen&#x27;}</td></tr>
-<tr><td>sunionstore(dest, keys, *args)</td><td>求多个集合的并集,并将并集保存到键名为 dest 的集合</td><td>dest: 结果集合&lt;br&gt;keys: 键名序列</td><td>redis.sunionstore(&#x27;inttag&#x27;, [&#x27;tags&#x27;, &#x27;tags2&#x27;])</td><td>求键名为 tags 的集合和键名为 tags2 的集合的并集,并将其保存为键名是 inttag 的集合</td><td>3</td></tr>
-<tr><td>sdiff(keys, *args)</td><td>返回所有给定键名的集合的差集</td><td>keys: 键名序列</td><td>redis.sdiff([&#x27;tags&#x27;, &#x27;tags2&#x27;])</td><td>返回键名为 tags 的集合和键名为 tags2 的集合的差集</td><td>{b&#x27;Book&#x27;, b&#x27;Pen&#x27;}</td></tr>
-<tr><td>sdiffstore(dest, keys, *args)</td><td>求多个集合的差集,并将差集保存到键名为 dest 的集合</td><td>dest: 结果集合&lt;br&gt;keys: 键名序列</td><td>redis.sdiffstore(&#x27;inttag&#x27;, [&#x27;tags&#x27;, &#x27;tags2&#x27;])</td><td>求键名为 tags 的集合和键名为 tags2 的集合的差集,并将其保存为键名是 inttag 的集合</td><td>3</td></tr>
-<tr><td>smembers(name)</td><td>返回键名为 name 的集合中的所有元素</td><td>name: 键名</td><td>redis.smembers(&#x27;tags&#x27;)</td><td>返回键名为 tags 的集合中的所有元素</td><td>{b&#x27;Pen&#x27;, b&#x27;Book&#x27;, b&#x27;Coffee&#x27;}</td></tr>
-<tr><td>srandmember(name)</td><td>随机返回键名为 name 的集合中的一个元素,但不删除该元素</td><td>name: 键名</td><td>redis.srandmember(&#x27;tags&#x27;)</td><td>随机返回键名为 tags 的集合中的一个元素</td><td></td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>smove(src, dst, value)</td><td>从键名为 src 的集合中移除 value,并将其添加到 dst 对应的集合中</td><td>src: 源集合&lt;br&gt;dst: 目标集合&lt;br&gt;value: 元素值</td><td>redis.smove('tags', 'tags2', 'Coffee')</td><td>从键名为 tags 的集合中删除元素 Coffee,并将其添加到键名为 tags2 的集合中</td><td>True</td></tr>
+<tr><td>scard(name)</td><td>返回键名为 name 的集合中的元素个数</td><td>name: 键名</td><td>redis.scard('tags')</td><td>获取键名为 tags 的集合中的元素个数</td><td>3</td></tr>
+<tr><td>sismember(name, value)</td><td>测试 member 是否是键名为 name 的集合中的元素</td><td>name: 键名&lt;br&gt;value: 元素值</td><td>redis.sismember('tags', 'Book')</td><td>判断 Book 是否是键名为 tags 的集合中的元素</td><td>True</td></tr>
+<tr><td>sinter(keys, *args)</td><td>返回所有给定键名的集合的交集</td><td>keys: 键名序列</td><td>redis.sinter(['tags', 'tags2'])</td><td>返回键名为 tags 的集合和键名为 tags2 的集合的交集</td><td>{b'Coffee'}</td></tr>
+<tr><td>sinterstore(dest, keys, *args)</td><td>求多个集合的交集,并将交集保存到键名为 dest 的集合</td><td>dest: 结果集合&lt;br&gt;keys: 键名序列</td><td>redis.sinterstore('inttag', ['tags', 'tags2'])</td><td>求键名为 tags 的集合和键名为 tags2 的集合的交集,并将其保存为键名是 inttag 的集合</td><td>1</td></tr>
+<tr><td>sunion(keys, *args)</td><td>返回所有给定键名的集合的并集</td><td>keys: 键名序列</td><td>redis.sunion(['tags', 'tags2'])</td><td>返回键名为 tags 的集合和键名为 tags2 的集合的并集</td><td>{b'Coffee', b'Book', b'Pen'}</td></tr>
+<tr><td>sunionstore(dest, keys, *args)</td><td>求多个集合的并集,并将并集保存到键名为 dest 的集合</td><td>dest: 结果集合&lt;br&gt;keys: 键名序列</td><td>redis.sunionstore('inttag', ['tags', 'tags2'])</td><td>求键名为 tags 的集合和键名为 tags2 的集合的并集,并将其保存为键名是 inttag 的集合</td><td>3</td></tr>
+<tr><td>sdiff(keys, *args)</td><td>返回所有给定键名的集合的差集</td><td>keys: 键名序列</td><td>redis.sdiff(['tags', 'tags2'])</td><td>返回键名为 tags 的集合和键名为 tags2 的集合的差集</td><td>{b'Book', b'Pen'}</td></tr>
+<tr><td>sdiffstore(dest, keys, *args)</td><td>求多个集合的差集,并将差集保存到键名为 dest 的集合</td><td>dest: 结果集合&lt;br&gt;keys: 键名序列</td><td>redis.sdiffstore('inttag', ['tags', 'tags2'])</td><td>求键名为 tags 的集合和键名为 tags2 的集合的差集,并将其保存为键名是 inttag 的集合</td><td>3</td></tr>
+<tr><td>smembers(name)</td><td>返回键名为 name 的集合中的所有元素</td><td>name: 键名</td><td>redis.smembers('tags')</td><td>返回键名为 tags 的集合中的所有元素</td><td>{b'Pen', b'Book', b'Coffee'}</td></tr>
+<tr><td>srandmember(name)</td><td>随机返回键名为 name 的集合中的一个元素,但不删除该元素</td><td>name: 键名</td><td>redis.srandmember('tags')</td><td>随机返回键名为 tags 的集合中的一个元素</td><td></td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 有序集合操作</h3>
-<p class="content-text">有序集合比集合多了一个分数字段,利用该字段可以对集合中的数据进行排序,操作有序集合的
-方法总结见表4-9。</p>
+<p class="content-text">有序集合比集合多了一个分数字段,利用该字段可以对集合中的数据进行排序,操作有序集合的方法总结见表4-9。</p>
 <p class="table-caption">表4-9 有序集合的操作方法</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>zadd(name, args, *kwargs)</td><td>向键名为 name 的有序集合中添加元素。score 字段用于排序,如果该元素存在,则更新各元素的顺序</td><td>name: 键名&lt;br&gt;args: 可变参数</td><td>redis.zadd(&#x27;grade&#x27;, 100, &#x27;Bob&#x27;, 98, &#x27;Mike&#x27;)</td><td>向键名为 grade 的有序集合中添加 Bob(对应 score 为 100)、Mike(对应 score 为 98)</td><td>2,即添加的元素个数</td></tr>
-<tr><td>zrem(name, *values)</td><td>删除键名为 name 的有序集合中的元素</td><td>name: 键名&lt;br&gt;values: 元素</td><td>redis.zrem(&#x27;grade&#x27;, &#x27;Mike&#x27;)</td><td>从键名为 grade 的有序集合中删除 Mike</td><td>1,即删除的元素个数</td></tr>
-<tr><td>zincrby(name, value, amount=1)</td><td>如果键名为 name 的有序集合中已经存在元素 value,则将该元素的 score 增加 amount;否则向该集合中添加 value 元素,其 score 的值为 amount</td><td>name: 键名&lt;br&gt;value: 元素&lt;br&gt;amount: 增长的 score 值</td><td>redis.zincrby(&#x27;grade&#x27;, &#x27;Bob&#x27;, -2)</td><td>将键名为 grade 的有序集合中 Bob 元素的 score 减 2</td><td>98.0,即修改后的值</td></tr>
-<tr><td>zrank(name, value)</td><td>返回键名为 name 的有序集合中 value 元素的排名,或名次(对各元素按照 score 从小到大排序)</td><td>name: 键名&lt;br&gt;value: 元素值</td><td>redis.zrank(&#x27;grade&#x27;, &#x27;Amy&#x27;)</td><td>得到键名为 grade 的有序集合中 Amy 的排名</td><td>1</td></tr>
-<tr><td>zrevrank(name, value)</td><td>返回键为 name 的有序集合中 value 元素的倒数排名,或名次(对各元素按照 score 从大到小排序)</td><td>name: 键名&lt;br&gt;value: 元素值</td><td>redis.zrevrank(&#x27;grade&#x27;, &#x27;Amy&#x27;)</td><td>得到键名为 grade 的有序集合中 Amy 的倒数排名</td><td>2</td></tr>
-<tr><td>zrevrange(name, start, end, withscores=False)</td><td>返回键名为 name 的有序集合中名次索引从 start 到 end 之间的所有元素(按照 score 从大到小排序)</td><td>name: 键名&lt;br&gt;start: 开始索引&lt;br&gt;end: 结束索引&lt;br&gt;withscores: 是否带 score</td><td>redis.zrevrange(&#x27;grade&#x27;, 0, 3)</td><td>返回键名为 grade 的有序集合中的前四名元素</td><td>[b&#x27;Bob&#x27;, b&#x27;Mike&#x27;, b&#x27;Amy&#x27;, b&#x27;James&#x27;]</td></tr>
-<tr><td>zrangebyscore(name, min, max, start=None, num=None, withscores=False)</td><td>返回键名为 name 的有序集合中 score 在给定区间的元素</td><td>name: 键名&lt;br&gt;min: 最低 score&lt;br&gt;max: 最高 score&lt;br&gt;start: 起始索引&lt;br&gt;num: 个数&lt;br&gt;withscores: 是否带 score</td><td>redis.zrangebyscore(&#x27;grade&#x27;, 80, 95)</td><td>返回键名为 grade 的有序集合中 score 在 80 和 95 之间的元素</td><td>[b&#x27;Bob&#x27;, b&#x27;Mike&#x27;, b&#x27;Amy&#x27;, b&#x27;James&#x27;]</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>zadd(name, args, *kwargs)</td><td>向键名为 name 的有序集合中添加元素。score 字段用于排序,如果该元素存在,则更新各元素的顺序</td><td>name: 键名&lt;br&gt;args: 可变参数</td><td>redis.zadd('grade', 100, 'Bob', 98, 'Mike')</td><td>向键名为 grade 的有序集合中添加 Bob(对应 score 为 100)、Mike(对应 score 为 98)</td><td>2,即添加的元素个数</td></tr>
+<tr><td>zrem(name, *values)</td><td>删除键名为 name 的有序集合中的元素</td><td>name: 键名&lt;br&gt;values: 元素</td><td>redis.zrem('grade', 'Mike')</td><td>从键名为 grade 的有序集合中删除 Mike</td><td>1,即删除的元素个数</td></tr>
+<tr><td>zincrby(name, value, amount=1)</td><td>如果键名为 name 的有序集合中已经存在元素 value,则将该元素的 score 增加 amount;否则向该集合中添加 value 元素,其 score 的值为 amount</td><td>name: 键名&lt;br&gt;value: 元素&lt;br&gt;amount: 增长的 score 值</td><td>redis.zincrby('grade', 'Bob', -2)</td><td>将键名为 grade 的有序集合中 Bob 元素的 score 减 2</td><td>98.0,即修改后的值</td></tr>
+<tr><td>zrank(name, value)</td><td>返回键名为 name 的有序集合中 value 元素的排名,或名次(对各元素按照 score 从小到大排序)</td><td>name: 键名&lt;br&gt;value: 元素值</td><td>redis.zrank('grade', 'Amy')</td><td>得到键名为 grade 的有序集合中 Amy 的排名</td><td>1</td></tr>
+<tr><td>zrevrank(name, value)</td><td>返回键为 name 的有序集合中 value 元素的倒数排名,或名次(对各元素按照 score 从大到小排序)</td><td>name: 键名&lt;br&gt;value: 元素值</td><td>redis.zrevrank('grade', 'Amy')</td><td>得到键名为 grade 的有序集合中 Amy 的倒数排名</td><td>2</td></tr>
+<tr><td>zrevrange(name, start, end, withscores=False)</td><td>返回键名为 name 的有序集合中名次索引从 start 到 end 之间的所有元素(按照 score 从大到小排序)</td><td>name: 键名&lt;br&gt;start: 开始索引&lt;br&gt;end: 结束索引&lt;br&gt;withscores: 是否带 score</td><td>redis.zrevrange('grade', 0, 3)</td><td>返回键名为 grade 的有序集合中的前四名元素</td><td>[b'Bob', b'Mike', b'Amy', b'James']</td></tr>
+<tr><td>zrangebyscore(name, min, max, start=None, num=None, withscores=False)</td><td>返回键名为 name 的有序集合中 score 在给定区间的元素</td><td>name: 键名&lt;br&gt;min: 最低 score&lt;br&gt;max: 最高 score&lt;br&gt;start: 起始索引&lt;br&gt;num: 个数&lt;br&gt;withscores: 是否带 score</td><td>redis.zrangebyscore('grade', 80, 95)</td><td>返回键名为 grade 的有序集合中 score 在 80 和 95 之间的元素</td><td>[b'Bob', b'Mike', b'Amy', b'James']</td></tr></tbody></table>
 <p class="content-text">(续)</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>zcount(name, min, max)</td><td>返回键名为 name 的有序集合中 score 在给定区间的元素数量</td><td>name: 键名&lt;br&gt;min: 最低 score&lt;br&gt;max: 最高 score</td><td>redis.zcount(&#x27;grade&#x27;, 80, 95)</td><td>返回键名为 grade 的有序集合中 score 在 80 和 95 之间的元素个数</td><td>4</td></tr>
-<tr><td>zcard(name)</td><td>返回键名为 name 的有序集合中的元素个数</td><td>name: 键名</td><td>redis.zcard(&#x27;grade&#x27;)</td><td>获取键名为 grade 的有序集合中元素的个数</td><td>3</td></tr>
-<tr><td>zremrangebyrank(name, min, max)</td><td>删除键名为 name 的有序集合中排名在给定区间的元素</td><td>name: 键名&lt;br&gt;min: 最低名次&lt;br&gt;max: 最高名次</td><td>redis.zremrangebyrank(&#x27;grade&#x27;, 0, 0)</td><td>删除键名为 grade 的有序集合中排名第一的元素</td><td>1,即删除的元素个数</td></tr>
-<tr><td>zremrangebyscore(name, min, max)</td><td>删除键名为 name 的有序集合中 score 在给定区间的元素</td><td>name: 键名&lt;br&gt;min: 最低 score&lt;br&gt;max: 最高 score</td><td>redis.zremrangebyscore(&#x27;grade&#x27;, 80, 90)</td><td>删除键名为 grade 的有序集合中 score 在 80 和 90 之间的元素</td><td>1,即删除的元素个数</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>zcount(name, min, max)</td><td>返回键名为 name 的有序集合中 score 在给定区间的元素数量</td><td>name: 键名&lt;br&gt;min: 最低 score&lt;br&gt;max: 最高 score</td><td>redis.zcount('grade', 80, 95)</td><td>返回键名为 grade 的有序集合中 score 在 80 和 95 之间的元素个数</td><td>4</td></tr>
+<tr><td>zcard(name)</td><td>返回键名为 name 的有序集合中的元素个数</td><td>name: 键名</td><td>redis.zcard('grade')</td><td>获取键名为 grade 的有序集合中元素的个数</td><td>3</td></tr>
+<tr><td>zremrangebyrank(name, min, max)</td><td>删除键名为 name 的有序集合中排名在给定区间的元素</td><td>name: 键名&lt;br&gt;min: 最低名次&lt;br&gt;max: 最高名次</td><td>redis.zremrangebyrank('grade', 0, 0)</td><td>删除键名为 grade 的有序集合中排名第一的元素</td><td>1,即删除的元素个数</td></tr>
+<tr><td>zremrangebyscore(name, min, max)</td><td>删除键名为 name 的有序集合中 score 在给定区间的元素</td><td>name: 键名&lt;br&gt;min: 最低 score&lt;br&gt;max: 最高 score</td><td>redis.zremrangebyscore('grade', 80, 90)</td><td>删除键名为 grade 的有序集合中 score 在 80 和 90 之间的元素</td><td>1,即删除的元素个数</td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 散列操作</h3>
 <p class="content-text">Redis 还提供了散列表这种数据结构,我们可以用name 指定一个散列表的名称,表内存储着多个键值对,操作散列表的方法总结见表4-10。</p>
 <p class="table-caption">表4-10 散列表的操作方法</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>hset(name, key, value)</td><td>向键名为 name的散列表中添加映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;value: 映射键值</td><td>hset(&#x27;price&#x27;, &#x27;cake&#x27;, 5)</td><td>向键名为 price 的散列表中添加映射关系,cake 的值为 5</td><td>1,即添加的映射个数</td></tr>
-<tr><td>hsetnx(name, key, value)</td><td>如果键名为 name 的散列表中不存在给定映射,则向其中添加此映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;value: 映射键值</td><td>hsetnx(&#x27;price&#x27;, &#x27;book&#x27;, 6)</td><td>向键名为 price 的散列表中添加映射关系,book 的值为 6</td><td>1,即添加的映射个数</td></tr>
-<tr><td>hget(name, key)</td><td>返回键名为 name 的散列表中 key 对应的值</td><td>name: 散列表键名 key:映射键名</td><td>redis.hget(&#x27;price&#x27;, &#x27;cake&#x27;)</td><td>获取键名为price的散列表中键名cake的值</td><td>5</td></tr>
-<tr><td>hmget(name, keys, *args)</td><td>返回键名为 name 的散列表中各个键名对应的值</td><td>name: 散列表键名 keys:键名序列</td><td>redis.hmget(&#x27;price&#x27;, [&#x27;apple&#x27;, &#x27;orange&#x27;])</td><td>获取键名为price的散列表中apple和orange对应的值</td><td>[b&#x27;3&#x27;, b&#x27;7&#x27;]</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>hset(name, key, value)</td><td>向键名为 name的散列表中添加映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;value: 映射键值</td><td>hset('price', 'cake', 5)</td><td>向键名为 price 的散列表中添加映射关系,cake 的值为 5</td><td>1,即添加的映射个数</td></tr>
+<tr><td>hsetnx(name, key, value)</td><td>如果键名为 name 的散列表中不存在给定映射,则向其中添加此映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;value: 映射键值</td><td>hsetnx('price', 'book', 6)</td><td>向键名为 price 的散列表中添加映射关系,book 的值为 6</td><td>1,即添加的映射个数</td></tr>
+<tr><td>hget(name, key)</td><td>返回键名为 name 的散列表中 key 对应的值</td><td>name: 散列表键名 key:映射键名</td><td>redis.hget('price', 'cake')</td><td>获取键名为price的散列表中键名cake的值</td><td>5</td></tr>
+<tr><td>hmget(name, keys, *args)</td><td>返回键名为 name 的散列表中各个键名对应的值</td><td>name: 散列表键名 keys:键名序列</td><td>redis.hmget('price', ['apple', 'orange'])</td><td>获取键名为price的散列表中apple和orange对应的值</td><td>[b'3', b'7']</td></tr></tbody></table>
 <p class="content-text">(续)</p>
-<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>hmset(name, mapping)</td><td>向键名为 name 的散列表中批量添加映射</td><td>name: 散列表键名&lt;br&gt;mapping: 映射字典</td><td>redis.hmset(&#x27;price&#x27;, {&#x27;banana&#x27;: 2, &#x27;pear&#x27;: 6})</td><td>向键名为 price 的散列表中批量添加映射</td><td>True</td></tr>
-<tr><td>hincrby(name, key, amount=1)</td><td>将键名为 name 的散列表中映射键值增加 amount</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;amount: 增长量</td><td>redis.hincrby(&#x27;price&#x27;, &#x27;apple&#x27;, 3)</td><td>将键名为 price 的散列表中 apple 的键值增加 3</td><td>6,修改后的值</td></tr>
-<tr><td>hexists(name, key)</td><td>返回键名为 name 的散列表中是否存在键名为 key 的映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名</td><td>redis.hexists(&#x27;price&#x27;, &#x27;banana&#x27;)</td><td>返回键名为 price 的散列表中是否存在键名为 banana 的映射</td><td>True</td></tr>
-<tr><td>hdel(name, *keys)</td><td>在键名为 name 的散列表中,删除具有给定键名的映射</td><td>name: 散列表键名&lt;br&gt;keys: 映射键名序列</td><td>redis.hdel(&#x27;price&#x27;, &#x27;banana&#x27;)</td><td>从键名为 price 的散列表中,删除键名为 banana 的映射</td><td>True</td></tr>
-<tr><td>hlen(name)</td><td>获取键名为 name 的散列表中有多少个映射</td><td>name: 散列表键名</td><td>redis.hlen(&#x27;price&#x27;)</td><td>获取键名为 price 的散列表中映射的个数</td><td>6</td></tr>
-<tr><td>hkeys(name)</td><td>获取键名为 name 的散列表中的所有映射键名</td><td>name: 散列表键名</td><td>redis.hkeys(&#x27;price&#x27;)</td><td>获取键名为 price 的散列表中的所有映射键名</td><td>[b&#x27;cake&#x27;, b&#x27;book&#x27;, b&#x27;banana&#x27;, b&#x27;pear&#x27;]</td></tr>
-<tr><td>hvals(name)</td><td>获取键名为 name 的散列表中的所有映射键值</td><td>name: 散列表键名</td><td>redis.hvals(&#x27;price&#x27;)</td><td>获取键名为 price 的散列表中的所有映射键值</td><td>[b&#x27;5&#x27;, b&#x27;6&#x27;, b&#x27;2&#x27;, b&#x27;6&#x27;]</td></tr>
-<tr><td>hgetall(name)</td><td>获取键名为 name 的散列表中的所有映射键值对</td><td>name: 散列表键名</td><td>redis.hgetall(&#x27;price&#x27;)</td><td>获取键名为 price 的散列表中的所有映射键值对</td><td>{b&#x27;cake&#x27;:b&#x27;5&#x27;, b&#x27;book&#x27;:b&#x27;6&#x27;, b&#x27;orange&#x27;:b&#x27;7&#x27;, b&#x27;pear&#x27;:b&#x27;6&#x27;}</td></tr></tbody></table>
+<table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>hmset(name, mapping)</td><td>向键名为 name 的散列表中批量添加映射</td><td>name: 散列表键名&lt;br&gt;mapping: 映射字典</td><td>redis.hmset('price', {'banana': 2, 'pear': 6})</td><td>向键名为 price 的散列表中批量添加映射</td><td>True</td></tr>
+<tr><td>hincrby(name, key, amount=1)</td><td>将键名为 name 的散列表中映射键值增加 amount</td><td>name: 散列表键名&lt;br&gt;key: 映射键名&lt;br&gt;amount: 增长量</td><td>redis.hincrby('price', 'apple', 3)</td><td>将键名为 price 的散列表中 apple 的键值增加 3</td><td>6,修改后的值</td></tr>
+<tr><td>hexists(name, key)</td><td>返回键名为 name 的散列表中是否存在键名为 key 的映射</td><td>name: 散列表键名&lt;br&gt;key: 映射键名</td><td>redis.hexists('price', 'banana')</td><td>返回键名为 price 的散列表中是否存在键名为 banana 的映射</td><td>True</td></tr>
+<tr><td>hdel(name, *keys)</td><td>在键名为 name 的散列表中,删除具有给定键名的映射</td><td>name: 散列表键名&lt;br&gt;keys: 映射键名序列</td><td>redis.hdel('price', 'banana')</td><td>从键名为 price 的散列表中,删除键名为 banana 的映射</td><td>True</td></tr>
+<tr><td>hlen(name)</td><td>获取键名为 name 的散列表中有多少个映射</td><td>name: 散列表键名</td><td>redis.hlen('price')</td><td>获取键名为 price 的散列表中映射的个数</td><td>6</td></tr>
+<tr><td>hkeys(name)</td><td>获取键名为 name 的散列表中的所有映射键名</td><td>name: 散列表键名</td><td>redis.hkeys('price')</td><td>获取键名为 price 的散列表中的所有映射键名</td><td>[b'cake', b'book', b'banana', b'pear']</td></tr>
+<tr><td>hvals(name)</td><td>获取键名为 name 的散列表中的所有映射键值</td><td>name: 散列表键名</td><td>redis.hvals('price')</td><td>获取键名为 price 的散列表中的所有映射键值</td><td>[b'5', b'6', b'2', b'6']</td></tr>
+<tr><td>hgetall(name)</td><td>获取键名为 name 的散列表中的所有映射键值对</td><td>name: 散列表键名</td><td>redis.hgetall('price')</td><td>获取键名为 price 的散列表中的所有映射键值对</td><td>{b'cake':b'5', b'book':b'6', b'orange':b'7', b'pear':b'6'}</td></tr></tbody></table>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 总结</h3>
-<p class="content-text">　　鉴于 Redis 的便捷性和高效性，后面我们会利用 Redis 实现很多架构，例如维护代理池、账号池、
-ADSL 拨号代理池、Scrapy-Redis 分布式架构等，所以需要好好掌握针对 Redis 的操作。</p>
+<p class="content-text">　　鉴于 Redis 的便捷性和高效性，后面我们会利用 Redis 实现很多架构，例如维护代理池、账号池、ADSL 拨号代理池、Scrapy-Redis 分布式架构等，所以需要好好掌握针对 Redis 的操作。</p>
 </section>
 <div class="section-heading" id="section-6"><h2>4.7 Elasticsearch 搜索引擎存储</h2></div>
-<p class="content-text">　　想查数据，就免不了搜索，而搜索离不开搜索引擎。百度、谷歌都是非常庞大、复杂的搜索引擎，
-它们几乎能够索引互联网上开放的所有网页和数据。然而对于我们自己的业务数据来说，没必要使用</p>
-<p class="content-text">这么复杂的技术。如果为了便于存储和检索,想要实现自己的搜索引擎,那么Elasticsearch 就是不二
-之选。这是一个全文搜索引擎,可以快速存储、搜索和分析海量数据。
-所以,如果我们将爬取到的数据存储到 Elasticsearch里面,检索时会非常方便。</p>
+<p class="content-text">　　想查数据，就免不了搜索，而搜索离不开搜索引擎。百度、谷歌都是非常庞大、复杂的搜索引擎，它们几乎能够索引互联网上开放的所有网页和数据。然而对于我们自己的业务数据来说，没必要使用</p>
+<p class="content-text">这么复杂的技术。如果为了便于存储和检索,想要实现自己的搜索引擎,那么Elasticsearch 就是不二之选。这是一个全文搜索引擎,可以快速存储、搜索和分析海量数据。所以,如果我们将爬取到的数据存储到 Elasticsearch里面,检索时会非常方便。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Elasticsearch 介绍</h3>
-<p class="content-text">Elasticsearch 是一个开源的搜索引擎,建立在一个全文搜索引擎库 Apache LuceneTM 的基础之上。
-那 Lucene 又是什么呢?Lucene 可能是目前存在的(不论开源还是私有)拥有最先进、高性能和
-全功能搜索引擎功能的库,但也仅仅只是一个库。要想用 Lucene,我们需要编写 Java并引用 Lucene 包
-才可以,而且需要我们对信息检索有一定程度的理解。
-为了解决这个问题,Elasticsearch诞生了。Elasticsearch 也是使用Java编写的,其内部使用 Lucene
-实现索引与搜索,但是它的目标是使全文检索变得简单,相当于 Lucene的一层封装,它提供了一套
-简单一致的 RESTful API 来帮助我们实现存储和检索。
-所以 Elasticsearch 仅仅就是一个简易版的 Lucene 封装吗?如果这么认为,那就大错特错了,
-Elasticsearch 不仅是Lucene,并且也不只是一个全文搜索引擎。它可以这样准确形容:
-一个分布式的实时文档存储库,每个字段都可以被索引与搜索;
-一个分布式的实时分析搜索引擎;
-能胜任上百个服务节点的扩展,并支持PB级别的结构化或者非结构化数据。
-总之,Elasticsearch 是一个非常强大的搜索引擎,维基百科、Stack Overflow、GitHub 都纷纷采用
-它来实现搜索。Elasticsearch不仅提供强大的检索能力,也提供强大的存储能力。</p>
+<p class="content-text">Elasticsearch 是一个开源的搜索引擎,建立在一个全文搜索引擎库 Apache LuceneTM 的基础之上。那 Lucene 又是什么呢?Lucene 可能是目前存在的(不论开源还是私有)拥有最先进、高性能和全功能搜索引擎功能的库,但也仅仅只是一个库。要想用 Lucene,我们需要编写 Java并引用 Lucene 包才可以,而且需要我们对信息检索有一定程度的理解。为了解决这个问题,Elasticsearch诞生了。Elasticsearch 也是使用Java编写的,其内部使用 Lucene实现索引与搜索,但是它的目标是使全文检索变得简单,相当于 Lucene的一层封装,它提供了一套简单一致的 RESTful API 来帮助我们实现存储和检索。所以 Elasticsearch 仅仅就是一个简易版的 Lucene 封装吗?如果这么认为,那就大错特错了,Elasticsearch 不仅是Lucene,并且也不只是一个全文搜索引擎。它可以这样准确形容:一个分布式的实时文档存储库,每个字段都可以被索引与搜索;一个分布式的实时分析搜索引擎;能胜任上百个服务节点的扩展,并支持PB级别的结构化或者非结构化数据。总之,Elasticsearch 是一个非常强大的搜索引擎,维基百科、Stack Overflow、GitHub 都纷纷采用它来实现搜索。Elasticsearch不仅提供强大的检索能力,也提供强大的存储能力。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Elasticsearch 相关概念</h3>
-<p class="content-text">Elasticsearch 中有几个基本概念,如节点、索引、文档等,下面分别说明一下。理解这些概念,
-对熟悉 Elasticsearch 是非常帮助的。</p>
+<p class="content-text">Elasticsearch 中有几个基本概念,如节点、索引、文档等,下面分别说明一下。理解这些概念,对熟悉 Elasticsearch 是非常帮助的。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">节点和集群</h4>
-<p class="content-text">Elasticsearch 本质上是一个分布式数据库,允许多台服务器协同工作,每台服务器均可以运行多
-个 Elasticsearch 实例。
-单个 Elasticsearch 实例称为一个节点(Node),一组节点构成一个集群(Cluster)。</p>
+<p class="content-text">Elasticsearch 本质上是一个分布式数据库,允许多台服务器协同工作,每台服务器均可以运行多个 Elasticsearch 实例。单个 Elasticsearch 实例称为一个节点(Node),一组节点构成一个集群(Cluster)。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">索引</h4>
-<p class="content-text">索引即 index, Elasticsearch 会索引所有字段,经过处理后写入一个反向索引(inverted index)。查
-找数据的时候,直接查找该索引。所以,Elasticsearch 数据管理的顶层单位就叫作索引,其实相当于
-MySQL、MongoDB等中数据库的概念。另外,值得注意的是,每个索引(即数据库)的名字必须小写。</p>
+<p class="content-text">索引即 index, Elasticsearch 会索引所有字段,经过处理后写入一个反向索引(inverted index)。查找数据的时候,直接查找该索引。所以,Elasticsearch 数据管理的顶层单位就叫作索引,其实相当于MySQL、MongoDB等中数据库的概念。另外,值得注意的是,每个索引(即数据库)的名字必须小写。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">文档</h4>
-<p class="content-text">索引里的单条记录称为文档(document),许多条文档构成一个索引。
-对同一个索引里面的文档,不要求有相同的结构(scheme),但是结构最好保持一致,因为这样
-有利于提高搜索效率。</p>
+<p class="content-text">索引里的单条记录称为文档(document),许多条文档构成一个索引。对同一个索引里面的文档,不要求有相同的结构(scheme),但是结构最好保持一致,因为这样有利于提高搜索效率。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">类型</h4>
-<p class="content-text">文档可以分组,例如 weather 这个索引里的文档,既可以按城市分组(北京和上海),也可以按气
-候分组(晴天和雨天)。这种分组就叫作类型(Type),它是虚拟的逻辑分组,用来过滤文档,类似MySQL
-中的数据表、MongoDB 中的集合。</p>
-<p class="content-text">不同类型的文档应该具有相似的结构。举例来说,id字段不能在这个组中是字符串,在另一个组
-中却变成了数值。这点与关系型数据库的表是不同的。应该把性质完全不同的数据(例如products 和
-logs)存成两个索引,而不是把两个类型的数据存在一个索引里面(虽然可以做到)。
-根据规划,Elastic 6.x 版只允许每个索引包含一个类型,Elastic 7.x 版将会开始移除类型。</p>
+<p class="content-text">文档可以分组,例如 weather 这个索引里的文档,既可以按城市分组(北京和上海),也可以按气候分组(晴天和雨天)。这种分组就叫作类型(Type),它是虚拟的逻辑分组,用来过滤文档,类似MySQL中的数据表、MongoDB 中的集合。</p>
+<p class="content-text">不同类型的文档应该具有相似的结构。举例来说,id字段不能在这个组中是字符串,在另一个组中却变成了数值。这点与关系型数据库的表是不同的。应该把性质完全不同的数据(例如products 和logs)存成两个索引,而不是把两个类型的数据存在一个索引里面(虽然可以做到)。根据规划,Elastic 6.x 版只允许每个索引包含一个类型,Elastic 7.x 版将会开始移除类型。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">字段</h4>
-<p class="content-text">每个文档都类似一个JSON结构,包含许多字段,每个字段都有其对应的值,多个字段组成了一
-个文档,其实可以类比为MySQL数据表中的字段。
-在Elasticsearch 中,文档归属于一种类型(Type),而这些类型存在于索引中。我们可以画一个简
-单的对比图来类比 Elasticsearch与传统的关系型数据库:
-Relational DB → Databases → Tables → Rows → Columns
-Elasticsearch → Indices → Types → Documents → Fields
-以上就是 Elasticsearch里面的一些基本概念,和关系型数据库进行对比更加有助于我们理解。</p>
+<p class="content-text">每个文档都类似一个JSON结构,包含许多字段,每个字段都有其对应的值,多个字段组成了一个文档,其实可以类比为MySQL数据表中的字段。在Elasticsearch 中,文档归属于一种类型(Type),而这些类型存在于索引中。我们可以画一个简单的对比图来类比 Elasticsearch与传统的关系型数据库:Relational DB → Databases → Tables → Rows → Columns Elasticsearch → Indices → Types → Documents → Fields以上就是 Elasticsearch里面的一些基本概念,和关系型数据库进行对比更加有助于我们理解。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
 <p class="content-text">在开始本节实际操作之前,请确保已经正确安装好了 Elasticsearch,安装方式可以参考:</p>
 <pre class="result-block"><code>https://setup.scrape.center/elasticsearch,安装完成之后确保它可以在本地9200端口上正常运行即可。</code></pre>
-<p class="content-text">Elasticsearch 实际上提供了一系列Restful API来进行存取和查询操作,我们可以使用curl等命令
-或者直接调用API来进行数据存储和修改操作,但总归来说不是很方便。所以这里我们直接介绍一个
-专门用来对接 Elasticsearch 操作的Python库,名称也叫作 Elasticsearch,使用pip3安装即可:</p>
+<p class="content-text">Elasticsearch 实际上提供了一系列Restful API来进行存取和查询操作,我们可以使用curl等命令或者直接调用API来进行数据存储和修改操作,但总归来说不是很方便。所以这里我们直接介绍一个专门用来对接 Elasticsearch 操作的Python库,名称也叫作 Elasticsearch,使用pip3安装即可:</p>
 <pre class="code-block"><code>pip3 install elasticsearch</code></pre>
-<p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/elasticsearch-py。
-安装好了之后我们就可以开始本节的学习了。</p>
+<p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/elasticsearch-py。安装好了之后我们就可以开始本节的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 创建索引</h3>
 <p class="content-text">我们先来看一下怎样创建一个索引,这里我们创建一个名为 news 的索引:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
-result = es.indices.create(index=&#x27;news&#x27;, ignore=400)
+result = es.indices.create(index='news', ignore=400)
 print(result)</code></pre>
-<p class="content-text">这里我们首先创建了一个 Elasticsearch 对象,并且没有设置任何参数,默认情况下它会连接本地
-9200端口运行的Elasticsearch 服务,我们也可以设置特定的连接信息,如:</p>
+<p class="content-text">这里我们首先创建了一个 Elasticsearch 对象,并且没有设置任何参数,默认情况下它会连接本地9200端口运行的Elasticsearch 服务,我们也可以设置特定的连接信息,如:</p>
 <pre class="code-block"><code>es = Elasticsearch(
-[&#x27;https://[username: password@]hostname:port&#x27;],
+['https://[username: password@]hostname:port'],
 verify_certs=True,#是否验证 SSL证书
 )</code></pre>
-<p class="content-text">第一个参数我们可以构造特定格式的链接字符串并传入,hostname 和port 即 Elasticsearch 运行
-的地址和端口,username 和 password 是可选的,代表连接 Elasticsearch 需要的用户名和密码,另外
-而且还有其他的参数设置,比如 verify_certs 代表是否验证证书有效性。更多参数的设置可以参考</p>
+<p class="content-text">第一个参数我们可以构造特定格式的链接字符串并传入,hostname 和port 即 Elasticsearch 运行的地址和端口,username 和 password 是可选的,代表连接 Elasticsearch 需要的用户名和密码,另外而且还有其他的参数设置,比如 verify_certs 代表是否验证证书有效性。更多参数的设置可以参考</p>
 <pre class="result-block"><code>https://elasticsearch-py.readthedocs.io/en/latest/api.html#elasticsearch。</code></pre>
-<p class="content-text">声明 Elasticsearch 对象之后,我们调用了es的indices 对象的 create 方法传入了 index 的名
-称,如果创建成功,会返回如下结果:</p>
-<pre class="code-block"><code>{&#x27;acknowledged&#x27;: True, &#x27;shards_acknowledged&#x27;: True, &#x27;index&#x27;: &#x27;news&#x27;}</code></pre>
-<p class="content-text">可以看到,返回结果是JSON 格式,其中 acknowledged 字段表示创建操作执行成功。
-但这时如果我们再把代码执行一次,则会返回如下结果:</p>
-<pre class="code-block"><code>{&#x27;error&#x27;: {&#x27;root_cause&#x27;: [{&#x27;type&#x27;: &#x27;resource_already_exists_exception&#x27;, &#x27;reason&#x27;: &#x27;index
-[news/hHEYozoqTzK_qRvV4j4a3w] already exists&#x27;, &#x27;index_uuid&#x27;: &#x27;hHEYozoqTzK_qRvV4j4a3w&#x27;, &#x27;index&#x27;: &#x27;news&#x27;}],
-&#x27;type&#x27;: &#x27;resource_already_exists_exception&#x27;, &#x27;reason&#x27;: &#x27;index [news/hHEYozoqTzK_qRvV4j4a3w] already exists&#x27;,
-&#x27;index_uuid&#x27;: &#x27;hHEYozoqTzK_qRvV4j4a3w&#x27;, &#x27;index&#x27;: &#x27;news&#x27;}, &#x27;status&#x27;: 400}</code></pre>
-<p class="content-text">它提示创建失败,其中 status 状态码是400,表示错误原因是索引已经存在。
-注意在这里的代码中,我们使用的ignore 参数为400,说明如果返回结果是400的话,就忽略这
-个错误,不会报错,程序不会抛出异常。
-假如我们不加 ignore 这个参数:</p>
+<p class="content-text">声明 Elasticsearch 对象之后,我们调用了es的indices 对象的 create 方法传入了 index 的名称,如果创建成功,会返回如下结果:</p>
+<pre class="code-block"><code>{'acknowledged': True, 'shards_acknowledged': True, 'index': 'news'}</code></pre>
+<p class="content-text">可以看到,返回结果是JSON 格式,其中 acknowledged 字段表示创建操作执行成功。但这时如果我们再把代码执行一次,则会返回如下结果:</p>
+<pre class="code-block"><code>{'error': {'root_cause': [{'type': 'resource_already_exists_exception', 'reason': 'index
+[news/hHEYozoqTzK_qRvV4j4a3w] already exists', 'index_uuid': 'hHEYozoqTzK_qRvV4j4a3w', 'index': 'news'}],
+'type': 'resource_already_exists_exception', 'reason': 'index [news/hHEYozoqTzK_qRvV4j4a3w] already exists',
+'index_uuid': 'hHEYozoqTzK_qRvV4j4a3w', 'index': 'news'}, 'status': 400}</code></pre>
+<p class="content-text">它提示创建失败,其中 status 状态码是400,表示错误原因是索引已经存在。注意在这里的代码中,我们使用的ignore 参数为400,说明如果返回结果是400的话,就忽略这个错误,不会报错,程序不会抛出异常。假如我们不加 ignore 这个参数:</p>
 <pre class="code-block"><code>es = Elasticsearch()
-result = es.indices.create(index=&#x27;news&#x27;)
+result = es.indices.create(index='news')
 print(result)</code></pre>
 <p class="content-text">再次执行就会报错了:</p>
 <pre class="code-block"><code>raise HTTP_EXCEPTIONS.get(status_code, TransportError) (status_code, error_message, additional_info)
-elasticsearch.exceptions.RequestError: TransportError (400, &#x27;resource_already_exists_exception&#x27;, &#x27;index
-[news/QM6yz2W8QE-bf1Khc50Thw] already exists&#x27;)</code></pre>
-<p class="content-text">这样程序的执行会出现问题。因此,我们需要擅用 ignore 参数,把一些意外情况排除,这样才
-可以保证程序正常执行而不会中断。
-创建完之后,我们还可以设置一下索引的字段映射定义,具体可以参考:https://elasticsearch-py.
-readthedocs.io/en/latest/api.html?#elasticsearch.client.IndicesClient.put_mapping。</p>
+elasticsearch.exceptions.RequestError: TransportError (400, 'resource_already_exists_exception', 'index
+[news/QM6yz2W8QE-bf1Khc50Thw] already exists')</code></pre>
+<p class="content-text">这样程序的执行会出现问题。因此,我们需要擅用 ignore 参数,把一些意外情况排除,这样才可以保证程序正常执行而不会中断。创建完之后,我们还可以设置一下索引的字段映射定义,具体可以参考:https://elasticsearch-py.readthedocs.io/en/latest/api.html?#elasticsearch.client.IndicesClient.put_mapping。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 删除索引</h3>
 <p class="content-text">删除索引也是类似的,代码如下:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
-result = es.indices.delete(index=&#x27;news&#x27;, ignore=[400, 404])
+result = es.indices.delete(index='news', ignore=[400, 404])
 print(result)</code></pre>
-<p class="content-text">这里也使用 ignore参数,来忽略因索引不存在而删除失败,导致程序中断的问题。
-如果删除成功,会输出如下结果:</p>
-<pre class="code-block"><code>{&#x27;acknowledged&#x27;: True}</code></pre>
+<p class="content-text">这里也使用 ignore参数,来忽略因索引不存在而删除失败,导致程序中断的问题。如果删除成功,会输出如下结果:</p>
+<pre class="code-block"><code>{'acknowledged': True}</code></pre>
 <p class="content-text">如果索引已经被删除,那么再执行删除,就会输出如下结果:</p>
-<pre class="code-block"><code>{&#x27;error&#x27;: {&#x27;root_cause&#x27;: [{&#x27;type&#x27;: &#x27;index_not_found_exception&#x27;, &#x27;reason&#x27;: &#x27;no such index [news]&#x27;,
-&#x27;resource.type&#x27;: &#x27;index_or_alias&#x27;, &#x27;resource.id&#x27;: &#x27;news&#x27;, &#x27;index_uuid&#x27;: &#x27;_na_&#x27;, &#x27;index&#x27;: &#x27;news&#x27;}], &#x27;type&#x27;:
-&#x27;index_not_found_exception&#x27;, &#x27;reason&#x27;: &#x27;no such index [news]&#x27;, &#x27;resource.type&#x27;: &#x27;index_or_alias&#x27;,
-&#x27;resource.id&#x27;: &#x27;news&#x27;, &#x27;index_uuid&#x27;: &#x27;_na_&#x27;, &#x27;index&#x27;: &#x27;news&#x27;}, &#x27;status&#x27;: 404}</code></pre>
-<p class="content-text">这个结果表明当前索引不存在,删除失败。返回的结果同样是JSON格式,状态码是404,但是
-由于我们添加了ignore 参数,忽略了404状态码,因此程序正常执行,输出JSON结果,而不是抛出
-异常。</p>
+<pre class="code-block"><code>{'error': {'root_cause': [{'type': 'index_not_found_exception', 'reason': 'no such index [news]',
+'resource.type': 'index_or_alias', 'resource.id': 'news', 'index_uuid': '_na_', 'index': 'news'}], 'type':
+'index_not_found_exception', 'reason': 'no such index [news]', 'resource.type': 'index_or_alias',
+'resource.id': 'news', 'index_uuid': '_na_', 'index': 'news'}, 'status': 404}</code></pre>
+<p class="content-text">这个结果表明当前索引不存在,删除失败。返回的结果同样是JSON格式,状态码是404,但是由于我们添加了ignore 参数,忽略了404状态码,因此程序正常执行,输出JSON结果,而不是抛出异常。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 插入数据</h3>
-<p class="content-text">Elasticsearch 就像MongoDB一样,在插入数据的时候可以直接插入结构化字典数据,插入数据可
-以调用 create 方法。例如,这里我们插入一条新闻数据:</p>
+<p class="content-text">Elasticsearch 就像MongoDB一样,在插入数据的时候可以直接插入结构化字典数据,插入数据可以调用 create 方法。例如,这里我们插入一条新闻数据:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
-es.indices.create(index=&#x27;news&#x27;, ignore=400)
+es.indices.create(index='news', ignore=400)
 data = {
-&#x27;title&#x27;:&#x27;乘风破浪不负韶华,奋斗青春圆梦高考&#x27;,
-&#x27;url&#x27;: &#x27;http://view.inews.qq.com/a/EDU2021041600732200&#x27;
+'title':'乘风破浪不负韶华,奋斗青春圆梦高考',
+'url': 'http://view.inews.qq.com/a/EDU2021041600732200'
 }
-result = es.create(index=&#x27;news&#x27;, id=1, body=data)
+result = es.create(index='news', id=1, body=data)
 print(result)</code></pre>
-<p class="content-text">　　这里我们首先声明了一条新闻数据，包括标题和链接，然后通过调用 create 方法插入了这条数
-据。在调用 create 方法时，我们传入了 4 个参数，其中 index 代表索引名称、id 是数据的唯一标识、
-body 则代表文档的具体内容。
-运行结果如下:</p>
-<pre class="result-block"><code>{&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;_doc&#x27;, &#x27;_id&#x27;: &#x27;1&#x27;, &#x27;_version&#x27;: 1, &#x27;result&#x27;: &#x27;created&#x27;, &#x27;_shards&#x27;: {&#x27;total&#x27;: 2,
-&#x27;successful&#x27;: 1, &#x27;failed&#x27; : 0}, &#x27;_seq_no&#x27;: 0, &#x27;_primary_term&#x27;: 1}</code></pre>
+<p class="content-text">　　这里我们首先声明了一条新闻数据，包括标题和链接，然后通过调用 create 方法插入了这条数据。在调用 create 方法时，我们传入了 4 个参数，其中 index 代表索引名称、id 是数据的唯一标识、body 则代表文档的具体内容。运行结果如下:</p>
+<pre class="result-block"><code>{'_index': 'news', '_type': '_doc', '_id': '1', '_version': 1, 'result': 'created', '_shards': {'total': 2,
+'successful': 1, 'failed' : 0}, '_seq_no': 0, '_primary_term': 1}</code></pre>
 <p class="content-text">　　结果中的 result 字段为 created，代表数据插入成功。</p>
-<p class="content-text">　　另外，其实我们也可以使用 index 方法来插入数据。与 create 不同的是，create 方法需要我们指
-定 id 字段来唯一标识一条数据，index 方法则不需要，如果不指定 id，那么它会自动生成一个。调用
-index 方法的写法如下:</p>
-<pre class="code-block"><code>es.index(index=&#x27;news&#x27;, body=data)</code></pre>
+<p class="content-text">　　另外，其实我们也可以使用 index 方法来插入数据。与 create 不同的是，create 方法需要我们指定 id 字段来唯一标识一条数据，index 方法则不需要，如果不指定 id，那么它会自动生成一个。调用index 方法的写法如下:</p>
+<pre class="code-block"><code>es.index(index='news', body=data)</code></pre>
 <p class="content-text">　　create 方法内部其实也是调用了 index 方法，是对 index 方法的封装。</p>
 </section>
 <section class="numbered-section">
@@ -1383,279 +1105,205 @@ index 方法的写法如下:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
 data = {
-&#x27;title&#x27;:&#x27;乘风破浪不负韶华,奋斗青春圆梦高考&#x27;,
-&#x27;url&#x27;: &#x27;http://view.inews.qq.com/a/EDU2021041600732200&#x27;,
-&#x27;date&#x27;: &#x27;2021-07-05&#x27;
+'title':'乘风破浪不负韶华,奋斗青春圆梦高考',
+'url': 'http://view.inews.qq.com/a/EDU2021041600732200',
+'date': '2021-07-05'
 }
-result = es.update(index=&#x27;news&#x27;, body=data, id=1)
+result = es.update(index='news', body=data, id=1)
 print(result)</code></pre>
 <p class="content-text">　　这里我们为数据增加了一个日期字段，然后调用了 update 方法，结果如下:</p>
-<pre class="result-block"><code>{&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;doc&#x27;, &#x27;_id&#x27;: &#x27;1&#x27;, &#x27;_version&#x27;: 2, &#x27;result&#x27;: &#x27;updated&#x27;, &#x27;_shards&#x27;: {&#x27;total&#x27;: 2,
-&#x27;successful&#x27;: 1, &#x27;failed&#x27;: 0}, &#x27;_seq_no&#x27;: 1, &#x27;_primary_term&#x27;: 1}</code></pre>
-<p class="content-text">　　可以看到，返回结果中的 result 字段为 updated，表示更新成功。另外，我们还注意到一个字段
-_version，这代表更新后的版本号，其后数字 2 代表这是第二个版本。因为之前已经插入过一次数据，
-所以第一次插入的数据是版本 1，可以参见上例的运行结果，这次更新之后版本号就变成了 2，以后
-每更新一次，版本号都会加 1。</p>
+<pre class="result-block"><code>{'_index': 'news', '_type': 'doc', '_id': '1', '_version': 2, 'result': 'updated', '_shards': {'total': 2,
+'successful': 1, 'failed': 0}, '_seq_no': 1, '_primary_term': 1}</code></pre>
+<p class="content-text">　　可以看到，返回结果中的 result 字段为 updated，表示更新成功。另外，我们还注意到一个字段_version，这代表更新后的版本号，其后数字 2 代表这是第二个版本。因为之前已经插入过一次数据，所以第一次插入的数据是版本 1，可以参见上例的运行结果，这次更新之后版本号就变成了 2，以后每更新一次，版本号都会加 1。</p>
 <p class="content-text">　　另外，利用 index 方法同样可以完成更新操作，其写法如下:</p>
-<pre class="code-block"><code>es.index(index=&#x27;news&#x27;, doc_type=&#x27;politics&#x27;, body=data, id=1)</code></pre>
-<p class="content-text">　　可以看到，index 方法能够代替我们完成插入数据和更新数据两个操作。如果数据不存在，就执
-行插入操作，如果已经存在，则执行更新操作，非常方便。</p>
+<pre class="code-block"><code>es.index(index='news', doc_type='politics', body=data, id=1)</code></pre>
+<p class="content-text">　　可以看到，index 方法能够代替我们完成插入数据和更新数据两个操作。如果数据不存在，就执行插入操作，如果已经存在，则执行更新操作，非常方便。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 删除数据</h3>
 <p class="content-text">如果想删除一条数据,那么调用delete 方法并指定需要删除的数据id即可。其写法如下:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
-result = es.delete(index=&#x27;news&#x27;, id=1)
+result = es.delete(index='news', id=1)
 print(result)</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>{&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;doc&#x27;, &#x27;_id&#x27;: &#x27;1&#x27;, &#x27;_version&#x27;: 2, &#x27;result&#x27;: &#x27;deleted&#x27;, &#x27;_shards&#x27;: {&#x27;total&#x27;: 2,
-&#x27;successful&#x27;: 1, &#x27;failed&#x27; : 0}, &#x27;_seq_no&#x27;: 3, &#x27;_primary_term&#x27;: 1}</code></pre>
+<pre class="result-block"><code>{'_index': 'news', '_type': 'doc', '_id': '1', '_version': 2, 'result': 'deleted', '_shards': {'total': 2,
+'successful': 1, 'failed' : 0}, '_seq_no': 3, '_primary_term': 1}</code></pre>
 <p class="content-text">可以看到,运行结果中的result 字段为 deleted,代表删除成功;_version 变成了3,又增加了1。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 查询数据</h3>
-<p class="content-text">上面的几个操作都是非常简单的,普通的数据库如 MongoDB 就可以完成,看起来并没有什么了
-不起。Elasticsearch 更特殊的地方在于其异常强大的检索功能。
-对于中文来说,我们需要安装一个分词插件,这里使用的是 elasticsearch-analysis-ik。我们用
-Elasticsearch 的另一个命令行工具 elasticsearch-plugin 来安装这个插件,这里安装的版本是7.13.2,请
-确保和 Elasticsearch 的版本对应起来,命令如下:</p>
+<p class="content-text">上面的几个操作都是非常简单的,普通的数据库如 MongoDB 就可以完成,看起来并没有什么了不起。Elasticsearch 更特殊的地方在于其异常强大的检索功能。对于中文来说,我们需要安装一个分词插件,这里使用的是 elasticsearch-analysis-ik。我们用Elasticsearch 的另一个命令行工具 elasticsearch-plugin 来安装这个插件,这里安装的版本是7.13.2,请确保和 Elasticsearch 的版本对应起来,命令如下:</p>
 <pre class="code-block"><code>elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.2/
 elasticsearch-analysis-ik-7.13.2.zip</code></pre>
-<p class="content-text">请把这里的版本号替换成你的Elasticsearch 版本号。
-安装之后,重新启动 Elasticsearch就可以了,它会自动加载安装好的插件。
-首先,我们重新新建一个索引并指定需要分词的字段,相应代码如下:</p>
+<p class="content-text">请把这里的版本号替换成你的Elasticsearch 版本号。安装之后,重新启动 Elasticsearch就可以了,它会自动加载安装好的插件。首先,我们重新新建一个索引并指定需要分词的字段,相应代码如下:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
 mapping = {
-    &#x27;properties&#x27;: {
-        &#x27;title&#x27;: {
-            &#x27;type&#x27;: &#x27;text&#x27;,
-            &#x27;analyzer&#x27;: &#x27;ik_max_word&#x27;,
-            &#x27;search_analyzer&#x27;: &#x27;ik_max_word&#x27;
+    'properties': {
+        'title': {
+            'type': 'text',
+            'analyzer': 'ik_max_word',
+            'search_analyzer': 'ik_max_word'
         }
     }
 }
-es.indices.delete(index=&#x27;news&#x27;, ignore=[400, 404])
-es.indices.create(index=&#x27;news&#x27;, ignore=400)
-result = es.indices.put_mapping(index=&#x27;news&#x27;, body=mapping)
+es.indices.delete(index='news', ignore=[400, 404])
+es.indices.create(index='news', ignore=400)
+result = es.indices.put_mapping(index='news', body=mapping)
 print(result)</code></pre>
-<p class="content-text">这里我们先将之前的索引删除,然后新建了一个索引,接着更新了它的mapping信息。mapping 信
-息中指定了分词的字段,包括字段的类型 type、分词器 analyzer 和搜索分词器 search_analyzer。指
-定搜索分词器 search_analyzer 为ik_max_word表示使用我们刚才安装的中文分词插件,如果不指定,
-则会使用默认的英文分词器。
-接下来,我们插入几条新数据:</p>
+<p class="content-text">这里我们先将之前的索引删除,然后新建了一个索引,接着更新了它的mapping信息。mapping 信息中指定了分词的字段,包括字段的类型 type、分词器 analyzer 和搜索分词器 search_analyzer。指定搜索分词器 search_analyzer 为ik_max_word表示使用我们刚才安装的中文分词插件,如果不指定,则会使用默认的英文分词器。接下来,我们插入几条新数据:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
 datas = [
     {
-        &#x27;title&#x27;:&#x27;高考结局大不同&#x27;,
-        &#x27;url&#x27;: &#x27;https://k.sina.com.cn/article_7571064628_1c3454734001011lz9.html&#x27;,
+        'title':'高考结局大不同',
+        'url': 'https://k.sina.com.cn/article_7571064628_1c3454734001011lz9.html',
     },
     {
-        &#x27;title&#x27;:&#x27;进入职业大洗牌时代,“吃香”职业还吃香吗?&#x27;,
-        &#x27;url&#x27;: &#x27;https://new.qq.com/omn/20210828/20210828A025LK00.html&#x27;,
+        'title':'进入职业大洗牌时代,“吃香”职业还吃香吗?',
+        'url': 'https://new.qq.com/omn/20210828/20210828A025LK00.html',
     },
     {
-        &#x27;title&#x27;:&#x27;乘风破浪不负韶华,奋斗青春圆梦高考&#x27;,
-        &#x27;url&#x27;: &#x27;http://view.inews.qq.com/a/EDU2021041600732200&#x27;,
+        'title':'乘风破浪不负韶华,奋斗青春圆梦高考',
+        'url': 'http://view.inews.qq.com/a/EDU2021041600732200',
     },
     {
-        &#x27;title&#x27;:&#x27;他,活出了我们理想的样子&#x27;,
-        &#x27;url&#x27;: &#x27;https://new.qq.com/omn/20210821/20210821A020ID00.html&#x27;,
+        'title':'他,活出了我们理想的样子',
+        'url': 'https://new.qq.com/omn/20210821/20210821A020ID00.html',
     }
 ]
 for data in datas:
-    es.index(index=&#x27;news&#x27;, body=data)</code></pre>
-<p class="content-text">这里我们指定了4条数据,它们都带有 title 和 url字段,然后通过 index 方法将它们插入
-Elasticsearch中,索引名称为 news。
-接下来,我们根据关键词查询一下相关内容:</p>
-<pre class="code-block"><code>result = es.search(index=&#x27;news&#x27;)
+    es.index(index='news', body=data)</code></pre>
+<p class="content-text">这里我们指定了4条数据,它们都带有 title 和 url字段,然后通过 index 方法将它们插入Elasticsearch中,索引名称为 news。接下来,我们根据关键词查询一下相关内容:</p>
+<pre class="code-block"><code>result = es.search(index='news')
 print(result)</code></pre>
 <p class="content-text">运行结果如下:</p>
-<pre class="result-block"><code>{&#x27;took&#x27;: 11, &#x27;timed_out&#x27;: False, &#x27;_shards&#x27;: {&#x27;total&#x27;: 1, &#x27;successful&#x27;: 1, &#x27;skipped&#x27;: 0, &#x27;failed&#x27;: 0}, &#x27;hits&#x27;:
-{&#x27;total&#x27;: {&#x27;value&#x27;: 4, &#x27;relation&#x27;: &#x27;eq&#x27;}, &#x27;max_score&#x27;: 1.0, &#x27;hits&#x27;: [{&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;_doc&#x27;, &#x27;_id&#x27;:
-&#x27;jebpkHsBm-BAny-7hOYp&#x27;, &#x27;_score&#x27;: 1.0, &#x27;_source&#x27;: {&#x27;title&#x27;:&#x27;高考结局大不同&#x27;,&#x27;url&#x27;: &#x27;https://k.sina.com.cn/
-article_7571064628_1c3454734001011lz9.html&#x27;}}, {&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;_doc&#x27;, &#x27;_id&#x27;: &#x27;jubpkHsBm-BAny-
-7hObz&#x27;, &#x27;_score&#x27;: 1.0, &#x27;_source&#x27;: {&#x27;title&#x27;:&#x27;进入职业大洗牌时代,“吃香”职业还吃香吗?&#x27;,&#x27;url&#x27;: &#x27;https://new.
-qq.com/omn/20210828/20210828A025LK00.html&#x27;}}, {&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;_doc&#x27;, &#x27;_id&#x27;: &#x27;j-bpkHsBm-BAny-
-7heZN&#x27;, &#x27;_score&#x27;: 1.0, &#x27;_source&#x27;: {&#x27;title&#x27;:&#x27;乘风破浪不负韶华,奋斗青春圆梦高考&#x27;,&#x27;url&#x27;: &#x27;http://view.inews.
-qq.com/a/EDU2021041600732200&#x27;}}, {&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;:&#x27;_doc&#x27;, &#x27;_id&#x27;: &#x27;kObpkHsBm-BAny-7hean&#x27;, &#x27;_score&#x27;:
-1.0, &#x27;_source&#x27;: {&#x27;title&#x27;:&#x27;他,活出了我们理想的样子&#x27;,&#x27;url&#x27;: &#x27;https://new.qq.com/omn/20210821/20210821A020
-ID00.html&#x27;}}}}}</code></pre>
-<p class="content-text">可以看到,这里查询出了插入的4条数据。它们出现在hits 字段里面,其中total 字段标明了查
-询的结果条目数,max_score 代表了最大匹配分数。
-另外,我们还可以进行全文检索,这才是体现 Elasticsearch 搜索引擎特性的地方:</p>
+<pre class="result-block"><code>{'took': 11, 'timed_out': False, '_shards': {'total': 1, 'successful': 1, 'skipped': 0, 'failed': 0}, 'hits':
+{'total': {'value': 4, 'relation': 'eq'}, 'max_score': 1.0, 'hits': [{'_index': 'news', '_type': '_doc', '_id':
+'jebpkHsBm-BAny-7hOYp', '_score': 1.0, '_source': {'title':'高考结局大不同','url': 'https://k.sina.com.cn/
+article_7571064628_1c3454734001011lz9.html'}}, {'_index': 'news', '_type': '_doc', '_id': 'jubpkHsBm-BAny-
+7hObz', '_score': 1.0, '_source': {'title':'进入职业大洗牌时代,“吃香”职业还吃香吗?','url': 'https://new.
+qq.com/omn/20210828/20210828A025LK00.html'}}, {'_index': 'news', '_type': '_doc', '_id': 'j-bpkHsBm-BAny-
+7heZN', '_score': 1.0, '_source': {'title':'乘风破浪不负韶华,奋斗青春圆梦高考','url': 'http://view.inews.
+qq.com/a/EDU2021041600732200'}}, {'_index': 'news', '_type':'_doc', '_id': 'kObpkHsBm-BAny-7hean', '_score':
+1.0, '_source': {'title':'他,活出了我们理想的样子','url': 'https://new.qq.com/omn/20210821/20210821A020
+ID00.html'}}}}}</code></pre>
+<p class="content-text">可以看到,这里查询出了插入的4条数据。它们出现在hits 字段里面,其中total 字段标明了查询的结果条目数,max_score 代表了最大匹配分数。另外,我们还可以进行全文检索,这才是体现 Elasticsearch 搜索引擎特性的地方:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 import json
 dsl = {
-    &#x27;query&#x27;: {
-        &#x27;match&#x27;: {
-            &#x27;title&#x27;: &#x27;高考圆梦&#x27;
+    'query': {
+        'match': {
+            'title': '高考圆梦'
         }
     }
 }
 es = Elasticsearch()
-result = es.search(index=&#x27;news&#x27;, body=dsl)
+result = es.search(index='news', body=dsl)
 print(result)</code></pre>
-<p class="content-text">这里我们使用 Elasticsearch 支持的DSL 语句来进行查询,使用match 指定全文检索,检索的字段
-是title,内容是“高考圆梦”,搜索结果如下:</p>
-<pre class="result-block"><code>{&#x27;took&#x27;: 6, &#x27;timed_out&#x27;: False, &#x27;_shards&#x27;: {&#x27;total&#x27;: 1, &#x27;successful&#x27;: 1, &#x27;skipped&#x27; : 0, &#x27;failed&#x27; : 0}, &#x27;hits&#x27;:
-{&#x27;total&#x27;: {&#x27;value&#x27;: 2, &#x27;relation&#x27;: &#x27;eq&#x27;}, &#x27;max_score&#x27;: 1.7796917, &#x27;hits&#x27;: [{&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;_doc&#x27;,
-&#x27;_id&#x27;: &#x27;j-bpkHsBm-BAny-7heZN&#x27;, &#x27;_score&#x27;: 1.7796917, &#x27;_source&#x27;: {&#x27;title&#x27;:&#x27;乘风破浪不负韶华,奋斗青春圆梦高
-考&#x27;,&#x27;url&#x27;: &#x27;http://view.inews.qq.com/a/EDU2021041600732200&#x27;}}, {&#x27;_index&#x27;: &#x27;news&#x27;, &#x27;_type&#x27;: &#x27;_doc&#x27;, &#x27;_id&#x27;:
-&#x27;jebpkHsBm-BAny-7hOYp&#x27;, &#x27;_score&#x27;: 0.81085134, &#x27;_source&#x27;: {&#x27;title&#x27;:&#x27;高考结局大不同&#x27;,&#x27;url&#x27;:
-&#x27;https://k.sina.com.cn/article_7571064628_1c3454734001011lz9.html&#x27;}}}}}</code></pre>
-<p class="content-text">从结果可以看到,匹配的结果有两条,第一条的分数为1.7796917,第二条的分数为0.81085134,
-这是因为第一条匹配的数据中含有“高考”和“圆梦”两个词,第二条匹配的数据中不包含“圆梦”,
-但是包含“高考”这个词,所以也被检索出来了,只是分数比较低。
-因此可以看出,检索时会对对应的字段进行全文检索,结果还会按照检索关键词的相关性进行排
-序,这就是一个基本的搜索引擎雏形。
-另外,Elasticsearch 还支持非常多的查询方式。这里就不再一一展开描述了,总之其功能非常强
-大,详情可以参考官方文档: https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl.html。</p>
+<p class="content-text">这里我们使用 Elasticsearch 支持的DSL 语句来进行查询,使用match 指定全文检索,检索的字段是title,内容是“高考圆梦”,搜索结果如下:</p>
+<pre class="result-block"><code>{'took': 6, 'timed_out': False, '_shards': {'total': 1, 'successful': 1, 'skipped' : 0, 'failed' : 0}, 'hits':
+{'total': {'value': 2, 'relation': 'eq'}, 'max_score': 1.7796917, 'hits': [{'_index': 'news', '_type': '_doc',
+'_id': 'j-bpkHsBm-BAny-7heZN', '_score': 1.7796917, '_source': {'title':'乘风破浪不负韶华,奋斗青春圆梦高
+考','url': 'http://view.inews.qq.com/a/EDU2021041600732200'}}, {'_index': 'news', '_type': '_doc', '_id':
+'jebpkHsBm-BAny-7hOYp', '_score': 0.81085134, '_source': {'title':'高考结局大不同','url':
+'https://k.sina.com.cn/article_7571064628_1c3454734001011lz9.html'}}}}}</code></pre>
+<p class="content-text">从结果可以看到,匹配的结果有两条,第一条的分数为1.7796917,第二条的分数为0.81085134,这是因为第一条匹配的数据中含有“高考”和“圆梦”两个词,第二条匹配的数据中不包含“圆梦”,但是包含“高考”这个词,所以也被检索出来了,只是分数比较低。因此可以看出,检索时会对对应的字段进行全文检索,结果还会按照检索关键词的相关性进行排序,这就是一个基本的搜索引擎雏形。另外,Elasticsearch 还支持非常多的查询方式。这里就不再一一展开描述了,总之其功能非常强大,详情可以参考官方文档: https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl.html。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 总结</h3>
-<p class="content-text">以上便是对 Elasticsearch 的基本介绍以及使用Python 操作 Elasticsearch 的基本用法,但这些仅仅
-是Elasticsearch的基本功能,它还有更多强大的功能等待着我们去探索。
-本节代码参见:https://github.com/Python3WebSpider/ElasticSearchTest。</p>
+<p class="content-text">以上便是对 Elasticsearch 的基本介绍以及使用Python 操作 Elasticsearch 的基本用法,但这些仅仅是Elasticsearch的基本功能,它还有更多强大的功能等待着我们去探索。本节代码参见:https://github.com/Python3WebSpider/ElasticSearchTest。</p>
 </section>
 <div class="section-heading" id="section-7"><h2>4.8 RabbitMQ 的使用</h2></div>
 <p class="content-text">在爬取数据的过程中,可能需要一些进程间的通信机制,例如下面三个。</p>
 <p class="content-text list-like">一个进程负责构造爬取请求,另一个进程负责执行爬取请求。</p>
-<p class="content-text list-like">某个数据爬取进程执行完毕,通知另外一个负责数据处理的进程开始处理数据。
-■某个进程新建了一个爬取任务,通知另外一个负责数据爬取的进程开始爬取数据。
-为了降低这些进程的耦合度,需要一个类似消息队列的中间件来存储和转发消息,实现进程间的
-通信。有了消息队列中间件之后,以上各机制中的两个进程就可以独立执行,它们之间的通信则由消
-息队列实现。</p>
-<p class="content-text list-like">一个进程根据需要爬取的任务,构造请求对象并放入消息队列,另一个进程从队列中取出请求
-对象并执行爬取。</p>
-<p class="content-text list-like">某个数据爬取进程执行完毕,就向消息队列发送消息,当另一个负责数据处理的进程监听到这
-类消息时,就开始处理数据。</p>
-<p class="content-text list-like">某个进程新建了一个爬取任务后,就向消息队列发送消息,当另一个负责数据爬取的进程监听
-到这类消息时,就开始爬取数据。
-那这个消息队列怎么实现呢?业界比较流行的实现有 RabbitMQ、RocketMQ、Kafka等,其中
-RabbitMQ 作为一个开源、可靠、灵活的消息队列中间件备受青睐,本节我们也来了解一下它的用法。
-注意我们在前几节了解了一些数据存储库的用法,它们几乎都用于持久化存储数据。本节介绍的
-是一个消息队列中间件,它虽然主要应用于数据消息通信,但由于它也具备存储信息的能
-力,所以将其放在本章介绍。</p>
+<p class="content-text list-like">某个数据爬取进程执行完毕,通知另外一个负责数据处理的进程开始处理数据。■某个进程新建了一个爬取任务,通知另外一个负责数据爬取的进程开始爬取数据。为了降低这些进程的耦合度,需要一个类似消息队列的中间件来存储和转发消息,实现进程间的通信。有了消息队列中间件之后,以上各机制中的两个进程就可以独立执行,它们之间的通信则由消息队列实现。</p>
+<p class="content-text list-like">一个进程根据需要爬取的任务,构造请求对象并放入消息队列,另一个进程从队列中取出请求对象并执行爬取。</p>
+<p class="content-text list-like">某个数据爬取进程执行完毕,就向消息队列发送消息,当另一个负责数据处理的进程监听到这类消息时,就开始处理数据。</p>
+<p class="content-text list-like">某个进程新建了一个爬取任务后,就向消息队列发送消息,当另一个负责数据爬取的进程监听到这类消息时,就开始爬取数据。那这个消息队列怎么实现呢?业界比较流行的实现有 RabbitMQ、RocketMQ、Kafka等,其中RabbitMQ 作为一个开源、可靠、灵活的消息队列中间件备受青睐,本节我们也来了解一下它的用法。注意我们在前几节了解了一些数据存储库的用法,它们几乎都用于持久化存储数据。本节介绍的是一个消息队列中间件,它虽然主要应用于数据消息通信,但由于它也具备存储信息的能力,所以将其放在本章介绍。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. RabbitMQ 的介绍</h3>
-<p class="content-text">RabbitMQ 是使用Erlang语言开发的开源消息队列系统,基于AMQP协议实现。AMQP的全称是
-Advanced Message Queue Protocol,即高级消息队列协议,其主要特点有面向消息、队列、路由(包括
-点对点和发布/订阅)、可靠性、安全性。
-RabbitMQ 最初起源于金融系统,用于在分布式系统中存储和转发消息,在易用性、扩展性、高</p>
+<p class="content-text">RabbitMQ 是使用Erlang语言开发的开源消息队列系统,基于AMQP协议实现。AMQP的全称是Advanced Message Queue Protocol,即高级消息队列协议,其主要特点有面向消息、队列、路由(包括点对点和发布/订阅)、可靠性、安全性。RabbitMQ 最初起源于金融系统,用于在分布式系统中存储和转发消息,在易用性、扩展性、高</p>
 <p class="content-text">可用性等方面均表现不俗,具体特点有以下这些。</p>
 <p class="content-text list-like"><strong class="term-label">可靠性(Reliability):</strong>RabbitMQ通过一些机制保证可靠性,如持久化、传输确认、发布确认。</p>
-<p class="content-text list-like">灵活的路由(Flexible Routing):由Exchange 将消息路由至消息队列。RabbitMQ 已经提供了
-一些内置的 Exchange来实现典型的路由功能;对于较复杂的路由功能,则将多个Exchange 绑
-定在一起,或者通过插件机制实现自己的Exchange。</p>
+<p class="content-text list-like">灵活的路由(Flexible Routing):由Exchange 将消息路由至消息队列。RabbitMQ 已经提供了一些内置的 Exchange来实现典型的路由功能;对于较复杂的路由功能,则将多个Exchange 绑定在一起,或者通过插件机制实现自己的Exchange。</p>
 <p class="content-text list-like"><strong class="term-label">消息集群(Clustering):</strong>多个RabbitMQ 服务器可以组成一个集群,形成一个逻辑 Broker。</p>
-<p class="content-text list-like">高可用(Highly Available Queues):消息队列可以在集群中的机器上镜像存储,使得队列在部
-分节点出问题的情况下仍然可用。</p>
-<p class="content-text list-like">多种协议支持(multi-protocol): RabbitMQ 支持多种消息队列协议,例如STOMP、MQTT。
-■ 多语言客户端(Many Clients): RabbitMQ几乎支持所有常用语言,例如Java、.NET、Ruby。</p>
-<p class="content-text list-like">管理界面(Management UI): RabbitMQ 提供了一个易用的用户界面,使得用户可以监控和管
-理消息 Broker 的多个方面。</p>
-<p class="content-text list-like">跟踪机制(Tracing): RabbitMQ 提供了消息跟踪机制,如果消息异常,使用者就可以找出发
-生了什么。</p>
-<p class="content-text list-like">插件机制(Plugin System): RabbitMQ 提供了许多插件,实现了多方面的扩展,用户也可以编
-写自己的插件。</p>
+<p class="content-text list-like">高可用(Highly Available Queues):消息队列可以在集群中的机器上镜像存储,使得队列在部分节点出问题的情况下仍然可用。</p>
+<p class="content-text list-like">多种协议支持(multi-protocol): RabbitMQ 支持多种消息队列协议,例如STOMP、MQTT。■ 多语言客户端(Many Clients): RabbitMQ几乎支持所有常用语言,例如Java、.NET、Ruby。</p>
+<p class="content-text list-like">管理界面(Management UI): RabbitMQ 提供了一个易用的用户界面,使得用户可以监控和管理消息 Broker 的多个方面。</p>
+<p class="content-text list-like">跟踪机制(Tracing): RabbitMQ 提供了消息跟踪机制,如果消息异常,使用者就可以找出发生了什么。</p>
+<p class="content-text list-like">插件机制(Plugin System): RabbitMQ 提供了许多插件,实现了多方面的扩展,用户也可以编写自己的插件。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
-<p class="content-text">在本节开始之前,请确保已经正确安装好了RabbitMQ,安装方式可以参考 https://setup.scrape.center/
-rabbitmq,需要确保其可以在本地正常运行。
-除了安装 RabbitMQ,还需要安装一个操作 RabbitMQ的Python库,叫作pika,使用pip3 工具安
-装即可:</p>
+<p class="content-text">在本节开始之前,请确保已经正确安装好了RabbitMQ,安装方式可以参考 https://setup.scrape.center/rabbitmq,需要确保其可以在本地正常运行。除了安装 RabbitMQ,还需要安装一个操作 RabbitMQ的Python库,叫作pika,使用pip3 工具安装即可:</p>
 <pre class="code-block"><code>pip3 install pika</code></pre>
-<p class="content-text">更详细的安装说明可以参考https://setup.scrape.center/pika。
-以上二者都安装好之后,开启本节的学习。</p>
+<p class="content-text">更详细的安装说明可以参考https://setup.scrape.center/pika。以上二者都安装好之后,开启本节的学习。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 基本使用</h3>
-<p class="content-text">首先,RabbitMQ就是一个消息队列,我们要实现的进程间通信,从本质上讲是一个生产者-消费
-者模型,即一个进程作为生产者往消息队列放入消息,另一个进程作为消费者监听并处理消息队列中
-的消息,主要有3个关键点需要关注。</p>
+<p class="content-text">首先,RabbitMQ就是一个消息队列,我们要实现的进程间通信,从本质上讲是一个生产者-消费者模型,即一个进程作为生产者往消息队列放入消息,另一个进程作为消费者监听并处理消息队列中的消息,主要有3个关键点需要关注。</p>
 <p class="content-text list-like"><strong class="term-label">声明队列:</strong>通过指定一些参数,创建消息队列。</p>
 <p class="content-text list-like"><strong class="term-label">生产内容:</strong>生产者根据队列的连接信息连接队列,往队列中放入消息。</p>
-<p class="content-text list-like">消费内容:消费者根据队列的连接信息连接队列,从队列中取出消息。
-下面我们先来声明一个队列,相关代码如下:</p>
+<p class="content-text list-like">消费内容:消费者根据队列的连接信息连接队列,从队列中取出消息。下面我们先来声明一个队列,相关代码如下:</p>
 <pre class="code-block"><code>import pika
-QUEUE_NAME = &#x27;scrape&#x27;
-connection = pika.BlockingConnection(pika.ConnectionParameters(&#x27;localhost&#x27;))
+QUEUE_NAME = 'scrape'
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)</code></pre>
-<p class="content-text">这里先连接 RabbitMQ服务,由于RabbitMQ运行在本地,因此直接使用 localhost 即可,将得到
-的连接对象赋值为 connection。然后声明了一个频道对象,即channel,利用它我们可以操作队列内消
-息的生产和消费。之后我们调用channel 的 queue_declare方法声明了一个队列,队列名称叫作 scrape。</p>
+<p class="content-text">这里先连接 RabbitMQ服务,由于RabbitMQ运行在本地,因此直接使用 localhost 即可,将得到的连接对象赋值为 connection。然后声明了一个频道对象,即channel,利用它我们可以操作队列内消息的生产和消费。之后我们调用channel 的 queue_declare方法声明了一个队列,队列名称叫作 scrape。</p>
 <p class="content-text">下面我们尝试往队列中添加消息:</p>
-<pre class="code-block"><code>channel.basic_publish(exchange=&#x27;&#x27;,
+<pre class="code-block"><code>channel.basic_publish(exchange='',
                       routing_key=QUEUE_NAME,
-                      body=&#x27;Hello World!&#x27;)</code></pre>
-<p class="content-text">　　这里我们调用 channel 的 basic_publish 方法往队列放入了消息，其中 routing_key 是队列的名
-称，body 是放入的真实消息。</p>
+                      body='Hello World!')</code></pre>
+<p class="content-text">　　这里我们调用 channel 的 basic_publish 方法往队列放入了消息，其中 routing_key 是队列的名称，body 是放入的真实消息。</p>
 <p class="content-text">　　将以上代码写入一个名为 producer.py 的文件，即生产者。</p>
 <p class="content-text">　　现在，前两点——声明队列和生产内容其实已经完成了，接下来就是消费内容了。</p>
 <p class="content-text">　　其实也很简单。消费者用同样的方式连接到 RabbitMQ 服务，代码如下:</p>
 <pre class="code-block"><code>import pika
-QUEUE_NAME = &#x27;scrape&#x27;
-connection = pika.BlockingConnection(pika.ConnectionParameters(&#x27;localhost&#x27;))
+QUEUE_NAME = 'scrape'
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)</code></pre>
 <p class="content-text">　　然后从队列中获取数据，代码如下:</p>
 <pre class="code-block"><code>def callback(ch, method, properties, body):
-    print(f&quot;Get {body}&quot;)
-channel.basic_consume(queue=&#x27;scrape&#x27;,
+    print(f"Get {body}")
+channel.basic_consume(queue='scrape',
                       auto_ack=True,
                       on_message_callback=callback)
 channel.start_consuming()</code></pre>
-<p class="content-text">　　这里我们调用 channel 的 basic_consume 方法从队列中取出消息，实现了消费，同时指定回调方
-法 on_message_callback 的名称为 callback。另外，还将 auto_ack 设置为了 True，代表消费者获取消
-息之后会自动通知消息队列当前消息已经被处理，可以移除这个消息。</p>
-<p class="content-text">　　最后，将以上述代码保存为 consumer.py 文件（消费者）并运行，它会监听 scrape 队列的变动，
-如果有消息进入，就获取并消费，回调 callback 方法，打印输出结果。</p>
-<p class="content-text">　　现在运行 producer.py 文件，运行之后会连接刚才的队列，同时往该队列中放入一条消息，消息内
-容为 Hello World!。</p>
+<p class="content-text">　　这里我们调用 channel 的 basic_consume 方法从队列中取出消息，实现了消费，同时指定回调方法 on_message_callback 的名称为 callback。另外，还将 auto_ack 设置为了 True，代表消费者获取消息之后会自动通知消息队列当前消息已经被处理，可以移除这个消息。</p>
+<p class="content-text">　　最后，将以上述代码保存为 consumer.py 文件（消费者）并运行，它会监听 scrape 队列的变动，如果有消息进入，就获取并消费，回调 callback 方法，打印输出结果。</p>
+<p class="content-text">　　现在运行 producer.py 文件，运行之后会连接刚才的队列，同时往该队列中放入一条消息，消息内容为 Hello World!。</p>
 <p class="content-text">　　这时再返回 consumer.py 文件，可以发现输出结果如下:</p>
 <pre class="result-block"><code>Get Hello World!</code></pre>
 <p class="content-text">　　这说明生产者成功把消息放入了消息队列，然后消费者收到并输出了这条消息。</p>
-<p class="content-text">　　可以继续运行 producer.py，每运行一次，生产者都会向队列中放入一个消息，消费者会收到该消
-息并输出。</p>
+<p class="content-text">　　可以继续运行 producer.py，每运行一次，生产者都会向队列中放入一个消息，消费者会收到该消息并输出。</p>
 <p class="content-text">　　以上便是最基本的 RabbitMQ 的用法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 随用随取</h3>
-<p class="content-text">　　上面的案例是基于 RabbitMQ 实现的最简单的生产者和消费者之间的通信，但如果把这种实现用
-在爬虫上是不太现实的，因为我们把消费者实现为了“订阅”模式，也就是说，消费者会一直监听队
-列的变化，一旦监听到队列中添加了消息，便要立马处理，它无法主动控制取用消息的时机。应用到
-爬虫中，消费者其实就是执行爬取请求的进程，生产者往队列中放置请求对象，消费者从中获取请求
-对象，然后执行这个请求（向服务器发起 HTTP 请求以获取响应）。但问题是，消费者是无法控制从
-发起请求到获取响应所消耗的时间的，因为什么时候获取到响应内容取决于服务器响应时间的长短。</p>
-<p class="content-text">　　所以这意味着消费者不一定能很快地将消息处理完。如果生产者往队列中放置过多的请求，消费
-者处理不过来，那就会出现问题。因此消费者也应该有权控制取用消息的频率，这就是随用随取。</p>
-<p class="content-text">　　我们可以对前面的代码稍做改写，使生产者可以自行控制向队列放入请求对象的频率，消费者可
-以根据自己的处理能力控制从队列中取出请求对象的频率。如果生产者的放置速度比消费者的获取速
-度更快，那么队列中就缓存一些请求对象，反之队列有时候会处于闲置状态。</p>
+<p class="content-text">　　上面的案例是基于 RabbitMQ 实现的最简单的生产者和消费者之间的通信，但如果把这种实现用在爬虫上是不太现实的，因为我们把消费者实现为了“订阅”模式，也就是说，消费者会一直监听队列的变化，一旦监听到队列中添加了消息，便要立马处理，它无法主动控制取用消息的时机。应用到爬虫中，消费者其实就是执行爬取请求的进程，生产者往队列中放置请求对象，消费者从中获取请求对象，然后执行这个请求（向服务器发起 HTTP 请求以获取响应）。但问题是，消费者是无法控制从发起请求到获取响应所消耗的时间的，因为什么时候获取到响应内容取决于服务器响应时间的长短。</p>
+<p class="content-text">　　所以这意味着消费者不一定能很快地将消息处理完。如果生产者往队列中放置过多的请求，消费者处理不过来，那就会出现问题。因此消费者也应该有权控制取用消息的频率，这就是随用随取。</p>
+<p class="content-text">　　我们可以对前面的代码稍做改写，使生产者可以自行控制向队列放入请求对象的频率，消费者可以根据自己的处理能力控制从队列中取出请求对象的频率。如果生产者的放置速度比消费者的获取速度更快，那么队列中就缓存一些请求对象，反之队列有时候会处于闲置状态。</p>
 <p class="content-text">　　总的来说，消息队列起到了缓冲的作用，使生产者和消费者可以按照自己的节奏工作。</p>
-<p class="content-text">　　好，下面先实现下刚才所述的随用随取机制，队列中的消息可以暂且先用字符串表示，后面再将
-其更换为请求对象。</p>
+<p class="content-text">　　好，下面先实现下刚才所述的随用随取机制，队列中的消息可以暂且先用字符串表示，后面再将其更换为请求对象。</p>
 <p class="content-text">　　可以将生产者实现如下:</p>
 <pre class="code-block"><code>import pika
 
-QUEUE_NAME = &#x27;scrape&#x27;
+QUEUE_NAME = 'scrape'
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=&#x27;localhost&#x27;))
+    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)
 while True:
     data = input()
-    channel.basic_publish(exchange=&#x27;&#x27;,
+    channel.basic_publish(exchange='',
                           routing_key=QUEUE_NAME,
                           body=data)
-    print(f&#x27;Put {data}&#x27;)</code></pre>
-<p class="content-text">　　这里我们还是使用 input 方法来获取生产者的数据，输入的内容就是字符串，输入之后该内容会
-直接被放置到队列中，然后打印到控制台。</p>
+    print(f'Put {data}')</code></pre>
+<p class="content-text">　　这里我们还是使用 input 方法来获取生产者的数据，输入的内容就是字符串，输入之后该内容会直接被放置到队列中，然后打印到控制台。</p>
 <p class="content-text">　　先运行一下生产者代码，然后回车输入几项内容:</p>
 <pre class="code-block"><code>foo
 Put foo
@@ -1667,83 +1315,73 @@ Put baz</code></pre>
 <p class="content-text">　　然后将消费者实现如下:</p>
 <pre class="code-block"><code>import pika
 
-QUEUE_NAME = &#x27;scrape&#x27;
+QUEUE_NAME = 'scrape'
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=&#x27;localhost&#x27;))
+    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 while True:
     input()
     method_frame, header, body = channel.basic_get(
         queue=QUEUE_NAME, auto_ack=True)
     if body:
-        print(f&#x27;Get {body}&#x27;)</code></pre>
-<p class="content-text">　　我们这里也是通过 input 方法控制消费者何时获取下一个数据，获取方法是 basic_get，这个方法
-会返回一个元组，其中的 body 就是真正的数据。</p>
-<p class="content-text">　　运行消费者代码，然后按几下回车，每次按回车后都可以看到控制台输出一个从消息队列中获取
-的新数据:</p>
-<pre class="code-block" data-lang="text"><code>Get b&#x27;foo&#x27;
-Get b&#x27;bar&#x27;
-Get b&#x27;baz&#x27;</code></pre>
+        print(f'Get {body}')</code></pre>
+<p class="content-text">　　我们这里也是通过 input 方法控制消费者何时获取下一个数据，获取方法是 basic_get，这个方法会返回一个元组，其中的 body 就是真正的数据。</p>
+<p class="content-text">　　运行消费者代码，然后按几下回车，每次按回车后都可以看到控制台输出一个从消息队列中获取的新数据:</p>
+<pre class="code-block" data-lang="text"><code>Get b'foo'
+Get b'bar'
+Get b'baz'</code></pre>
 <p class="content-text">　　这样就实现了消费者的随用随取。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 优先级队列</h3>
-<p class="content-text">　　刚才我们仅仅是了解了最基本的队列用法，RabbitMQ 还有一些高级功能。例如，生产者发送的消
-息具有优先级，队列会优先接收优先级高的消息，这要怎么实现呢？</p>
+<p class="content-text">　　刚才我们仅仅是了解了最基本的队列用法，RabbitMQ 还有一些高级功能。例如，生产者发送的消息具有优先级，队列会优先接收优先级高的消息，这要怎么实现呢？</p>
 <p class="content-text">　　其实很简单，只需要在声明队列的时候增加一个属性即可:</p>
 <pre class="code-block" data-lang="python"><code>MAX_PRIORITY = 100
 channel.queue_declare(queue=QUEUE_NAME, arguments={
-    &#x27;x-max-priority&#x27;: MAX_PRIORITY
+    'x-max-priority': MAX_PRIORITY
 })</code></pre>
-<p class="content-text">　　这里在声明队列的时候，增加了一个名为 x-max-priority 的参数，用来指定最大优先级，这样整
-个队列就能支持优先级了。</p>
-<p class="content-text">　　下面改写一下生产者代码，在其向队列发送消息的时候指定 properties 参数为 BasicProperties 对
-象，在 BasicProperties 对象里通过 priority 参数指定对应消息的优先级，实现如下:</p>
+<p class="content-text">　　这里在声明队列的时候，增加了一个名为 x-max-priority 的参数，用来指定最大优先级，这样整个队列就能支持优先级了。</p>
+<p class="content-text">　　下面改写一下生产者代码，在其向队列发送消息的时候指定 properties 参数为 BasicProperties 对象，在 BasicProperties 对象里通过 priority 参数指定对应消息的优先级，实现如下:</p>
 <pre class="code-block" data-lang="python"><code>import pika
 
 MAX_PRIORITY = 100
-QUEUE_NAME = &#x27;scrape&#x27;
+QUEUE_NAME = 'scrape'
 
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=&#x27;localhost&#x27;))
+    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME, arguments={
-    &#x27;x-max-priority&#x27;: MAX_PRIORITY
+    'x-max-priority': MAX_PRIORITY
 })
 
 while True:
     data, priority = input().split()
-    channel.basic_publish(exchange=&#x27;&#x27;,
+    channel.basic_publish(exchange='',
                           routing_key=QUEUE_NAME,
                           properties=pika.BasicProperties(
                               priority=int(priority),
                           ),
                           body=data)
-    print(f&#x27;Put {data}&#x27;)</code></pre>
-<p class="content-text">　　这里的优先级我们也可以手动输入，需要将输入的内容分为两部分，这两部分用空格隔开，运行
-结果如下:</p>
+    print(f'Put {data}')</code></pre>
+<p class="content-text">　　这里的优先级我们也可以手动输入，需要将输入的内容分为两部分，这两部分用空格隔开，运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>foo 40
 Put foo
 bar 20
 Put bar
 baz 50
 Put baz</code></pre>
-<p class="content-text">　　这里我们输入了三次内容，第一次输入的是 foo 40，代表 foo 这个消息的优先级是 40；第二次输
-入 bar 20，代表 bar 这个消息的优先级是 20；第三次输入 baz 50，代表 baz 这个消息的优先级是 50。</p>
+<p class="content-text">　　这里我们输入了三次内容，第一次输入的是 foo 40，代表 foo 这个消息的优先级是 40；第二次输入 bar 20，代表 bar 这个消息的优先级是 20；第三次输入 baz 50，代表 baz 这个消息的优先级是 50。</p>
 <p class="content-text">　　然后重新运行消费者代码，并按几次回车，可以看到如下输出结果:</p>
-<pre class="code-block"><code>Get b&#x27;baz&#x27;
-Get b&#x27;foo&#x27;
-Get b&#x27;bar&#x27;</code></pre>
-<p class="content-text">从输出结果我们可以看到,消息按照优先级被取出来了。baz的优先级是最高的,所以被最先取
-出来。bar的优先级是最低的,所以被最后取出来。</p>
+<pre class="code-block"><code>Get b'baz'
+Get b'foo'
+Get b'bar'</code></pre>
+<p class="content-text">从输出结果我们可以看到,消息按照优先级被取出来了。baz的优先级是最高的,所以被最先取出来。bar的优先级是最低的,所以被最后取出来。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 队列持久化</h3>
-<p class="content-text">除了设置优先级,还可以将队列持久化存储,如果不设置持久化存储,那么数据在RabbitMQ重
-启之后就没有了。
-在声明队列时指定 durable 为True,即可开启持久化存储,实现如下:</p>
+<p class="content-text">除了设置优先级,还可以将队列持久化存储,如果不设置持久化存储,那么数据在RabbitMQ重启之后就没有了。在声明队列时指定 durable 为True,即可开启持久化存储,实现如下:</p>
 <pre class="code-block"><code>channel.queue_declare(queue=QUEUE_NAME,
-                      arguments={&#x27;x-max-priority&#x27;: MAX_PRIORITY},
+                      arguments={'x-max-priority': MAX_PRIORITY},
                       durable=True)</code></pre>
 <p class="content-text">同时在添加消息的时候需要指定 BasicProperties 对象的 delivery_mode为2,实现如下:</p>
 <pre class="code-block"><code>properties=pika.BasicProperties(priority=int(priority), delivery_mode=2)</code></pre>
@@ -1751,90 +1389,82 @@ Get b&#x27;bar&#x27;</code></pre>
 <pre class="code-block"><code>import pika
 
 MAX_PRIORITY = 100
-QUEUE_NAME = &#x27;scrape&#x27;
+QUEUE_NAME = 'scrape'
 
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=&#x27;localhost&#x27;))
+    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME, arguments={
-    &#x27;x-max-priority&#x27;: MAX_PRIORITY
+    'x-max-priority': MAX_PRIORITY
 }, durable=True)
 
 while True:
     data, priority = input().split()
-    channel.basic_publish(exchange=&#x27;&#x27;,
+    channel.basic_publish(exchange='',
                           routing_key=QUEUE_NAME,
                           properties=pika.BasicProperties(
                               priority=int(priority),
                               delivery_mode=2,
                           ),
                           body=data)
-    print(f&#x27;Put {data}&#x27;)</code></pre>
+    print(f'Put {data}')</code></pre>
 <p class="content-text">这样就可以持久化存储队列了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 实战</h3>
-<p class="content-text">最后,我们将字符串消息改写成请求对象,这里需要借助 requests 库中的 Request 类来表示一个
-请求对象。
-构造请求对象时,传入请求方法和请求 URL即可,代码如下:</p>
-<pre class="code-block"><code>request = requests.Request(&#x27;GET&#x27;, url)</code></pre>
-<p class="content-text">这样就构造了一个GET请求,然后可以通过 pickle 工具进行序列化,最后发送到 RabbitMQ中。
-生产者代码实现如下:</p>
+<p class="content-text">最后,我们将字符串消息改写成请求对象,这里需要借助 requests 库中的 Request 类来表示一个请求对象。构造请求对象时,传入请求方法和请求 URL即可,代码如下:</p>
+<pre class="code-block"><code>request = requests.Request('GET', url)</code></pre>
+<p class="content-text">这样就构造了一个GET请求,然后可以通过 pickle 工具进行序列化,最后发送到 RabbitMQ中。生产者代码实现如下:</p>
 <pre class="code-block"><code>import pika
 import requests
 import pickle
 MAX_PRIORITY = 100
 TOTAL = 100
-QUEUE_NAME = &#x27;scrape_queue&#x27;
+QUEUE_NAME = 'scrape_queue'
 
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=&#x27;localhost&#x27;))
+    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME, durable=True)
 
 for i in range(1, TOTAL + 1):
-    url = f&#x27;https://ssr1.scrape.center/detail/{i}&#x27;
-    request = requests.Request(&#x27;GET&#x27;, url)
-    channel.basic_publish(exchange=&#x27;&#x27;,
+    url = f'https://ssr1.scrape.center/detail/{i}'
+    request = requests.Request('GET', url)
+    channel.basic_publish(exchange='',
                           routing_key=QUEUE_NAME,
                           properties=pika.BasicProperties(
                               delivery_mode=2,
                           ),
                           body=pickle.dumps(request))
-    print(f&#x27;Put request of {url}&#x27;)</code></pre>
-<p class="content-text">运行这段生产者代码,就构造出了100个请求对象并发送到了 RabbitMQ中。
-对于消费者,可以编写一个循环,让它不断地从队列中取出请求对象,取出一个就执行一次爬取
-任务,实现如下:</p>
+    print(f'Put request of {url}')</code></pre>
+<p class="content-text">运行这段生产者代码,就构造出了100个请求对象并发送到了 RabbitMQ中。对于消费者,可以编写一个循环,让它不断地从队列中取出请求对象,取出一个就执行一次爬取任务,实现如下:</p>
 <pre class="code-block"><code>import pika
 import pickle
 import requests
 
 MAX_PRIORITY = 100
-QUEUE_NAME = &#x27;scrape_queue&#x27;
+QUEUE_NAME = 'scrape_queue'
 
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=&#x27;localhost&#x27;))
+    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 session = requests.Session()
 
 def scrape(request):
     try:
         response = session.send(request.prepare())
-        print(f&#x27;success scraped {response.url}&#x27;)
+        print(f'success scraped {response.url}')
     except requests.RequestException:
-        print(f&#x27;error occurred when scraping {request.url}&#x27;)
+        print(f'error occurred when scraping {request.url}')
 
 while True:
     method_frame, header, body = channel.basic_get(
         queue=QUEUE_NAME, auto_ack=True)
     if body:
         request = pickle.loads(body)
-        print(f&#x27;Get {request}&#x27;)
+        print(f'Get {request}')
         scrape(request)</code></pre>
-<p class="content-text">这里消费者调用 basic_get 方法获取了消息,然后通过 pickle 工具把消息反序列化还原成一个
-请求对象,之后使用 session 的 send 方法执行该请求,爬取了数据,如果爬取成功就打印爬取成功的
-消息。
-运行结果如下:</p>
+<p class="content-text">这里消费者调用 basic_get 方法获取了消息,然后通过 pickle 工具把消息反序列化还原成一个请求对象,之后使用 session 的 send 方法执行该请求,爬取了数据,如果爬取成功就打印爬取成功的消息。运行结果如下:</p>
 <pre class="result-block"><code>Get &lt;Request [GET]&gt;
 success scraped https://ssr1.scrape.center/detail/1
 Get &lt;Request [GET]&gt;
@@ -1846,20 +1476,17 @@ success scraped https://ssr1.scrape.center/detail/100</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 总结</h3>
-<p class="content-text">本节介绍了 RabbitMQ 的基本使用方法,有了它,爬虫进程之间的通信就变得非常简单了。后文
-我们还会基于 RabbitMQ 实现分布式爬取的实战,所以本节的内容需要好好掌握。
-本节代码参见:https://github.com/Python3WebSpider/RabbitMQTest。
-本节中的部分内容参考 https://www.rabbitmq.com/documentation.html 和 https://pika.readthedocs.io。</p>
+<p class="content-text">本节介绍了 RabbitMQ 的基本使用方法,有了它,爬虫进程之间的通信就变得非常简单了。后文我们还会基于 RabbitMQ 实现分布式爬取的实战,所以本节的内容需要好好掌握。本节代码参见:https://github.com/Python3WebSpider/RabbitMQTest。本节中的部分内容参考 https://www.rabbitmq.com/documentation.html 和 https://pika.readthedocs.io。</p>
 </section>
-      </article>
-      <nav class="chapter-nav">
-        <a href="ch03.html">&larr; 第3章 网页数据的解析提取</a>
-        <a href="ch05.html">第5章 Ajax数据爬取 &rarr;</a>
-      </nav>
-    </main>
-  </div>
-  <footer class="footer">Python3 网络爬虫开发实战 第2版 · 第4章 数据的存储</footer>
-  <script src="../js/sidebar.js?v=20260605-text-indent"></script>
-  <script>buildSidebarForChapter("ch04");</script>
+</article>
+<nav class="chapter-nav">
+<a href="ch03.html">← 第3章 网页数据的解析提取</a>
+<a href="ch05.html">第5章 Ajax数据爬取 →</a>
+</nav>
+</main>
+</div>
+<footer class="footer">Python3 网络爬虫开发实战 第2版 · 第4章 数据的存储</footer>
+<script src="../js/sidebar.js?v=20260605-text-indent"></script>
+<script>buildSidebarForChapter("ch04");</script>
 </body>
 </html>
