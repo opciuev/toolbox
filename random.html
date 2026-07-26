@@ -212,6 +212,18 @@
             background: #c53030;
             transform: translateY(-2px);
         }
+
+        @media (max-width: 480px) {
+            .container {
+                width: calc(100% - 2rem);
+                min-width: 0;
+                padding: 1.5rem;
+            }
+
+            .input-row {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>

@@ -1151,6 +1151,27 @@ h4.subsection-heading::before {
     max-height: 60vh;
   }
 
+  .header {
+    gap: 10px;
+    padding: 0 14px;
+  }
+
+  .logo {
+    min-width: 0;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .header-right {
+    flex: 0 0 auto;
+    gap: 10px;
+  }
+
+  .header-right a {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
   .sidebar {
     z-index: 950;
     width: min(86vw, 292px);

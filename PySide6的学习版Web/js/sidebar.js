@@ -1,6 +1,6 @@
 const chapters = [
   { id: "ch01", title: "第 1 章 搭建 PySide 开发环境", sections: ["1.1 配置 Python", "1.2 配置 Visual Studio Code", "1.2.1 Windows", "1.2.2 Linux", "1.2.3 macOS", "1.2.4 VS Code 配置用户数据目录", "1.2.5 安装 Python 扩展", "1.3 创建 Python 虚拟环境（可选）", "1.4 安装 PySide6 库", "1.5 在 VS Code 中选择 Python 解释器", "1.6 验证开发环境是否搭建成功"] },
-  { id: "ch02", title: "第 2 章 Qt 基础对象", cardCount: 10, readySections: 6, sections: ["2.1 QObject 类与 Qt 对象模型", "2.2 建立对象的层级关系", "2.3 事件与 event 方法", "2.3.1 接受与忽略事件", "2.3.2 sendEvent 与 postEvent", "2.3.3 自定义事件", "2.4 信号与槽", "2.5 字节序列——QByteArray", "2.6 QBuffer", "2.7 位序列——QBitArray", "2.8 QSysInfo", "2.9 Qt 的动态属性", "2.10 生成随机数"] },
+  { id: "ch02", title: "第 2 章 Qt 基础对象", cardCount: 10, sections: ["2.1 QObject 类与 Qt 对象模型", "2.2 建立对象的层级关系", "2.3 事件与 event 方法", "2.4 信号与槽", "2.5 字节序列——QByteArray", "2.6 QBuffer", "2.7 位序列——QBitArray", "2.8 QSysInfo", "2.9 Qt 的动态属性", "2.10 生成随机数"] },
   { id: "ch03", title: "第 3 章 Qt 应用程序", sections: ["3.1 三个应用程序类", "3.2 示例：控制台应用程序", "3.3 命令行参数", "3.4 图形化应用程序"] },
   { id: "ch04", title: "第 4 章 QWindow", sections: ["4.1 关于 QWindow 类", "4.2 绘制窗口内容", "4.3 QRasterWindow", "4.4 鼠标事件", "4.5 键盘事件", "4.6 嵌套窗口"] },
   { id: "ch05", title: "第 5 章 窗口组件", sections: ["5.1 QWidget 类", "5.2 窗口的显示方式", "5.3 拖放操作", "5.4 剪贴板", "5.5 调整窗口的透明度", "5.6 调色板"] },
@@ -48,7 +48,7 @@ function buildSidebar(currentChapterId) {
 
   nav.innerHTML = chapters.map((ch) => {
     const isCurrent = ch.id === currentChapterId;
-    const isReady = ch.id === "ch01" || ch.id === "ch02";
+    const isReady = ["ch01", "ch02", "ch03", "ch04"].includes(ch.id);
     const chapterHref = ch.id === "ch01" ? "index.html#chapter-1" : `${ch.id}.html`;
     const titleClass = isCurrent ? "nav-group-title current active" : "nav-group-title";
     const subClass = isCurrent ? "nav-sub show" : "nav-sub";
@@ -76,11 +76,11 @@ function renderChapterGrid(targetId) {
   if (!target) return;
 
   target.innerHTML = chapters.map((ch, idx) => {
-    const isReady = ch.id === "ch01" || ch.id === "ch02";
+    const isReady = ["ch01", "ch02", "ch03", "ch04"].includes(ch.id);
     const statusHtml = isReady
       ? '<span class="card-status ready">已完成</span>'
       : '<span class="card-status todo">待建置</span>';
-    const href = ch.id === "ch01" ? "#chapter-1" : (ch.id === "ch02" ? "ch02.html" : "#");
+    const href = ch.id === "ch01" ? "#chapter-1" : (isReady ? `${ch.id}.html` : "#");
     const cardClass = isReady ? "chapter-card" : "chapter-card disabled";
     const chapterLabel = `第${String(idx + 1).padStart(2, "0")}章`;
     const cleanTitle = ch.title.replace(/^第 \d+ 章\s*/, "");

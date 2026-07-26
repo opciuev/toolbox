@@ -50,3 +50,10 @@ opencv/tools/image-backups/
 
 # Vercel
 .vercel
+
+# 本地调试/生成产物与大体积原书素材
+opencv/.playwright-cli/
+opencv/output/
+opencv/OpenCV程序实例代码/
+ai-engineering/output/
+PySide6的学习版Web/第二章/

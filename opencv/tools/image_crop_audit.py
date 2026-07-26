@@ -219,7 +219,7 @@ def audit_one(root: Path, rel: str, refs: list[ImageRef], tolerance: int, paddin
     )
 
 
-def make_preview(root: Path, audit: ImageAudit, out_dir: Path, thumb_max: int) -> str | None:
+def make_preview(root: Path, audit: ImageAudit, out_dir: Path, thumb_max: int) -> tuple[str, int, int] | None:
     if not audit.exists or not audit.crop_box:
         return None
     source = root / audit.image
@@ -234,8 +234,9 @@ def make_preview(root: Path, audit: ImageAudit, out_dir: Path, thumb_max: int) -
         draw = ImageDraw.Draw(boxed)
         draw.rectangle((x, y, x + w - 1, y + h - 1), outline=(220, 38, 38), width=max(2, min(image.size) // 180))
         boxed.thumbnail((thumb_max, thumb_max))
+        preview_width, preview_height = boxed.size
         boxed.save(preview)
-    return preview_rel.as_posix()
+    return preview_rel.as_posix(), preview_width, preview_height
 
 
 def write_reports(root: Path, out_dir: Path, audits: list[ImageAudit], thumb_max: int, tolerance: int, padding: int) -> None:
@@ -281,7 +282,13 @@ def write_reports(root: Path, out_dir: Path, audits: list[ImageAudit], thumb_max
         alt = "<br>".join(html.escape(item) for item in audit.alt)
         box = "" if not audit.crop_box else ", ".join(str(v) for v in audit.crop_box)
         source_href = Path("..") / ".." / audit.image
-        preview_html = "" if not preview else f'<img src="{html.escape(preview)}" loading="lazy">'
+        preview_html = ""
+        if preview:
+            preview_src, preview_width, preview_height = preview
+            preview_html = (
+                f'<img src="{html.escape(preview_src)}" '
+                f'width="{preview_width}" height="{preview_height}" loading="lazy">'
+            )
         html_rows.append(
             "<tr>"
             f"<td><code>{html.escape(audit.image)}</code></td>"
