@@ -24,7 +24,7 @@
 <h1 class="chapter-title">第7章 JavaScript动态渲染页面爬取</h1>
 <article class="ocr-content">
 <p class="content-text">JavaScript 动态渲染页面爬取</p>
-<p class="content-text">在第5章中,我们了解了Ajax 数据的分析和爬取方式,这其实也是JavaScript 动态渲染页种情形,通过直接分析 Ajax,使我们仍然可以借助 requests 或 urllib 实现数据爬取。不过 JavaScript 动态渲染的页面不止 Ajax一种。例如,有些页面的分页部分由 JavaScript 生成,而非原始 HTML代码,这其中并不包含 Ajax请求。再例如 ECharts的官方实例(详见 http://echarts.baidu.com/demo.html),其图形都是经过 JavaScript 计算之后生成的。还有类似淘宝这种页面,即使是 Ajax 获取的数据,其Ajax 接口中也含有很多加密参数,使我们难以直接找出规律,也很难直接通过 分析 Ajax 爬取数据。为了解决这些问题,我们可以直接模拟浏览器运行,然后爬取数据,这样就可以实现在浏览器中看到的内容是什么样,爬取的源码就是什么样———————所见即所爬。此时我们无须去管网页内部的JavaScript 使用什么算法渲染页面,也不用管网页后台的Ajax 接口到底含有哪些参数。Python 提供了许多模拟浏览器运行的库,例如Selenium、Splash、Pyppetter、Playwright等,可以 帮助我们实现所见即所爬,有了这些库,就不用再为如何爬取动态渲染的页面发愁了。</p>
+<p class="content-text">在第5章中,我们了解了Ajax 数据的分析和爬取方式,这其实也是JavaScript 动态渲染页面的一种情形,通过直接分析 Ajax,使我们仍然可以借助 requests 或 urllib 实现数据爬取。不过 JavaScript 动态渲染的页面不止 Ajax一种。例如,有些页面的分页部分由 JavaScript 生成,而非原始 HTML代码,这其中并不包含 Ajax请求。再例如 ECharts的官方实例(详见 http://echarts.baidu.com/demo.html),其图形都是经过 JavaScript 计算之后生成的。还有类似淘宝这种页面,即使是 Ajax 获取的数据,其Ajax 接口中也含有很多加密参数,使我们难以直接找出规律,也很难直接通过 分析 Ajax 爬取数据。为了解决这些问题,我们可以直接模拟浏览器运行,然后爬取数据,这样就可以实现在浏览器中看到的内容是什么样,爬取的源码就是什么样——所见即所爬。此时我们无须去管网页内部的JavaScript 使用什么算法渲染页面,也不用管网页后台的Ajax 接口到底含有哪些参数。Python 提供了许多模拟浏览器运行的库,例如Selenium、Splash、Pyppeteer、Playwright等,可以 帮助我们实现所见即所爬,有了这些库,就不用再为如何爬取动态渲染的页面发愁了。</p>
 <div class="section-heading" id="section-0"><h2>7.1 Selenium 的使用</h2></div>
 <p class="content-text">上面讲解了 Ajax的分析方法,利用Ajax 接口可以非常方便地爬取数据。只要能找到 Ajax 接口的 规律,就可以通过某些参数构造出对应的请求,自然就能轻松爬取数据啦。但是在很多情况下,Ajax请求的接口含有加密参数,例如 token、sign等,示例网址 https://spa2.scrape.center/ 的Ajax 接口就包 含一个 token 参数,如图7-1所示。</p>
 <figure class="inline-figure"><img alt="图7-1 包含 token 参数的Ajax 接口" loading="lazy" src="figures/ch07/fig-7_1.jpg"/><figcaption>图7-1 包含 token 参数的Ajax 接口</figcaption></figure>
@@ -448,7 +448,7 @@ browser.get_screenshot_as_file('preview.png')</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">18. 总结</h3>
-<p class="content-text">现在,我们大体了解了Selenium的常规用法。有了Selenium,处理 JavaScript 渲染的页面不再是难事,7.5节我们会用一个实例演示利用 Selenium 爬取网站的流程。本节代码参见:https://github.com/Python3 WebSpider/SeleniumTest。</p>
+<p class="content-text">现在,我们大体了解了Selenium的常规用法。有了Selenium,处理 JavaScript 渲染的页面不再是难事,7.5节我们会用一个实例演示利用 Selenium 爬取网站的流程。本节代码参见:https://github.com/Python3WebSpider/SeleniumTest。</p>
 </section>
 <div class="section-heading" id="section-1"><h2>7.2 Splash 的使用</h2></div>
 <p class="content-text">Splash 是一个JavaScript 渲染服务,是一个含有HTTP API 的轻量级浏览器,它还对接了Python中的Twisted 库和QT库。利用它,同样可以爬取动态渲染的页面。</p>
@@ -488,7 +488,7 @@ browser.get_screenshot_as_file('preview.png')</code></pre>
 <section class="minor-section">
 <h4 class="subsection-heading">And more!</h4>
 <p class="content-text">Splash is free &amp; open source. Commercial support is also available by Scrapinghub.</p>
-<pre class="code-block" data-lang="python"><code>main(splash, args):
+<pre class="code-block" data-lang="lua"><code>main(splash, args):
     assert(splash:go(args.url))
     assert(splash:wait(0.5))
     html = splash:html(),
@@ -496,7 +496,7 @@ browser.get_screenshot_as_file('preview.png')</code></pre>
     har = splash:har(),</code></pre>
 <figure class="inline-figure"><img alt="图7-9 Splash 的 Web 页面" loading="lazy" src="figures/ch07/fig-7_9.jpg"/><figcaption>图7-9 Splash 的 Web 页面</figcaption></figure>
 <figure class="inline-figure"><img alt="图7-10 渲染结果" loading="lazy" src="figures/ch07/fig-7_10.jpg"/><figcaption>图7-10 渲染结果</figcaption></figure>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取渲染结果中包含渲染截图、HAR 加载统计数据和网页的源代码。Splash渲染了整个网页,包括CSS、JavaScript 的加载等,最终呈现的页面和在浏览器中看到的完全一致。那么,这个过程由什么控制呢?我们返回首页,可以看到这样一段脚本:</p>
+<p class="content-text">渲染结果中包含渲染截图、HAR 加载统计数据和网页的源代码。Splash渲染了整个网页,包括CSS、JavaScript 的加载等,最终呈现的页面和在浏览器中看到的完全一致。那么,这个过程由什么控制呢?我们返回首页,可以看到这样一段脚本:</p>
 <pre class="code-block"><code>function main(splash, args)
     assert(splash:go(args.url))
     assert(splash:wait(0.5))
@@ -549,7 +549,7 @@ end</code></pre>
 end</code></pre>
 <p class="content-text">运行这段代码后的返回结果是代码中3个网站的页面截图,如图7-12所示。</p>
 <figure class="inline-figure"><img alt="图7-12 运行结果" loading="lazy" src="figures/ch07/fig-7_12.jpg"/><figcaption>图7-12 运行结果</figcaption></figure>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取代码中调用的 wait 方法类似于Python中的sleep方法,参数是等待的秒数。当Splash 执行到此方法时,会转而处理其他任务,在等待参数指定的时间后再回来继续处理。这里值得注意的是,Lua 脚本中的字符串拼接和Python中不同,它使用的是“..”操作符,而不是“+”。如果有必要,可以简单了解一下Lua脚本的语法,详见http://www.runoob.com/lua/lua-basic-syntax.html。另外,这里设置了加载页面时的异常检测。go方法会返回加载页面的结果状态,如果返回的状态码是4xx 或5xx,那么ok 变量为空,就不会返回加载后的图片。</p>
+<p class="content-text">代码中调用的 wait 方法类似于Python中的sleep方法,参数是等待的秒数。当Splash 执行到此方法时,会转而处理其他任务,在等待参数指定的时间后再回来继续处理。这里值得注意的是,Lua 脚本中的字符串拼接和Python中不同,它使用的是“..”操作符,而不是“+”。如果有必要,可以简单了解一下Lua脚本的语法,详见http://www.runoob.com/lua/lua-basic-syntax.html。另外,这里设置了加载页面时的异常检测。go方法会返回加载页面的结果状态,如果返回的状态码是4xx 或5xx,那么ok 变量为空,就不会返回加载后的图片。</p>
 </section>
 </section>
 <section class="numbered-section">
@@ -951,14 +951,14 @@ print(response.text)</code></pre>
 <h3 class="subsection-heading numbered-heading">1. Pyppeteer 介绍</h3>
 <p class="content-text">Puppeteer 是 Google 基于Node.js 开发的一个工具,有了它,我们可以利用JavaScript 控制 Chrome浏览器的一些操作。当然,Puppeteer 也可以应用于网络爬虫上,其API极其完善,功能非常强大。Pyppeteer 又是什么呢?它其实是 Puppeteer 的Python 版实现,但不是Google 开发的,是由一位来自日本的工程师依据 Puppeteer的一些功能开发出来的非官方版本。Pyppeteer 的背后实际上有一个类似于Chrome的浏览器——Chromium,它执行一些动作,从而进行网页渲染。首先,介绍一下Chromium 浏览器和Chrome 浏览器的渊源。Chromium 是 Google 为了研发Chrome启动的项目,是完全开源的。二者基于相同的源代码而构建,Chrome 的所有新功能都会先在Chromium 上实现,待验证稳定后才移植到Chrome上,因此Chromium 的版本更新频率更高,同时包含很多新功能。但作为一款独立的浏览器,Chromium的用户群体要小众得多。两款浏览器“同根同源”,有着同样的logo,只是配色不同,Chromium logo的颜色是不同深度的蓝色,Chrome logo的颜色是蓝色、红色、黄色和绿色这4种颜色，如图7-19所示。</p>
 <figure class="inline-figure"><img alt="图7-19 Chromium 浏览器和 Chrome 浏览器的logo" loading="lazy" src="figures/ch07/fig-7_19.jpg"/><figcaption>图7-19 Chromium 浏览器和 Chrome 浏览器的logo</figcaption></figure>
-<p class="content-text">总的来说,两款浏览器的内核———样,实现方式也一样,可以看作开发版和正式版,功能上没有太大区别。</p>
+<p class="content-text">总的来说,两款浏览器的内核一样,实现方式也一样,可以看作开发版和正式版,功能上没有太大区别。</p>
 <p class="content-text">Pyppeteer 就是依赖 Chromium 浏览器运行的。如果第一次运行 Pyppeteer 的时候,没有安装Chromium 浏览器,程序就会帮我们自动安装和配置好,免去了烦琐的环境配置等工作。另外,Pyppeteer是基于Python 的新特性 async 实现的,所以它的一些操作执行也支持异步方式,和Selenium 相比效率也提高了。下面我们就一起了解一下 Pyppeteer 的相关用法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 安装</h3>
 <p class="content-text">首先要解决的便是安装问题。由于Pyppeteer 采用了Python的 async 机制,所以要求 Python 版本为3.5及以上。使用pip3 工具安装Pyppeteer即可:</p>
 <pre class="code-block"><code>pip3 install pyppeteer</code></pre>
-<p class="content-text">具体的安装过程可以参考https://setup.scrape.center/pyppetter。安装完成之后,便可以开始接下来的学习。</p>
+<p class="content-text">具体的安装过程可以参考https://setup.scrape.center/pyppeteer。安装完成之后,便可以开始接下来的学习。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 快速上手</h3>
@@ -969,15 +969,14 @@ print(response.text)</code></pre>
 from pyppeteer import launch
 from pyquery import PyQuery as pq
 async def main():
-browser = await launch()</code></pre>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取</p>
-<pre class="code-block"><code>page = await browser.newPage()
-await page.goto('https://spa2.scrape.center/')
-await page.waitForSelector('.item.name')
-doc = pq(await page.content())
-names = [item.text() for item in doc('.item.name').items()]
-print('Names:', names)
-await browser.close()
+    browser = await launch()
+    page = await browser.newPage()
+    await page.goto('https://spa2.scrape.center/')
+    await page.waitForSelector('.item.name')
+    doc = pq(await page.content())
+    names = [item.text() for item in doc('.item.name').items()]
+    print('Names:', names)
+    await browser.close()
 asyncio.get_event_loop().run_until_complete(main())</code></pre>
 <p class="content-text">运行结果如下:Names:['霸王别姬- Farewell My Concubine','这个杀手不太冷- Léon','肖申克的救赎- The Shawshank Redemption','泰坦尼克号 - Titanic','罗马假日 - Roman Holiday','唐伯虎点秋香 - Flirting Scholar','乱世佳人- Gone with the Wind','喜剧之王 - The King of Comedy','楚门的世界- The Truman Show','狮子王 - The Lion King']先粗略看一下代码,大体意思是访问了测试网站,然后等待.item.name节点加载出来,随后通过pyquery 从页面源码中提取电影的名称并输出,最后关闭 Pyppeteer。运行结果和之前用 Selenium 实现的结果一样,我们成功模拟了页面的加载行为,然后提取了页面上所有所有电影的名称。那么,其中具体发生了什么?我们来逐行解析一下。</p>
 <p class="content-text list-like">调用 launch 方法新建了一个 Browser对象,并赋值给 browser变量。这一步相当于启动了浏览器。</p>
@@ -1177,7 +1176,7 @@ asyncio.get_event_loop().run_until_complete(main())</code></pre>
 <p class="content-text">Page 即页面,对应一个网页、一个选项卡。在前面的很多示例中,其实已经出现了Page 对象的身影,这里再详细看一下它的一些常见用法。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">选择器</h4>
-<p class="content-text">Page 对象内置了很多用于选取节点的选择器方法,例如〕方法,给它传入一个选择器,就能返回匹配到的第一个节点,等价于querySelector方法;又如JJ方法,给它传入选择器,会返回符合选择器的所有节点组成的列表,等价于querySelectorAll 方法。下面我们分别调用〕方法、querySelector 方法、J〕方法和 querySelectorAll 方法,代码如下:</p>
+<p class="content-text">Page 对象内置了很多用于选取节点的选择器方法,例如 J 方法,给它传入一个选择器,就能返回匹配到的第一个节点,等价于querySelector方法;又如 JJ 方法,给它传入选择器,会返回符合选择器的所有节点组成的列表,等价于querySelectorAll 方法。下面我们分别调用 J 方法、querySelector 方法、JJ 方法和 querySelectorAll 方法,代码如下:</p>
 <pre class="code-block"><code>import asyncio
 from pyppeteer import launch
 from pyquery import PyQuery as pq
@@ -1207,7 +1206,7 @@ JJ Result2: [&lt;pyppeteer.element_handle.ElementHandle object at 0x116794f10&gt
 ElementHandle object at 0x116794d10&gt;, &lt;pyppeteer.element_handle.ElementHandle object at 0x116794f50&gt;,
 &lt;pyppeteer.element_handle.ElementHandle object at 0x11679f690&gt;, &lt;pyppeteer.element_handle.ElementHandle
 object at 0x11679f750&gt;]</code></pre>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取可以看到,J方法和 querySelector 方法的返回结果都是和传入的选择器相匹配的单个节点,返回值为 ElementHandle 对象。J〕方法和 querySelectorAll 方法则都是返回了和选择器相匹配的节点组成的列表,列表中的内容是ElementHandle 对象。</p>
+<p class="content-text">可以看到,J 方法和 querySelector 方法的返回结果都是和传入的选择器相匹配的单个节点,返回值为 ElementHandle 对象。JJ 方法和 querySelectorAll 方法则都是返回了和选择器相匹配的节点组成的列表,列表中的内容是ElementHandle 对象。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">选项卡操作</h4>
@@ -1320,11 +1319,10 @@ from pyquery import PyQuery as pq
 async def main():
     browser = await launch (headless=False)
     page = await browser.newPage()
-    await page.goto('https://spa2.scrape.center/')</code></pre>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取</p>
-<pre class="code-block" data-lang="python"><code>print('HTML:', await page.content())
-print('Cookies:', await page.cookies())
-await browser.close()</code></pre>
+    await page.goto('https://spa2.scrape.center/')
+    print('HTML:', await page.content())
+    print('Cookies:', await page.cookies())
+    await browser.close()</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">执行</h4>
@@ -1366,7 +1364,7 @@ async def main():
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">15. 总结</h3>
-<p class="content-text">Pyppeteer 还有其他很多功能,例如键盘事件、鼠标事件、对话框事件等,这里就不再————赘述了。更多内容可以参考官方文档 https://miyakogi.github.io/pyppeteer/reference.html 的案例说明。本节我们凭借一些小案例介绍了Pyppeteer 的基本用法,7.6节将使用Pyppeteer完成一个爬取实例。</p>
+<p class="content-text">Pyppeteer 还有其他很多功能,例如键盘事件、鼠标事件、对话框事件等,这里就不再赘述了。更多内容可以参考官方文档 https://miyakogi.github.io/pyppeteer/reference.html 的案例说明。本节我们凭借一些小案例介绍了Pyppeteer 的基本用法,7.6节将使用Pyppeteer完成一个爬取实例。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>7.4 Playwright 的使用</h2></div>
 <p class="content-text">本节代码参见:https://github.com/Python3WebSpider/PyppeteerTest。</p>
@@ -1386,11 +1384,11 @@ async def main():
 <pre class="code-block"><code>pip3 install playwright</code></pre>
 <p class="content-text">安装完成后需要进行一些初始化操作:</p>
 <pre class="code-block"><code>playwright install</code></pre>
-<p class="content-text">这时 Playwrigth 会安装 Chromium、Firefox 和 WebKit 浏览器并配置一些驱动,我们不必关心具体的配置过程,Playwright 会自动为我们配置好。具体的安装说明可以参考 https://setup.scrape.center/playwright。安装完成后,便可以使用 Playwright 启动 Chromium、Firefox 或 WebKit 浏览器来进行自动化操作了。</p>
+<p class="content-text">这时 Playwright 会安装 Chromium、Firefox 和 WebKit 浏览器并配置一些驱动,我们不必关心具体的配置过程,Playwright 会自动为我们配置好。具体的安装说明可以参考 https://setup.scrape.center/playwright。安装完成后,便可以使用 Playwright 启动 Chromium、Firefox 或 WebKit 浏览器来进行自动化操作了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 基本使用</h3>
-<p class="content-text">Playwright 支持两种编写模式,一种是和 Pyppetter 一样的异步模式,一种是和 Selenium 一样的同步模式,可以根据实际需要选择不同的模式。先来看一个同步模式的例子:</p>
+<p class="content-text">Playwright 支持两种编写模式,一种是和 Pyppeteer 一样的异步模式,一种是和 Selenium 一样的同步模式,可以根据实际需要选择不同的模式。先来看一个同步模式的例子:</p>
 <pre class="code-block" data-lang="python"><code>from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
@@ -1401,7 +1399,7 @@ with sync_playwright() as p:
         page.screenshot(path=f'screenshot-{browser_type.name}.png')
         print(page.title())
         browser.close()</code></pre>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取这里我们首先导入并直接调用了sync_playwright方法,该方法的返回值是一个PlaywrightContextManager对象,可以理解为一个浏览器上下文管理器,我们将其赋值为p变量。然后依次调用p的chromium、firefox 和 webkit 属性创建了 Chromium、Firefox 以及Webkit 浏览器实例。接着用一个 for 循环依次执行了这3个浏览器实例的launch方法,同时设置 headless 参数为False。注意 如果不把 headless 参数设置为 False,就会以默认的无头模式启动浏览器,我们将看不到任何窗口。在for 循环中,launch方法返回的是一个Browser对象,我们将其赋值为browser 变量。然后调用browser 的 new_page 方法新建了一个选项卡,返回值是一个 Page 对象,将其赋值为page,这整个过程其实和 Pyppeteer 非常类似。之后调用page的一系列API完成了各种自动化操作,调用 goto 方法加载某个页面,这里访问的是百度首页;调用screenshot 方法获取页面截图,往其参数中传入的文件名称是截图自动保存后的图片名称,这里的名称中我们加入了browser_type的name属性,代表浏览器的类型,于是3次循环中 screenshot 方法的结果分别是 chromium、firefox 和 webkit。另外,还调用了 title 方法,该方法会返回页面的标题,即HTML 源代码中 title节点中的文字,也就是选项卡上的文字,并将返回的页面标题打印到控制台。最后,调用browser 的close方法关闭整个浏览器,代码结束。运行一下这段代码,可以看到有3个浏览器依次启动,分别是Chromium、Firefox 和 Webkit 浏览器,启动后都是加载百度首页,页面加载完后,生成页面截图,然后把页面标题打印到控制台,就退出了。此时,当前目录下会生成3个截图文件,图片都是百度首页,文件名中都带有对应浏览器的名称,如图7-30所示。</p>
+<p class="content-text">这里我们首先导入并直接调用了sync_playwright方法,该方法的返回值是一个PlaywrightContextManager对象,可以理解为一个浏览器上下文管理器,我们将其赋值为p变量。然后依次调用p的chromium、firefox 和 webkit 属性创建了 Chromium、Firefox 以及Webkit 浏览器实例。接着用一个 for 循环依次执行了这3个浏览器实例的launch方法,同时设置 headless 参数为False。注意 如果不把 headless 参数设置为 False,就会以默认的无头模式启动浏览器,我们将看不到任何窗口。在for 循环中,launch方法返回的是一个Browser对象,我们将其赋值为browser 变量。然后调用browser 的 new_page 方法新建了一个选项卡,返回值是一个 Page 对象,将其赋值为page,这整个过程其实和 Pyppeteer 非常类似。之后调用page的一系列API完成了各种自动化操作,调用 goto 方法加载某个页面,这里访问的是百度首页;调用screenshot 方法获取页面截图,往其参数中传入的文件名称是截图自动保存后的图片名称,这里的名称中我们加入了browser_type的name属性,代表浏览器的类型,于是3次循环中 screenshot 方法的结果分别是 chromium、firefox 和 webkit。另外,还调用了 title 方法,该方法会返回页面的标题,即HTML 源代码中 title节点中的文字,也就是选项卡上的文字,并将返回的页面标题打印到控制台。最后,调用browser 的close方法关闭整个浏览器,代码结束。运行一下这段代码,可以看到有3个浏览器依次启动,分别是Chromium、Firefox 和 Webkit 浏览器,启动后都是加载百度首页,页面加载完后,生成页面截图,然后把页面标题打印到控制台,就退出了。此时,当前目录下会生成3个截图文件,图片都是百度首页,文件名中都带有对应浏览器的名称,如图7-30所示。</p>
 <figure class="inline-figure"><img alt="screenshot-chromium.png screenshot-firefox.png screenshot-webkit.png 图7-30 同步模式示例的运行结果" loading="lazy" src="figures/ch07/fig-7_30.jpg"/><figcaption>screenshot-chromium.png screenshot-firefox.png screenshot-webkit.png 图7-30 同步模式示例的运行结果</figcaption></figure>
 <p class="content-text">控制台的运行结果如下:百度一下,你就知道百度一下,你就知道百度一下,你就知道可以发现,我们非常方便地启动了三种浏览器,完成了自动化操作,并通过几个API 就获取了页面的截图和数据,整个过程速度非常快,这就是 Playwright 最为基本的用法。当然,除了同步模式,Playwright 还提供了支持异步模式的API,如果我们的项目里面使用了asyncio 关键字,就应该使用异步模式,写法如下:</p>
 <pre class="result-block" data-lang="python"><code>import asyncio
@@ -1486,15 +1484,16 @@ with sync_playwright() as playwright:
 <pre class="code-block" data-lang="python"><code>from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     iphone_12_pro_max = p.devices['iPhone 12 Pro Max']
-    browser = p.webkit.launch (headless=False)
-    context = browser.new_context(</code></pre>
-<p class="content-text">**iphone_12_pro_max,</p>
-<pre class="code-block"><code>locale='zh-CN'
-page = context.new_page()
-page.goto('https://www.whatismybrowser.com/')
-page.wait_for_load_state(state='networkidle')
-page.screenshot(path='browser-iphone.png')
-browser.close()</code></pre>
+    browser = p.webkit.launch(headless=False)
+    context = browser.new_context(
+        **iphone_12_pro_max,
+        locale='zh-CN',
+    )
+    page = context.new_page()
+    page.goto('https://www.whatismybrowser.com/')
+    page.wait_for_load_state(state='networkidle')
+    page.screenshot(path='browser-iphone.png')
+    browser.close()</code></pre>
 <p class="content-text">这里我们先用 PlaywrightContextManager 对象的 devices 属性指定了一台移动设备,传入的参数是移动设备的型号,例如iPhone 12 Pro Max,当然也可以传入其他内容,例如iPhone 8、Pixel 2等。前面我们已经了解了 BrowserContext对象,它也可以用来模拟移动端浏览器,初始化一些移动设备信息、语言、权限、位置等内容。这里我们就创建了一个移动端 BrowserContext对象,最后把返回的BrowserContext 对象赋值给 context 变量。接着,我们调用 context 的 new_page方法创建了一个新的选项卡,然后跳转到一个用于获取浏览器信息的网站,调用 wait_for_load_state 方法等待页面的某个状态完成,这里我们传入的 state networkidle,也就是网络空闲状态。因为在页面初始化和数据加载过程中,肯定有网络请求伴随产生,所以加载过程肯定不算 networkidle 状态,意味着这里传入 networkidle 可以标识当前页面初始化和数据加载完成的状态。加载完成后,我们调用screenshot 方法获取了当前的页面截图,最后关闭了浏览器。运行一下代码,可以发现弹出了一个移动版浏览器,然后加载出了对应的页面,如图7-33所示。输出的截图也是浏览器中显示的结果,可以看到,这里显示的浏览器信息是iPhone上的Safari浏览器,也就是说我们成功模拟了一个移动端浏览器。</p>
 <figure class="inline-figure"><img alt="图7-33 当前的页面截图" loading="lazy" src="figures/ch07/fig-7_33.jpg"/><figcaption>图7-33 当前的页面截图</figcaption></figure>
 <p class="content-text">这样我们就成功模拟了移动端浏览器并做了一些设置,其操作API和PC版浏览器是完全一样的。</p>
@@ -1547,7 +1546,7 @@ page.click("#nav-bar :text('Contact us')")</code></pre>
 <p class="content-text">Page 对象提供一个on方法,用来监听页面中发生的各个事件,例如close、console、load、request、response等。这里我们监听 response事件,在每次网络请求得到响应的时候会触发这个事件,我们可以设置回调方法来获取响应中的全部信息,示例如下:</p>
 <pre class="code-block"><code>from playwright.sync_api import sync_playwright
 def on_response(response):
-print(f'Statue {response.status}: {response.url}')
+print(f'Status {response.status}: {response.url}')
 with sync_playwright() as p:
 browser = p.chromium.launch (headless=False)</code></pre>
 <pre class="code-block"><code>page = browser.new_page()
@@ -1555,7 +1554,7 @@ page.on('response', on_response)
 page.goto('https://spa6.scrape.center/')
 page.wait_for_load_state('networkidle')
 browser.close()</code></pre>
-<p class="content-text">我们在创建 Page 对象后,就开始监听 response事件,同时将回调方法设置为 on_response,on_response 接收一个参数,然后输出响应中的状态码和链接。运行上述代码后,可以看到控制台输出如下结果:Statue 200: https://spa6.scrape.center/Statue 200: https://spa6.scrape.center/css/app.ea9d802a.css Statue 200: https://spa6.scrape.center/js/app.5ef0d454.js Statue 200: https://spa6.scrape.center/js/chunk-vendors.77daf991.js Statue 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css Statue 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css Statue 200: https://spa6.scrape.center/js/chunk-19c920f8.c3a1129d.js Statue 200: https://spa6.scrape.center/img/logo.a508a8f0.png Statue 200: https://spa6.scrape.center/fonts/element-icons.535877f5.woff Statue 301: https://spa6.scrape.center/api/movie?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTES Statue 200: https://spa6.scrape.center/api/movie/?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTE5 Statue 200: https://po.meituan.net/movie/da64660f82b98cdc1b8a3804e69609e041108.jpg@464w_644h_1e_1c Statue 200: https://po.meituan.net/movie/283292171619cdfd5b240c8fd093f1eb255670.jpg@464w_644h_1e_1c Statue 200: https://p1.meituan.net/movie/b607fba7513e7f15eab170aac1e1400d878112.jpg@464w_644h_1e_1c注意这里省略了部分重复的内容。可以发现,这个输出结果其实正好对应浏览器 Network 面板中的所有请求和响应,和图7-34里的内容是——对应的。</p>
+<p class="content-text">我们在创建 Page 对象后,就开始监听 response事件,同时将回调方法设置为 on_response,on_response 接收一个参数,然后输出响应中的状态码和链接。运行上述代码后,可以看到控制台输出如下结果:Status 200: https://spa6.scrape.center/Status 200: https://spa6.scrape.center/css/app.ea9d802a.css Status 200: https://spa6.scrape.center/js/app.5ef0d454.js Status 200: https://spa6.scrape.center/js/chunk-vendors.77daf991.js Status 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css Status 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css Status 200: https://spa6.scrape.center/js/chunk-19c920f8.c3a1129d.js Status 200: https://spa6.scrape.center/img/logo.a508a8f0.png Status 200: https://spa6.scrape.center/fonts/element-icons.535877f5.woff Status 301: https://spa6.scrape.center/api/movie?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTES Status 200: https://spa6.scrape.center/api/movie/?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTE5 Status 200: https://po.meituan.net/movie/da64660f82b98cdc1b8a3804e69609e041108.jpg@464w_644h_1e_1c Status 200: https://po.meituan.net/movie/283292171619cdfd5b240c8fd093f1eb255670.jpg@464w_644h_1e_1c Status 200: https://p1.meituan.net/movie/b607fba7513e7f15eab170aac1e1400d878112.jpg@464w_644h_1e_1c注意这里省略了部分重复的内容。可以发现,这个输出结果其实正好对应浏览器 Network 面板中的所有请求和响应,和图7-34里的内容是一一对应的。</p>
 <figure class="inline-figure"><img alt="图7-34 浏览器的Network 面板" loading="lazy" src="figures/ch07/fig-7_34.jpg"/><figcaption>图7-34 浏览器的Network 面板</figcaption></figure>
 <p class="content-text">我们之前分析过这个网站,其真实的数据都是 Ajax 加载的,同时Ajax请求中还带有加密参数,不好轻易获取。但有了on_response方法,如果我们想截获Ajax请求,岂不是就非常容易了?改写一下这里的判定条件,输出对应的JSON结果,代码如下:</p>
 <pre class="code-block"><code>from playwright.sync_api import sync_playwright
@@ -1630,8 +1629,7 @@ browser.close()</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取多个节点</h4>
-<p class="content-text">使用 query_selector_all方法可以获取所有节点,它会返回节点列表,通过遍历得到其中的单个</p>
-<p class="content-text">节点后,可以接着调用上面介绍的针对单个节点的方法完成一些操作和获取属性,示例如下:</p>
+<p class="content-text">使用 query_selector_all方法可以获取所有节点,它会返回节点列表,通过遍历得到其中的单个节点后,可以接着调用上面介绍的针对单个节点的方法完成一些操作和获取属性,示例如下:</p>
 <pre class="code-block" data-lang="python"><code>from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser = p.chromium.launch (headless=False)
@@ -1694,19 +1692,19 @@ browser.close()</code></pre>
 <p class="content-text">代码编写如下:</p>
 <pre class="code-block" data-lang="python"><code>from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
-browser = p.chromium.launch(headless=False)
-page = browser.new_page()
-def modify_response (route, request):
-route.fulfill(path="./custom_response.html")
-page.route('/', modify_response)
-page.goto("https://spa6.scrape.center/")
-browser.close()</code></pre>
+    browser = p.chromium.launch(headless=False)
+    page = browser.new_page()
+    def modify_response(route, request):
+        route.fulfill(path="./custom_response.html")
+    page.route('/', modify_response)
+    page.goto("https://spa6.scrape.center/")
+    browser.close()</code></pre>
 <p class="content-text">这里我们使用 CallableRoute 对象的 fulfill 方法指定了一个本地文件,就是刚才我们定义的HTML 文件,运行结果如图7-36所示。</p>
 <figure class="inline-figure"><img alt="图7-36 修改响应结果后的代码运行结果" loading="lazy" src="figures/ch07/fig-7_36.jpg"/><figcaption>图7-36 修改响应结果后的代码运行结果</figcaption></figure>
 <p class="content-text">可以看到,响应结果已经被我们修改了,URL依然不变,但结果已经变成我们修改后的HTML代码。所以通过 route方法,我们可以灵活地控制请求和响应的内容,从而在某些场景下达成某些目的。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 总结</h3>
-<p class="content-text">本节介绍了 Playwright 的基本用法,其API强大又易于使用,同时具备很多 Selenium、Pyppeteer不具备的更好用的API,是新一代爬取 JavaScript 渲染页面的利器。本节代码参见:https://github.com/Python3 WebSpider/PlaywrightTest。</p>
+<p class="content-text">本节介绍了 Playwright 的基本用法,其API强大又易于使用,同时具备很多 Selenium、Pyppeteer不具备的更好用的API,是新一代爬取 JavaScript 渲染页面的利器。本节代码参见:https://github.com/Python3WebSpider/PlaywrightTest。</p>
 <p class="content-text">在7.1节,我们学习了Selenium的基本用法,本节结合一个实际案例体会一下 Selenium的适用场景以及使用方法。</p>
 </section>
 <section class="numbered-section">
@@ -1759,7 +1757,7 @@ def scrape_index(page):
 url = INDEX_URL.format(page=page)</code></pre>
 <p class="content-text">scrape_page(url, condition=EC.visibility_of_all_elements_located,</p>
 <pre class="code-block"><code>locator=(By.CSS_SELECTOR, '#index.item'))</code></pre>
-<p class="content-text">这里我们定义了两个方法。第一个方法 scrape_page 依然是一个通用的爬取方法,可以对任意URL进行爬取、状态监听以及异常处理,接收 url、condition、locator 三个参数:url就是要爬取的页面的URL;condition 是页面加载成功的判断条件,可以是expected_conditions 中的某一项,如visibility_of_all_elements_located、visibility_of_element_located 等;locator 是定位器,是一个元组,通过配置查询条件和参数来获取一个或多个节点,如(By.CSS_SELECTOR, '#index.item')代表通过CSS 选择器查找 #index.item来获取列表页所有的电影信息节点。另外,我们在爬取过程中添加了超时检测,如果到规定时间(这里为10秒)还没有加载出对应的节点,就抛出TimeoutException 异常并输出错误日志。第二个方法 scrape_index 则是爬取列表页的方法,接收一个参数page,通过调用scrape_page方法并传入 condition 参数和 locator 参数,完成对列表页的爬取。这里的 conditio 我们传入的是visibility_of_all_elements_located,代表所有节点都加载出来才算成功。注意,这里爬取页面时,不需要返回任何结果,因为执行完 scrape_index方法后,页面正好处于加载完成状态,利用browser 对象即可进行进一步的信息提取。现在已经可以加载出列表页了,下一步当然就是解析列表页,从中提取详情页的URL。这里定义一个解析列表页的方法,具体如下:</p>
+<p class="content-text">这里我们定义了两个方法。第一个方法 scrape_page 依然是一个通用的爬取方法,可以对任意URL进行爬取、状态监听以及异常处理,接收 url、condition、locator 三个参数:url就是要爬取的页面的URL;condition 是页面加载成功的判断条件,可以是expected_conditions 中的某一项,如visibility_of_all_elements_located、visibility_of_element_located 等;locator 是定位器,是一个元组,通过配置查询条件和参数来获取一个或多个节点,如(By.CSS_SELECTOR, '#index.item')代表通过CSS 选择器查找 #index.item来获取列表页所有的电影信息节点。另外,我们在爬取过程中添加了超时检测,如果到规定时间(这里为10秒)还没有加载出对应的节点,就抛出TimeoutException 异常并输出错误日志。第二个方法 scrape_index 则是爬取列表页的方法,接收一个参数page,通过调用scrape_page方法并传入 condition 参数和 locator 参数,完成对列表页的爬取。这里的 condition 我们传入的是visibility_of_all_elements_located,代表所有节点都加载出来才算成功。注意,这里爬取页面时,不需要返回任何结果,因为执行完 scrape_index方法后,页面正好处于加载完成状态,利用browser 对象即可进行进一步的信息提取。现在已经可以加载出列表页了,下一步当然就是解析列表页,从中提取详情页的URL。这里定义一个解析列表页的方法,具体如下:</p>
 <pre class="code-block"><code>from urllib.parse import urljoin
 def parse_index():
 elements = browser.find_elements_by_css_selector('#index .item .name')
@@ -2042,7 +2040,7 @@ been closed.</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 总结</h3>
-<p class="content-text">本节我们通过实例讲解了使用 Pyppeteer 爬取一个完整网站的过程,相信大家会进一步掌握Pyppeteer 的使用。本节代码参见:https://github.com/Python3 WebSpider/ScrapeSpa2。</p>
+<p class="content-text">本节我们通过实例讲解了使用 Pyppeteer 爬取一个完整网站的过程,相信大家会进一步掌握Pyppeteer 的使用。本节代码参见:https://github.com/Python3WebSpider/ScrapeSpa2。</p>
 </section>
 <div class="section-heading" id="section-6"><h2>7.7 CSS 位置偏移反爬案例分析与爬取实战</h2></div>
 <p class="content-text">我们学习了 Selenium、Pyppeteer 等工具,体会了它们的强大,但千万别以为这些工具就是万能的,不容易爬取的数据依然存在,例如网页利用CSS 控制文字的偏移位置,或者通过一些特殊的方式隐藏关键信息,都有可能对数据爬取造成干扰。本节先了解 CSS 位置偏移反爬虫的一些解决方案。</p>
@@ -2050,7 +2048,7 @@ been closed.</code></pre>
 <h3 class="subsection-heading numbered-heading">1. 案例</h3>
 <p class="content-text">先介绍一个案例网址 https://antispider3.scrape.center/,页面如图7-44所示。</p>
 <figure class="inline-figure"><img alt="图7-44 书籍网站" loading="lazy" src="figures/ch07/fig-7_44.jpg"/><figcaption>图7-44 书籍网站</figcaption></figure>
-<p class="content-text">乍一看似乎也没什么特别之处,但如果真用 Selenium 等工具爬取和提取数据,坑就立马显现出来了,不妨试一试。先尝试用 Selenium 获取首页的页面源代码,并解析每个标题的內容:</p>
+<p class="content-text">乍一看似乎也没什么特别之处,但如果真用 Selenium 等工具爬取和提取数据,坑就立马显现出来了,不妨试一试。先尝试用 Selenium 获取首页的页面源代码,并解析每个标题的内容:</p>
 <pre class="code-block"><code>from selenium import webdriver
 from pyquery import PyQuery as pq
 from selenium.webdriver.common.by import By
@@ -2083,8 +2081,7 @@ browser.close()</code></pre>
 &lt;/h3&gt;</code></pre>
 <p class="content-text">可以发现,每个span 节点都有一个style 属性,表示CSS样式,left的取值各不相同。另外,在浏览器中观察一下每个span 节点的完整样式,如图7-46所示。</p>
 <figure class="inline-figure"><img alt="图7-46 span 节点的完整样式" loading="lazy" src="figures/ch07/fig-7_46.jpg"/><figcaption>图7-46 span 节点的完整样式</figcaption></figure>
-<p class="content-text">可以看到,span节点还有两个额外的样式,是display: inline-block 和 position: absolute,后者比较重要,代表绝对定位,设置这个样式后,就可以通过修改left的值控制 span 节点在页面中的偏移位置了,例如left:0px代表不偏移;left:16px代表从左边算起向右偏移16像素,于是节点</p>
-<p class="content-text">就到了右边。源代码中,“明”字的偏移是0,“朝”字的偏移是16像素,“那”字的偏移是32像素,以此类推,最终标题的视觉效果就变成了“明朝那些事儿”。</p>
+<p class="content-text">可以看到,span节点还有两个额外的样式,是display: inline-block 和 position: absolute,后者比较重要,代表绝对定位,设置这个样式后,就可以通过修改left的值控制 span 节点在页面中的偏移位置了,例如left:0px代表不偏移;left:16px代表从左边算起向右偏移16像素,于是节点就到了右边。源代码中,“明”字的偏移是0,“朝”字的偏移是16像素,“那”字的偏移是32像素,以此类推,最终标题的视觉效果就变成了“明朝那些事儿”。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 爬取</h3>
@@ -2139,24 +2136,23 @@ browser.close()</code></pre>
 <div class="section-heading" id="section-7"><h2>7.8 字体反爬案例分析与爬取实战</h2></div>
 <p class="content-text">经过观察和推测,不难发现内部没有 span 节点的 h3 标题节点都带有一个额外的取值为 name whole 的 class 属性,其余标题节点的内部则都分为了一个个 span节点。搞清楚问题所在,接下来稍微加判断即可,改写解析方法:</p>
 <pre class="code-block" data-lang="python"><code>def parse_name(name_html):
-has_whole
-if has_whole:
-    name_html('.whole')
-    return name_html.text()
-else:
-    chars = name_html('.char')
-    items = []
-    for char in chars.items():
-        items.append({
-            'text': char.text().strip(),
-            'left': int(re.search('(\d+)px', char.attr('style')).group(1))
-        })
-    items = sorted(items, key=lambda x: x['left'], reverse=False)
-    return ''.join([item.get('text') for item in items])</code></pre>
+    has_whole = name_html('.whole')
+    if has_whole:
+        return name_html.text()
+    else:
+        chars = name_html('.char')
+        items = []
+        for char in chars.items():
+            items.append({
+                'text': char.text().strip(),
+                'left': int(re.search('(\d+)px', char.attr('style')).group(1))
+            })
+        items = sorted(items, key=lambda x: x['left'], reverse=False)
+        return ''.join([item.get('text') for item in items])</code></pre>
 <p class="content-text">运行结果如下:Wonder清白家风法老的宠妃终结篇(上下册)士为知己(全二册)那些年,我们一起追的女孩非我倾城(全三册)明朝那些事儿我和你的笑忘书王小波全集第一卷怦然心动龙枪编年史(全3册)龙枪传奇(全三册)黎明之街认知心理学及其启示银河帝国2:基地与帝国银河帝国:基地小学教材全解-四年级语文下越界言论(第3卷)我们成功爬取了书籍网站上每本书的名称!</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">本节分析的是一个特殊案例,通过这个案例可以知道,有时候我们使用 Selenium 爬取的内容并不一定和亲眼所见的完全符合,所以还需要小心。本节代码参见:https://github.com/Python3 WebSpider/ScrapeAntispider3。</p>
+<p class="content-text">本节分析的是一个特殊案例,通过这个案例可以知道,有时候我们使用 Selenium 爬取的内容并不一定和亲眼所见的完全符合,所以还需要小心。本节代码参见:https://github.com/Python3WebSpider/ScrapeAntispider3。</p>
 <p class="content-text">本节再分析一个反爬案例,该案例将真实的数据隐藏到字体文件里,使我们即使获取了页面源代码,也没法直接提取数据的真实值。</p>
 </section>
 <section class="numbered-section">
@@ -2261,9 +2257,8 @@ print(icon_map['437'])</code></pre>
 <pre class="code-block"><code>from selenium import webdriver
 from pyquery import PyQuery as pq
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC</code></pre>
-<p class="content-text">第7章 JavaScript 动态渲染页面爬取</p>
-<pre class="code-block" data-lang="python"><code>from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 import re
 import requests
 url = 'https://antispider4.scrape.center/css/app.654ba59e.css'

@@ -230,8 +230,7 @@ print(result)</code></pre>
 <p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="text"><code>['first item', 'fifth item']</code></pre>
 <p class="content-text">可以看到，这里有两个返回值，内容都是 class 属性为 item-0 的 li 节点的文本，这也印证了前面属性匹配的结果是正确的。</p>
-<p class="content-text">这种方式下，我们是逐层选取的，先选取 li 节点，然后利用 <code class="inline-code">/</code> 选取其直接子节点 a，再选取节点</p>
-<p class="content-text">a 的文本，得到的两个结果恰好是符合我们预期的。</p>
+<p class="content-text">这种方式下，我们是逐层选取的，先选取 li 节点，然后利用 <code class="inline-code">/</code> 选取其直接子节点 a，再选取节点a 的文本，得到的两个结果恰好是符合我们预期的。</p>
 <p class="content-text">再来看一下使用 <code class="inline-code">//</code> 能够获取什么样的结果，代码如下：</p>
 <pre class="code-block" data-lang="python"><code>from lxml import etree
 
@@ -428,8 +427,7 @@ print(soup.p.string)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">在开始之前，请确保已经正确安装好 Beautiful Soup 和 lxml 这两个库。Beautiful Soup 直接使用</p>
-<pre class="code-block"><code>pip3 安装即可，命令如下：</code></pre>
+<p class="content-text">在开始之前，请确保已经正确安装好 Beautiful Soup 和 lxml 这两个库。Beautiful Soup 直接使用 pip3 安装即可，命令如下：</p>
 <pre class="code-block" data-lang="console"><code>pip3 install beautifulsoup4</code></pre>
 <p class="content-text">更加详细的安装说明可以参考：https://setup.scrape.center/beautifulsoup。</p>
 <p class="content-text">另外，我们使用的是 lxml 这个解析器，所以还需要额外安装 lxml 这个库，其安装方法见 3.1 节。</p>
@@ -562,8 +560,7 @@ print(soup.p['class'])</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">嵌套选择</h4>
-<p class="content-text">在上面的例子中，我们知道所有返回结果都是 bs4.element.Tag 类型，Tag 类型的对象同样可以继</p>
-<p class="content-text">续调用节点进行下一步的选择。例如，我们获取了 head 节点，就可以继续调用 head 选取其内部的 head节点：</p>
+<p class="content-text">在上面的例子中，我们知道所有返回结果都是 bs4.element.Tag 类型，Tag 类型的对象同样可以继续调用节点进行下一步的选择。例如，我们获取了 head 节点，就可以继续调用 head 选取其内部的 head节点：</p>
 <pre class="code-block" data-lang="python"><code>html = """
 &lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse's story&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;
@@ -940,8 +937,7 @@ print(soup.find_all(class_='element'))</code></pre>
 &lt;/ul&gt;]
 [&lt;li class="element"&gt;Foo&lt;/li&gt;, &lt;li class="element"&gt;Bar&lt;/li&gt;, &lt;li class="element"&gt;Jay&lt;/li&gt;, &lt;li
 class="element"&gt;Foo&lt;/li&gt;, &lt;li class="element"&gt;Bar&lt;/li&gt;]</code></pre>
-<p class="content-text">这里直接传入 <code class="inline-code">id='list-1'</code>，就可以查询 id 为 list-1 的节点元素了。而对于 class 来说，由于 class在 Python 里是一个关键字，所以后面需要加一个下划线，即 <code class="inline-code">class_='element'</code>，返回结果依然是 Tag 对</p>
-<p class="content-text">象组成的列表。</p>
+<p class="content-text">这里直接传入 <code class="inline-code">id='list-1'</code>，就可以查询 id 为 list-1 的节点元素了。而对于 class 来说，由于 class在 Python 里是一个关键字，所以后面需要加一个下划线，即 <code class="inline-code">class_='element'</code>，返回结果依然是 Tag 对象组成的列表。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">text</h4>
@@ -1626,7 +1622,12 @@ li = doc('li:first-child')
 print(li)
 li = doc('li:last-child')
 print(li)</code></pre>
-<p class="content-text">容提取出来。</p>
+</section>
+<div class="section-heading" id="section-3"><h2>3.4 parsel 的使用</h2></div>
+<div class="note-box"><p>源 PDF 缺失书页 124-125，3.3 节末尾及 3.4 节前半部分无法从该文件恢复；以下内容从现有页面继续。</p></div>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">4. 提取文本</h3>
+<p class="content-text">内容提取出来。</p>
 <p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="text"><code>first item
 third item
@@ -1662,8 +1663,7 @@ result = selector.css('.item-0.active a::attr(href)').get()
 print(result)
 result = selector.xpath('//li[contains(@class, "item-0") and contains(@class, "active")]/a/@href').get()
 print(result)</code></pre>
-<p class="content-text">这里我们实现了两种写法，分别用 css 和 xpath 方法实现。我们以同时包含 item-0 和 active 两个 class 为依据，来选取第三个 li 节点，然后进一步选取了里面的 a 节点。对于 CSS 选择器，选取</p>
-<p class="content-text">属性需要加 <code class="inline-code">::attr()</code>，并传入对应的属性名称才可选取；对于 XPath，直接用 <code class="inline-code">/@</code> 再加属性名称即可选取。最后统一用 get 方法提取结果。</p>
+<p class="content-text">这里我们实现了两种写法，分别用 css 和 xpath 方法实现。我们以同时包含 item-0 和 active 两个 class 为依据，来选取第三个 li 节点，然后进一步选取了里面的 a 节点。对于 CSS 选择器，选取属性需要加 <code class="inline-code">::attr()</code>，并传入对应的属性名称才可选取；对于 XPath，直接用 <code class="inline-code">/@</code> 再加属性名称即可选取。最后统一用 get 方法提取结果。</p>
 <p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="text"><code>link3.html
 link3.html</code></pre>

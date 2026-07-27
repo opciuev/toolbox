@@ -47,10 +47,11 @@
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 业界进展</h3>
-<p class="content-text">随着互联网的发展和信息的爆炸式增长,互联网上的页面会越来越多,页面的渲染方式也会发生</p>
-<p class="content-text">很大的变化,智能解析能够大大减轻我们抽取信息的工作量。</p>
+<p class="content-text">随着互联网的发展和信息的爆炸式增长,互联网上的页面会越来越多,页面的渲染方式也会发生很大的变化,智能解析能够大大减轻我们抽取信息的工作量。</p>
 <p class="content-text">其实,工业界已经有了落地的智能解析算法应用,例如 Diffbot、Embedly 等。目前,Diffbot 的提取效果算是比较领先的,其官方曾做过一个评测,使用不同的算法依次提取 Google 新闻上一些文章的标题和文本,然后与真实标注的内容做比较,比较指标就是文字的正确率和召回率,以及根据二者计算出的 F1 分数,结果如下。</p>
-<p class="content-text"> □ 正确率:0.968。□ 召回率:0.978。□ F1:0.971。</p>
+<p class="content-text list-like">正确率:0.968。</p>
+<p class="content-text list-like">召回率:0.978。</p>
+<p class="content-text list-like">F1:0.971。</p>
 <p class="content-text">我们可以发现,对于 Google 新闻的这些数据,Diffbot 大约能达到 97% 的正确率,效果还算不错。</p>
 <p class="content-text">Diffbot 是一家专门做网页智能提取的公司,提供了许多 API 来自动解析各种页面。其算法依赖于自然语言技术、机器学习、计算机视觉、标记检查等,并且所有页面都会考虑当前页面的样式以及可视化布局,还会分析其中包含的图像内容、CSS 甚至 Ajax 请求。在计算一个节点的置信度时,会考虑该节点和其他节点的关联关系,基于周围的标记来计算每个区块的置信度。总之,Diffbot 自 2010 年以来一直致力于提供这方面的服务,Diffbot 就是从页面解析起家的,现在也专注于页面解析服务,正确率高自然不足为怪了。</p>
 <p class="content-text">但 Diffbot 的算法并没有开源,只是以商业化 API 的形式售卖,我目前没有找到介绍其具体算法的论文。不过不妨碍这里拿它做案例,可以稍微体会一下智能解析算法能达到的效果。</p>
@@ -64,9 +65,9 @@
 <figure class="inline-figure"><img alt="图14-4 文章内容的真实 HTML 代码" loading="lazy" src="figures/ch14/fig-14_4.jpg"/><figcaption>图14-4 文章内容的真实 HTML 代码</figcaption></figure>
 <p class="content-text">之后还有 images 字段,以列表形式返回了文章套图及每一张图的链接,另外还返回了文章的站点名称、页面所用语言等,如图14-5所示。</p>
 <figure class="inline-figure"><img alt="图14-5 其余返回结果" loading="lazy" src="figures/ch14/fig-14_5.jpg"/><figcaption>图14-5 其余返回结果</figcaption></figure>
-<p class="content-text">当然,我们也可以选择 JSON 格式的返回结果,其内容会更加丰富,例如图片的宽度、高度、图片描述,以及面包屑导航等,如图14-6所示。Diffbot analysis of https://news.ifeng.com/c/7kQcQG2peWU</p>
+<p class="content-text">当然,我们也可以选择 JSON 格式的返回结果,其内容会更加丰富,例如图片的宽度、高度、图片描述,以及面包屑导航等,如图14-6所示。</p>
 <figure class="inline-figure"><img alt="图14-6 JSON 格式的返回结果" loading="lazy" src="figures/ch14/fig-14_6.jpg"/><figcaption>图14-6 JSON 格式的返回结果</figcaption></figure>
-<p class="content-text">经过手工核对,发现其返回的结果完全正确,这说明正确率还是很高的。所以,如果你对正确率的要求没有那么严苛,那么使用Diffbot可以快速提取页面中所需的结果,省去了绝大多数手工劳动,可以说非常赞。另外,Diffbot 也提供了官方的API文档,如Analyze API、Article API、Disscussion API等。下面我们以 Article API 为例说明一下它的用法,其官方文档地址为 https://www.diffbot.com/dev/docs/article/,API调用地址为 https://api.diffbot.com/v3/article。我们可以用GET方式请求这个API,其必选参数有下面两个。</p>
+<p class="content-text">经过手工核对,发现其返回的结果完全正确,这说明正确率还是很高的。所以,如果你对正确率的要求没有那么严苛,那么使用Diffbot可以快速提取页面中所需的结果,省去了绝大多数手工劳动,可以说非常赞。另外,Diffbot 也提供了官方的API文档,如Analyze API、Article API、Discussion API等。下面我们以 Article API 为例说明一下它的用法,其官方文档地址为 https://www.diffbot.com/dev/docs/article/,API调用地址为 https://api.diffbot.com/v3/article。我们可以用GET方式请求这个API,其必选参数有下面两个。</p>
 <p class="content-text list-like"><strong class="term-label">token:</strong>开发者的 Token。</p>
 <p class="content-text list-like">url:要解析的URL链接。可选参数有下面几个。</p>
 <p class="content-text list-like">fields:用于指定返回哪些字段,默认已经有一些一定要返回的字段,还可以指定需要额外返回的字段。</p>
@@ -84,7 +85,7 @@
 <p class="content-text list-like">estimatedDate: 如果发布时间不太明确,就返回一个预估的时间;如果发布时间超过两天或者没有发布日期,就不返回这个字段。</p>
 <p class="content-text list-like"><strong class="term-label">author:</strong>文章的发布机构。</p>
 <p class="content-text list-like"><strong class="term-label">authorUrl:</strong>发布机构链接。</p>
-<p class="content-text list-like"><strong class="term-label">discussion:</strong>评论内容,和 Disscussion API 的返回结果一样。</p>
+<p class="content-text list-like"><strong class="term-label">discussion:</strong>评论内容,和 Discussion API 的返回结果一样。</p>
 <p class="content-text list-like"><strong class="term-label">humanLanguage:</strong>语言类型,如英文、中文等。</p>
 <p class="content-text list-like"><strong class="term-label">numPages:</strong>如果文章是多页的,那么这个参数会控制最大的翻页拼接数。</p>
 <p class="content-text list-like"><strong class="term-label">nextPages:</strong>如果文章是多页的,那么这个参数可以指定文章的后续链接。</p>
@@ -93,7 +94,13 @@
 <p class="content-text list-like"><strong class="term-label">publisherCountry:</strong>文章的发布国家。</p>
 <p class="content-text list-like"><strong class="term-label">pageUrl:</strong>文章的链接。</p>
 <p class="content-text list-like"><strong class="term-label">resolvedPageUrl:</strong>如果文章是从 pageUrl重定向过来的,则返回此内容。</p>
-<p class="content-text list-like">tags: 文章的标签或者文章包含的实体,根据自然语言处理技术和DBpedia 计算生成,是一个列表,里面又包含以下子字段。■ label: 标签名。■ count: 标签出现的次数。■ score: 标签置信度。■ rdfTypes: 如果实体可以由多个资源表示,那么返回相关的URL。■ type: 标签类型。■ uri: Diffbot Knowledge Graph 中的实体链接。</p>
+<p class="content-text list-like">tags: 文章的标签或者文章包含的实体,根据自然语言处理技术和DBpedia 计算生成,是一个列表,里面又包含以下子字段。</p>
+<p class="content-text list-like">label: 标签名。</p>
+<p class="content-text list-like">count: 标签出现的次数。</p>
+<p class="content-text list-like">score: 标签置信度。</p>
+<p class="content-text list-like">rdfTypes: 如果实体可以由多个资源表示,那么返回相关的URL。</p>
+<p class="content-text list-like">type: 标签类型。</p>
+<p class="content-text list-like">uri: Diffbot Knowledge Graph 中的实体链接。</p>
 <p class="content-text list-like"><strong class="term-label">images:</strong>文章中包含的图片。</p>
 <p class="content-text list-like"><strong class="term-label">videos:</strong>文章中包含的视频。</p>
 <p class="content-text list-like"><strong class="term-label">breadcrumb:</strong>面包屑导航信息。</p>
@@ -186,9 +193,9 @@ print(json.dumps(response.json(), indent=2, ensure_ascii=False))</code></pre>
 ]
 }
 ]</code></pre>
-<p class="content-text">如上返回内容以 JSON 格式呈现,包含文章的标题、正文、发布时间等内容。可见,不需要配置任何提取规则,我们就完成了页面的分析和爬取。另外,Diffbot 提供了几乎所有编程语言的SDK支持(详见https://www.diffbot.com/dev/docs/libraries/),因此我们也可以使用SDK 实现上述功能。如果使用的是 Python 语言,那么可以直接使用Python 的SDK--DiffbotClient,链接为 https://github.com/diffbot/diffbot-python-client。这个库并没有发布到PyPi, 需要自己下载并导入使用。此外,这个库是使用Python2编写的,本质上就是调用了 requests 库,大家感兴趣的话可以看一下。下面是一个调用示例:</p>
+<p class="content-text">如上返回内容以 JSON 格式呈现,包含文章的标题、正文、发布时间等内容。可见,不需要配置任何提取规则,我们就完成了页面的分析和爬取。另外,Diffbot 提供了几乎所有编程语言的SDK支持(详见https://www.diffbot.com/dev/docs/libraries/),因此我们也可以使用SDK 实现上述功能。如果使用的是 Python 语言,那么可以直接使用Python 的SDK——DiffbotClient,链接为 https://github.com/diffbot/diffbot-python-client。这个库并没有发布到PyPi, 需要自己下载并导入使用。此外,这个库是使用Python2编写的,本质上就是调用了 requests 库,大家感兴趣的话可以看一下。下面是一个调用示例:</p>
 <pre class="code-block"><code>from client import DiffbotClient, DiffbotCrawl
-diffbot DiffbotClient()
+diffbot = DiffbotClient()
 token = 'your_token'
 url = 'http://shichuan.github.io/javascript-patterns/'
 api = 'article'
@@ -206,21 +213,18 @@ response = diffbot.request(url, token, api)</code></pre>
 <p class="content-text">本节中我们来了解一下详情页提取算法的基本思路,主要包括如下内容。</p>
 <p class="content-text list-like">我们定义的详情页是指怎样的页面。</p>
 <p class="content-text list-like">详情页中的哪些信息是需要我们提取的关键信息。</p>
-<p class="content-text">■ 介绍标题、正文、发布时间的提取算法。</p>
+<p class="content-text list-like">介绍标题、正文、发布时间的提取算法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 怎样的页面属于详情页</h3>
 <p class="content-text">先划定一个大的范围。我们处理的网站属于资讯类网站,如新闻网站、博客网站等。这类网站通常包含两种页面:一种是包含导航信息的列表页,如新浪新闻的首页;另一种是从列表页点击导航信息后进入的页面,如一篇新闻的页面。例如,新浪新闻的首页</p>
 <figure class="inline-figure"><img alt="图14-7 列表页的示例" loading="lazy" src="figures/ch14/fig-14_7.jpg"/><figcaption>图14-7 列表页的示例</figcaption></figure>
 <p class="content-text">凤凰网的一篇新闻的页面如图14-8所示,我们称这类页面为详情页。</p>
-<p class="content-text">故宫,你低调点!故宫:不,实力已不允许我继续低调2019年02月20日 02:26:00来源:中国新闻网1938人参与 222评论</p>
-<p class="content-text">“我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”</p>
-<p class="content-text">“重檐之上的月光,曾照进古人的宫殿;城墙上绵延的灯彩,映出了角楼的瑰丽。今夜,一群博物馆人将我点亮,我在北京的中央,献给团圆的你们,一座壮观的城。”</p>
 <figure class="inline-figure"><img alt="图14-8 详情页的示例" loading="lazy" src="figures/ch14/fig-14_8.jpg"/><figcaption>图14-8 详情页的示例</figcaption></figure>
 <p class="content-text">可以看到,这两类页面有很大不同,列表页通常包含许多详情页的标题和链接,而不会呈现具体的内容,布局样式也是千变万化,而且可能分多个区块。详情页则是某个内容的展示页面,通常包含醒目的标题、发布时间和占据版面最大的正文部分。另外,详情页的侧栏通常会有一些关联或推荐的内容列表、页面头部的导航链接、评论区、广告区等。到现在,相信大家对分辨列表页和详情页有了基本的概念。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 提取内容</h3>
-<p class="content-text">这里主要了解一下我们要在详情页中提取的内容。一般来说,详情页包含的信息非常多,例如标题、发布时间、发布来源、作者、正文、封面图、评论数目、评论内容等,不过由于其中一些内容并不常用,而且提取算法大同小异,因此本节主要介绍3个关键信息的提取算法———————标题、正文、发布时间。还是以14.1节开始的新闻页为例,我们需要提取图14-9 中框选出来的内容。</p>
+<p class="content-text">这里主要了解一下我们要在详情页中提取的内容。一般来说,详情页包含的信息非常多,例如标题、发布时间、发布来源、作者、正文、封面图、评论数目、评论内容等,不过由于其中一些内容并不常用,而且提取算法大同小异,因此本节主要介绍3个关键信息的提取算法——标题、正文、发布时间。还是以14.1节开始的新闻页为例,我们需要提取图14-9 中框选出来的内容。</p>
 <figure class="inline-figure"><img alt="图14-9 详情页中需要提取的内容" loading="lazy" src="figures/ch14/fig-14_9.jpg"/><figcaption>图14-9 详情页中需要提取的内容</figcaption></figure>
 <p class="content-text">下面来分析这三部分内容的特点。</p>
 <p class="content-text list-like">标题:上方矩形框选的内容,是页面的主标题,通常字号比较大,比较醒目,能概括本页面的内容。</p>
@@ -248,7 +252,7 @@ response = diffbot.request(url, token, api)</code></pre>
 <h3 class="subsection-heading numbered-heading">5. 提取正文</h3>
 <p class="content-text">正文可以说是详情页中最难提取且最为重要的部分,如果不能有效地把正文内容提取出来,那么这次解析相当于失败了一大半。观察正文内容的特征,能够发现一些规律。</p>
 <p class="content-text list-like">正文内容通常被包含在body 节点的p节点中,而且p节点一般不会独立存在,而是存在于 div等节点内。</p>
-<p class="content-text list-like">正文內容所在的p节点中也不一定全是正文内容,可能掺杂噪声,如网站的版权信息、发布人、文末广告等,这些都属于噪声。</p>
+<p class="content-text list-like">正文内容所在的p节点中也不一定全是正文内容,可能掺杂噪声,如网站的版权信息、发布人、文末广告等,这些都属于噪声。</p>
 <p class="content-text list-like">正文内容所在的p节点中会夹杂 style、script等节点,这些并非正文内容。</p>
 <p class="content-text list-like">正文内容所在的p节点内可能包含code、span等节点,这些内容大部分属于正文中的特殊样式字符,往往也需要归类到正文内容中。受开源项目 GeneralNewsExtractor 和论文《基于文本及符号密度的网页正文提取方法》(以下简称论文)的启发,我得到了一个比较有效的正文文本提取依据指标——文本密度。</p>
 <p class="content-text">文本密度是什么呢?简单理解就是单位标签内包含的文字个数。例如一个p节点内包含100个字,那么可以简单地计算出文本密度为100;如果包含5个字,那么文本密度为5。一般来说,正文区域以一个节点为一个段落,而一个段落包含的字通常比较多,文本密度可能上百;对于其他区域,例如页面导航区域,通常会包含多个节点,这些链接可能总共也就十几二十个字,因此文本密度要低很多。综上,文本密度可以作为判断正文内容的重要参考指标。</p>
@@ -295,13 +299,14 @@ response = diffbot.request(url, token, api)</code></pre>
 &lt;meta name="PublishDate" content="2019-02-20 02:26:00"&gt;</code></pre>
 <p class="content-text">可以看到,不同网站的写法差异还是蛮大的,我们可以总结常见的写法,一旦匹配成功,那么其content 属性值极有可能就是发布时间。但是,并不是所有网站都会加上这样的meta节点,如果碰到没有meta节点的网站,该怎么办呢?我们知道,时间有一些固定的写法,如2019-02-20 02:26:00。而且发布时间通常会包含一些关键的字符,例如“发布”“发表于”等,它们可以作为重要的参考依据。因此,一些固定的匹配模式往往也能起到不错的效果。例如,定义一些正则表达式,或者基于某种特定的模式来提取时间信息。这时可能有人会说,如果正文内容本身包含时间,或者侧栏、底栏部分包含时间,不会提取错吗?</p>
 <p class="content-text list-like">对于正文内容本身包含时间的情况,根据提取的正文结果过滤即可,例如直接将正文从提取目标中删除。</p>
-<p class="content-text list-like">对于侧栏或底栏部分包含时间的情况,可以根据节点距离算得结果。发布时间往往和正文距离较近,甚至紧贴着,而侧栏或底栏的时间常常分布在其他区块,其日期节点和正文节点的距离相对较远,这样就能找到权重最高的时间节点了。综上所述,发布时间的提取标准如下。■根据 meta 节点的信息提取时间,提取结果大概率就是真实的发布时间,可信度较高。</p>
+<p class="content-text list-like">对于侧栏或底栏部分包含时间的情况,可以根据节点距离算得结果。发布时间往往和正文距离较近,甚至紧贴着,而侧栏或底栏的时间常常分布在其他区块,其日期节点和正文节点的距离相对较远,这样就能找到权重最高的时间节点了。综上所述,发布时间的提取标准如下。</p>
+<p class="content-text list-like">根据 meta 节点的信息提取时间,提取结果大概率就是真实的发布时间,可信度较高。</p>
 <p class="content-text list-like">根据正则表达式提取时间,如果匹配到一些置信度比较高的规则,那么可以直接提取;如果匹配到置信度不高的规则或者提取到多个时间信息,则可以进行下一步的提取和筛选。</p>
 <p class="content-text list-like">针对上面的第二种情况,通过计算节点和正文的距离,再结合其他相关信息筛选出最优节点作为结果。按照以上标准,可以提取出绝大部分的发布时间。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">本节中我们介绍了详情页的3个关键信息———标题、正文、发布时间的提取思路,了解了基本原理之后,我们在14.3节会用代码实现其中的一些解析算法。</p>
+<p class="content-text">本节中我们介绍了详情页的3个关键信息——标题、正文、发布时间的提取思路,了解了基本原理之后,我们在14.3节会用代码实现其中的一些解析算法。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>14.3 详情页智能解析算法的实现</h2></div>
 <p class="content-text">本节中我们来动手实现详情页的提取算法。</p>
@@ -311,7 +316,7 @@ response = diffbot.request(url, token, api)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
-<p class="content-text">在14.2节,我们已经将案例页面的HTML代码保存成了文本文件 detail.html。这里我们主要会用XPath 解析页面和操作节点,所以需要用到Ixml库,如果尚未安装该库,可以参考https://setup.scrape.center/lxml 里面的说明。定义如下代码,将HTML代码里面的字符转化成lxml里面的HtmlElement对象:</p>
+<p class="content-text">在14.2节,我们已经将案例页面的HTML代码保存成了文本文件 detail.html。这里我们主要会用XPath 解析页面和操作节点,所以需要用到lxml库,如果尚未安装该库,可以参考https://setup.scrape.center/lxml 里面的说明。定义如下代码,将HTML代码里面的字符转化成lxml里面的HtmlElement对象:</p>
 <pre class="code-block"><code>from lxml.html import HtmlElement, fromstring</code></pre>
 <pre class="code-block"><code>html = open('detail.html', encoding='utf-8').read()
 element = fromstring(html=html)</code></pre>
@@ -415,78 +420,94 @@ def remove_children (element: HtmlElement, xpaths=None):
 
 def children(element: HtmlElement):
     yield element
-    for child element in element:
+    for child_element in element:
         if isinstance(child_element, HtmlElement):
             yield from children(child_element)</code></pre>
 <p class="content-text">这里还对一些节点做了特殊处理。例如对p节点内部的span 节点和 strong 节点,去掉其标签,只保留内容。对于没有子节点的div 节点,则将其换成p节点。当然,如果大家再想到什么细节,可以继续优化。预处理完毕之后,整个element因为没有了噪声和干扰数据,变得比较规整了。下一步,我们来实现文本密度、符号密度和最终分数的计算。为了方便处理,我会把节点定义成一个Python 对象,名字叫作 Element,它包含很多字段,代表某个节点的信息,例如文本密度、符号密度等。Element 的定义如下:</p>
 <pre class="code-block" data-lang="python"><code>class Element(HtmlElement):
-    id: int None
+    id: int = None
     tag_name: str = None
-    number of char: int = None
-    number_of_a char: int = None
-    number of descendants: int = None
+    number_of_char: int = None
+    number_of_a_char: int = None
+    number_of_descendants: int = None
     number_of_a_descendants: int = None
     number_of_p_descendants: int = None
     number_of_punctuation: int = None
-    density_of_punctuation: int = None</code></pre>
-<p class="content-text">density_of_text: float = None density_score: float = None以下为其中包含的字段的简析。□ id: 节点的唯一 id。□ tag_name: 节点的标签值,例如 p、div、img 等。□ number_of_char: 节点的总字符数。□ number_of_a_char: 节点内带超链接的字符数。□ number_of_descendants: 节点的子孙节点数。□ number_of_a_descendants: 节点内带链接的节点数,即 a 的子孙节点数。□ number_of_p_descendants: 节点内的 p 节点数。□ number_of_punctuation: 节点包含的标点符号数。□ density_of_punctuation: 节点的符号密度。□ density_of_text: 节点的文本密度。□ density_score: 最终评分。这些字段都是我们计算最终节点评分需要的,在此列举几个字段的计算方法:</p>
+    density_of_punctuation: int = None
+    density_of_text: float = None
+    density_score: float = None</code></pre>
+<p class="content-text">以下为其中包含的字段的简析。</p>
+<p class="content-text list-like">id: 节点的唯一 id。</p>
+<p class="content-text list-like">tag_name: 节点的标签值,例如 p、div、img 等。</p>
+<p class="content-text list-like">number_of_char: 节点的总字符数。</p>
+<p class="content-text list-like">number_of_a_char: 节点内带超链接的字符数。</p>
+<p class="content-text list-like">number_of_descendants: 节点的子孙节点数。</p>
+<p class="content-text list-like">number_of_a_descendants: 节点内带链接的节点数,即 a 的子孙节点数。</p>
+<p class="content-text list-like">number_of_p_descendants: 节点内的 p 节点数。</p>
+<p class="content-text list-like">number_of_punctuation: 节点包含的标点符号数。</p>
+<p class="content-text list-like">density_of_punctuation: 节点的符号密度。</p>
+<p class="content-text list-like">density_of_text: 节点的文本密度。</p>
+<p class="content-text list-like">density_score: 最终评分。这些字段都是我们计算最终节点评分需要的,在此列举几个字段的计算方法:</p>
 <pre class="code-block"><code>def number_of_a_char(element: Element):
-if element is None:
-return 0
-text = ''.join(element.xpath('.//a//text()'))
-text = re.sub(r'\s*', '', text, flags=re.S)
-return len(text)
-def number_of_p_descendants (element: Element):
-if element is None:
-return 0
-return len(element.xpath('.//p'))
-PUNCTUATION = set('''!,。?、;: ""'' &lt;&gt; % () &lt;&gt;{}「」 【】*~`,.?:;'"!%()''')
-def number_of_punctuation (element: Element):
-if element is None:
-return 0
-text = ''.join(element.xpath('.//text()'))
-text = re.sub(r'\s*', '', text, flags=re.S)
-punctuations = [c for c in text if c in PUNCTUATION]
-return len(punctuations)
+    if element is None:
+        return 0
+    text = ''.join(element.xpath('.//a//text()'))
+    text = re.sub(r'\s*', '', text, flags=re.S)
+    return len(text)
+
+def number_of_p_descendants(element: Element):
+    if element is None:
+        return 0
+    return len(element.xpath('.//p'))
+
+PUNCTUATION = set('''!,。?、;：“”《》%()&lt;&gt;[]{}【】*~`,.?:;'"!%()''')
+
+def number_of_punctuation(element: Element):
+    if element is None:
+        return 0
+    text = ''.join(element.xpath('.//text()'))
+    text = re.sub(r'\s*', '', text, flags=re.S)
+    punctuations = [c for c in text if c in PUNCTUATION]
+    return len(punctuations)
+
 def density_of_text(element: Element):
-if element.number_of_descendants - element.number_of_a_descendants == 0:
-return 0
-return (element.number_of_char - element.number_of_a_char) / \</code></pre>
-<p class="content-text">           (element.number_of_descendants - element.number_of_a_descendants)</p>
-<pre class="code-block"><code>def density_of_punctuation(element: Element):
-result = (element.number_of_char - element.number_of_a_char) / \</code></pre>
-<p class="content-text">             (element.number_of_punctuation + 1)</p>
-<pre class="code-block"><code>return result or 1</code></pre>
-<p class="content-text">这里列举的几个计算方法,接收的参数都是 Element 对象,返回值是对应字段的结果。number_of_a_char 方法用于获取节点内带超链接的字符数,实现流程是查找当前节点内所有的 a 节点,然后统计这些 a 节点内的字符数量;number_of_punctuation 方法用于获取节点内标点符号的数量,实现流程是先获取节点内的所有文本,然后统计其中属于标点符号的字符,这里声明了标点符号的集合 PUNCTUATION;density_of_text 方法用于计算节点的文本密度,其计算规则和 14.2 节的公式完全一致,这里就是number_of_char 和 number_of_a_char 的差除以 number_of_descendants 和 number_of_a_descendants 的差;density_of_punctuation 方法用于计算节点的符号密度,其计算规则也和 14.2 节的公式完全一致,</p>
-<p class="content-text">即 number_of_char 和 number_of_a_char 的差除以 number_of_punctuation 加1。通过这些方法,我们就可以计算 Element 对象的各个指标了,最重要的当属文本密度 density_of_text 和符号密度 density_of_punctuation。最后一步是利用 14.2节介绍的公式,计算节点的最终分数并选取分数最高的节点提取其文本内容,最终得到的结果就是正文内容。提取正文的方法定义如下:</p>
-<pre class="code-block"><code>def process (element: Element):
-#预处理
-preprocess4content(element)
-#找出当前节点的子孙节点
-descendants = descendants_of_body(element)
-#找出所有节点的 density_of_text 值的方差
-density_of_text = [descendant.density_of_text for descendant in descendants]
-density_of_text_std = np.std(density_of_text, ddof=1)
-#计算所有节点的density_score 值
-for descendant in descendants:
-score = np.log(density_of_text_std) *</code></pre>
-<p class="content-text">    descendant.density_of_text *</p>
-<pre class="code-block"><code>np.log10(descendant.number_of_p_descendants + 2) *
-np.log(descendant.density_of_punctuation)</code></pre>
-<p class="content-text">    descendant.density_score = score</p>
-<pre class="code-block"><code>#根据 density_score 对节点进行排序
-descendants = sorted (descendants, key-lambda x: x.density_score, reverse=True)
-descendant_first = descendants [0] if descendants else None
-if descendant_first is None:
-return None
-paragraphs = descendant_first.xpath('.//p//text()')
-paragraphs = [paragraph.strip() if paragraph else '' for paragraph in paragraphs]
-paragraphs = list(filter (lambda x: x, paragraphs))
-text = '\n'.join(paragraphs)
-text = text.strip()
-return text</code></pre>
-<p class="content-text">这里定义了一个 process方法,并向其中传入HTML根节点进行处理。首先调用 preprocess4content方法做预处理,然后调用 descendants_of_body 方法获取了 body 节点的所有子孙节点,赋值为descendants。接着对 descendants 进行遍历,计算出各个子孙节点的文本密度、符号密度以及文本密度的标准差,最后求得分数 density_score。求得所有子孙节点的 density_score之后,排序找出 density_score 最高的节点,然后提取其p节点的文本内容即为正文,如上代码中的最后一部分便实现了排序和提取过程。调用 process 方法来提取示例新闻页面的正文,运行结果如下:““我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”“重檐之上的月光,曾照进古人的宫殿;城墙上绵延的灯彩,映出了角楼的瑰丽。今夜,一群博物馆人将我点一段话。”“半小时后,“紫禁城上元之夜”的灯光点亮了北京夜空。”“午门城楼及东西雁翅楼用白、黄、红三种颜色光源装扮!”“太和门广场变成了超大的夜景灯光秀场!”“图片来源:东方IC 版权作品请勿转载”“午门城宫博物院供图”“故宫的角楼被灯光装点出满满的节日气氛!”“故宫博物院供图”“令人惊叹的是,故宫的“网红”藏品《清明上河图》《千里江山图卷》在“灯会”中展开画卷。”“灯光版《清明上河图》”“以灯为笔,以屋顶为,故宫博物院最北端神武门也被灯光点亮!”“故宫博物院供图”“上元之夜,故宫邀请了劳动模范、北京榜样、快递小哥、环卫工人、解放军和武警官兵、消防指战员、公安干警等各界代表以及预约成功的观众,共3000人故宫博物院供图”“时间退回到两天前,故宫博物院发布了2月19日(正月十五)、20日(正月十六)即将举办“紫禁城上元之夜”文化活动的消息。”“图片来源:视觉中国”“18日凌晨,一众网友前往故宫博物院官网抢票,网站甚节就有诸多讲究。”“有灯无月不娱人,有月无灯不算春。”“春到人间人似玉,灯烧月下月如怠。”“满街珠翠游村女,沸地笙歌赛社神。”“不展芳尊开口笑,如何消得此良辰。”——唐伯虎《元宵》“明代宫中过上节,皇宵节晚会”。“2月18日,北京故宫午门调试灯光。中新社记者杜洋摄”“其中,灯戏颇为有趣。由多人舞灯拼出吉祥文字及图案,每人手执彩灯、身着不同颜色的服装,翩翩起舞,类似于现代的大型团体操表演。”“但这紫禁城,恭亲王奕与英法联军交换了《天津条约》批准书,并订立《中英北京条约》《中法北京条约》作为补充。”“战争结束了,侵略者摇身一变成了游客。一位外国“摄影师”拍下了当年的紫禁城,并在日记里写到,百年。”“直到上世纪40年代时,故宫的环境</p>
-<p class="content-text">仍然并不是想象中的博物馆的状态。曾有故宫博物院工作人员撰文回忆,当时的故宫内杂草丛生,房倒屋漏,有屋顶竟长出了树木。光是清理当时宫中存留的垃圾、杂草就用单霁翔到任故宫院长。那时,他拿到的故宫博物院介绍,写了这座博物馆诸多的“世界之最”。可他觉得,当自己真正走到观众中间,这些“世界之最”都没有了。2月18日,北京故宫午门调试灯光。中新社记者杜洋摄外环境进行了大整治。游客没有地方休息,那就拆除了宫中的临时建筑、新增供游客休息的椅子;游客排队上厕所,那就将一个职工食堂都改成了洗手间;游客买票难,那就全面采用电子购票,新增多个售票点;馆。今年,持续整个正月的“过大年”展览和“紫禁城上元之夜”,让本该是淡季的故宫变得一票难求。在普通人眼中,近600 岁的故宫正变得越来越年轻。资料图:故宫博物院院长单霁翔。中新社记者刘关关摄。元宵节活动进行评估后,或结合二十四节气等重要时间节点推出夜场活动。你期待吗?作者:上官云宋宇晟可以看到,正文被成功提取出来了。</p>
+    if element.number_of_descendants - element.number_of_a_descendants == 0:
+        return 0
+    return (element.number_of_char - element.number_of_a_char) / \
+           (element.number_of_descendants - element.number_of_a_descendants)
+
+def density_of_punctuation(element: Element):
+    result = (element.number_of_char - element.number_of_a_char) / \
+             (element.number_of_punctuation + 1)
+    return result or 1</code></pre>
+<p class="content-text">这里列举的几个计算方法,接收的参数都是 Element 对象,返回值是对应字段的结果。number_of_a_char 方法用于获取节点内带超链接的字符数,实现流程是查找当前节点内所有的 a 节点,然后统计这些 a 节点内的字符数量;number_of_punctuation 方法用于获取节点内标点符号的数量,实现流程是先获取节点内的所有文本,然后统计其中属于标点符号的字符,这里声明了标点符号的集合 PUNCTUATION;density_of_text 方法用于计算节点的文本密度,其计算规则和 14.2 节的公式完全一致,这里就是number_of_char 和 number_of_a_char 的差除以 number_of_descendants 和 number_of_a_descendants 的差;density_of_punctuation 方法用于计算节点的符号密度,其计算规则也和 14.2 节的公式完全一致,即 number_of_char 和 number_of_a_char 的差除以 number_of_punctuation 加1。通过这些方法,我们就可以计算 Element 对象的各个指标了,最重要的当属文本密度 density_of_text 和符号密度 density_of_punctuation。最后一步是利用 14.2节介绍的公式,计算节点的最终分数并选取分数最高的节点提取其文本内容,最终得到的结果就是正文内容。提取正文的方法定义如下:</p>
+<pre class="code-block"><code>def process(element: Element):
+    # 预处理
+    preprocess4content(element)
+    # 找出当前节点的子孙节点
+    descendants = descendants_of_body(element)
+    # 找出所有节点的 density_of_text 值的方差
+    density_of_text = [descendant.density_of_text for descendant in descendants]
+    density_of_text_std = np.std(density_of_text, ddof=1)
+    # 计算所有节点的 density_score 值
+    for descendant in descendants:
+        score = np.log(density_of_text_std) * \
+                descendant.density_of_text * \
+                np.log10(descendant.number_of_p_descendants + 2) * \
+                np.log(descendant.density_of_punctuation)
+        descendant.density_score = score
+    # 根据 density_score 对节点进行排序
+    descendants = sorted(descendants, key=lambda x: x.density_score, reverse=True)
+    descendant_first = descendants[0] if descendants else None
+    if descendant_first is None:
+        return None
+    paragraphs = descendant_first.xpath('.//p//text()')
+    paragraphs = [paragraph.strip() if paragraph else '' for paragraph in paragraphs]
+    paragraphs = list(filter(lambda x: x, paragraphs))
+    text = '\n'.join(paragraphs)
+    text = text.strip()
+    return text</code></pre>
+<p class="content-text">这里定义了一个 process方法,并向其中传入HTML根节点进行处理。首先调用 preprocess4content方法做预处理,然后调用 descendants_of_body 方法获取了 body 节点的所有子孙节点,赋值为descendants。接着对 descendants 进行遍历,计算出各个子孙节点的文本密度、符号密度以及文本密度的标准差,最后求得分数 density_score。求得所有子孙节点的 density_score之后,排序找出 density_score 最高的节点,然后提取其p节点的文本内容即为正文,如上代码中的最后一部分便实现了排序和提取过程。调用 process 方法来提取示例新闻页面的正文,运行结果如下:““我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”“重檐之上的月光,曾照进古人的宫殿;城墙上绵延的灯彩,映出了角楼的瑰丽。今夜,一群博物馆人将我点一段话。”“半小时后,“紫禁城上元之夜”的灯光点亮了北京夜空。”“午门城楼及东西雁翅楼用白、黄、红三种颜色光源装扮!”“太和门广场变成了超大的夜景灯光秀场!”“图片来源:东方IC 版权作品请勿转载”“午门城宫博物院供图”“故宫的角楼被灯光装点出满满的节日气氛!”“故宫博物院供图”“令人惊叹的是,故宫的“网红”藏品《清明上河图》《千里江山图卷》在“灯会”中展开画卷。”“灯光版《清明上河图》”“以灯为笔,以屋顶为,故宫博物院最北端神武门也被灯光点亮!”“故宫博物院供图”“上元之夜,故宫邀请了劳动模范、北京榜样、快递小哥、环卫工人、解放军和武警官兵、消防指战员、公安干警等各界代表以及预约成功的观众,共3000人故宫博物院供图”“时间退回到两天前,故宫博物院发布了2月19日(正月十五)、20日(正月十六)即将举办“紫禁城上元之夜”文化活动的消息。”“图片来源:视觉中国”“18日凌晨,一众网友前往故宫博物院官网抢票,网站甚节就有诸多讲究。”“有灯无月不娱人,有月无灯不算春。”“春到人间人似玉,灯烧月下月如怠。”“满街珠翠游村女,沸地笙歌赛社神。”“不展芳尊开口笑,如何消得此良辰。”——唐伯虎《元宵》“明代宫中过上节,皇宵节晚会”。“2月18日,北京故宫午门调试灯光。中新社记者杜洋摄”“其中,灯戏颇为有趣。由多人舞灯拼出吉祥文字及图案,每人手执彩灯、身着不同颜色的服装,翩翩起舞,类似于现代的大型团体操表演。”“但这紫禁城,恭亲王奕与英法联军交换了《天津条约》批准书,并订立《中英北京条约》《中法北京条约》作为补充。”“战争结束了,侵略者摇身一变成了游客。一位外国“摄影师”拍下了当年的紫禁城,并在日记里写到,百年。”“直到上世纪40年代时,故宫的环境仍然并不是想象中的博物馆的状态。曾有故宫博物院工作人员撰文回忆,当时的故宫内杂草丛生,房倒屋漏,有屋顶竟长出了树木。光是清理当时宫中存留的垃圾、杂草就用单霁翔到任故宫院长。那时,他拿到的故宫博物院介绍,写了这座博物馆诸多的“世界之最”。可他觉得,当自己真正走到观众中间,这些“世界之最”都没有了。2月18日,北京故宫午门调试灯光。中新社记者杜洋摄外环境进行了大整治。游客没有地方休息,那就拆除了宫中的临时建筑、新增供游客休息的椅子;游客排队上厕所,那就将一个职工食堂都改成了洗手间;游客买票难,那就全面采用电子购票,新增多个售票点;馆。今年,持续整个正月的“过大年”展览和“紫禁城上元之夜”,让本该是淡季的故宫变得一票难求。在普通人眼中,近600 岁的故宫正变得越来越年轻。资料图:故宫博物院院长单霁翔。中新社记者刘关关摄。元宵节活动进行评估后,或结合二十四节气等重要时间节点推出夜场活动。你期待吗?作者:上官云宋宇晟可以看到,正文被成功提取出来了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 提取发布时间</h3>
@@ -514,10 +535,10 @@ return text</code></pre>
 ]</code></pre>
 <p class="content-text">以上规则都是通过经验总结得来的,可以自行添加或修改。然后我们同样定义一个方法 extract_by_meta 来提取发布时间,它接收一个HtmlElement 对象,该方法的定义如下:</p>
 <pre class="code-block"><code>def extract_by_meta(element: HtmlElement):
-for xpath in METAS:
-datetime = element.xpath(xpath)
-if datetime:
-return ''.join(datetime)</code></pre>
+    for xpath in METAS:
+        datetime = element.xpath(xpath)
+        if datetime:
+            return ''.join(datetime)</code></pre>
 <p class="content-text">这里其实就是遍历 METAS 中的XPath 规则,然后查找整个 HtmlElement 对象中有没有与当前规则匹配的内容,例如:</p>
 <pre class="code-block"><code>//meta[starts-with(@property, "og:published_time")]/@content</code></pre>
 <p class="content-text">这行代码就是查找 meta 节点中是否存在以og:published_time 开头的 property 属性,如果有,就提取出其 content 属性的值。假如我们的案例中刚好有一个meta 节点的内容为:</p>
@@ -526,30 +547,32 @@ return ''.join(datetime)</code></pre>
 <pre class="code-block"><code>//meta[starts-with(@name, "og:time")]/@content</code></pre>
 <p class="content-text">其实 extract_by_meta方法就成功匹配到时间信息了,提取出2019-02-20 02:26:00 这个值就是发布时间了。一般来说这个结果可信度非常高,可以直接将其返回作为最终的提取结果。可是,并不是所有页面都会包含这个meta节点。如果不包含,就要尝试用一些时间匹配规则来提取,其实就是定义一些时间的正则表达式:</p>
 <pre class="code-block"><code>REGEXES = [
-"(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])",
-"(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9]:[0-5]?[0-9])",
-"(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]: [0-5]?[0-9])",
-"(\d{4}[-|/|.]\d{1,2}[-|/].]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9])",</code></pre>
-<p class="content-text">"(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[1-24]\d时[0-60]\d分) ([1-24]\d时)",</p>
-<pre class="code-block"><code>"(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])",
-"(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:
-[0-5]?[0-9]:[0-5]?[0-9])",
-"(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9])",
-"(\d{2}{-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9])",</code></pre>
-<p class="content-text">"(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[1-24]\d时[0-60]\d分)([1-24]\d时)",</p>
-<pre class="code-block"><code>...
-"(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2})",
-"(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2})",</code></pre>
-<p class="content-text">"(\d{4}年\d{1,2}月\d{1,2}日)","(\d{2}年\d{1,2}月\d{1,2}日)","(\d{1,2}月\d{1,2}日)"</p>
-<pre class="code-block"><code>]</code></pre>
+    "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])",
+    "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9]:[0-5]?[0-9])",
+    "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9])",
+    "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9])",
+    "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[1-2]?\d时[0-6]?\d分)([1-2]?\d时)",
+    "(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])",
+    "(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9]:[0-5]?[0-9])",
+    "(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[0-1]?[0-9]:[0-5]?[0-9])",
+    "(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[2][0-3]:[0-5]?[0-9])",
+    "(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2}\s*?[1-2]?\d时[0-6]?\d分)([1-2]?\d时)",
+    # 此处省略了部分规则
+    "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2})",
+    "(\d{2}[-|/|.]\d{1,2}[-|/|.]\d{1,2})",
+    "(\d{4}年\d{1,2}月\d{1,2}日)",
+    "(\d{2}年\d{1,2}月\d{1,2}日)",
+    "(\d{1,2}月\d{1,2}日)"
+]</code></pre>
 <p class="content-text">由于内容比较多,因此这里省略了部分内容。其实就是一些常见的日期格式,日期格式毕竟是有限的,所以通过一些有限的正则表达就能完成匹配。接下来,定义一个正则搜索的方法:</p>
 <pre class="code-block"><code>import re
+
 def extract_by_regex(element: HtmlElement) -&gt; str:
-text = ''.join(element.xpath('.//text()'))
-for regex in REGEXES:
-result = re.search(regex, text)
-if result:
-return result.group(1)</code></pre>
+    text = ''.join(element.xpath('.//text()'))
+    for regex in REGEXES:
+        result = re.search(regex, text)
+        if result:
+            return result.group(1)</code></pre>
 <p class="content-text">这个方法中先查找了 element 的文本内容,然后对文本内容进行正则表达式搜索,符合条件的就直接返回。最后,我们直接把提取发布时间的方法定义为:</p>
 <pre class="code-block"><code>extract_by_meta(element) or extract_by_regex(element)</code></pre>
 <p class="content-text">这样就会优先根据 meta 节点提取,其次根据正则表达式提取。另外,对于处在特殊位置的时间,可以对要处理的HtmlElement 对象进行预处理,先排除一些干扰信息,以提高提取的正确率。</p>
@@ -580,8 +603,10 @@ print(jsonify(extract_detail(html)))</code></pre>
 <pre class="result-block"><code>https://github.com/Gerapy/GerapyAutoExtractor。</code></pre>
 </section>
 <div class="section-heading" id="section-3"><h2>14.4 列表页智能解析算法简介</h2></div>
-<p class="content-text">我们在14.2节和14.3节中了解了提取详情页中标题、正文和发布时间的过程,并用代码实现了对应算法。除了智能解析详情页外,我们还需要考虑到列表页。本节中我们来了解一下列表页的智能解析算法,主要包括如下内容。□ 我们定义的列表页是指怎样的页面。</p>
-<p class="content-text">列表页的哪些信息是我们需要提取的。■ 介绍列表页的提取算法。</p>
+<p class="content-text">我们在14.2节和14.3节中了解了提取详情页中标题、正文和发布时间的过程,并用代码实现了对应算法。除了智能解析详情页外,我们还需要考虑到列表页。本节中我们来了解一下列表页的智能解析算法,主要包括如下内容。</p>
+<p class="content-text list-like">我们定义的列表页是指怎样的页面。</p>
+<p class="content-text">列表页的哪些信息是我们需要提取的。</p>
+<p class="content-text list-like">介绍列表页的提取算法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 怎样的页面属于列表页</h3>
 <p class="content-text">在14.2节,我们已经了解了列表页和详情页的区分方法,这里就不再做对比阐述了。列表页包含一个个详情页的标题和链接,点击其中某个链接,就可以进入对应的详情页,简言之,列表页相当于导航页。图14-13 所示的页面就是一个非常典型的列表页,这里我们就以它为例进行介绍。能够看到,页面主要区域里的新闻列表很醒目,每行都包括新闻的类别、标题和发布时间,点击其中任意一个标题,都能进入对应的新闻详情页。</p>
@@ -612,7 +637,9 @@ print(jsonify(extract_detail(html)))</code></pre>
 <p class="content-text">要提取列表页中的标题和链接,首先需要观察标题的源代码特征。我们随机选取一个标题查看其源代码,如图14-15所示。</p>
 <figure class="inline-figure"><img alt="图14-15 列表页中某标题及对应的源代码" loading="lazy" src="figures/ch14/fig-14_15.jpg"/><figcaption>图14-15 列表页中某标题及对应的源代码</figcaption></figure>
 <p class="content-text">可以发现该标题对应一个a节点,href属性值就是对应的链接,同时这个a节点的前面还有一个a节点,代表这篇新闻所属的类别。这两个a节点的外层是li节点,该li节点有4个兄弟节点,这5个li节点同属一个ul节点。</p>
-<p class="content-text">所以,如果想把当前页面中的所有链接都提取出来,需要提取所有ul节点内所有li节点内的所有类似标题的a节点。初步分析貌似没发现什么通用的规律。如果换成其他列表页,其页面结构可能完全不同,例如不会有li 节点,不会有ul节点,如果我们按照固定的 ul、li等信息来提取,那么算法的可用性是非常低的。既然要实现通用的列表页信息提取算法,关键还是要找一些通用的提取模式。说到这里,可以观察到一个现象:列表里的标题通常是一组一组呈现的,如果仅观察一组,可以发现组内包含多个连续并列的兄弟节点。如果我们把这样连续并列的兄弟节点作为寻找目标,就可以得到这样一个通用的规律:□ 这些节点是同类型且连续的兄弟节点,数量至少为2个;□这些节点有一个共同的父节点。为了更好地表述算法流程,这里做一下定义,把共同的父节点称为“组节点”,同类型且连续的兄弟节点称为“成员节点”。有了这个规律,来看看从示例列表页中能找到多少满足这个要求的组节点,如图14-16所示。</p>
+<p class="content-text">所以,如果想把当前页面中的所有链接都提取出来,需要提取所有ul节点内所有li节点内的所有类似标题的a节点。初步分析貌似没发现什么通用的规律。如果换成其他列表页,其页面结构可能完全不同,例如不会有li 节点,不会有ul节点,如果我们按照固定的 ul、li等信息来提取,那么算法的可用性是非常低的。既然要实现通用的列表页信息提取算法,关键还是要找一些通用的提取模式。说到这里,可以观察到一个现象:列表里的标题通常是一组一组呈现的,如果仅观察一组,可以发现组内包含多个连续并列的兄弟节点。如果我们把这样连续并列的兄弟节点作为寻找目标,就可以得到这样一个通用的规律:</p>
+<p class="content-text list-like">这些节点是同类型且连续的兄弟节点,数量至少为2个;</p>
+<p class="content-text list-like">这些节点有一个共同的父节点。为了更好地表述算法流程,这里做一下定义,把共同的父节点称为“组节点”,同类型且连续的兄弟节点称为“成员节点”。有了这个规律,来看看从示例列表页中能找到多少满足这个要求的组节点,如图14-16所示。</p>
 <figure class="inline-figure"><img alt="图14-16 示例列表页中的组节点" loading="lazy" src="figures/ch14/fig-14_16.jpg"/><figcaption>图14-16 示例列表页中的组节点</figcaption></figure>
 <p class="content-text">在图 14-16中,我们用矩形框选出了符合要求的组节点,可以看到这样的组节点还是蛮多的。但我们只想要列表中的组节点(目标组节点),因此需要想办法排除其他组节点(冗余组节点)。要想排除冗余组节点,需要先找到目标组节点和冗余组节点的不同。直观来看,最明显的不同当属字数,冗余组节点对应的每个成员节点都比较短,可能就包含2~3个字,而目标组节点对应的成员节点普遍比较长,因此可以利用成员节点的最小平均字数设限,例如平均字数在3以下的成员节点对应的组节点就会被排除。还有其他一些特征也可以利用,例如成员节点的数量,规定一个组节点对应的成员节点</p>
 <p class="content-text">的最小数量为3,也能排除一些不必要的组节点。为了更好地说明算法的思路,我们规定成员节点的最小平均字数为3,一个组节点对应的成员节点的最小数量也为3,经过过滤,剩下的组节点如图14-17所示。</p>
@@ -639,42 +666,42 @@ print(jsonify(extract_detail(html)))</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 数据预处理</h3>
 <p class="content-text"> 和提取详情页正文时一样，由于原始 HTML 代码中包含很多干扰内容，所以先对HTML 代码进行预处理，整个预处理方法和提取详情页正文时也基本类似，这里为了更加灵活地修改处理逻辑，单独定义了一个 preprocess4list 方法：</p>
-<pre class="code-block" data-lang="python"><code>    from lxml.html import HtmlElement, etree
+<pre class="code-block" data-lang="python"><code>from lxml.html import HtmlElement, etree
 
-    LIST_USELESS_TAGS = ['meta', 'style', 'script', 'link', 'video', 'audio', 'iframe', 'source', 'svg', 'path',
-                         'symbol', 'img', 'footer', 'header']
-    LIST_STRIP_TAGS = ['span', 'blockquote']
-    LIST_NOISE_XPATHS = [
-        '//div[contains(@class, "comment")]',
-        '//div[contains(@class, "advertisement")]',
-        '//div[contains(@class, "advert")]',
-        '//div[contains(@style, "display: none")]',
-    ]
+LIST_USELESS_TAGS = ['meta', 'style', 'script', 'link', 'video', 'audio', 'iframe', 'source', 'svg', 'path',
+                     'symbol', 'img', 'footer', 'header']
+LIST_STRIP_TAGS = ['span', 'blockquote']
+LIST_NOISE_XPATHS = [
+    '//div[contains(@class, "comment")]',
+    '//div[contains(@class, "advertisement")]',
+    '//div[contains(@class, "advert")]',
+    '//div[contains(@style, "display: none")]',
+]
 
-    def preprocess4list (element: HtmlElement):
-        """
-        preprocess element for list extraction
-        :param element:
-        :return:
-        """
-        # 删除标签和其中的内容
-        etree.strip_elements(element, *LIST_USELESS_TAGS)
-        # 只移动标签对
-        etree.strip_tags(element, *LIST_STRIP_TAGS)
-        remove_children(element, LIST_NOISE_XPATHS)
+def preprocess4list(element: HtmlElement):
+    """
+    preprocess element for list extraction
+    :param element:
+    :return:
+    """
+    # 删除标签和其中的内容
+    etree.strip_elements(element, *LIST_USELESS_TAGS)
+    # 只移动标签对
+    etree.strip_tags(element, *LIST_STRIP_TAGS)
+    remove_children(element, LIST_NOISE_XPATHS)
 
-        for child in children(element):
-            # 将 span 和 strong 节点内的文本合并到父级 p 节点内
-            if child.tag.lower() == 'p':
-                etree.strip_tags(child, 'span')
-                etree.strip_tags(child, 'strong')
+    for child in children(element):
+        # 将 span 和 strong 节点内的文本合并到父级 p 节点内
+        if child.tag.lower() == 'p':
+            etree.strip_tags(child, 'span')
+            etree.strip_tags(child, 'strong')
 
-            if not (child.text and child.text.strip()):
-                remove_element(child)
+        if not (child.text and child.text.strip()):
+            remove_element(child)
 
-            # 如果 div 标签不包含任何子节点,它可以被转换为 p 节点
-            if child.tag.lower() == 'div' and not child.getchildren():
-                child.tag = 'p'</code></pre>
+        # 如果 div 标签不包含任何子节点,它可以被转换为 p 节点
+        if child.tag.lower() == 'div' and not child.getchildren():
+            child.tag = 'p'</code></pre>
 <p class="content-text"> 这里同样定义了一些规则，LIST_USELESS_TAGS 代表一些噪声节点，可以直接调用 strip_elements方法把其整个节点和内容删除。LIST_STRIP_TAGS 节点的文本内容需要保留，标签可以删掉。LIST_NOISE_XPATHS 代表一些明显不是列表内容的节点，例如评论、广告等，直接删除就好。其中还用到了工具方法 remove_children、remove_element 等，它们的定义也已经在 14.3 节阐明，这里不再赘述。</p>
 </section>
 <section class="numbered-section">
@@ -718,12 +745,9 @@ def build_clusters (element):
             continue
         descendants_tree[descendant.parent_selector].append(descendant)
     descendants_tree = dict(descendants_tree)</code></pre>
-<p class="content-text">这里我们先定义了几个阈值。min_number:用于限制兄弟节点的数量,这里定义为5,即成员节点至少要是5个同类型且连续的节点。min_length:用于限制成员节点的文本内容的最小长度,这里定义为8。比较 a_descendants_group_text_max_length 和 min_length的值,如果前者小于后者,也就是组节点内成员节点的</p>
-<p class="content-text">文本内容的最大长度小于 8, 就说明该组节点内所有成员节点的文本内容都很短, 而标题一般得 8 个字以上, 说明该组节点内不可能包含标题, 就把它排除了。用这个阈值可以过滤掉很多导航菜单组节点。</p>
+<p class="content-text">这里我们先定义了几个阈值。min_number:用于限制兄弟节点的数量,这里定义为5,即成员节点至少要是5个同类型且连续的节点。min_length:用于限制成员节点的文本内容的最小长度,这里定义为8。比较 a_descendants_group_text_max_length 和 min_length的值,如果前者小于后者,也就是组节点内成员节点的文本内容的最大长度小于 8, 就说明该组节点内所有成员节点的文本内容都很短, 而标题一般得 8 个字以上, 说明该组节点内不可能包含标题, 就把它排除了。用这个阈值可以过滤掉很多导航菜单组节点。</p>
 <p class="content-text list-like">max_length: 用于限制成员节点的文本内容的最大长度, 这里定义为 44。比较 a_descendants_group_text_min_length 和 max_length 的值, 如果前者大于后者, 也就是组节点内成员节点的文本内容的最小长度大于 44, 就说明该组节点内所有成员节点的文本内容都很长, 而标题一般最多 40 字, 说明该组节点内不可能包含标题, 同样把它排除了。用这个阈值可以过滤掉很多长文本组节点。</p>
-<p class="content-text list-like">similarity_threshold: 用于限制兄弟节点的相似度, 这里可以用 tag_name、class 属性值、子节点的数量或其他属性来判断节点的相似度, 例如 &lt;a title="block" class="item item-1"&gt;&lt;/a&gt;和 &lt;a title="block" class="item item-2"&gt;&lt;/a&gt; 的相似度是比较高的, 而 &lt;a title="block"</p>
-<pre class="code-block"><code>class="item item-1"&gt; 和 &lt;span class="bold"&gt;&lt;/span&gt; 的相似度就很低。如果成员节点的相似</code></pre>
-<p class="content-text"> 度很低, 就证明这个组节点里根本没有同类型且连续的成员节点, 那么这个组节点就不能作为目标组节点了。这里我们将 descendants_tree 定义为了 defaultdict(list) 类型, 其键名是父节点的选择器, 键值是成员节点组成的列表。运行上述代码, 就能得到一些符合要求的组节点了, 结果如图 14-19 所示。</p>
+<p class="content-text list-like">similarity_threshold: 用于限制兄弟节点的相似度, 这里可以用 tag_name、class 属性值、子节点的数量或其他属性来判断节点的相似度, 例如 &lt;a title="block" class="item item-1"&gt;&lt;/a&gt;和 &lt;a title="block" class="item item-2"&gt;&lt;/a&gt; 的相似度是比较高的, 而 &lt;a title="block" class="item item-1"&gt; 和 &lt;span class="bold"&gt;&lt;/span&gt; 的相似度就很低。如果成员节点的相似度很低, 就证明这个组节点里根本没有同类型且连续的成员节点, 那么这个组节点就不能作为目标组节点了。这里我们将 descendants_tree 定义为了 defaultdict(list) 类型, 其键名是父节点的选择器, 键值是成员节点组成的列表。运行上述代码, 就能得到一些符合要求的组节点了, 结果如图 14-19 所示。</p>
 <figure class="inline-figure"><img alt="图14-19 初步筛选出的组节点" loading="lazy" src="figures/ch14/fig-14_19.jpg"/><figcaption>图14-19 初步筛选出的组节点</figcaption></figure>
 </section>
 <section class="numbered-section">
@@ -784,28 +808,28 @@ print(cluster_dict(data, threshold=0.7))</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 挑选最佳组节点</h3>
 <p class="content-text">现在要从所有组节点中挑选最佳组节点,同样是依据多个指标计算各个组节点的分数。依据的指标有很多,例如成员节点的数量、平均字数分布、文本密度等,分数的计算公式可以自行设计。下面实现一个挑选方法:</p>
-<pre class="code-block" data-lang="python"><code>def choose_cluster (clusters):
-    clusters_score=defaultdict(dict)
+<pre class="code-block" data-lang="python"><code>def choose_cluster(clusters):
+    clusters_score = defaultdict(dict)
     clusters_score_arg_max = 0
     clusters_score_max = -1
     for cluster_id, cluster in clusters.items():
         clusters_score[cluster_id] = evaluate_cluster(cluster)
-        if clusters_score[cluster_id]['clusters_score']) &gt; clusters_score_max:
+        if clusters_score[cluster_id]['clusters_score'] &gt; clusters_score_max:
             clusters_score_max = clusters_score[cluster_id]['clusters_score']
             clusters_score_arg_max = cluster_id
-    best_cluster = clusters [clusters_score_arg_max]
+    best_cluster = clusters[clusters_score_arg_max]
     return best_cluster</code></pre>
 <p class="content-text">这里向 choose_cluster 方法传入上一步得到的合并后的所有组节点,然后evaluate_cluster 方法会计算每一个组节点的得分,最后返回得分最高的组节点。</p>
 <p class="content-text">其中 evaluate_cluster 方法比较关键,就是实现分数计算的方法,下面给出一个参考实现:</p>
-<pre class="code-block" data-lang="python"><code>def evaluate_cluster (cluster):
+<pre class="code-block" data-lang="python"><code>def evaluate_cluster(cluster):
     score = dict()
     score['avg_similarity_with_siblings'] = np.mean(
-        [element.similarity_with_siblings for element in cluster))
+        [element.similarity_with_siblings for element in cluster])
     score['number_of_elements'] = len(cluster)
     score['size'] = get_element_size(cluster)
-    score['clusters_score'] =
-        score['avg_similarity_with_siblings']</code></pre>
-<pre class="code-block" data-lang="python"><code>        * np.log10(score['number_of_elements'] + 1)
+    score['clusters_score'] = \
+        score['avg_similarity_with_siblings'] \
+        * np.log10(score['number_of_elements'] + 1) \
         * np.log10(score['size'])
     return score</code></pre>
 <p class="content-text">可以看到,这个方法根据成员节点的相似度、数量和节点大小计算出了组节点的分数。拿上面的案例来说,由于标题列表中的组节点对应的成员节点数量更多、节点更大,因此最终得到的分数也更高,自然就被选为最佳组节点了。</p>

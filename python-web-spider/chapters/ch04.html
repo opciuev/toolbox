@@ -181,8 +181,7 @@ with open('data.json', encoding='utf-8') as file:
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>[{'name': 'Bob', 'gender': 'male', 'birthday': '1992-10-18'}, {'name': 'Selina', 'gender': 'female', 'birthday': '1995-10-18'}]</code></pre>
 <p class="content-text">　　这里我们使用 open 方法读取文本文件，使用的是默认的读模式，编码指定为 utf-8，并将文件操作对象赋值为 file。然后我们调用 file 对象的 read 方法读取了文本中的所有内容，赋值为 str。接着再调用 loads 方法解析 JSON 字符串，将其转化为 JSON 对象。</p>
-<p class="content-text">　　其实上述实例有更简便的写法，可以直接使用 load 方法传入文件操作对象，同样也可以将文本</p>
-<p class="content-text">转化为 JSON 对象，写法如下:</p>
+<p class="content-text">　　其实上述实例有更简便的写法，可以直接使用 load 方法传入文件操作对象，同样也可以将文本转化为 JSON 对象，写法如下:</p>
 <pre class="code-block" data-lang="python"><code>import json
 data = json.load(open('data.json', encoding='utf-8'))
 print(data)</code></pre>
@@ -235,8 +234,7 @@ with open('data.json', 'w', encoding='utf-8') as file:
 <p class="content-text">　　本节我们了解了用 Python 读写 JSON 文件的方法，这在后面进行数据解析时经常会用到，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>4.3 CSV 文件存储</h2></div>
-<p class="content-text">　　CSV，全称为 Comma-Separated Values，中文叫作逗号分隔值或字符分隔值，其文件以纯文本形式存储表格数据。CSV 文件是一个字符序列，可以由任意数目的记录组成，各条记录以某种换行符分</p>
-<p class="content-text">隔开。每条记录都由若干字段组成，字段间的分隔符是其他字符或字符串，最常见的是逗号或制表符。不过所有记录都有完全相同的字段序列，相当于一个结构化表的纯文本形式。它比 Excel 文件更加简洁，XLS 文件是电子表格，包含文本、数值、公式和格式等内容，CSV 中则不包含这些，就是以特定字符作为分隔符的纯文本，结构简单清晰。所以，有时候使用 CSV 来存储数据是比较方便的。本节我们就来讲解 Python 读取数据和将数据写入 CSV 文件的过程。</p>
+<p class="content-text">　　CSV，全称为 Comma-Separated Values，中文叫作逗号分隔值或字符分隔值，其文件以纯文本形式存储表格数据。CSV 文件是一个字符序列，可以由任意数目的记录组成，各条记录以某种换行符分隔开。每条记录都由若干字段组成，字段间的分隔符是其他字符或字符串，最常见的是逗号或制表符。不过所有记录都有完全相同的字段序列，相当于一个结构化表的纯文本形式。它比 Excel 文件更加简洁，XLS 文件是电子表格，包含文本、数值、公式和格式等内容，CSV 中则不包含这些，就是以特定字符作为分隔符的纯文本，结构简单清晰。所以，有时候使用 CSV 来存储数据是比较方便的。本节我们就来讲解 Python 读取数据和将数据写入 CSV 文件的过程。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 写入</h3>
 <p class="content-text">　　这里先看一个最简单的例子：</p>
@@ -785,9 +783,7 @@ student['age'] = 26
 result = collection.update_one(condition, {'$set': student})
 print(result)
 print(result.matched_count, result.modified_count)</code></pre>
-<p class="content-text">这里调用的是 update_one 方法,其第二个参数不能再直接传入修改后的字典,而是需要使用</p>
-<pre class="code-block"><code>{'$set': student}这种形式的数据。然后分别调用 matched_count 和 modified_count属性,可以获得</code></pre>
-<p class="content-text">匹配的数据条数和影响的数据条数。运行结果如下:</p>
+<p class="content-text">这里调用的是 update_one 方法,其第二个参数不能再直接传入修改后的字典,而是需要使用 <code class="inline-code">{'$set': student}</code> 这种形式的数据。然后分别调用 matched_count 和 modified_count属性,可以获得匹配的数据条数和影响的数据条数。运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. UpdateResult object at 0x10d17b678&gt;
 1 0</code></pre>
 <p class="content-text">可以发现 update_one 方法的返回结果是 UpdateResult 类型。我们再看一个例子:</p>
@@ -993,8 +989,7 @@ redis = StrictRedis(connection_pool=pool)</code></pre>
 <p class="content-text">　　鉴于 Redis 的便捷性和高效性，后面我们会利用 Redis 实现很多架构，例如维护代理池、账号池、ADSL 拨号代理池、Scrapy-Redis 分布式架构等，所以需要好好掌握针对 Redis 的操作。</p>
 </section>
 <div class="section-heading" id="section-6"><h2>4.7 Elasticsearch 搜索引擎存储</h2></div>
-<p class="content-text">　　想查数据，就免不了搜索，而搜索离不开搜索引擎。百度、谷歌都是非常庞大、复杂的搜索引擎，它们几乎能够索引互联网上开放的所有网页和数据。然而对于我们自己的业务数据来说，没必要使用</p>
-<p class="content-text">这么复杂的技术。如果为了便于存储和检索,想要实现自己的搜索引擎,那么Elasticsearch 就是不二之选。这是一个全文搜索引擎,可以快速存储、搜索和分析海量数据。所以,如果我们将爬取到的数据存储到 Elasticsearch里面,检索时会非常方便。</p>
+<p class="content-text">　　想查数据，就免不了搜索，而搜索离不开搜索引擎。百度、谷歌都是非常庞大、复杂的搜索引擎，它们几乎能够索引互联网上开放的所有网页和数据。然而对于我们自己的业务数据来说，没必要使用这么复杂的技术。如果为了便于存储和检索,想要实现自己的搜索引擎,那么Elasticsearch 就是不二之选。这是一个全文搜索引擎,可以快速存储、搜索和分析海量数据。所以,如果我们将爬取到的数据存储到 Elasticsearch里面,检索时会非常方便。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Elasticsearch 介绍</h3>
 <p class="content-text">Elasticsearch 是一个开源的搜索引擎,建立在一个全文搜索引擎库 Apache LuceneTM 的基础之上。那 Lucene 又是什么呢?Lucene 可能是目前存在的(不论开源还是私有)拥有最先进、高性能和全功能搜索引擎功能的库,但也仅仅只是一个库。要想用 Lucene,我们需要编写 Java并引用 Lucene 包才可以,而且需要我们对信息检索有一定程度的理解。为了解决这个问题,Elasticsearch诞生了。Elasticsearch 也是使用Java编写的,其内部使用 Lucene实现索引与搜索,但是它的目标是使全文检索变得简单,相当于 Lucene的一层封装,它提供了一套简单一致的 RESTful API 来帮助我们实现存储和检索。所以 Elasticsearch 仅仅就是一个简易版的 Lucene 封装吗?如果这么认为,那就大错特错了,Elasticsearch 不仅是Lucene,并且也不只是一个全文搜索引擎。它可以这样准确形容:一个分布式的实时文档存储库,每个字段都可以被索引与搜索;一个分布式的实时分析搜索引擎;能胜任上百个服务节点的扩展,并支持PB级别的结构化或者非结构化数据。总之,Elasticsearch 是一个非常强大的搜索引擎,维基百科、Stack Overflow、GitHub 都纷纷采用它来实现搜索。Elasticsearch不仅提供强大的检索能力,也提供强大的存储能力。</p>
@@ -1218,19 +1213,20 @@ print(result)</code></pre>
 <div class="section-heading" id="section-7"><h2>4.8 RabbitMQ 的使用</h2></div>
 <p class="content-text">在爬取数据的过程中,可能需要一些进程间的通信机制,例如下面三个。</p>
 <p class="content-text list-like">一个进程负责构造爬取请求,另一个进程负责执行爬取请求。</p>
-<p class="content-text list-like">某个数据爬取进程执行完毕,通知另外一个负责数据处理的进程开始处理数据。■某个进程新建了一个爬取任务,通知另外一个负责数据爬取的进程开始爬取数据。为了降低这些进程的耦合度,需要一个类似消息队列的中间件来存储和转发消息,实现进程间的通信。有了消息队列中间件之后,以上各机制中的两个进程就可以独立执行,它们之间的通信则由消息队列实现。</p>
+<p class="content-text list-like">某个数据爬取进程执行完毕,通知另外一个负责数据处理的进程开始处理数据。</p>
+<p class="content-text list-like">某个进程新建了一个爬取任务,通知另外一个负责数据爬取的进程开始爬取数据。为了降低这些进程的耦合度,需要一个类似消息队列的中间件来存储和转发消息,实现进程间的通信。有了消息队列中间件之后,以上各机制中的两个进程就可以独立执行,它们之间的通信则由消息队列实现。</p>
 <p class="content-text list-like">一个进程根据需要爬取的任务,构造请求对象并放入消息队列,另一个进程从队列中取出请求对象并执行爬取。</p>
 <p class="content-text list-like">某个数据爬取进程执行完毕,就向消息队列发送消息,当另一个负责数据处理的进程监听到这类消息时,就开始处理数据。</p>
 <p class="content-text list-like">某个进程新建了一个爬取任务后,就向消息队列发送消息,当另一个负责数据爬取的进程监听到这类消息时,就开始爬取数据。那这个消息队列怎么实现呢?业界比较流行的实现有 RabbitMQ、RocketMQ、Kafka等,其中RabbitMQ 作为一个开源、可靠、灵活的消息队列中间件备受青睐,本节我们也来了解一下它的用法。注意我们在前几节了解了一些数据存储库的用法,它们几乎都用于持久化存储数据。本节介绍的是一个消息队列中间件,它虽然主要应用于数据消息通信,但由于它也具备存储信息的能力,所以将其放在本章介绍。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. RabbitMQ 的介绍</h3>
-<p class="content-text">RabbitMQ 是使用Erlang语言开发的开源消息队列系统,基于AMQP协议实现。AMQP的全称是Advanced Message Queue Protocol,即高级消息队列协议,其主要特点有面向消息、队列、路由(包括点对点和发布/订阅)、可靠性、安全性。RabbitMQ 最初起源于金融系统,用于在分布式系统中存储和转发消息,在易用性、扩展性、高</p>
-<p class="content-text">可用性等方面均表现不俗,具体特点有以下这些。</p>
+<p class="content-text">RabbitMQ 是使用Erlang语言开发的开源消息队列系统,基于AMQP协议实现。AMQP的全称是Advanced Message Queue Protocol,即高级消息队列协议,其主要特点有面向消息、队列、路由(包括点对点和发布/订阅)、可靠性、安全性。RabbitMQ 最初起源于金融系统,用于在分布式系统中存储和转发消息,在易用性、扩展性、高可用性等方面均表现不俗,具体特点有以下这些。</p>
 <p class="content-text list-like"><strong class="term-label">可靠性(Reliability):</strong>RabbitMQ通过一些机制保证可靠性,如持久化、传输确认、发布确认。</p>
 <p class="content-text list-like">灵活的路由(Flexible Routing):由Exchange 将消息路由至消息队列。RabbitMQ 已经提供了一些内置的 Exchange来实现典型的路由功能;对于较复杂的路由功能,则将多个Exchange 绑定在一起,或者通过插件机制实现自己的Exchange。</p>
 <p class="content-text list-like"><strong class="term-label">消息集群(Clustering):</strong>多个RabbitMQ 服务器可以组成一个集群,形成一个逻辑 Broker。</p>
 <p class="content-text list-like">高可用(Highly Available Queues):消息队列可以在集群中的机器上镜像存储,使得队列在部分节点出问题的情况下仍然可用。</p>
-<p class="content-text list-like">多种协议支持(multi-protocol): RabbitMQ 支持多种消息队列协议,例如STOMP、MQTT。■ 多语言客户端(Many Clients): RabbitMQ几乎支持所有常用语言,例如Java、.NET、Ruby。</p>
+<p class="content-text list-like">多种协议支持(multi-protocol): RabbitMQ 支持多种消息队列协议,例如STOMP、MQTT。</p>
+<p class="content-text list-like">多语言客户端(Many Clients): RabbitMQ几乎支持所有常用语言,例如Java、.NET、Ruby。</p>
 <p class="content-text list-like">管理界面(Management UI): RabbitMQ 提供了一个易用的用户界面,使得用户可以监控和管理消息 Broker 的多个方面。</p>
 <p class="content-text list-like">跟踪机制(Tracing): RabbitMQ 提供了消息跟踪机制,如果消息异常,使用者就可以找出发生了什么。</p>
 <p class="content-text list-like">插件机制(Plugin System): RabbitMQ 提供了许多插件,实现了多方面的扩展,用户也可以编写自己的插件。</p>

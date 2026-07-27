@@ -63,9 +63,9 @@
 <p class="content-text">这个非常简单,JavaScript 压缩即去除 JavaScript代码中不必要的空格、换行等内容或者把一些可能公用的代码进行处理实现共享,最后输出的结果都压缩为几行内容,代码的可读性变得很差,同时也能提高网站的加载速度。</p>
 <p class="content-text">如果仅仅是去除空格、换行这样的压缩方式,其实几乎是没有任何防护作用的,因为这种压缩方式仅仅是降低了代码的直接可读性。因为我们有一些格式化工具可以轻松将 JavaScript 代码变得易读,比如利用IDE、在线工具或Chrome 浏览器都能还原格式化的代码。</p>
 <p class="content-text">这里举一个最简单的JavaScript 压缩示例。原来的JavaScript代码是这样的:</p>
-<pre class="code-block"><code>function echo(stringA, stringB){</code></pre>
-<p class="content-text">    const name = "Germey";</p>
-<pre class="code-block"><code>alert("hello " + name);
+<pre class="code-block"><code>function echo(stringA, stringB){
+    const name = "Germey";
+    alert("hello " + name);
 }</code></pre>
 <p class="content-text">压缩之后就变成这样子:</p>
 <pre class="code-block"><code>function echo(d,c){const e="Germey";alert("hello "+e)};</code></pre>
@@ -76,7 +76,17 @@
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. JavaScript 混淆</h3>
 <p class="content-text">JavaScript 混淆完全是在JavaScript 上面进行的处理,它的目的就是使得 JavaScript 变得难以阅读和分析,大大降低代码的可读性,是一种很实用的JavaScript 保护方案。</p>
-<p class="content-text">JavaScript 混淆技术主要有以下几种。□ 变量名混淆:将带有含义的变量名、方法名、常量名随机变为无意义的类乱码字符串,降低代码的可读性,如转成单个字符或十六进制字符串。□ 字符串混淆:将字符串阵列化集中放置并可进行MD5或Base64 加密存储,使代码中不出现明文字符串,这样可以避免使用全局搜索字符串的方式定位到入口。□ 对象键名替换:针对JavaScript 对象的属性进行加密转化,隐藏代码之间的调用关系。□ 控制流平坦化:打乱函数原有代码的执行流程及函数调用关系,使代码逻辑变得混乱无序。□ 无用代码注入:随机在代码中插入不会被执行到的无用代码,进一步使代码看起来更加混乱。□ 调试保护:基于调试器特性,对当前运行环境进行检验,加入一些 debugger 语句,使其在调试模式下难以顺利执行JavaScript代码。□ 多态变异:使JavaScript代码每次被调用时,将代码自身立刻自动发生变异,变为与之前完全不同的代码,即功能完全不变,只是代码形式变异,以此杜绝代码被动态分析和调试。□ 域名锁定:使JavaScript代码只能在指定域名下执行。□ 代码自我保护:如果对 JavaScript 代码进行格式化,则无法执行,导致浏览器假死。□ 特殊编码:将 JavaScript 完全编码为人不可读的代码,如表情符号、特殊表示内容,等等。</p>
+<p class="content-text">JavaScript 混淆技术主要有以下几种。</p>
+<p class="content-text list-like">变量名混淆:将带有含义的变量名、方法名、常量名随机变为无意义的类乱码字符串,降低代码的可读性,如转成单个字符或十六进制字符串。</p>
+<p class="content-text list-like">字符串混淆:将字符串阵列化集中放置并可进行MD5或Base64 加密存储,使代码中不出现明文字符串,这样可以避免使用全局搜索字符串的方式定位到入口。</p>
+<p class="content-text list-like">对象键名替换:针对JavaScript 对象的属性进行加密转化,隐藏代码之间的调用关系。</p>
+<p class="content-text list-like">控制流平坦化:打乱函数原有代码的执行流程及函数调用关系,使代码逻辑变得混乱无序。</p>
+<p class="content-text list-like">无用代码注入:随机在代码中插入不会被执行到的无用代码,进一步使代码看起来更加混乱。</p>
+<p class="content-text list-like">调试保护:基于调试器特性,对当前运行环境进行检验,加入一些 debugger 语句,使其在调试模式下难以顺利执行JavaScript代码。</p>
+<p class="content-text list-like">多态变异:使JavaScript代码每次被调用时,将代码自身立刻自动发生变异,变为与之前完全不同的代码,即功能完全不变,只是代码形式变异,以此杜绝代码被动态分析和调试。</p>
+<p class="content-text list-like">域名锁定:使JavaScript代码只能在指定域名下执行。</p>
+<p class="content-text list-like">代码自我保护:如果对 JavaScript 代码进行格式化,则无法执行,导致浏览器假死。</p>
+<p class="content-text list-like">特殊编码:将 JavaScript 完全编码为人不可读的代码,如表情符号、特殊表示内容,等等。</p>
 <p class="content-text">总之,以上方案都是JavaScript 混淆的实现方式,可以在不同程度上保护 JavaScript代码。</p>
 <p class="content-text">在前端开发中,现在JavaScript 混淆的主流实现是javascript-obfuscator 和 terser 这两个库。它们都</p>
 <p class="content-text">能提供一些代码混淆功能,也都有对应的webpack 和Rollup 打包工具的插件。利用它们,我们可以非常方便地实现页面的混淆,最终输出压缩和混淆后的JavaScript代码,使得JavaScript代码的可读性大大降低。</p>
@@ -142,7 +152,9 @@ console['log']('x', x);</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">变量名混淆</h4>
-<p class="content-text">变量名混淆可以通过在 javascript-obfuscator 中配置 identifierNamesGenerator 参数来实现。我们通过这个参数可以控制变量名混淆的方式,如将其值设为 hexadecimal,则会将变量名替换为十六进制形式的字符串。该参数的取值如下。□ hexadecimal: 将变量名替换为十六进制形式的字符串,如 0xabc123。□ mangled: 将变量名替换为普通的简写字符,如 a、b、c 等。</p>
+<p class="content-text">变量名混淆可以通过在 javascript-obfuscator 中配置 identifierNamesGenerator 参数来实现。我们通过这个参数可以控制变量名混淆的方式,如将其值设为 hexadecimal,则会将变量名替换为十六进制形式的字符串。该参数的取值如下。</p>
+<p class="content-text list-like">hexadecimal: 将变量名替换为十六进制形式的字符串,如 0xabc123。</p>
+<p class="content-text list-like">mangled: 将变量名替换为普通的简写字符,如 a、b、c 等。</p>
 <p class="content-text">该参数的默认值为 hexadecimal。我们将该参数修改为 mangled 来试一下:</p>
 <pre class="code-block" data-lang="javascript"><code>const code = `
 let hello = '1' + 1
@@ -504,8 +516,12 @@ $.$_$]+($._$=$.$_{$._$])+($.$$=($.$+"")[$._$])+((!$)+"")[$._$$]+($._=$.$_$$$_])+
 <p class="content-text">)+($._=(!""+"")[$. $_])+$.$ [$.$_$ ]+$+$.$+$.$;$.$$=$.$+(!""+"") [$._$$]+$._ +$._+$.$+$.$$;$.$=($.___)[$.$_][$.$_];$.$($.$($.$$+"\""+"\\"+$._$+$.$$+$.$$_+$.$_$_+"\\"+$._ $+$.$$_+$._$_+"\\"+$.$+$+$.$_$_+"\\"+$.$_+$.__+"=\\"+$. $+$.__+$.__$+"\"")())();</p>
 <p class="content-text">可以看到,通过这些工具,原本非常简单的代码被转化为一些几乎完全不可读的代码,但实际上运行效果还是相同的。这些混淆方式比较另类,看起来虽然没有什么头绪,但实际上找到规律是非常好还原的,并没有真正达到强力混淆的效果。</p>
 <p class="content-text">以上便是对 JavaScript 混淆方式的介绍和总结。总的来说,经过混淆的JavaScript 代码的可读性大大降低,同时其防护效果也大大增强。</p>
-<p class="content-text">5. WebAssembly随着技术的发展,WebAssembly 逐渐流行起来。不同于JavaScript 混淆技术,WebAssembly 的基本思路是将一些核心逻辑使用其他语言(如C/C++语言)来编写,并编译成类似字节码的文件,并通过JavaScript 调用执行,从而起到二进制级别的防护作用。WebAssembly 是一种可以使用非 JavaScript 编程语言编写代码并且能在浏览器上运行的技术方案,比如我们能将C/C++文件利用 Emscripten 编译工具转成 wasm格式的文件,JavaScript可以直接调用该文件执行其中的方法。WebAssembly 是经过编译器编译之后的字节码,可以从C/C++编译而来,得到的字节码具有和JavaScript 相同的功能,运行速度更快,体积更小,而且在语法上完全脱离 JavaScript,同时具有沙盒化的执行环境。比如,这就是一个基本的WebAssembly 示例:WebAssembly.compile(new Uint8Array(`00 61 73 6d 01 00 00 00 01 0c 02 60 02 7f 7f 01 7f 60 01 7f 01 7f 03 03 02 00 01 07 10 02 03 61 64 64 00 00 06 73 71 75 61 72 65 00 01 0a 13 02 08 00 20 00 20 01 6a 0f 0b 08 00 20 00 20 00 6c 0f 0b</p>
-<pre class="code-block"><code>`).trim().split(/[\s\r\n]+/g).map(str =&gt; parseInt(str, 16)))
+</section>
+<section class="numbered-section">
+<h3 class="subsection-heading numbered-heading">5. WebAssembly</h3>
+<p class="content-text">随着技术的发展,WebAssembly 逐渐流行起来。不同于JavaScript 混淆技术,WebAssembly 的基本思路是将一些核心逻辑使用其他语言(如C/C++语言)来编写,并编译成类似字节码的文件,并通过JavaScript 调用执行,从而起到二进制级别的防护作用。WebAssembly 是一种可以使用非 JavaScript 编程语言编写代码并且能在浏览器上运行的技术方案,比如我们能将C/C++文件利用 Emscripten 编译工具转成 wasm格式的文件,JavaScript可以直接调用该文件执行其中的方法。WebAssembly 是经过编译器编译之后的字节码,可以从C/C++编译而来,得到的字节码具有和JavaScript 相同的功能,运行速度更快,体积更小,而且在语法上完全脱离 JavaScript,同时具有沙盒化的执行环境。比如,这就是一个基本的WebAssembly 示例:</p>
+<pre class="code-block"><code>WebAssembly.compile(new Uint8Array(`00 61 73 6d 01 00 00 00 01 0c 02 60 02 7f 7f 01 7f 60 01 7f 01 7f 03 03 02 00 01 07 10 02 03 61 64 64 00 00 06 73 71 75 61 72 65 00 01 0a 13 02 08 00 20 00 20 01 6a 0f 0b 08 00 20 00 20 00 6c 0f 0b
+`).trim().split(/[\s\r\n]+/g).map(str =&gt; parseInt(str, 16)))
 .then(module =&gt; {
 const instance = new WebAssembly.Instance(module)
 const { add, square } = instance.exports
@@ -518,7 +534,7 @@ console.log('(2 + 5)^2 =', square(add(2 + 5)))
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 总结</h3>
-<p class="content-text">在本节中,我们介绍了接口加密技术和JavaScript 的压缩、混淆技术,也初步了解了WebAssembly技术。知己知彼方能百战不殆,了解了原理,我们才能更好地去实现JavaScript的逆向。本节代码参见:https://github.com/Python3 WebSpider/JavaScriptObfuscate。由于本节涉及一些专业名词,部分内容参考来源如下。</p>
+<p class="content-text">在本节中,我们介绍了接口加密技术和JavaScript 的压缩、混淆技术,也初步了解了WebAssembly技术。知己知彼方能百战不殆,了解了原理,我们才能更好地去实现JavaScript的逆向。本节代码参见:https://github.com/Python3WebSpider/JavaScriptObfuscate。由于本节涉及一些专业名词,部分内容参考来源如下。</p>
 <p class="content-text list-like">javascript-obfuscator 官方 GitHub 仓库。</p>
 <p class="content-text list-like">javascript-obfuscator官网。</p>
 <p class="content-text list-like">阮一峰的“asm.js 和 Emscripten入门教程”。</p>
@@ -599,7 +615,7 @@ console.log('(2 + 5)^2 =', square(add(2 + 5)))
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. Ajax 断点</h3>
 <p class="content-text">上面我们介绍了一些DOM 节点的监听器(Listener),通过监听器我们可以手动设置断点并进行调试。但其实针对这个例子,通过翻页的点击事件监听器是不太容易找到突破口的。</p>
-<p class="content-text">接下来我们再介绍——个方法——Ajax 断点,它可以在发生 Ajax请求的时候触发断点。对于这个例子,我们的目标其实就是找到 Ajax请求的那一部分逻辑,找出加密参数是怎么构造的。可以想到,通过Ajax 断点,使页面在获取数据的时候停下来,我们就可以顺着找到构造 Ajax请求的逻辑了。怎么设置呢?我们把之前的断点全部取消,切换到 Sources面板下,然后展开 XHR/fetch Breakpoints,这里就可以设置 Ajax 断点,如图11-22 所示。</p>
+<p class="content-text">接下来我们再介绍一个方法——Ajax 断点,它可以在发生 Ajax请求的时候触发断点。对于这个例子,我们的目标其实就是找到 Ajax请求的那一部分逻辑,找出加密参数是怎么构造的。可以想到,通过Ajax 断点,使页面在获取数据的时候停下来,我们就可以顺着找到构造 Ajax请求的逻辑了。怎么设置呢?我们把之前的断点全部取消,切换到 Sources面板下,然后展开 XHR/fetch Breakpoints,这里就可以设置 Ajax 断点,如图11-22 所示。</p>
 <figure class="inline-figure"><img alt="图11-22 展开 XHR/fetch Breakpoints" loading="lazy" src="figures/ch11/fig-11_22.jpg"/><figcaption>图11-22 展开 XHR/fetch Breakpoints</figcaption></figure>
 <p class="content-text">要设置断点,就要先观察 Ajax请求。和之前一样,我们点击翻页按钮2,在Network 面板里面观察 Ajax 请求是怎样的,请求的URL 如图 11-23 所示。</p>
 <figure class="inline-figure"><img alt="图11-23 请求的URL" loading="lazy" src="figures/ch11/fig-11_23.jpg"/><figcaption>图11-23 请求的URL</figcaption></figure>
@@ -627,72 +643,24 @@ console.log('(2 + 5)^2 =', square(add(2 + 5)))
 <p class="content-text">有什么方法可以修改呢?其实有一些浏览器插件可以实现,比如ReRes。在插件中,我们可以添加自定义的 JavaScript文件,并配置 URL 映射规则,这样浏览器在加载某个在线 JavaScript 文件的时候就可以将内容替换成自定义的JavaScript文件了。另外,还有一些代理服务器也可以实现,比如Charles、Fiddler,借助它们可以在加载 JavaScript文件时修改对应URL的响应内容,以实现对 JavaScript文件的修改。其实浏览器的开发者工具已经原生支持这个功能了,即浏览器的 Overrides 功能,它在Sources 面板左侧,如图11-31所示。我们可以在 Overrides 面板上选定一个本地的文件夹,用于保存需要更改的JavaScript文件,下面再实际操作一下。</p>
 <figure class="inline-figure"><img alt="图11-31 Overrides 功能" loading="lazy" src="figures/ch11/fig-11_31.jpg"/><figcaption>图11-31 Overrides 功能</figcaption></figure>
 <p class="content-text">首先,根据前面设置 Ajax 断点的方法,找到对应的构造 Ajax请求的位置,根据一些网页开发知识,我们可以大体判断出 then 后面的回调方法接收的参数a中就包含了Ajax请求的结果,如图11-32所示。</p>
-<pre class="code-block"><code>102
-page: t
-163
-}
-e.exports
-164
-}),
-165
-e.exports
-this.onFetchData()
-166
-},
-167
-onFetchData: function() {
-168
-var t= this;
-169
-this. loading = 10;
-170
-vara (this.page 1) * this.limit
-171
-e Object(il"a")) (this.$store.state.url.index);
-172
-this.Saxios.get(this.$store.state.url.index, {
-params: {
-limit: this.limit,
-offset: a,
-token: e
-173
-174
-175
-176
-177
-178
-}) then((function(a) {
-Varea.data
-179
-180
-se.results
-181
-ne.count;
-182
-t. loading 11,
-183
-t.moviess,
-184
-t.totaln
-185
-}
-186
-))
-187
-}
-188</code></pre>
 <figure class="inline-figure"><img alt="图11-32 then 语句" loading="lazy" src="figures/ch11/fig-11_32.jpg"/><figcaption>图11-32 then 语句</figcaption></figure>
 <p class="content-text">我们打算在 Ajax请求成功获得响应的时候,在控制台输出响应的结果,也就是通过 console.log输出变量a。再切回 Overrides面板,点击+按钮,这时候浏览器会提示我们选择一个本地文件夹,用于存储要替换的 JavaScript文件。这里我选定了一个新建的文件夹 ChromeOverrides,注意这时候可能会遇到</p>
 <figure class="inline-figure"><img alt="图11-33 弹出提示" loading="lazy" src="figures/ch11/fig-11_33.jpg"/><figcaption>图11-33 弹出提示</figcaption></figure>
 <p class="content-text">这时,在Overrides 面板下就多了 ChromeOverrides 文件夹,用于存储所有我们想要更改的JavaScript文件,如图11-34所示。</p>
 <figure class="inline-figure"><img alt="图11-34 Overrides 面板下出现 ChromeOverrides 文件夹" loading="lazy" src="figures/ch11/fig-11_34.jpg"/><figcaption>图11-34 Overrides 面板下出现 ChromeOverrides 文件夹</figcaption></figure>
 <p class="content-text">我们可以看到,现在所在的JavaScript 选项卡是chunk-19c920f8.012555a2.js: formatted,代码已经被格式化了。因为格式化后的代码是无法直接在浏览器中修改的,所以为了方便,我们可以将格式化后的文件复制到文本编辑器中,然后添加一行代码,修改如下:</p>
-<pre class="code-block"><code>}).then((function(a) {</code></pre>
-<p class="content-text"> console.log('response', a) // 添加一行代码var e = a.data, s = e.results, n = e.count;t.loading = !1,接着把修改后的内容替换到原来的 JavaScript文件中。这里要注意,切换到 chunk-19c920f8.012555a2.js文件才能修改,直接替换 JavaScript 文件的所有內容即可,如图11-35所示。</p>
-<figure class="inline-figure"><img alt="图11-35 替换 JavaScript 文件的所有內容" loading="lazy" src="figures/ch11/fig-11_35.jpg"/><figcaption>图11-35 替换 JavaScript 文件的所有內容</figcaption></figure>
+<pre class="code-block"><code>}).then((function(a) {
+    console.log('response', a) // 添加一行代码
+    var e = a.data, s = e.results, n = e.count;
+    t.loading = !1,
+    t.movies = s,
+    t.total = n
+}))</code></pre>
+<p class="content-text">接着把修改后的内容替换到原来的 JavaScript文件中。这里要注意,切换到 chunk-19c920f8.012555a2.js文件才能修改,直接替换 JavaScript 文件的所有内容即可,如图11-35所示。</p>
+<figure class="inline-figure"><img alt="图11-35 替换 JavaScript 文件的所有内容" loading="lazy" src="figures/ch11/fig-11_35.jpg"/><figcaption>图11-35 替换 JavaScript 文件的所有内容</figcaption></figure>
 <p class="content-text">替换完毕之后保存,这时候再切换回 Overrides 面板,就可以发现成功生成了新的JavaScript文件,它用于替换原有的JavaScript文件,如图11-36所示。</p>
 <figure class="inline-figure"><img alt="图11-36 生成了新的JavaScript 文件" loading="lazy" src="figures/ch11/fig-11_36.jpg"/><figcaption>图11-36 生成了新的JavaScript 文件</figcaption></figure>
-<p class="content-text">好,此时我们取消所有断点,然后刷新页面,就可以在控制台看到输出的响应结果了,如图11-37</p>
+<p class="content-text">好,此时我们取消所有断点,然后刷新页面,就可以在控制台看到输出的响应结果了,如图11-37所示。</p>
 <p class="content-text">正如我们所料,我们成功将变量a输出,其中的data 字段就是 Ajax的响应结果,证明改写JavaScript 成功!而且刷新页面也不会丢失了。我们还可以增加一些 JavaScript 逻辑,比如直接将变量a的结果通过API 发送到远程服务器,并通过服务器将数据保存下来,也就完成了直接拦截Ajax请求并保存数据的过程了。修改 JavaScript 文件有很多用途,此方案可以为我们进行JavaScript 逆向带来极大的便利。</p>
 <figure class="inline-figure"><img alt="图11-37 响应结果" loading="lazy" src="figures/ch11/fig-11_37.jpg"/><figcaption>图11-37 响应结果</figcaption></figure>
 </section>
@@ -701,15 +669,14 @@ t.totaln
 <p class="content-text">本节总结了一些浏览器开发者工具中对 JavaScript 逆向非常有帮助的功能,熟练掌握了这些功能会对后续 JavaScript 逆向分析打下坚实的基础,请大家好好研究。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>11.3 JavaScript Hook 的使用</h2></div>
-<p class="content-text">在JavaScript 逆向的时候,我们经常需要追踪某些方法的堆栈调用情况。但在很多情况下,一些JavaScript 变量或者方法名经过混淆之后是非常难以捕捉的。在上一节中,我们介绍了断点调试、调用栈查看等技巧,但仅仅凭借这些技巧还不足以应对多数 JavaScript 逆向。本节中,我们再来介绍一个比较常用的JavaScript 逆向技巧—————Hook 技术。</p>
+<p class="content-text">在JavaScript 逆向的时候,我们经常需要追踪某些方法的堆栈调用情况。但在很多情况下,一些JavaScript 变量或者方法名经过混淆之后是非常难以捕捉的。在上一节中,我们介绍了断点调试、调用栈查看等技巧,但仅仅凭借这些技巧还不足以应对多数 JavaScript 逆向。本节中,我们再来介绍一个比较常用的JavaScript 逆向技巧——Hook 技术。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Hook 技术</h3>
 <p class="content-text">Hook 技术又叫钩子技术,指在程序运行的过程中,对其中的某个方法进行重写,在原先的方法前后加入我们自定义的代码。相当于在系统没有调用该函数之前,钩子程序就先捕获该消息,得到控制权,这时钩子函数既可以加工处理(改变)该函数的执行行为,也可以强制结束消息的传递。要对 JavaScript 代码进行Hook操作,就需要额外在页面中执行一些有关Hook逻辑的自定义代码。那么问题来了?怎样才能在浏览器中方便地执行我们所期望执行的JavaScript代码呢?这里推荐一个插件,叫作 Tampermonkey。这个插件的功能非常强大,利用它我们几乎可以在网页中执行任何JavaScript 代码,实现我们想要的功能。下面我们就来介绍一下这个插件的使用方法,并结合一个实际案例,介绍这个插件在 JavaScript Hook 中的用途。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Tampermonkey</h3>
-<p class="content-text">Tampermonkey,中文也叫“油猴”,它是一款浏览器插件,支持Chrome。利用它,我们可以在浏</p>
-<p class="content-text">览器加载页面时自动执行某些 JavaScript脚本。由于执行的是JavaScript,所以我们几乎可以在网页中完成任何我们想实现的效果,如自动爬虫、自动修改页面、自动响应事件等。其实,Tampermonkey 的用途远远不止这些,只要我们想要的功能能用 JavaScript实现,Tampermonkey 就可以帮我们做到。比如,我们可以将 Tampermonkey 应用到 JavaScript 逆向分析中,去帮助我们更方便地分析一些JavaScript 加密和混淆代码。</p>
+<p class="content-text">Tampermonkey,中文也叫“油猴”,它是一款浏览器插件,支持Chrome。利用它,我们可以在浏览器加载页面时自动执行某些 JavaScript脚本。由于执行的是JavaScript,所以我们几乎可以在网页中完成任何我们想实现的效果,如自动爬虫、自动修改页面、自动响应事件等。其实,Tampermonkey 的用途远远不止这些,只要我们想要的功能能用 JavaScript实现,Tampermonkey 就可以帮我们做到。比如,我们可以将 Tampermonkey 应用到 JavaScript 逆向分析中,去帮助我们更方便地分析一些JavaScript 加密和混淆代码。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 安装 Tampermonkey</h3>
@@ -740,7 +707,12 @@ t.totaln
 <p class="content-text list-like">@require: 附加脚本网址,相当于引入外部的脚本,这些脚本会在自定义脚本执行之前执行,比如引入一些必需的库,如 jQuery 等,这里可以支持配置多个 @require 参数。例如:// @require https://code.jquery.com/jquery-2.1.4.min.js// @require https://code.jquery.com/jquery-2.1.3.min.js#sha256=23456...// @require https://code.jquery.com/jquery-2.1.2.min.js#md5=34567...,sha256=6789...</p>
 <p class="content-text list-like"><strong class="term-label">@resource:</strong>预加载资源,可通过 GM_getResourceURL 和 GM_getResourceText 读取。</p>
 <p class="content-text list-like"><strong class="term-label">@connect:</strong>允许被 GM_xmlhttpRequest 访问的域名,每行 1 个。</p>
-<p class="content-text list-like">@run-at: 脚本注入的时刻,如页面刚加载时、某个事件发生后等。■ document-start: 尽可能地早执行此脚本。■ document-body: DOM 的 body 出现时执行。■ document-end: DOMContentLoaded 事件发生时或发生后执行。■ document-idle: DOMContentLoaded 事件发生后执行,即 DOM 加载完成之后执行,这是默认的选项。■ context-menu: 如果在浏览器上下文菜单 (仅限桌面 Chrome 浏览器) 中点击该脚本,则会注入该脚本。注意:如果使用此值,则忽略所有 @include 和 @exclude 语句。</p>
+<p class="content-text list-like">@run-at: 脚本注入的时刻,如页面刚加载时、某个事件发生后等。</p>
+<p class="content-text list-like">document-start: 尽可能地早执行此脚本。</p>
+<p class="content-text list-like">document-body: DOM 的 body 出现时执行。</p>
+<p class="content-text list-like">document-end: DOMContentLoaded 事件发生时或发生后执行。</p>
+<p class="content-text list-like">document-idle: DOMContentLoaded 事件发生后执行,即 DOM 加载完成之后执行,这是默认的选项。</p>
+<p class="content-text list-like">context-menu: 如果在浏览器上下文菜单 (仅限桌面 Chrome 浏览器) 中点击该脚本,则会注入该脚本。注意:如果使用此值,则忽略所有 @include 和 @exclude 语句。</p>
 <p class="content-text list-like">@grant: 用于添加 GM 函数到白名单,相当于授权某些 GM 函数的使用权限。例如:// @grant GM_setValue// @grant GM_getValue// @grant GM_setClipboard// @grant unsafeWindow// @grant window.close// @grant window.focus如果没有定义过 @grant 选项, Tampermonkey 会猜测所需要的函数使用情况。</p>
 <p class="content-text list-like"><strong class="term-label">@noframes:</strong>此标记使脚本在主页面上运行,但不会在 iframe 上运行。</p>
 <p class="content-text list-like">@nocompat: 由于部分代码可能是为专门的浏览器所写,通过此标记,Tampermonkey 会知道脚本可以运行的浏览器。例如:// @nocompat Chrome这样就指定了脚本只在 Chrome 浏览器中运行。除此之外,Tampermonkey 还定义了一些 API,使得我们可以方便地完成某个操作。</p>
@@ -791,8 +763,8 @@ var ret = func.apply(object, arguments)</code></pre>
 }
 hook(window, 'btoa')
 })()</code></pre>
-<p class="content-text">首先,我们定义了一些UserScript Header,包括@name 和@match等。这里比较重要的就是@name,表示脚本名称;另外一个就是@match,它代表脚本生效的网址。接着,我们定义了 hook方法,这里给其传入 object 和 attr参数,意思就是 Hook object 对象的attr参数。例如,如果我们想 Hook alert 方法,那就把 object 设置为 window,把attr 设置为字符串 alert。这里我们想要 Hook Base64 的编码方法,而在JavaScript中,Based64编码是用 btoa 方法实现的,所以这里只需要 Hook window 对象的 btoa 方法就好了。那么,Hook 是怎么实现的呢?我们来看一下,var func = object[attr],相当于我们先把它赋值为一个变量,即我们调用 func 方法就可以实现和原来相同的功能。接着,我们直接改写这个方法的定义,将 object[attr]改写成一个新的方法。在新的方法中,通过func.apply方法又重新调用了原来的方法。这样我们就可以保证前后方法的执行效果不影响,之前这个方法该干啥还干啥。但是和之前不同的是,现在我们自定义方法之后,可以在 func 方法执行前后加入自己的代码,如通过 console.log将信息输出到控制台,通过 debugger 进入断点等。在这个过程中,我们先临时保存下来 func 方法,然后定义一个新的方法,接管程序控制权,在其中自定义我们想要的实现,同时在新的方法里面重新调回 func 方法,保证前后结果不影响。所以,我们达到了在不影响原有方法效果的前提下,实现在方法前后自定义的功能,这就是Hook 的过程。</p>
-<p class="content-text">最后,我们调用 hook方法,传入 window 对象和btoa 字符串,保存。接下来刷新页面,这时我们可以看到这个脚本在当前页面生效了,Tempermonkey 插件面板提示了已经启用。同时,在Sources 面板下的 Page 选项卡中,可以观察到我们定义的JavaScript 脚本被执行了,如图11-47所示。</p>
+<p class="content-text">首先,我们定义了一些UserScript Header,包括@name 和@match等。这里比较重要的就是@name,表示脚本名称;另外一个就是@match,它代表脚本生效的网址。接着,我们定义了 hook方法,这里给其传入 object 和 attr参数,意思就是 Hook object 对象的attr参数。例如,如果我们想 Hook alert 方法,那就把 object 设置为 window,把attr 设置为字符串 alert。这里我们想要 Hook Base64 的编码方法,而在JavaScript中,Base64编码是用 btoa 方法实现的,所以这里只需要 Hook window 对象的 btoa 方法就好了。那么,Hook 是怎么实现的呢?我们来看一下,var func = object[attr],相当于我们先把它赋值为一个变量,即我们调用 func 方法就可以实现和原来相同的功能。接着,我们直接改写这个方法的定义,将 object[attr]改写成一个新的方法。在新的方法中,通过func.apply方法又重新调用了原来的方法。这样我们就可以保证前后方法的执行效果不影响,之前这个方法该干啥还干啥。但是和之前不同的是,现在我们自定义方法之后,可以在 func 方法执行前后加入自己的代码,如通过 console.log将信息输出到控制台,通过 debugger 进入断点等。在这个过程中,我们先临时保存下来 func 方法,然后定义一个新的方法,接管程序控制权,在其中自定义我们想要的实现,同时在新的方法里面重新调回 func 方法,保证前后结果不影响。所以,我们达到了在不影响原有方法效果的前提下,实现在方法前后自定义的功能,这就是Hook 的过程。</p>
+<p class="content-text">最后,我们调用 hook方法,传入 window 对象和btoa 字符串,保存。接下来刷新页面,这时我们可以看到这个脚本在当前页面生效了,Tampermonkey 插件面板提示了已经启用。同时,在Sources 面板下的 Page 选项卡中,可以观察到我们定义的JavaScript 脚本被执行了,如图11-47所示。</p>
 <figure class="inline-figure"><img alt="图11-47 Sources 面板下的Page 选项卡" loading="lazy" src="figures/ch11/fig-11_47.jpg"/><figcaption>图11-47 Sources 面板下的Page 选项卡</figcaption></figure>
 <p class="content-text">输入用户名和密码,然后点击“登录”按钮,成功进入断点模式并停下来了,代码就卡在我们自定义的 debugger 这行代码的位置,如图11-48所示。</p>
 <figure class="inline-figure"><img alt="图11-48 断点模式" loading="lazy" src="figures/ch11/fig-11_48.jpg"/><figcaption>图11-48 断点模式</figcaption></figure>
@@ -812,7 +784,7 @@ hook(window, 'btoa')
 }</code></pre>
 <p class="content-text">仔细看看,encode 方法其实就是调用了 btoa 方法,就是一个 Base64 编码的过程,答案其实已经很明了了。当然,我们还可以进一步添加断点验证一下流程,比如在调用 encode 方法的那行添加断点,如图11-52所示。</p>
 <figure class="inline-figure"><img alt="图11-52 添加断点" loading="lazy" src="figures/ch11/fig-11_52.jpg"/><figcaption>图11-52 添加断点</figcaption></figure>
-<p class="content-text">添加断点之后,可以点击 Resume script execution 按钮恢复 JavaScript 的执行,跳过当前 Tempermonkey定义的断点位置。</p>
+<p class="content-text">添加断点之后,可以点击 Resume script execution 按钮恢复 JavaScript 的执行,跳过当前 Tampermonkey定义的断点位置。</p>
 <figure class="inline-figure"><img alt="图11-53 Resume script execution 按钮" loading="lazy" src="figures/ch11/fig-11_53.jpg"/><figcaption>图11-53 Resume script execution 按钮</figcaption></figure>
 <p class="content-text">然后重新点击“登录”按钮,可以看到这时候代码就停在当前添加断点的位置。</p>
 <figure class="inline-figure"><img alt="图11-54 代码停在当前添加断点的位置" loading="lazy" src="figures/ch11/fig-11_54.jpg"/><figcaption>图11-54 代码停在当前添加断点的位置</figcaption></figure>
@@ -825,10 +797,13 @@ hook(window, 'btoa')
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">以上便是通过 Tampermonkey 实现简单Hook的基础操作。当然,这仅仅是一个常见的基础案例,我们可以从中总结出一些Hook 的基本门道。由于本节涉及一些专有名词,部分内容参考如下。□ 简书上的“Hook技术”文章。□ Tampermonkey官网。□ MDN Web Docs 网站上 Base64编码。</p>
+<p class="content-text">以上便是通过 Tampermonkey 实现简单Hook的基础操作。当然,这仅仅是一个常见的基础案例,我们可以从中总结出一些Hook 的基本门道。由于本节涉及一些专有名词,部分内容参考如下。</p>
+<p class="content-text list-like">简书上的“Hook技术”文章。</p>
+<p class="content-text list-like">Tampermonkey官网。</p>
+<p class="content-text list-like">MDN Web Docs 网站上 Base64编码。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>11.4 无限 debugger 的原理与绕过</h2></div>
-<p class="content-text">在上一节的学习过程中,你可能注意到了一个知识点———————debugger 关键字的作用。debugger 是JavaScript 中定义的一个专门用于断点调试的关键字,只要遇到它,JavaScript 的执行便会在此处中断,进入调试模式。有了 debugger 这个关键字,我们就可以非常方便地对 JavaScript 代码进行调试,比如使用JavaScript Hook时,我们可以加入debugger 关键字,使其在关键的位置停下来,以便查找逆向突破口。但有时候,debugger 会被网站开发者利用,使其成为阻挠我们正常调试的拦路虎。本节中,我们介绍一个案例来绕过无限 debugger。</p>
+<p class="content-text">在上一节的学习过程中,你可能注意到了一个知识点——debugger 关键字的作用。debugger 是JavaScript 中定义的一个专门用于断点调试的关键字,只要遇到它,JavaScript 的执行便会在此处中断,进入调试模式。有了 debugger 这个关键字,我们就可以非常方便地对 JavaScript 代码进行调试,比如使用JavaScript Hook时,我们可以加入debugger 关键字,使其在关键的位置停下来,以便查找逆向突破口。但有时候,debugger 会被网站开发者利用,使其成为阻挠我们正常调试的拦路虎。本节中,我们介绍一个案例来绕过无限 debugger。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 案例介绍</h3>
 <p class="content-text">我们先看一个案例,网址是https://antispider8.scrape.center/,打开这个网站,一般操作和之前的网站没有什么不同。但是,一旦我们打开开发者工具,就发现它立即进入了断点模式,如图11-57所示。</p>
@@ -861,7 +836,7 @@ hook(window, 'btoa')
 <figure class="inline-figure"><img alt="图11-66 Add conditional breakpoint 选项" loading="lazy" src="figures/ch11/fig-11_66.jpg"/><figcaption>图11-66 Add conditional breakpoint 选项</figcaption></figure>
 <p class="content-text">这个模式更加高级,我们可以设置进入断点的条件,比如在调试过程中,期望某个变量的值大于某个具体值的时候才停下来。但在本案例中,由于这里是无限循环,我们没有什么具体的变量可以作为判定依据,因此可以直接写一个简单的表达式来控制。选择 Add conditional breakpoint 选项,直接填入false即可,如图11-67所示。</p>
 <figure class="inline-figure"><img alt="图11-67 设置 Conditional breakpoint 为false" loading="lazy" src="figures/ch11/fig-11_67.jpg"/><figcaption>图11-67 设置 Conditional breakpoint 为false</figcaption></figure>
-<p class="content-text">此时其效果就和选择 Never pause here 选项一样,重新点击 Resume script execution 按钮,也不会进入无限 Debbugger 循环了。</p>
+<p class="content-text">此时其效果就和选择 Never pause here 选项一样,重新点击 Resume script execution 按钮,也不会进入无限 Debugger 循环了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 替换文件</h3>
@@ -938,7 +913,9 @@ print(execjs.get().name)</code></pre>
     return encrypted.toString();
 }</code></pre>
 <p class="content-text">因为这个方法的模拟执行需要 CryptoJS 这个对象,如果我们直接调用这个方法,肯定会报CryptoJS 未定义的错误。怎么办呢?我们只需要再模拟执行一下刚才看到的crypto-js.min.js 不就好了吗?</p>
-<p class="content-text">因此,我们需要模拟执行的内容就是以下两部分。□ 模拟运行 crypto-js.min.js里面的JavaScript,用于声明 CryptoJS 对象。□ 模拟运行 getToken方法的定义,用于声明 getToken方法。接下来,我们就把 crypto-js.min.js里面的代码和上面 getToken 方法的代码复制一下,都粘贴到一个JavaScript 文件里面,比如就叫作 crypto.js。接下来,我们就用PyExecJS 模拟执行一下,代码如下:</p>
+<p class="content-text">因此,我们需要模拟执行的内容就是以下两部分。</p>
+<p class="content-text list-like">模拟运行 crypto-js.min.js里面的JavaScript,用于声明 CryptoJS 对象。</p>
+<p class="content-text list-like">模拟运行 getToken方法的定义,用于声明 getToken方法。接下来,我们就把 crypto-js.min.js里面的代码和上面 getToken 方法的代码复制一下,都粘贴到一个JavaScript 文件里面,比如就叫作 crypto.js。接下来,我们就用PyExecJS 模拟执行一下,代码如下:</p>
 <pre class="code-block"><code>import execjs
 import json</code></pre>
 <pre class="code-block"><code>item = {
@@ -1010,8 +987,7 @@ const player = {</code></pre>
 <p class="content-text"> name:"凯文-杜兰特",image: "durant.png",birthday: "1988-09-29",height: "208cm",weight: "108.9KG"</p>
 <pre class="code-block"><code>}
 console.log(getToken(player))</code></pre>
-<p class="content-text">这里我们直接使用Node.js中的 require 方法导入crypto.js这个文件,然后将其赋值为 CryptoJS 对</p>
-<p class="content-text">象,这样其实就完成了 CryptoJS 对象的初始化了,后面我们就可以正常使用 CryptoJS 对象了。这时候读者可能会有疑惑:上一节中我们用的PyExecJS的底层也是用Node.js 模拟的呀?在上一节中,我们需要修改代码才能完成 CryptoJS的初始化,那这次为什么什么都不用修改就能完成CryptoJS 的初始化呢?继续回过头来观察 crypto.js中最开头的定义:</p>
+<p class="content-text">这里我们直接使用Node.js中的 require 方法导入crypto.js这个文件,然后将其赋值为 CryptoJS 对象,这样其实就完成了 CryptoJS 对象的初始化了,后面我们就可以正常使用 CryptoJS 对象了。这时候读者可能会有疑惑:上一节中我们用的PyExecJS的底层也是用Node.js 模拟的呀?在上一节中,我们需要修改代码才能完成 CryptoJS的初始化,那这次为什么什么都不用修改就能完成CryptoJS 的初始化呢?继续回过头来观察 crypto.js中最开头的定义:</p>
 <pre class="code-block"><code>!(function (t, e) {</code></pre>
 <p class="content-text">    "object" == typeof exports</p>
 <pre class="code-block"><code>? (module.exports = exports = e())</code></pre>
@@ -1075,7 +1051,7 @@ print(response.text)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">本节中,我们介绍了利用 Node.js 进行JavaScript 模拟的方法,并介绍了Node.js 和 Python 进行对接的方式——通过 express 暴露 HTTP服务。此种方案对于JavaScript 的兼容性也会更好,对于模拟执行JavaScript 也会更加方便。本节代码参见:https://github.com/Python3 WebSpider/ScrapeSpa7。</p>
+<p class="content-text">本节中,我们介绍了利用 Node.js 进行JavaScript 模拟的方法,并介绍了Node.js 和 Python 进行对接的方式——通过 express 暴露 HTTP服务。此种方案对于JavaScript 的兼容性也会更好,对于模拟执行JavaScript 也会更加方便。本节代码参见:https://github.com/Python3WebSpider/ScrapeSpa7。</p>
 </section>
 <div class="section-heading" id="section-6"><h2>11.7 浏览器环境下 JavaScript 的模拟执行</h2></div>
 <p class="content-text">在前面两节中,我们了解了利用PyExecJS 和 Node.js 对 JavaScript 进行模拟执行的方法,但在某些复杂的情况下可能还是有一定的局限性。</p>
@@ -1083,7 +1059,9 @@ print(response.text)</code></pre>
 <h3 class="subsection-heading numbered-heading">1. 分析</h3>
 <p class="content-text">比如说:我们在浏览器中找到了一个类似的加密算法,其生成逻辑如下:</p>
 <pre class="code-block"><code>const token = encrypt(a, b)</code></pre>
-<p class="content-text">我们最终需要获取的就是 token 这个变量究竟是什么。这个token 模拟出来了,就可以直接拿着去构造请求进行数据爬取了。但这个 token 是由一个 encrypt 方法返回的,参数是a和b。对于参数a和b,我们可能比较容易找到它们是怎么生成的,但是这个encrypt 方法非常复杂,其内部又关联了许多变量和对象,甚至方法内部的逻辑也进行了混淆等操作,向内追踪非常困难。这时候如果我们要用Python 和 Node.js 来模拟整个调用过程,关键其实就两步:□ 把所有的依赖库都下载到本地;■使用PyExecJS 或 Node.js 来加载依赖库并模拟调用 encrypt方法。但在某些情况下可能存在一定的问题,我们分两个方面来进行探讨。</p>
+<p class="content-text">我们最终需要获取的就是 token 这个变量究竟是什么。这个token 模拟出来了,就可以直接拿着去构造请求进行数据爬取了。但这个 token 是由一个 encrypt 方法返回的,参数是a和b。对于参数a和b,我们可能比较容易找到它们是怎么生成的,但是这个encrypt 方法非常复杂,其内部又关联了许多变量和对象,甚至方法内部的逻辑也进行了混淆等操作,向内追踪非常困难。这时候如果我们要用Python 和 Node.js 来模拟整个调用过程,关键其实就两步:</p>
+<p class="content-text list-like">把所有的依赖库都下载到本地;</p>
+<p class="content-text list-like">使用PyExecJS 或 Node.js 来加载依赖库并模拟调用 encrypt方法。但在某些情况下可能存在一定的问题,我们分两个方面来进行探讨。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">环境差异</h4>
 <p class="content-text">前面提到过,Node.js 中没有全局 window对象,取而代之的是global 对象。如果 JavaScript 文件中有任何引用 window对象的方法,就没法在Node.js 环境中运行。我们需要做的就是把window 对象改写成 global 对象,或者把一些浏览器中的对象用——其他方法代替。</p>
@@ -1150,8 +1128,7 @@ result = page.evaluate('''() =&gt; {
 return window.encrypt("%s", "%s")
 }''' % ('/api/movie', offset))
 return result</code></pre>
-<p class="content-text">这里我们声明了 get_token 方法,经过上文的分析,模拟执行方法需要传入两个参数,第一个参</p>
-<p class="content-text">数是固定值/api/movie,另一个参数是变值,所以将其当作参数传入。在模拟执行的过程中,我们直接使用 page 对象的 evaluate 方法,传入JavaScript 字符串即可,这个 JavaScript 字符串是一个方法,返回的就是 window.encrypt 方法的执行结果。最后将结果赋给result 变量,并返回。到此为止,核心代码就说完了。最后,我们只需要完善一下逻辑,将上面的代码串联调用即可。最终整理的代码如下:</p>
+<p class="content-text">这里我们声明了 get_token 方法,经过上文的分析,模拟执行方法需要传入两个参数,第一个参数是固定值/api/movie,另一个参数是变值,所以将其当作参数传入。在模拟执行的过程中,我们直接使用 page 对象的 evaluate 方法,传入JavaScript 字符串即可,这个 JavaScript 字符串是一个方法,返回的就是 window.encrypt 方法的执行结果。最后将结果赋给result 变量,并返回。到此为止,核心代码就说完了。最后,我们只需要完善一下逻辑,将上面的代码串联调用即可。最终整理的代码如下:</p>
 <pre class="code-block" data-lang="python"><code>from playwright.sync_api import sync_playwright
 import time
 import requests
@@ -1198,31 +1175,44 @@ for i in range(MAX_PAGE):
 <p class="content-text">本节中,我们介绍了在浏览器环境中模拟执行 JavaScript 来辅助 JavaScript 逆向的方法,这会在一定程度上减轻逆向的压力。熟练掌握此技能,我们可以少走很多弯路。</p>
 </section>
 <div class="section-heading" id="section-7"><h2>11.8 AST 技术简介</h2></div>
-<p class="content-text">前面我们介绍了一些JavaScript 混淆的基本知识,可以看到混淆方式多种多样,比如字符串混淆、变量名混淆、对象键名替换、控制流平坦化等。当然,我们也学习了一些相关的调试技巧,比如1 Hook、断点调试等。但是这些方法本质上其实还是在已经混淆的代码上进行的操作,所以代码的可读性依然比较差。有没有什么办法可以直接提高代码的可读性呢?比如说,字符串混淆了,我们想办法把它还原了;对象键名替换了,我们想办法把它们重新组装好,控制流平坦化之后逻辑不直观了,我们想办法把它还原成一个代码控制流。到底应该怎么做呢?这就需要用到AST 相关的知识了。本节中,我们就来了解AST 相关的基础知识,并介绍操作AST的相关方法。</p>
+<p class="content-text">前面我们介绍了一些JavaScript 混淆的基本知识,可以看到混淆方式多种多样,比如字符串混淆、变量名混淆、对象键名替换、控制流平坦化等。当然,我们也学习了一些相关的调试技巧,比如 Hook、断点调试等。但是这些方法本质上其实还是在已经混淆的代码上进行的操作,所以代码的可读性依然比较差。有没有什么办法可以直接提高代码的可读性呢?比如说,字符串混淆了,我们想办法把它还原了;对象键名替换了,我们想办法把它们重新组装好,控制流平坦化之后逻辑不直观了,我们想办法把它还原成一个代码控制流。到底应该怎么做呢?这就需要用到AST 相关的知识了。本节中,我们就来了解AST 相关的基础知识,并介绍操作AST的相关方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. AST 介绍</h3>
-<p class="content-text">首先,我们来了解什么是AST。AST的全称叫作 Abstract Syntax Tree,中文翻译叫作抽象语法树。如果你对编译原理有所了解的话,一段代码在执行之前,通常要经历这么三个步骤。□ 词法分析:一段代码首先会被分解成一段段有意义的词法单元,比如说 const name = 'Germey'这段代码,它就可以被拆解成四部分:const、name、=、'Germey',每一个部分都具备一定的含义。□ 语法分析:接着编译器会尝试对一个个词法单元进行语法分析,将其转换为能代表程序语法结构的数据结构。比如,const 就被分析为 VariableDeclaration 类型,代表变量声明的具体定义;name 就被分析为 Identifier类型,代表一个标识符。代码内容多了,这一个个词法就会有依赖、嵌套等关系,因此表示语法结构的数据结构就构成了一个树状的结构,也就成了语法树,即AST。□ 指令生成:最后将AST转换为实际真正可执行的指令并执行即可。AST 是源代码的抽象语法结构的树状表示,树上的每个节点都表示源代码中的一种结构,这种数据结构其实可以类别成一个大的JSON对象。前面我们也介绍过JSON对象,它可以包含列表、字典并且层层嵌套,因此它看起来就像一棵树,有树根、树干、树枝和树叶,无论多大,都是一棵完整的树。在前端开发中,AST技术应用非常广泛,比如 webpack 打包工具的很多压缩和优化插件、Babel 插件、Vue 和React 的脚手架工具的底层等都运用了AST技术。有了AST,我们可以方便地对 JavaScript代码进行转换和改写,因此还原混淆后的JavaScript代码也就不在话下了。接下来,我们通过一些实例了解AST的一些基本理念和操作。</p>
+<p class="content-text">首先,我们来了解什么是AST。AST的全称叫作 Abstract Syntax Tree,中文翻译叫作抽象语法树。如果你对编译原理有所了解的话,一段代码在执行之前,通常要经历这么三个步骤。</p>
+<p class="content-text list-like">词法分析:一段代码首先会被分解成一段段有意义的词法单元,比如说 const name = 'Germey'这段代码,它就可以被拆解成四部分:const、name、=、'Germey',每一个部分都具备一定的含义。</p>
+<p class="content-text list-like">语法分析:接着编译器会尝试对一个个词法单元进行语法分析,将其转换为能代表程序语法结构的数据结构。比如,const 就被分析为 VariableDeclaration 类型,代表变量声明的具体定义;name 就被分析为 Identifier类型,代表一个标识符。代码内容多了,这一个个词法就会有依赖、嵌套等关系,因此表示语法结构的数据结构就构成了一个树状的结构,也就成了语法树,即AST。</p>
+<p class="content-text list-like">指令生成:最后将AST转换为实际真正可执行的指令并执行即可。AST 是源代码的抽象语法结构的树状表示,树上的每个节点都表示源代码中的一种结构,这种数据结构其实可以类比成一个大的JSON对象。前面我们也介绍过JSON对象,它可以包含列表、字典并且层层嵌套,因此它看起来就像一棵树,有树根、树干、树枝和树叶,无论多大,都是一棵完整的树。在前端开发中,AST技术应用非常广泛,比如 webpack 打包工具的很多压缩和优化插件、Babel 插件、Vue 和React 的脚手架工具的底层等都运用了AST技术。有了AST,我们可以方便地对 JavaScript代码进行转换和改写,因此还原混淆后的JavaScript代码也就不在话下了。接下来,我们通过一些实例了解AST的一些基本理念和操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 实例引入</h3>
 <p class="content-text">首先,推荐一个AST 在线解析的网站 https://astexplorer.net/,我们先通过一个非常简单的实例来感受下AST 究竟是什么样子的。输入上述的示例代码:const name = 'Germey'这时候我们就可以看到在右侧就出现了一个树状结构,这就是AST,如图11-81所示。</p>
 <figure class="inline-figure"><img alt="图11-81 AST 树状结构" loading="lazy" src="figures/ch11/fig-11_81.jpg"/><figcaption>图11-81 AST 树状结构</figcaption></figure>
-<p class="content-text">OCR of <code class="inline-code">D:\LearnPythonWebSpider\website\chapters\images\ch11\page-065.jpg</code>I apologize, but I am unable to perform the OCR task as requested. I have attempted to execute the OCR script and directly send an OCR prompt through available agents, but I consistently encounter errors or limitations that prevent me from successfully running the necessary commands or accessing direct OCR functionality. I do not have the capability to execute shell commands directly, nor can my sub-agents.</p>
 <p class="content-text">接着,我们需要在 learn-ast 目录下创建一个.babelrc文件,其内容如下:</p>
 <pre class="code-block"><code>{
-"presets": [</code></pre>
-<p class="content-text">    "@babel/preset-env"</p>
-<pre class="code-block"><code>]
+"presets": [
+    "@babel/preset-env"
+]
 }</code></pre>
 <p class="content-text">这样我们就完成了初始化操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 节点类型</h3>
-<p class="content-text">在刚才的示例中,我们看到不同的代码词法单元被解析成了不同的类型,所以这里先简单列举Babel 中所支持的一些类型。□ Literal:中文可以理解为字面量,即简单的文字表示,比如3、"abc"、null、true 这些都是基本的字面表示。它又可以进一步分为 RegExpLiteral、NullLiteral、StringLiteral、BooleanLiteral、NumericLiteral、BigIntLiteral 等类型,更确切地代表某一种字面量。□ Declarations:声明,比如 FunctionDeclaration 和 VariableDeclaration 分别用于声明一个方法和变量。□ Expressions:表达式,它本身会返回一个计算结果,通常有两个作用:一个是放在赋值语句的右边进行赋值,另外还可以作为方法的参数。比如LogicalExpression、ConditionalExpression、ArrayExpression 等分别代表逻辑运算表达式、三元运算表达式、数组表达式。另外,还有一些特殊的表达式,如YieldExpression、AwaitExpression、ThisExpression。□ Statements:语句,比如IfStatement、SwitchStatement、BreakStatement 这些控制语句,还有一些特殊的语句,比如 DebuggerStatement、BlockStatement 等。□ Identifier:标识符,指代一些变量的名称,比如说上述例子中 name 就是一个Identifier。□ Classes:类,代表一个类的定义,包括 Class、ClassBody、ClassMethod、ClassProperty 等具体类型。□ Functions:方法声明,它一般代表 FunctionDeclaration 或 FunctionExpression 等具体类型。□ Modules:模块,可以理解为一个Node.js模块,包括 ModuleDeclaration、ModuleSpecifier 等具体类型。□ Program:程序,整个代码可以成为Program。当然,除此之外还有很多类型,具体可以参考 https://babeljs.io/docs/en/babel-types。</p>
+<p class="content-text">在刚才的示例中,我们看到不同的代码词法单元被解析成了不同的类型,所以这里先简单列举Babel 中所支持的一些类型。</p>
+<p class="content-text list-like">Literal:中文可以理解为字面量,即简单的文字表示,比如3、"abc"、null、true 这些都是基本的字面表示。它又可以进一步分为 RegExpLiteral、NullLiteral、StringLiteral、BooleanLiteral、NumericLiteral、BigIntLiteral 等类型,更确切地代表某一种字面量。</p>
+<p class="content-text list-like">Declarations:声明,比如 FunctionDeclaration 和 VariableDeclaration 分别用于声明一个方法和变量。</p>
+<p class="content-text list-like">Expressions:表达式,它本身会返回一个计算结果,通常有两个作用:一个是放在赋值语句的右边进行赋值,另外还可以作为方法的参数。比如LogicalExpression、ConditionalExpression、ArrayExpression 等分别代表逻辑运算表达式、三元运算表达式、数组表达式。另外,还有一些特殊的表达式,如YieldExpression、AwaitExpression、ThisExpression。</p>
+<p class="content-text list-like">Statements:语句,比如IfStatement、SwitchStatement、BreakStatement 这些控制语句,还有一些特殊的语句,比如 DebuggerStatement、BlockStatement 等。</p>
+<p class="content-text list-like">Identifier:标识符,指代一些变量的名称,比如说上述例子中 name 就是一个Identifier。</p>
+<p class="content-text list-like">Classes:类,代表一个类的定义,包括 Class、ClassBody、ClassMethod、ClassProperty 等具体类型。</p>
+<p class="content-text list-like">Functions:方法声明,它一般代表 FunctionDeclaration 或 FunctionExpression 等具体类型。</p>
+<p class="content-text list-like">Modules:模块,可以理解为一个Node.js模块,包括 ModuleDeclaration、ModuleSpecifier 等具体类型。</p>
+<p class="content-text list-like">Program:程序,整个代码可以成为Program。当然,除此之外还有很多类型,具体可以参考 https://babeljs.io/docs/en/babel-types。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. @babel/parser 的使用</h3>
-<p class="content-text">@babel/parser 是Babel 中的JavaScript 解析器,也是一个Node.js包,它提供了一个重要的方法,就是 parse 和 parseExpression 方法,前者支持解析一段 JavaScript 代码,后者则是尝试解析单个JavaScript 表达式并考虑了性能问题。一般来说,我们直接使用 parse 方法就足够了。对于 parse 方法来说,输入和输出如下。□输入:一段 JavaScript 代码。口输出:该段 JavaScript代码对应的抽象语法树,即AST,它基于ESTree 规范。由于 JavaScript 代码中包含多种类型的表达,比如变量名、变量值、方法声明、控制语句、类声明等。这里简单做下归类,具体可以参考:https://github.com/babel/babel/blob/master/packages/babel-parser/ast/spec.md。现在我们来测试一下。新建一个 JavaScript文件,将其保存为 codes/codel.js,其内容如下:</p>
+<p class="content-text">@babel/parser 是Babel 中的JavaScript 解析器,也是一个Node.js包,它提供了一个重要的方法,就是 parse 和 parseExpression 方法,前者支持解析一段 JavaScript 代码,后者则是尝试解析单个JavaScript 表达式并考虑了性能问题。一般来说,我们直接使用 parse 方法就足够了。对于 parse 方法来说,输入和输出如下。</p>
+<p class="content-text list-like">输入:一段 JavaScript 代码。</p>
+<p class="content-text list-like">输出:该段 JavaScript代码对应的抽象语法树,即AST,它基于ESTree 规范。由于 JavaScript 代码中包含多种类型的表达,比如变量名、变量值、方法声明、控制语句、类声明等。这里简单做下归类,具体可以参考:https://github.com/babel/babel/blob/master/packages/babel-parser/ast/spec.md。现在我们来测试一下。新建一个 JavaScript文件,将其保存为 codes/codel.js,其内容如下:</p>
 <pre class="code-block" data-lang="javascript"><code>const a = 3;
 let string = "hello";
 for (let i = 0; i &lt; a; i++) {
@@ -1553,7 +1543,7 @@ console.log(output);</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 总结</h3>
 <p class="content-text">至此,我们就把Babel库中有关AST操作的方法都介绍完了,内容还不少,需要好好梳理和消化。熟练应用如上方法之后,我们就可以灵活地对 JavaScript 代码进行处理和转换。进一步地,将其应用到 JavaScript 的反混淆中也是可以的。</p>
-<p class="content-text">在下一节中,我们就来了解AST 如何进行混淆代码的还原。本节代码参见:http://github.com/Python3 WebSpider/LearnAST。</p>
+<p class="content-text">在下一节中,我们就来了解AST 如何进行混淆代码的还原。本节代码参见:http://github.com/Python3WebSpider/LearnAST。</p>
 </section>
 <div class="section-heading" id="section-8"><h2>11.9 使用 AST 技术还原混淆代码</h2></div>
 <p class="content-text">在上一节中,我们介绍了AST相关的基本知识和基础的操作方法,本节中我们就来实际应用这些方法来还原 JavaScript 混淆后的代码,即一些反混淆的实现。</p>
@@ -1720,7 +1710,8 @@ switch (s[x++]) {</code></pre>
 <p class="content-text">所以说,代码真正的执行顺序其实是:</p>
 <p class="content-text">const c = 0;const a = 1;const b = 3;</p>
 <p class="content-text">而经过控制流平坦化之后,代码原本的执行顺序就被混淆了,我们一眼不能看出真正的执行顺序。要进行代码的还原,我们就需要做如下处理。</p>
-<p class="content-text list-like">首先找到 switch语句相关节点,拿到对应的节点对象,比如各个 case 语句对应的代码区块。■分析 switch语句判定条件s变量的对应的列表结果,比如将"3|1|2".split("|")转化为["3","1", "2"]。</p>
+<p class="content-text list-like">首先找到 switch语句相关节点,拿到对应的节点对象,比如各个 case 语句对应的代码区块。</p>
+<p class="content-text list-like">分析 switch语句判定条件s变量的对应的列表结果,比如将"3|1|2".split("|")转化为["3","1", "2"]。</p>
 <p class="content-text list-like">遍历s变量对应的列表,将其和各个 case 语句进行匹配,顺序得到对应的代码区块并保存。</p>
 <p class="content-text list-like">用上一步得到的代码替换原来的代码即可。注意上述思路虽然看起来是专门为当前示例代码设计的还原方案,但其实其对应的逻辑就是混淆工具 obfuscator 的常用套路,都是先用一个类似b|a|c这样的字符串,然后调用split 方法得到一个列表,再使用switch语句来匹配列表的每一个元素并执行对应的代码。所以,上述解决方案其实也可以算作较为通用的解决方案。接下来,我们分析一下。首先,还是把上述代码粘贴到 https://astexplorer.net/分析一下,while 语句就不再赘述了,它就是一个无限循环。我们看看 switch语句的结构,如图11-85所示。</p>
 <figure class="inline-figure"><img alt="图11-85 switch语句的结构" loading="lazy" src="figures/ch11/fig-11_85.jpg"/><figcaption>图11-85 switch语句的结构</figcaption></figure>
@@ -1825,7 +1816,7 @@ console.log(output);</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 总结</h3>
-<p class="content-text">在本节中,我们通过四个案例讲解了利用AST还原混淆代码的过程。案例虽然基础,但是其中的思路值得深入研究。有了AST的加持,很多混淆代码都有机会被还原得更加简洁、易读,从而能大大降低我们逆向代码的难度。本节代码参见:https://github.com/Python3 WebSpider/Deobfuscate。</p>
+<p class="content-text">在本节中,我们通过四个案例讲解了利用AST还原混淆代码的过程。案例虽然基础,但是其中的思路值得深入研究。有了AST的加持,很多混淆代码都有机会被还原得更加简洁、易读,从而能大大降低我们逆向代码的难度。本节代码参见:https://github.com/Python3WebSpider/Deobfuscate。</p>
 </section>
 <div class="section-heading" id="section-9"><h2>11.10 特殊混淆案例的还原</h2></div>
 <p class="content-text">除了基于javascript-obfuscator 的混淆,还有其他混淆方式,这里介绍几种有代表性的混淆方案(比如AAEncode、JJEncode、JSFuck)的还原方法。</p>
@@ -2024,7 +2015,7 @@ print(runtime)</code></pre>
 runtime = pywasm.load('./Wasm.wasm')
 result = runtime.exec('encrypt', [1, 2])
 print(result)</code></pre>
-<p class="content-text">这里我们调用了 exec方法,第一个参数就是要调用的 wasm 中的方法名,这里我们传入字符串encrypt,第二个参数是一个列表,代表encrypt方法所接收的参数,如果是两个,那么列表长度就是2,参数和列表的元素——————对应即可。运行结果如下:16359调用成功了!成功输出了结果,但是这似乎并不是我们想要的,因为这里传入的参数其实是我们自定义的。要真正模拟网站的Ajax请求,就要用网站里面的真实参数。通过分析逻辑,我们知道传入的参数其实一个是offset,一个是时间戳。其中后者的实现是这样的:</p>
+<p class="content-text">这里我们调用了 exec方法,第一个参数就是要调用的 wasm 中的方法名,这里我们传入字符串encrypt,第二个参数是一个列表,代表encrypt方法所接收的参数,如果是两个,那么列表长度就是2,参数和列表的元素一一对应即可。运行结果如下:16359调用成功了!成功输出了结果,但是这似乎并不是我们想要的,因为这里传入的参数其实是我们自定义的。要真正模拟网站的Ajax请求,就要用网站里面的真实参数。通过分析逻辑,我们知道传入的参数其实一个是offset,一个是时间戳。其中后者的实现是这样的:</p>
 <pre class="result-block"><code>parseInt(Math.round((new Date).getTime() / 1e3).toString())</code></pre>
 <p class="content-text">这是 JavaScript 中的实现,我们将其输出到控制台,可以看到运行结果如图11-118所示</p>
 <figure class="inline-figure"><img alt="图11-118 运行结果" loading="lazy" src="figures/ch11/fig-11_118.jpg"/><figcaption>图11-118 运行结果</figcaption></figure>
@@ -2091,7 +2082,7 @@ print(response.json())</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 总结</h3>
-<p class="content-text">本节中,我们了解了 WebAssembly 的基本概念并分析了一个 WebAssembly 的示例并用Python 模拟执行 wasm 文件实现了数据爬取。本节代码参见:https://github.com/Python3 WebSpider/ScrapeSpa14。</p>
+<p class="content-text">本节中,我们了解了 WebAssembly 的基本概念并分析了一个 WebAssembly 的示例并用Python 模拟执行 wasm 文件实现了数据爬取。本节代码参见:https://github.com/Python3WebSpider/ScrapeSpa14。</p>
 </section>
 <div class="section-heading" id="section-11"><h2>11.12 JavaScript 逆向技巧总结</h2></div>
 <p class="content-text">前面我们已经学习了不少 JavaScript 逆向相关的知识,包括浏览器调试、Hook、AST、无限 debugger的绕过以及 JavaScript 的模拟调用等,这些知识点都比较松散,有时候大家学完了可能觉得没有形成一个知识体系,或者说没有一个常规“套路”来应对一些 JavaScript 逆向的处理流程。本节中,我们就对前面的知识点做一个串联和总结,总结出 JavaScript 逆向过程中常用的一个流程,这个流程适用于大多数 JavaScript 逆向过程。大家熟练运用之后,可以在不同情况下运用不同的技巧来进行 JavaScript 逆向操作。总的来说,JavaScript 逆向可以分为三大部分:寻找入口、调试分析和模拟执行。下面我们来分别介绍。</p>
@@ -2137,7 +2128,7 @@ print(response.json())</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Hook</h4>
-<p class="content-text"> Hook 也是一个非常常用的查找入口的功能。有时候,一些代码搜索或者断点并不能很有效地找到对应的入口位置,这时候就可以使用 Hook 了。比如说,我们可以对一些常用的加密和编码算法、常用的转换操作都进行一些 Hook,比如说 Base64 编码、Cookie 的赋值、JSON 的序列化等。比较方便的 Hook 方式就是通过 TemporMonkey 这个插件实现,使用它我们不仅可以方便地自定义脚本执行的时间点,也可以引入一些额外的脚本来辅助 Hook 代码的编写,具体的实现流程可以参考 11.3 节的内容,这里不再赘述。</p>
+<p class="content-text"> Hook 也是一个非常常用的查找入口的功能。有时候,一些代码搜索或者断点并不能很有效地找到对应的入口位置,这时候就可以使用 Hook 了。比如说,我们可以对一些常用的加密和编码算法、常用的转换操作都进行一些 Hook,比如说 Base64 编码、Cookie 的赋值、JSON 的序列化等。比较方便的 Hook 方式就是通过 Tampermonkey 这个插件实现,使用它我们不仅可以方便地自定义脚本执行的时间点,也可以引入一些额外的脚本来辅助 Hook 代码的编写,具体的实现流程可以参考 11.3 节的内容,这里不再赘述。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">其他</h4>
@@ -2191,7 +2182,7 @@ print(response.json())</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">本节中,我们对本章所学的知识进行了一些串联和总结,通过三大步骤———寻找入口、调试分析、模拟执行来梳理 JavaScript 逆向过程中常用的技巧。另外,我希望大家能多结合实战案例对这些技巧进行运用,熟能生巧。</p>
+<p class="content-text">本节中,我们对本章所学的知识进行了一些串联和总结,通过三大步骤——寻找入口、调试分析、模拟执行来梳理 JavaScript 逆向过程中常用的技巧。另外,我希望大家能多结合实战案例对这些技巧进行运用,熟能生巧。</p>
 </section>
 <div class="section-heading" id="section-12"><h2>11.13 JavaScript 逆向爬取实战</h2></div>
 <p class="content-text">前面我们学习了各种 JavaScript 逆向技巧,本节中我们综合应用之前学习到的知识点进行一次完整的JavaScript 逆向分析和爬取实战。</p>
@@ -2330,7 +2321,7 @@ import time
 import base64
 from typing import List, Any
 import requests</code></pre>
-<pre class="code-block"><code>INDEX URL = 'https://spa6.scrape.center/api/movie?limit={limit}&amp;offset={offset}&amp;token={token}'
+<pre class="code-block"><code>INDEX_URL = 'https://spa6.scrape.center/api/movie?limit={limit}&amp;offset={offset}&amp;token={token}'
 LIMIT = 10
 OFFSET = 0</code></pre>
 <pre class="code-block"><code>def get_token(args: List[Any]):
@@ -2469,7 +2460,7 @@ LIMIT = 10
 OFFSET = 0
 SECRET = 'ef34#teuq0btua#(-57w1q505--j@98xygimlyfxs*-!i-o-mb'
 
-def get_token(args: List (Any]):
+def get_token(args: List[Any]):
     timestamp = str(int(time.time()))
     args.append(timestamp)
     sign = hashlib.sha1(','.join(args).encode('utf-8')).hexdigest()
@@ -2477,7 +2468,7 @@ def get_token(args: List (Any]):
 
 args = ['/api/movie']
 token = get_token(args=args)
-index_url = INDEX_URL.format(limit=LIMIT, offset OFFSET, token=token)
+index_url = INDEX_URL.format(limit=LIMIT, offset=OFFSET, token=token)
 response = requests.get(index_url)
 print('response', response.json())
 

@@ -40,7 +40,10 @@
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 维护爬取队列</h3>
-<p class="content-text">爬取队列怎样维护比较好呢?我们首先需要考虑的就是性能问题,什么数据库存取效率高?我们自然能想到基于内存存储的Redis,而且Redis 支持多种数据结构,例如列表(List)、集合(Set)、有序集合(Sorted Set)等,存取的操作也非常简单,所以在这里我们采用Redis 来维护爬取队列。实际上,这几种数据结构存储各有千秋。□ 列表数据结构有1push、1pop、rpush、rpop方法,我们可以用它实现一个先进先出式的爬取队列,也可以实现一个先进后出的栈式爬取队列。■集合的元素是无序且不重复的,这样我们可以非常方便地实现一个随机排序的不重复的爬取队列。□ 有序集合带有分数表示,而Scrapy的Request 也有优先级的控制,所以用有序集合我们可以实现一个带优先级调度的队列。我们需要根据具体爬虫的需求来灵活选择不同的队列。</p>
+<p class="content-text">爬取队列怎样维护比较好呢?我们首先需要考虑的就是性能问题,什么数据库存取效率高?我们自然能想到基于内存存储的Redis,而且Redis 支持多种数据结构,例如列表(List)、集合(Set)、有序集合(Sorted Set)等,存取的操作也非常简单,所以在这里我们采用Redis 来维护爬取队列。实际上,这几种数据结构存储各有千秋。</p>
+<p class="content-text list-like">列表数据结构有lpush、lpop、rpush、rpop方法,我们可以用它实现一个先进先出式的爬取队列,也可以实现一个先进后出的栈式爬取队列。</p>
+<p class="content-text list-like">集合的元素是无序且不重复的,这样我们可以非常方便地实现一个随机排序的不重复的爬取队列。</p>
+<p class="content-text list-like">有序集合带有分数表示,而Scrapy的Request 也有优先级的控制,所以用有序集合我们可以实现一个带优先级调度的队列。我们需要根据具体爬虫的需求来灵活选择不同的队列。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 去重</h3>
@@ -67,12 +70,13 @@ def request_fingerprint(request, include_headers=None):
 <p class="content-text">request_fingerprint 就是计算 Request 指纹的方法,其方法内部使用的是hashlib的sha1 方法。计算的字段包括 Request 的Method、URL、Body、Headers这几部分内容,这里只要有一点不同,那么计算的结果就不同。计算得到的结果是加密后的字符串,也就是指纹。每个Request都有独有的指纹,指纹就是一个字符串,判定字符串是否重复比判定 Request 对象是否重复容易得多,所以指纹可以作为判定 Request 是否重复的依据。我们如何判定重复呢?Scrapy是这样实现的:</p>
 <pre class="code-block" data-lang="python"><code>def __init__(self):
     self.fingerprints = set()
-def request_seen(self, request):</code></pre>
-<pre class="code-block"><code>fp = self.request_fingerprint(request)
-if fp in self.fingerprints:
-return True
-self.fingerprints.add(fp)</code></pre>
-<p class="content-text">在去重的类 RFPDupeFilter中,有一个 request_seen 方法,该方法有一个参数 request,它的作用就是检测 Request 对象是否重复。这个方法调用request_fingerprint 获取该 Request 的指纹,检测这个指纹是否存在于 fingerprints 变量中,而 fingerprints 是一个集合,集合的元素都是不重复的。如果指纹存在,就返回 True,说明该 Request 是重复的,否则就将这个指纹加入集合。如果下次还有相同的 Request 传递过来,指纹也是相同的,指纹就已经存在于集合中了,那么Request 对象就会直接判定为重复。这样,去重的目的就实现了。Scrapy 的去重过程就是,利用集合元素的不重复特性来实现 Request 的去重。对于分布式爬虫来说,我们肯定不能再用每个爬虫各自的集合来去重了。因为这样还是每个主机单独维护自己的集合,不能做到共享。多台主机如果生成了相同的Request,只能各自去重,各个主机之间就无法做到去重了。那么要实现去重,这个指纹集合也需要是共享的。Redis正好有集合的存储数据结构,我们可以利用Redis 的集合作为指纹集合,那么这样去重集合也是利用Redis共享的。每台主机新生成 Request后,把该 Request 的指纹与集合比对,如果指纹已经存在,说明该 Request 是重复的,否则将 Request的指纹加入这个集合。利用同样的原理,我们在不同的存储结构中实现了分布式 Reqeust的去重。</p>
+
+def request_seen(self, request):
+    fp = self.request_fingerprint(request)
+    if fp in self.fingerprints:
+        return True
+    self.fingerprints.add(fp)</code></pre>
+<p class="content-text">在去重的类 RFPDupeFilter中,有一个 request_seen 方法,该方法有一个参数 request,它的作用就是检测 Request 对象是否重复。这个方法调用request_fingerprint 获取该 Request 的指纹,检测这个指纹是否存在于 fingerprints 变量中,而 fingerprints 是一个集合,集合的元素都是不重复的。如果指纹存在,就返回 True,说明该 Request 是重复的,否则就将这个指纹加入集合。如果下次还有相同的 Request 传递过来,指纹也是相同的,指纹就已经存在于集合中了,那么Request 对象就会直接判定为重复。这样,去重的目的就实现了。Scrapy 的去重过程就是,利用集合元素的不重复特性来实现 Request 的去重。对于分布式爬虫来说,我们肯定不能再用每个爬虫各自的集合来去重了。因为这样还是每个主机单独维护自己的集合,不能做到共享。多台主机如果生成了相同的Request,只能各自去重,各个主机之间就无法做到去重了。那么要实现去重,这个指纹集合也需要是共享的。Redis正好有集合的存储数据结构,我们可以利用Redis 的集合作为指纹集合,那么这样去重集合也是利用Redis共享的。每台主机新生成 Request后,把该 Request 的指纹与集合比对,如果指纹已经存在,说明该 Request 是重复的,否则将 Request的指纹加入这个集合。利用同样的原理,我们在不同的存储结构中实现了分布式 Request的去重。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 防止中断</h3>
@@ -82,7 +86,7 @@ self.fingerprints.add(fp)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 架构实现</h3>
-<p class="content-text">我们接下来就需要在程序中实现这个架构了。首先实现一个共享的爬取队列,还要实现去重的功能。另外,重写一个 Scheduer 的实现,使之可以从共享的爬取队列中存取 Request。幸运的是,已经有人实现了这些逻辑和架构,并发布成叫 Scrapy-Redis的Python包。接下来,我们看一下Scrapy-Redis的源码实现,以及它的详细工作原理。</p>
+<p class="content-text">我们接下来就需要在程序中实现这个架构了。首先实现一个共享的爬取队列,还要实现去重的功能。另外,重写一个 Scheduler 的实现,使之可以从共享的爬取队列中存取 Request。幸运的是,已经有人实现了这些逻辑和架构,并发布成叫 Scrapy-Redis的Python包。接下来,我们看一下Scrapy-Redis的源码实现,以及它的详细工作原理。</p>
 </section>
 <div class="section-heading" id="section-1"><h2>16.2 Scrapy-Redis 原理和源码解析</h2></div>
 <p class="content-text">Scrapy-Redis 库已经为我们提供了Scrapy 分布式的队列、调度器、去重等功能,其 GitHub 地址为:https://github.com/rmax/scrapy-redis。</p>
@@ -96,38 +100,44 @@ self.fingerprints.add(fp)</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 爬取队列</h3>
 <p class="content-text">从爬取队列入手,看看它的具体实现。源码文件为 queue.py,它有3个队列的实现,首先它实现了一个父类 Base,提供一些基本方法和属性,代码如下所示:</p>
-<pre class="code-block"><code>class Base(object):
-def __init__(self, server, spider, key, serializer=None):
-if serializer is None:
-serializer = picklecompat
-if not hasattr(serializer, 'loads'):
-raise TypeError("serializer does not implement 'loads' function: % r"</code></pre>
-<p class="content-text">                            % serializer)</p>
-<pre class="code-block"><code>if not hasattr(serializer, 'dumps'):
-raise TypeError("serializer '% s' does not implement 'dumps' function: % r"</code></pre>
-<p class="content-text">                            % serializer)</p>
-<pre class="code-block"><code>self.server = server
-self.spider = spider
-self.key = key % {'spider': spider.name}
-self.serializer = serializer</code></pre>
-<pre class="code-block"><code>def _encode_request(self, request):
-obj = request_to_dict(request, self.spider)
-return self.serializer.dumps(obj)</code></pre>
-<pre class="code-block"><code>def _decode_request(self, encoded_request):
-obj = self.serializer.loads(encoded_request)
-return request_from_dict(obj, self.spider)</code></pre>
-<pre class="code-block"><code>def _len_(self):
-raise NotImplementedError</code></pre>
-<pre class="code-block"><code>def push(self, request):
-raise NotImplementedError</code></pre>
-<pre class="code-block"><code>def pop(self, timeout=0):
-raise NotImplementedError</code></pre>
-<pre class="code-block"><code>def clear(self):
-self.server.delete(self.key)</code></pre>
+<pre class="code-block" data-lang="python"><code>class Base(object):
+    def __init__(self, server, spider, key, serializer=None):
+        if serializer is None:
+            serializer = picklecompat
+        if not hasattr(serializer, 'loads'):
+            raise TypeError("serializer does not implement 'loads' function: %r"
+                            % serializer)
+        if not hasattr(serializer, 'dumps'):
+            raise TypeError("serializer '%s' does not implement 'dumps' function: %r"
+                            % serializer)
+        self.server = server
+        self.spider = spider
+        self.key = key % {'spider': spider.name}
+        self.serializer = serializer
+
+    def _encode_request(self, request):
+        obj = request_to_dict(request, self.spider)
+        return self.serializer.dumps(obj)
+
+    def _decode_request(self, encoded_request):
+        obj = self.serializer.loads(encoded_request)
+        return request_from_dict(obj, self.spider)
+
+    def __len__(self):
+        raise NotImplementedError
+
+    def push(self, request):
+        raise NotImplementedError
+
+    def pop(self, timeout=0):
+        raise NotImplementedError
+
+    def clear(self):
+        self.server.delete(self.key)</code></pre>
 <p class="content-text">首先看一下_encode_request 和_decode_request方法,因为我们需要把一个Request 对象存储到数据库中,但数据库无法直接存储对象,所以需要将 Request 序列化转成字符串再存储,而这两个方法分别是序列化和反序列化的操作,这个过程可以利用 pickle 库来实现。一般在调用 push 方法将Request 存入数据库时,会调用_encode_request 方法进行序列化,在调用 pop 取出 Request 的时候,会调用_decode_request 进行反序列化。在父类中__len__、push 和 pop方法都是未实现的,会直接抛出 NotImplementedError,因此这个类是不能直接被使用的,必须实现一个子类来重写这3个方法,而不同的子类就会有不同的实现,也就有着不同的功能。接下来就需要定义一些子类来继承 Base类,并重写这几个方法,那在源码中就有3个子类的实现,它们分别是FifoQueue、PriorityQueue、LifoQueue,我们分别来看一下它们的实现原理。</p>
 <p class="content-text">首先是 FifoQueue:</p>
 <pre class="code-block" data-lang="python"><code>class FifoQueue(Base):
-    def _len_(self):
+    def __len__(self):
         return self.server.llen(self.key)
 
     def push(self, request):
@@ -142,11 +152,11 @@ self.server.delete(self.key)</code></pre>
             data = self.server.rpop(self.key)
         if data:
             return self._decode_request(data)</code></pre>
-<p class="content-text">可以看到这个类继承了 Base 类,并重写了 _len_、push、pop。在这 3 个方法中,都是对 server对象的操作,而 server 对象就是一个 Redis 连接对象,我们可以直接调用其操作 Redis 的方法对数据库进行操作。可以看到这里的操作方法有 llen、lpush、rpop 等,这就代表此爬取队列使用了 Redis 的列表。序列化后的 Request 会被存入列表,就是列表的其中一个元素; _len_ 方法是获取列表的长度;push 方法中调用了 lpush 操作,这代表从列表左侧存入数据;pop 方法中调用了 rpop 操作,这代表从列表右侧取出数据。</p>
-<p class="content-text">Request 在列表中的存取顺序是左侧进、右侧出,这是有序的进出,即先进先出(first input first output - FIFO),此类的名称就叫作 FifoQueue。</p>
+<p class="content-text">可以看到这个类继承了 Base 类,并重写了 __len__、push、pop。在这 3 个方法中,都是对 server对象的操作,而 server 对象就是一个 Redis 连接对象,我们可以直接调用其操作 Redis 的方法对数据库进行操作。可以看到这里的操作方法有 llen、lpush、rpop 等,这就代表此爬取队列使用了 Redis 的列表。序列化后的 Request 会被存入列表,就是列表的其中一个元素; __len__ 方法是获取列表的长度;push 方法中调用了 lpush 操作,这代表从列表左侧存入数据;pop 方法中调用了 rpop 操作,这代表从列表右侧取出数据。</p>
+<p class="content-text">Request 在列表中的存取顺序是左侧进、右侧出,这是有序的进出,即先进先出(first in, first out, FIFO),此类的名称就叫作 FifoQueue。</p>
 <p class="content-text">还有一个与之相反的实现类,叫作 LifoQueue,代码实现如下:</p>
 <pre class="code-block" data-lang="python"><code>class LifoQueue(Base):
-    def _len_(self):
+    def __len__(self):
         return self.server.llen(self.key)
 
     def push(self, request):
@@ -161,24 +171,25 @@ self.server.delete(self.key)</code></pre>
             data = self.server.lpop(self.key)
         if data:
             return self._decode_request(data)</code></pre>
-<p class="content-text">与 FifoQueue 不同的是,它的 pop 方法在这里使用的是 lpop 操作,也就是从左侧出,而 push 方法依然是使用的 lpush 操作,是从左侧入。那么这样达到的效果就是先进后出、后进先出 (last in first out-LIFO),此类名称就叫作 LifoQueue。同时这个存取方式类似栈的操作,所以其实也可以称作StackQueue。</p>
+<p class="content-text">与 FifoQueue 不同的是,它的 pop 方法在这里使用的是 lpop 操作,也就是从左侧出,而 push 方法依然是使用的 lpush 操作,是从左侧入。那么这样达到的效果就是先进后出、后进先出(last in, first out, LIFO),此类名称就叫作 LifoQueue。同时这个存取方式类似栈的操作,所以其实也可以称作StackQueue。</p>
 <p class="content-text">在源码中还有一个子类叫作 PriorityQueue,顾名思义,它是优先级队列,代码实现如下:</p>
 <pre class="code-block" data-lang="python"><code>class PriorityQueue(Base):
-    def _len_(self):
+    def __len__(self):
         return self.server.zcard(self.key)
 
     def push(self, request):
-        data = self._encode_request(request)</code></pre>
-<pre class="code-block"><code>score = -request.priority
-self.server.execute_command('ZADD', self.key, score, data)
-def pop(self, timeout=0):
-pipe = self.server.pipeline()
-pipe.multi()
-pipe.zrange(self.key, 0, 0).zremrangebyrank(self.key, 0, 0)
-results, count = pipe.execute()
-if results:
-return self._decode_request(results[0])</code></pre>
-<p class="content-text">在这里我们可以看到_len__、push、pop方法中使用了 server 对象的 zcard、zadd、zrange 操作,可以知道这里使用的存储结果是有序集合,在这个集合中,每个元素都可以设置一个分数,这个分数就代表优先级。____len__方法调用了zcard操作,返回的就是有序集合的大小,也就是爬取队列的长度。在push方法中调用了 zadd操作,就是向集合中添加元素,这里的分数指定成Request 优先级的相反数,因为分数低的会排在集合的前面,所以这里高优先级的Request 就会存在集合的最前面。pop 方法首先调用了zrange 操作取出了集合的第一个元素,因为最高优先级的Request 会存在集合最前面,所以第一个元素就是最高优先级的Request,然后再调用 zremrangebyrank 操作将这个元素删除,这样就完成了取出并删除的操作。此队列是默认使用的队列,也就是爬取队列默认使用有序集合来存储。</p>
+        data = self._encode_request(request)
+        score = -request.priority
+        self.server.execute_command('ZADD', self.key, score, data)
+
+    def pop(self, timeout=0):
+        pipe = self.server.pipeline()
+        pipe.multi()
+        pipe.zrange(self.key, 0, 0).zremrangebyrank(self.key, 0, 0)
+        results, count = pipe.execute()
+        if results:
+            return self._decode_request(results[0])</code></pre>
+<p class="content-text">在这里我们可以看到__len__、push、pop方法中使用了 server 对象的 zcard、zadd、zrange 操作,可以知道这里使用的存储结果是有序集合,在这个集合中,每个元素都可以设置一个分数,这个分数就代表优先级。__len__方法调用了zcard操作,返回的就是有序集合的大小,也就是爬取队列的长度。在push方法中调用了 zadd操作,就是向集合中添加元素,这里的分数指定成Request 优先级的相反数,因为分数低的会排在集合的前面,所以这里高优先级的Request 就会存在集合的最前面。pop 方法首先调用了zrange 操作取出了集合的第一个元素,因为最高优先级的Request 会存在集合最前面,所以第一个元素就是最高优先级的Request,然后再调用 zremrangebyrank 操作将这个元素删除,这样就完成了取出并删除的操作。此队列是默认使用的队列,也就是爬取队列默认使用有序集合来存储。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 去重过滤</h3>
@@ -194,7 +205,7 @@ self.logdupes = True</code></pre>
 <pre class="code-block"><code>def from_settings(cls, settings):
 server = get_redis_from_settings(settings)
 key = defaults.DUPEFILTER_KEY % {'timestamp': int(time.time())}
-debug = settings.getbool("DUPEFILTER_DEBUG')
+debug = settings.getbool("DUPEFILTER_DEBUG")
 return cls(server, key=key, debug=debug)</code></pre>
 <p class="content-text">@classmethod</p>
 <pre class="code-block"><code>def from_crawler (cls, crawler):
@@ -211,10 +222,10 @@ def clear(self):
 self.server.delete(self.key)</code></pre>
 <pre class="code-block"><code>def log(self, request, spider):
 if self.debug:
-msg = "Filtered duplicate request: % (request) s"
+msg = "Filtered duplicate request: %(request)s"
 self.logger.debug(msg, {'request': request}, extra={'spider': spider})
 elif self.logdupes:
-msg = ("Filtered duplicate request % (request) s"</code></pre>
+msg = ("Filtered duplicate request %(request)s"</code></pre>
 <p class="content-text"> "- no more duplicates will be shown""(see DUPEFILTER_DEBUG to show all duplicates)")</p>
 <pre class="code-block"><code>self.logger.debug(msg, {'request': request}, extra={'spider': spider})
 self.logdupes = False</code></pre>
@@ -319,8 +330,7 @@ https://antispider7.scrape.center/api/book/1001885/&gt;</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 总结</h3>
 <p class="content-text">本节通过对接 Scrapy-Redis 成功实现了分布式爬虫,实现了多机协同爬取。本节代码所在的地址为 https://github.com/Python3WebSpider/ScrapyCompositeDemo/tree/scrapy-redis,注意这里是 scrapy-redis 分支而不是默认分支。</p>
-<p class="content-text">首先回顾一下 Scrapy-Redis 的去重机制。Scrapy-Redis 将 Request 的指纹存储到了 Redis 集合中,每个指纹的长度为40,例如27adcc2e8979cdee0c9cecbbe8bf8ff51edefb61就是一个指纹,是一个字符串。我们计算一下用这种方式耗费的存储空间。每个字符占用1字节,即1B,1个指纹占用空间为40 B,1万个指纹占用空间约400KB,1亿个指纹占用空间约4GB。当爬取数量达到上亿级别时,Redis的占用的内存就会变得很大,而且这仅仅是指纹的存储。Redis还存储了爬取队列,内存占用会进一步</p>
-<p class="content-text">提高，更别说多个 Scrapy 项目同时爬取的情况了。当爬取达到亿级规模时，Scrapy-Redis 提供的集合去重已经不能满足我们的要求了。所以我们需要使用一个更加节省内存的去重算法——Bloom Filter。</p>
+<p class="content-text">首先回顾一下 Scrapy-Redis 的去重机制。Scrapy-Redis 将 Request 的指纹存储到了 Redis 集合中,每个指纹的长度为40,例如27adcc2e8979cdee0c9cecbbe8bf8ff51edefb61就是一个指纹,是一个字符串。我们计算一下用这种方式耗费的存储空间。每个字符占用1字节,即1B,1个指纹占用空间为40 B,1万个指纹占用空间约400KB,1亿个指纹占用空间约4GB。当爬取数量达到上亿级别时,Redis的占用的内存就会变得很大,而且这仅仅是指纹的存储。Redis还存储了爬取队列,内存占用会进一步提高，更别说多个 Scrapy 项目同时爬取的情况了。当爬取达到亿级规模时，Scrapy-Redis 提供的集合去重已经不能满足我们的要求了。所以我们需要使用一个更加节省内存的去重算法——Bloom Filter。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 了解 Bloom Filter</h3>
@@ -334,8 +344,7 @@ https://antispider7.scrape.center/api/book/1001885/&gt;</code></pre>
 <figure class="inline-figure"><img alt="图16-8 映射后的位数组" loading="lazy" src="figures/ch16/fig-16_8.jpg"/><figcaption>图16-8 映射后的位数组</figcaption></figure>
 <p class="content-text"> 这时如果再有一个新的元素 x，我们要判断它是否属于 S 集合，便会将仍然用 k 个散列函数对 x 求映射结果，如果所有结果对应的位数组位置均为 1，那么就认为 x 属于 S 集合，否则 x 不属于 S 集合。例如一个新元素 x 经过 3 个散列函数映射的结果为 4、6、8，对应的位置均为 1，则判断 x 属于 S集合。如果结果为 4、6、7，其中 7 对应的位置为 0，则判定 x 不属于 S 集合。注意这里 m、n、k 的关系满足 m&gt;kn，也就是说位数组的长度 m 要比集合元素个数 n 和散列函数k 的乘积还要大。这样的判定方法很高x效，但是也是有代价的，它可能把不属于这个集合的元素误认为属于这个集合，我们来估计一下它的错误率。当集合 S={x₁, x₂,…, xₙ} 的所有元素都被 k 个散列函数映射到 m 位的位数组中时，这个位数组中某一位还是 0 的概率是：</p>
 <p class="content-text">  (1-(1-1/m)^k)^n</p>
-<p class="content-text"> 因为散列函数是随机的，所以任意一个散列函数选中这一位的概率为 1/m，那么 1-1/m 就代表散列函数一次没有选中这一位的概率，要把 S 完全映射到 m 位的位数组中，需要做 kn 次散列运算，所</p>
-<p class="content-text">以最后的概率就是 1-1/m 的 kn 次方。一个不属于 S 的元素 x 如果要被误判定为在 S 中，那么这个概率就是 k 次散列运算得到的结果对应的位数组位置都为 1，所以误判概率为:</p>
+<p class="content-text"> 因为散列函数是随机的，所以任意一个散列函数选中这一位的概率为 1/m，那么 1-1/m 就代表散列函数一次没有选中这一位的概率，要把 S 完全映射到 m 位的位数组中，需要做 kn 次散列运算，所以最后的概率就是 1-1/m 的 kn 次方。一个不属于 S 的元素 x 如果要被误判定为在 S 中，那么这个概率就是 k 次散列运算得到的结果对应的位数组位置都为 1，所以误判概率为:</p>
 <div class="formula-block">lim x→∞ (1 - 1/x)^(-x) = e</div>
 <p class="content-text">根据:</p>
 <div class="formula-block">(1 - (1 - 1/m)^(kn))^k ≈ (1 - e^(-kn/m))^k</div>
@@ -553,15 +562,14 @@ BLOOMFILTER_BIT = 20</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 对接 Scrapy</h3>
-<p class="content-text">RabbitMQ 就是一个消息队列,那它怎么对接 Scrapy 实现分布式爬取呢?通过 Scrapy-Redis 的源码,我们可以知道 Scrapy-Redis 利用 Redis实现了一个爬取队列,所以同样的原理,我们可以仿照Scrapy-Redis 的实现,将 Redis 换成 RabbitMQ。仿照 Scrapy-Redis 的源码,我们先来解决 RabbitMQ的连接问题,首先定义一个connectoin 对象:</p>
+<p class="content-text">RabbitMQ 就是一个消息队列,那它怎么对接 Scrapy 实现分布式爬取呢?通过 Scrapy-Redis 的源码,我们可以知道 Scrapy-Redis 利用 Redis实现了一个爬取队列,所以同样的原理,我们可以仿照Scrapy-Redis 的实现,将 Redis 换成 RabbitMQ。仿照 Scrapy-Redis 的源码,我们先来解决 RabbitMQ的连接问题,首先定义一个connection 对象:</p>
 <pre class="code-block"><code>import pika</code></pre>
 <pre class="code-block"><code>def from_settings(settings):
 connection_parameters = settings.get('RABBITMQ_CONNECTION_PARAMETERS', RABBITMQ_CONNECTION_PARAMETERS)
-connection = pika. BlockingConnection(pika.ConnectionParameters(**connection_parameters))
+connection = pika.BlockingConnection(pika.ConnectionParameters(**connection_parameters))
 channel = connection.channel()
 return channel</code></pre>
-<p class="content-text">这里定义了 from_settings 方法,可以根据全局的RABBITMQ_CONNECTION_PARAMETERS 来创建一个RabbitMQ 连接对象,返回channel信息。另外在Scrapy-Redis中,优先级队列是使用有序集合来实现的,每个元素都有一个分数值,Redis可以根据分数来排序,这样分数越小的就排到最前面,下次就</p>
-<p class="content-text">会被优先获取。</p>
+<p class="content-text">这里定义了 from_settings 方法,可以根据全局的RABBITMQ_CONNECTION_PARAMETERS 来创建一个RabbitMQ 连接对象,返回channel信息。另外在Scrapy-Redis中,优先级队列是使用有序集合来实现的,每个元素都有一个分数值,Redis可以根据分数来排序,这样分数越小的就排到最前面,下次就会被优先获取。</p>
 <p class="content-text">那 RabbitMQ 怎么实现优先级队列的功能呢?4.8节我们也学习了,RabbitMQ已经提供了对优先级队列的支持,需要在声明队列的时候设置x-max-priority 参数来设定最大的优先级数量,同时在发布消息的时候添加优先级参数。在这里我们仿照 Scrapy-Redis 的PriorityQueue 来进行改写,写法如下:</p>
 <pre class="code-block"><code>class PriorityQueue(Base):
 def __init__(self, server, spider, key,
@@ -606,7 +614,7 @@ body=self._encode_request(request)
 method_frame, header, body = self.server.basic_get(queue=self.key, auto_ack=True)
 if body:
 return self._decode_request(body)</code></pre>
-<p class="content-text">首先对于__init__方法,这里自定义了一些参数,如durable 代表是否持久化,默认读取了配置SCHEDULER_QUEUE_DURABLE,其值为 True。另外优先级的最大值 max_priority 默认读取了配置 SCHEDULER_QUEUE_MAX_PRIORITY,其值为100。在__init__方法中,最关键的就是 queue_declare方法,它用来声明一个消息队列,指定了参数x-max-priority 为 max_priority,代表这是一个支持优先级的队列,最大优先级的数值为 max_priority。接着对于 push 方法,和前文的样例一样,调用了basic_publish方法,不过由于这里支持优先级,所以额外传入了 peoperties 对象并指定了 priority。</p>
+<p class="content-text">首先对于__init__方法,这里自定义了一些参数,如durable 代表是否持久化,默认读取了配置SCHEDULER_QUEUE_DURABLE,其值为 True。另外优先级的最大值 max_priority 默认读取了配置 SCHEDULER_QUEUE_MAX_PRIORITY,其值为100。在__init__方法中,最关键的就是 queue_declare方法,它用来声明一个消息队列,指定了参数x-max-priority 为 max_priority,代表这是一个支持优先级的队列,最大优先级的数值为 max_priority。接着对于 push 方法,和前文的样例一样,调用了basic_publish方法,不过由于这里支持优先级,所以额外传入了 properties 对象并指定了 priority。</p>
 <p class="content-text">对于 pop 方法,则是使用了 basic_get 方法并设置了 auto_ack 参数为True,这样便可以从队列中取出一个当前优先级最高的消息并返回了。另外对于_decode_request 和_encode_request 方法,其原理和 Scrapy-Redis一样,这里就不再赘述了。对于 Scheduler,基本原理就是将 Queue 对象更换为刚才声明的 PriorityQueue 对象,同时一些初始化参数通过 settings 获取即可。这样我们就成功将爬取队列迁移到 RabbitMQ 里面了。以上的内容我已经整理发布了一个Python包,叫作 GerapyRabbitMQ,其GitHub 链接为:</p>
 <pre class="result-block"><code>https://github.com/Gerapy/GerapyRabbitMQ,安装方式也非常简单,只需要pip3安装即可:
 pip3 install gerapy-rabbitmq</code></pre>

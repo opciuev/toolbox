@@ -206,7 +206,7 @@ login()</code></pre>
 <p class="content-text">请确保已经安装好了 python-opencv库,安装方式如下:</p>
 <pre class="code-block"><code>pip3 install python-opencv</code></pre>
 <p class="content-text">如果安装出现问题,可以参考https://setup.scrape.center/python-opencv。</p>
-<p class="content-text">另外,建议提前准备一张滑动验证码图片,样例图片的下载地址是https://github.com/Python3WebSpider/CrackSlideCaptcha/blob/cv/captcha.png,当然也可以从 https://captchal.scrape.center/上自行截取,得到的图片如图 8-10所示。</p>
+<p class="content-text">另外,建议提前准备一张滑动验证码图片,样例图片的下载地址是https://github.com/Python3WebSpider/CrackSlideCaptcha/blob/cv/captcha.png,当然也可以从 https://captcha1.scrape.center/上自行截取,得到的图片如图 8-10所示。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 基础知识</h3>
@@ -346,8 +346,7 @@ print('offset', offset)</code></pre>
 <h3 class="subsection-heading numbered-heading">2. 数据准备</h3>
 <p class="content-text">要训练一个深度学习模型,必不可少的就是训练数据。上面也提到了,训练数据分为两部分,一部分是图片数据,即一张张验证码图片,另一部分是标注数据,即验证码的内容是什么。有了这两部分数据,就可以训练一个识别图形验证码的深度学习模型,模型在训练中不断调优的过程,就是逐渐学会怎么识别一张验证码图片的过程。训练好模型后,向模型输入类似的验证码图片,模型便可以识别出这个验证码对应的文本内容。那这些数据怎么准备呢?如果你稍微了解过深度学习相关的内容,相信并不会对数据标注这个词感到陌生,数据标注有相当一部分是需要人工参与的。假如我们有很多验证码图片,又不知道验证码图片对应的文本内容是什么,就需要用到数据标注。说白了,看一下验证码图片,然后把里面的文字记录下来,就相当于标注了一条数据。例如这里有一张验证码图片，如图8-16所示。</p>
 <figure class="inline-figure"><img alt="图8-16 一张验证码图片" loading="lazy" src="figures/ch08/fig-8_16.jpg"/><figcaption>图8-16 一张验证码图片</figcaption></figure>
-<p class="content-text">现在我们只是有这张图片，而没有图片里面内容对应的文本信息，这时候就需要标注。可以看到，图片里的内容是验证码，把它记录下来，这张验证码图片的标注就完成了。为了训练一个较好的用于识别图形验证码的深度学习模型,我们可能需要上万、上十万或者数百万条训练数据。此时如果只有验证码图片而没有数据标注,就需要人工标注上万、上十万甚至数百万</p>
-<p class="content-text">条数据,这是个非常枯燥且耗时的工作。</p>
+<p class="content-text">现在我们只是有这张图片，而没有图片里面内容对应的文本信息，这时候就需要标注。可以看到，图片里的内容是验证码，把它记录下来，这张验证码图片的标注就完成了。为了训练一个较好的用于识别图形验证码的深度学习模型,我们可能需要上万、上十万或者数百万条训练数据。此时如果只有验证码图片而没有数据标注,就需要人工标注上万、上十万甚至数百万条数据,这是个非常枯燥且耗时的工作。</p>
 <p class="content-text">那有没有解决办法呢?办法自然是有的,我们反其道而行之就好了。具体是先随机生成标注数据,即随机生成一些4位的由字母和数字组合而成的数据,然后使用这些已经生成的标注数据生成验证码图片,这样不就省去数据标注的过程了吗?有了这个方法,就不怕准备大量的训练数据了。上述生成验证码的过程分为两步,第一步是生成随机的文本数据,第二步是根据生成的文本数据生成验证码图片。打开项目中的<code class="inline-code">generate.py</code>文件,其中定义了两个方法 <code class="inline-code">generate_captcha_text</code> 和 <code class="inline-code">generate_captcha_text_and_image</code>,分别用于完成这两步:</p>
 <pre class="code-block" data-lang="python"><code>from captcha.image import ImageCaptcha
 from PIL import Image
@@ -488,11 +487,11 @@ IW6S</code></pre>
 <p class="content-text list-like">One Stage:不需要产生候选框,直接将目标的定位和分类问题转化为回归问题,俗称“看一眼”,使用这种实现的算法有 YOLO 和 SSD,这种方法虽然正确率不及 Two Stage,但架构相对简单,检测速度更快。</p>
 <p class="content-text list-like">Two Stage:算法首先生成一系列目标所在位置的候选框,再对这些框选出来的结果进行样本分类,即先找出来在哪儿,再分出来是啥,俗称“看两眼”,使用这种实现的算法有R-CNN、Fast R-CNN、Faster R-CNN等,这种方法架构相对复杂,但正确率高。这里我们选用 YOLO 算法实现对滑动验证码缺口的识别。YOLO 的英文全称是 You Only Look Once,目前的最新版本是V5,应用比较广泛的版本是V3,算法的具体流程我们就不过多介绍了,感兴趣的话可以搜一下相关资料。另外,可以了解一下 YOLO V1~V3版本的不同和改进之处,这里列几个参考链接。</p>
 <p class="content-text list-like"><strong class="term-label">YOLO V3的论文:</strong>https://pjreddie.com/media/files/papers/YOLOv3.pdf。</p>
-<p class="content-text list-like">介绍 YOLO V3: https://zhuanlan.zhihu.com/p/34997279。YOLO OV1~V3版本的对比:https://www.cnblogs.com/makefile/p/yolov3.html。</p>
+<p class="content-text list-like">介绍 YOLO V3: https://zhuanlan.zhihu.com/p/34997279。YOLO V1~V3版本的对比:https://www.cnblogs.com/makefile/p/yolov3.html。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 数据准备</h3>
-<p class="content-text">和8.3节一样,训练深度学习模型需要准备训练数据。这里的数据也分两部分,一部分是验证码图片,另一部分是数据标注。和8.3节不一样的是,这次的数据标注不再是单纯的验证码文本,而是缺口位置,缺口对应一个矩形框,要表示矩形框,至少需要4个数据,如矩形左上角的点的横纵坐标x、y加上矩形的宽高w、h。明确了数据是什么,接下来就着手准备吧。第一步是收集验证码图片,第二步是标注图片中的缺口位置并转为化想要的4位数字。举个例子,打开网站https://captchal.scrape.center/,点击“登录”按钮就会弹出一个滑动验证码,如图8-22所示。单独将图 8-23 中框起来的区域保存下来,就收集了一张验证码图片。</p>
+<p class="content-text">和8.3节一样,训练深度学习模型需要准备训练数据。这里的数据也分两部分,一部分是验证码图片,另一部分是数据标注。和8.3节不一样的是,这次的数据标注不再是单纯的验证码文本,而是缺口位置,缺口对应一个矩形框,要表示矩形框,至少需要4个数据,如矩形左上角的点的横纵坐标x、y加上矩形的宽高w、h。明确了数据是什么,接下来就着手准备吧。第一步是收集验证码图片,第二步是标注图片中的缺口位置并转化为想要的4位数字。举个例子,打开网站https://captcha1.scrape.center/,点击“登录”按钮就会弹出一个滑动验证码,如图8-22所示。单独将图 8-23 中框起来的区域保存下来,就收集了一张验证码图片。</p>
 <figure class="inline-figure"><img alt="图8-22 示例网站的滑动验证码" loading="lazy" src="figures/ch08/fig-8_22.jpg"/><figcaption>图8-22 示例网站的滑动验证码</figcaption></figure>
 <figure class="inline-figure"><img alt="图8-23 要保存的区域" loading="lazy" src="figures/ch08/fig-8_23.jpg"/><figcaption>图8-23 要保存的区域</figcaption></figure>
 <p class="content-text">怎么保存那个区域呢?手工截图肯定不可靠,因为要收集的图片量非常大,这么做不仅费时费力,还不好准确地定位边界,会导致保存下来的图片有大有小。为了解决这个问题,可以简单写一个脚本实现自动化裁切和保存,就是之前下载的代码仓库中的collect.py文件,其内容如下:</p>
@@ -565,10 +564,10 @@ def parse_xml(file):
 xml_str = open(file, encoding='utf-8').read()
 data = xmltodict.parse(xml_str)
 data = json.loads(json.dumps(data))
-annoatation = data.get('annotation')
-width = int(annoatation.get('size').get('width'))
-height = int(annoatation.get('size').get('height'))
-bndbox = annoatation.get('object').get('bndbox')
+annotation = data.get('annotation')
+width = int(annotation.get('size').get('width'))
+height = int(annotation.get('size').get('height'))
+bndbox = annotation.get('object').get('bndbox')
 box_xmin = int(bndbox.get('xmin'))
 box_xmax = int(bndbox.get('xmax'))
 box_ymin = int(bndbox.get('ymin'))
@@ -606,7 +605,7 @@ print('bbox', (x1, y1, box_w, box_h), 'offset', x1)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 总结</h3>
-<p class="content-text">本节主要介绍使用深度学习识别滑动验证码缺口的整体流程,最终我们成功训练出了模型,并得到了一个深度学习模型文件。往这个模型中输入一张滑动验证码图片,模型便会输出缺口的相关信息,包括偏移量、宽度等,通过这些信息可以确定缺口所处的位置。和8.3节一样,本节介绍的内容也可以做进一步优化,即把预测过程对接 API 服务器,例如对接Flask、Django、FastAPI等,把预测过程实现为一个支持POST请求的API。本节代码见 https://github.com/Python3 WebSpider/DeepLearningSlideCaptcha2。</p>
+<p class="content-text">本节主要介绍使用深度学习识别滑动验证码缺口的整体流程,最终我们成功训练出了模型,并得到了一个深度学习模型文件。往这个模型中输入一张滑动验证码图片,模型便会输出缺口的相关信息,包括偏移量、宽度等,通过这些信息可以确定缺口所处的位置。和8.3节一样,本节介绍的内容也可以做进一步优化,即把预测过程对接 API 服务器,例如对接Flask、Django、FastAPI等,把预测过程实现为一个支持POST请求的API。本节代码见 https://github.com/Python3WebSpider/DeepLearningSlideCaptcha2。</p>
 </section>
 <div class="section-heading" id="section-4"><h2>8.5 使用打码平台识别验证码</h2></div>
 <p class="content-text">在前面四节,我们学习了几种识别验证码的方法,这些方法或多或少存在一些缺点,例如 OCR、OpenCV 的识别正确率不高,深度学习的效果虽然还不错,但是训练和维护模型的流程相对复杂。那有没有其他识别验证码的方法呢?有,就是本节要讲的打码平台。利用打码平台可以轻松识别各种各样的验证码,图形验证码、滑动验证码、点选验证码和逻辑推理验证码都不在话下,而且不需要懂任何算法,以及维护任何模型或服务。打码平台提供了一系列API,只需要向 API 上传验证码图片,它便会返回对应的识别结果。</p>
@@ -694,15 +693,14 @@ class Chaojiying(object):
 """
 USERNAME, PASSWORD、SOFT_ID 需要更改为自己的用户名、密码和软件 ID
 """
-USERNAME =
-PASSWORD =
-SOFT ID =
-CAPTCHA KIND = '1006'
-FILE NAME = 'captcha1.png'
+USERNAME = ''
+PASSWORD = ''
+SOFT_ID = ''
+CAPTCHA_KIND = '1006'
+FILE_NAME = 'captcha1.png'
 client = Chaojiying(USERNAME, PASSWORD, SOFT_ID)
 result = client.post_pic(open(FILE_NAME, 'rb').read(), CAPTCHA_KIND)
 print(result)</code></pre>
-<p class="content-text">Here's the中文 OCR of <code class="inline-code">D:\LearnPythonWebSpider\website\chapters\images\ch08\page-028.jpg</code> as per your instructions:</p>
 <p class="content-text">这里首先利用 USERNAME、PASSWORD 和 SOFT_ID 三个信息初始化了一个 Chaojiying 对象,赋值为client 变量,然后调用 client 的 post_pic 方法上传了图 8-34 的二进制内容,这里把 post_pic 方法的第二个参数设置为 CAPTCHA_KIND,即 1006。返回结果如下:</p>
 <pre class="result-block"><code>{'err_no': 0, 'err_str': 'OK', 'pic_id': '1138416360949200010', 'pic_str': '6m44nn', 'md5':
 '6f3f50e447fbb0b13abf828636096f94'}</code></pre>
@@ -714,7 +712,6 @@ print(result)</code></pre>
 <figure class="inline-figure"><img alt="图8-36 要识别的点选验证码" loading="lazy" src="figures/ch08/fig-8_36.jpg"/><figcaption>图8-36 要识别的点选验证码</figcaption></figure>
 <p class="figure-caption">图 8-36 所示的点选验证码为例进行讲解,该图片</p>
 <p class="content-text">被保存为 captcha2.png 文件。查阅价格文档,比较符合这个验证码的描述是“坐标多选”,类型是“9004”,会返回 1~4 个坐标,如图 8-37 所示。</p>
-<p class="content-text">坐标类返回值 x.y 更多坐标以分瓶,原图左上角 0,0 以像率 px 为单位,x 是横轴,y 是纵轴9101 坐标选一,返回格式:xy 15 9102 点击两个相同的字,返回:x1.y1|x2.y2 22 9202 点击两个相同的动物或物品,返回:x1,y1|x2,y2 40 9103 坐标多选,返回3个坐标,如:x1.y1|x2,y2|x3,y3 20 9004 坐标多选,返回1-4个坐标,如x1,y1|x2,y2|x3,y3 25 9104 坐标选四,返回格式x1,y1|x2,y2|x3.y3|x4.y4 30 9005 坐标多选,返回3-5个坐标,如x1,y1|x2,y2|x3,y3 30 9008 坐标多选,返回5-8个坐标,如:x1.y1|x2,y2|x3,y3|x4.y4|x5.y5 40</p>
 <figure class="inline-figure"><img alt="图8-37 价格文档" loading="lazy" src="figures/ch08/fig-8_37.jpg"/><figcaption>图8-37 价格文档</figcaption></figure>
 <p class="figure-caption">图 8-37 价格文档</p>
 <p class="content-text">将“图形验证码”代码中的 CAPTCHA_KIND 改成 9004, FILE_NAME 改成 captcha2.png,然后重新运行代码,得到的结果如下:</p>
@@ -738,9 +735,8 @@ cv2.imwrite('captcha2_label.png', image)</code></pre>
 <p class="content-text">我们再来验证滑块验证码,这里以图8-42所示的图片为例进行讲解,这张图片被保存为 captcha3.png 文件。</p>
 <figure class="inline-figure"><img alt="图8-42 要识别的滑动验证码" loading="lazy" src="figures/ch08/fig-8_42.jpg"/><figcaption>图8-42 要识别的滑动验证码</figcaption></figure>
 <p class="content-text">查阅价格文档,比较符合这个验证码的描述是“坐标选一”,类型是“9101”,如图8-43所示。</p>
-<p class="content-text">坐标类返回值 x.y更多坐标以分開,原图左上角0,0以像率px为单位,x是横轴,y是纵轴9101 坐标选一,返回格式xy 15 9102 点击两个相同的字,返回:x1,y1)x2,y2 22 9202 点击两个相同的动物或物品,返回x1,y1jx2,y2 40 9103 坐标多选,返回3个坐标、如:x1,y1|x2,y2)x3,y3 20 9004 坐标多选,返回1-4个坐标,如:x1,y1x2,y2)x3,y3 25 9104 坐标选四返图格式:x1,y1(x2,y2)x3,y3/x4.y4 30 9005 坐标多选,返回3-5个坐标,如:x1.y11x2,y2x3,y3 30 9008 坐标多选,返回5~8个坐标、如:x1,y1)x2,y2)x3,y3/x4.y4/x5.y5 40</p>
 <figure class="inline-figure"><img alt="图8-43 价格文档" loading="lazy" src="figures/ch08/fig-8_43.jpg"/><figcaption>图8-43 价格文档</figcaption></figure>
-<p class="content-text">和“点选验证码”类似,将“图形验证码”代码中的CAPTCHA KIND 改成9101, FILE NAME 改成captcha3.png,然后重新运行代码,得到的结果如下:</p>
+<p class="content-text">和“点选验证码”类似,将“图形验证码”代码中的 CAPTCHA_KIND 改成 9101, FILE_NAME 改成 captcha3.png,然后重新运行代码,得到的结果如下:</p>
 <pre class="result-block"><code>{'err_no': 0, 'err_str': 'OK', 'pic_id': '9138416550949200012', 'pic_str': '231,85', 'md5':
 'ae9cba3a8bbfcd9197551dda23aa0fd7'}</code></pre>
 <p class="content-text">可以看到返回结果中的pic_str 字段变成了231,85,我们用OpenCV 技术在图8-42上标注出这个点:</p>
@@ -789,7 +785,7 @@ print(result)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 总结</h3>
-<p class="content-text">本节中我们总结了利用打码平台识别各种验证码的方法,图形验证码、点选验证码、滑动验证码和问答验证码都不在话下,而且正确率也还不错,毕竟背后都是真实的人在操作,而且还有健壮的模型。本节代码见 https://github.com/Python3 WebSpider/CaptchaPlatform。</p>
+<p class="content-text">本节中我们总结了利用打码平台识别各种验证码的方法,图形验证码、点选验证码、滑动验证码和问答验证码都不在话下,而且正确率也还不错,毕竟背后都是真实的人在操作,而且还有健壮的模型。本节代码见 https://github.com/Python3WebSpider/CaptchaPlatform。</p>
 </section>
 <div class="section-heading" id="section-5"><h2>8.6 手机验证码的自动化处理</h2></div>
 <p class="content-text">前面我们了解了一些验证码的识别流程,这些验证码有一个共同的特点,就是通常只在PC上即可识别通过,例如在PC上出现了一个图形验证码,那么在PC上直接识别就好了,所有流程都在PC上完成。但还有一种验证码和这些验证码不同,就是手机验证码,如果在PC上出现了一个手机验证码,需要先在PC上输入手机号,然后把短信验证码发到手机上,再在PC上输入收到的验证码,才能通过验证。遇到这种情况,如何才能将识别流程自动化呢?</p>

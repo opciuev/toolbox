@@ -113,7 +113,7 @@ response_login = requests.post(LOGIN_URL, data={
 response_index = requests.get(INDEX_URL)
 print('Response Status', response_index.status_code)
 print('Response URL', response_index.url)</code></pre>
-<p class="content-text">这里我们先定义了3个URL、用户名和密码,然后调用requests 库的post方法请求了登录页面进行模拟登录,紧接着调用get 方法请求网站首页来获取页面内容,它能正常获取数据吗?由于 requests 可以自动处理重定向,所以在最后把响应的URL打印出来,如果结果是 INDEX_URL,就证明模拟登录成功并成功获取了网站首页的内容,如果结果是LOGIN URL,就说明跳回了登录页面,模拟登录失败。运行一下代码,结果如下:</p>
+<p class="content-text">这里我们先定义了3个URL、用户名和密码,然后调用requests 库的post方法请求了登录页面进行模拟登录,紧接着调用get 方法请求网站首页来获取页面内容,它能正常获取数据吗?由于 requests 可以自动处理重定向,所以在最后把响应的URL打印出来,如果结果是 INDEX_URL,就证明模拟登录成功并成功获取了网站首页的内容,如果结果是 LOGIN_URL,就说明跳回了登录页面,模拟登录失败。运行一下代码,结果如下:</p>
 <pre class="result-block"><code>Response Status 200
 Response URL https://login2.scrape.center/login?next=/page/1</code></pre>
 <p class="content-text">可以看到,最后打印的页面URL是登录页面的URL。这里也可以通过 response_index的text 属性来看一下页面源码,这里就是登录页面的源码内容,由于内容较多,这里就不再输出对比了。总之,这个现象说明我们并没有成功完成模拟登录,这就印证了按序调用requests 的post、get方法是发出了两个请求,两次对应的 Session 不是同一个，这里我们只是模拟了第一个Session，并不能影响第二个 Session的状态,因此模拟登录也就无效了。那怎样才能实现正确的模拟登录呢? Session 和 Cookie的用法我们在本章开头就介绍了,模拟登录的关键在于两次发出的请求的Cookie相同。因此这里可以把第一次模拟登录后的Cookie 保存下来,在第二次请求的时候加上这个Cookie,代码改写如下:</p>
@@ -129,14 +129,13 @@ PASSWORD = 'admin'
 response_login = requests.post(LOGIN_URL, data={
     'username': USERNAME,
     'password': PASSWORD
-})</code></pre>
-<pre class="code-block"><code>}, allow_redirects=False)
-cookies = response_login.cookies
+}, allow_redirects=False)</code></pre>
+<pre class="code-block"><code>cookies = response_login.cookies
 print('Cookies', cookies)
 response_index = requests.get(INDEX_URL, cookies=cookies)
 print('Response Status', response_index.status_code)
 print('Response URL', response_index.url)</code></pre>
-<p class="content-text">由于 requests 具有自动处理重定向的能力,所以在模拟登录的过程中要加上 allow_redirects 参数并将值设置为 False,使requests 不自动处理重定向。这里将登录之后服务器返回的响应内容赋值为response_login 变量,然后调用response_login 的 cookies 属性就可以获取了网站的Cookie信息。由于requests 自动帮我们解析了响应头中的Set-Cookie字段并设置了Cookie,因此不需要我们再去手动解析。接着,调用 requests 的get 方法请求网站的首页。和之前不同,这里的get方法增加了一个参数cookies,传入的值是第一次模拟登录后获取的Cookie,这样第二次请求就携带上了第一次模拟登录获取的Cookie 信息,之后网站会根据里面的SessionID 信息找到同一个Session,并校验出当前发出请求的用户已经处于登录状态,然后返回正确的结果。最后我们还是输出最终的URL,如果结果是INDEX URL,就代表模拟登录成功并获取了有效数据,否则代表模拟登录失败。运行结果如下:</p>
+<p class="content-text">由于 requests 具有自动处理重定向的能力,所以在模拟登录的过程中要加上 allow_redirects 参数并将值设置为 False,使requests 不自动处理重定向。这里将登录之后服务器返回的响应内容赋值为response_login 变量,然后调用response_login 的 cookies 属性就可以获取了网站的Cookie信息。由于requests 自动帮我们解析了响应头中的Set-Cookie字段并设置了Cookie,因此不需要我们再去手动解析。接着,调用 requests 的get 方法请求网站的首页。和之前不同,这里的get方法增加了一个参数cookies,传入的值是第一次模拟登录后获取的Cookie,这样第二次请求就携带上了第一次模拟登录获取的Cookie 信息,之后网站会根据里面的SessionID 信息找到同一个Session,并校验出当前发出请求的用户已经处于登录状态,然后返回正确的结果。最后我们还是输出最终的URL,如果结果是 INDEX_URL,就代表模拟登录成功并获取了有效数据,否则代表模拟登录失败。运行结果如下:</p>
 <pre class="result-block"><code>Cookies &lt;RequestsCookie]ar[&lt;Cookie sessionid=psnu8ij69f0ltecd5wasccyzc6ud41tc for login2.scrape.center/&gt;]&gt;</code></pre>
 <p class="content-text">Response Status 200 Response URL https://login2.scrape.center/page/1返回的是 INDEX_URL,这下没有问题了,模拟登录成功!此时还可以进一步输出 response_index 的text 属性,看一下数据是否获取成功。但其实可以发现,这种实现方式比较烦琐,每次请求都需要处理并传递一次Cookie,有没有更简便的方法呢?有的,可以直接借助 requests 内置的Session 对象帮我们自动处理 Cookie,使用Session 对象之后,requests 会自动保存每次请求后设置的 Cookie,并在下次请求时携带上它,这样就变方便了。把刚才的代码简化一下:</p>
 <pre class="code-block"><code>import requests
@@ -197,7 +196,7 @@ Response URL https://login2.scrape.center/page/1</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">本节我们通过一个实例来演示了基于Session 和 Cookie 模拟登录并爬取数据的过程,以后遇到这种情形的时候可以用类似的思路解决。本节代码见 https://github.com/Python3 WebSpider/ScrapeLogin2。</p>
+<p class="content-text">本节我们通过一个实例来演示了基于Session 和 Cookie 模拟登录并爬取数据的过程,以后遇到这种情形的时候可以用类似的思路解决。本节代码见 https://github.com/Python3WebSpider/ScrapeLogin2。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>10.3 基于JWT 的模拟登录爬取实战</h2></div>
 <p class="content-text">本节中我们通过实例讲解基于JWT 模拟登录并爬取数据的流程。</p>
@@ -267,7 +266,9 @@ Response Data {'count': 9200, 'results': [{'id': '27135877', 'name':'校园市�
 <p class="content-text">本节我们通过一个实例成功实现了基于JWT 模拟登录以及爬取数据的流程,以后如果遇到基于JWT 认证的网站,也可以通过类似的方式实现模拟登录。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>10.4 大规模账号池的搭建</h2></div>
-<p class="content-text">我们在10.1节已经提过账号池,要想降低账号被封的风险,同时还能实现大规模爬取,自然而然想到的方法就是分流。在现在的场景中,分流是指将请求分摊到不同的账号上。我们利用分流可以达成下面两个目标。■ 如果单位时间内所有账号的总请求量一定,每次都随机选取一个账号请求,那么账号越多,单个账号访问网站的频率就降低,被封禁的概率也越低。■ 如果单位时间内单个账号的请求量一定,同样是每次随机选取一个账号请求,那么账号越多,单位时间内的总请求量就越大。所以,利用分流的思想,可以在保证爬取规模的情况下降低单个账号被封的概率。如何实现这个过程?如何维护多个账号的登录信息?这时就要用到账号池了。接下来看看账号池的搭建方法。</p>
+<p class="content-text">我们在10.1节已经提过账号池,要想降低账号被封的风险,同时还能实现大规模爬取,自然而然想到的方法就是分流。在现在的场景中,分流是指将请求分摊到不同的账号上。我们利用分流可以达成下面两个目标。</p>
+<p class="content-text list-like">如果单位时间内所有账号的总请求量一定,每次都随机选取一个账号请求,那么账号越多,单个账号访问网站的频率就降低,被封禁的概率也越低。</p>
+<p class="content-text list-like">如果单位时间内单个账号的请求量一定,同样是每次随机选取一个账号请求,那么账号越多,单位时间内的总请求量就越大。所以,利用分流的思想,可以在保证爬取规模的情况下降低单个账号被封的概率。如何实现这个过程?如何维护多个账号的登录信息?这时就要用到账号池了。接下来看看账号池的搭建方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 案例介绍</h3>
 <p class="content-text">我们本节所用的案例网站是https://antispider6.scrape.center/,访问该网站,会自动打开登录页面,如图10-9所示。</p>
@@ -282,11 +283,11 @@ Response Data {'count': 9200, 'results': [{'id': '27135877', 'name':'校园市�
 <h3 class="subsection-heading numbered-heading">2. 本节目标</h3>
 <p class="content-text">本节的目标就是搭建一个账号池,例如在账号池内维护100个账号信息以及对应的Cookie,并存放到数据库中。每次爬取的时候,随机取用其中一个账号的Cookie。这个账号池需要具备如下几个功能。</p>
 <p class="content-text list-like">需要保存能登录目标站点的账号和登录后的Cookie信息。</p>
-<p class="content-text list-like">需要定时检测每个Cookie的有效性,如果检测到Cookie 无效,就删除它并模拟登录生成新的Cookie。口还需要一个接口,即获取随机 Cookie 的接口。账号池在运行中,只需请求该接口,即可随机获得一个 Cookie 并用其爬取数据。由此可见,账号池需要有自动生成Cookie、定时检测 Cookie、提供随机 Cookie 这几个核心功能。账号池有了,当然要使用它来爬取本章的案例网站,实现在不封任何一个账号的情况下高效完成全站数据的爬取。</p>
+<p class="content-text list-like">需要定时检测每个Cookie的有效性,如果检测到Cookie 无效,就删除它并模拟登录生成新的Cookie。还需要一个接口,即获取随机 Cookie 的接口。账号池在运行中,只需请求该接口,即可随机获得一个 Cookie 并用其爬取数据。由此可见,账号池需要有自动生成Cookie、定时检测 Cookie、提供随机 Cookie 这几个核心功能。账号池有了,当然要使用它来爬取本章的案例网站,实现在不封任何一个账号的情况下高效完成全站数据的爬取。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">请确保已经安装好 Redis 数据库并使其能正常运行,安装方式可以参考https://setup.scrape.center/redis。另外需要安装Python 的 redis-py、requests、selelnium、flask、loguru environs库,安装命令如下:</p>
+<p class="content-text">请确保已经安装好 Redis 数据库并使其能正常运行,安装方式可以参考https://setup.scrape.center/redis。另外需要安装Python 的 redis-py、requests、selenium、flask、loguru 和 environs 库,安装命令如下:</p>
 <pre class="code-block"><code>pip3 install redis requests selenium flask loguru environs</code></pre>
 </section>
 <section class="numbered-section">
@@ -328,8 +329,9 @@ class RedisClient(object):
         return self.db.hset(self.name(), username, value)
 
     def get(self, username):
-        return self.db.hget(self.name(), username)</code></pre>
-<pre class="code-block" data-lang="python"><code>    def delete(self, username):
+        return self.db.hget(self.name(), username)
+
+    def delete(self, username):
         return self.db.hdel(self.name(), username)
 
     def count(self):
@@ -427,8 +429,8 @@ class BaseTester(object):
         raise NotImplementedError
 
     def run(self):
-        credentials = self.credential_operator.all()</code></pre>
-<pre class="code-block" data-lang="python"><code>        for username, credential in credentials.items():
+        credentials = self.credential_operator.all()
+        for username, credential in credentials.items():
             self.test(username, credential)</code></pre>
 <p class="content-text">为了实现通用性和可扩展性，我们定义了一个检测器父类，在其中声明一些通用组件。这个父类叫作 BaseTester，在其构造方法里指定了网站的名称 website，并且同样初始化了两个 RedisClient 对象，分别是 account_operator 和 credential_operator。</p>
 <p class="content-text">然后最主要的方法就是 run 了，其主要逻辑是遍历所有 Cookie 并逐个做测试，具体是利用credential_operator 拿到所有的 Cookie，然后调用 test 方法进行测试。这里的 test 方法同样抛出了NotImplementedError 异常，所以子类必须实现这个方法。下面我们再写一个子类继承这个 BaseTester，并重写其 test 方法，代码如下：</p>
@@ -476,8 +478,8 @@ def index():
 
 def get_conn():
     for website in GENERATOR_MAP:
-        if not hasattr(g, website):</code></pre>
-<pre class="code-block" data-lang="python"><code>            setattr(g, f'{website}_{credential}', RedisClient(credential, website))
+        if not hasattr(g, website):
+            setattr(g, f'{website}_{credential}', RedisClient(credential, website))
             setattr(g, f'{website}_{account}', RedisClient(account, website))
     return g
 
@@ -538,8 +540,9 @@ class Scheduler(object):
         if not ENABLE_SERVER:
             logger.info('server not enabled, exit')
             return
-        app.run(host=API_HOST, port=API_PORT, threaded=API_THREADED)</code></pre>
-<pre class="code-block" data-lang="python"><code>    def run(self, website):
+        app.run(host=API_HOST, port=API_PORT, threaded=API_THREADED)
+
+    def run(self, website):
         global tester_process, generator_process, server_process
         try:
             logger.info('starting account pool...')

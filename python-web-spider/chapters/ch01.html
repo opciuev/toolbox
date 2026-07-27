@@ -29,7 +29,7 @@
 <p class="content-text">本节我们会详细了解 HTTP 的基本原理，了解从浏览器中输入 URL 到获取网页内容之间都发生了什么。了解这些内容有助于我们进一步了解爬虫的基本原理。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. URI 和 URL</h3>
-<p class="content-text">我们先了解一下 URI 和 URL。URI 的全称为 Uniform Resource Identifier，即统一资源标识符；URL 的全称为 Universal Resource Locator，即统一资源定位符。它们是什么意思呢？举例来说，https://github.com/favicon.ico 既是一个 URI，也是一个 URL。即有 favicon.ico 这样一个图标资源，我们用上一行中的 URI/URL 指定了访问它的唯一方式，其中包括访问协议 https、访问路径（即根目录）和资源名称。通过一个链接，便可以从互联网中找到某个资源，这个链接就是 URI/URL。</p>
+<p class="content-text">我们先了解一下 URI 和 URL。URI 的全称为 Uniform Resource Identifier，即统一资源标识符；URL 的全称为 Uniform Resource Locator，即统一资源定位符。它们是什么意思呢？举例来说，https://github.com/favicon.ico 既是一个 URI，也是一个 URL。即有 favicon.ico 这样一个图标资源，我们用上一行中的 URI/URL 指定了访问它的唯一方式，其中包括访问协议 https、访问路径（即根目录）和资源名称。通过一个链接，便可以从互联网中找到某个资源，这个链接就是 URI/URL。</p>
 <p class="content-text">URL 是 URI 的子集，也就是说每个 URL 都是 URI，但并非每个 URI 都是 URL。那么，怎样的 URI 不是 URL 呢？除了 URL，URI 还包括一个子类，叫作 URN，其全称为 Universal Resource Name，即统一资源名称。URN 只为资源命名而不指定如何定位资源，例如 urn:isbn:0451450523 指定了一本书的 ISBN，可以唯一标识这本书，但没有指定到哪里获取这本书，这就是 URN。</p>
 <p class="content-text">URL、URN 和 URI 的关系可以用图 1-1 表示。</p>
 <figure class="inline-figure"><img src="figures/ch01/fig-1_1.jpg" alt="图1-1 URL、URN和URI关系图" loading="lazy"><figcaption>图1-1 URL、URN和URI关系图</figcaption></figure>
@@ -345,7 +345,7 @@ height: 181px;
 <h3 class="subsection-heading numbered-heading">3. 节点树及节点间的关系</h3>
 <p class="content-text">在HTML中,所有标签定义的内容都是节点,这些节点构成一个HTML节点树,也叫HTML DOM树。</p>
 <p class="content-text">先来看一下什么是DOM。DOM是W3C(万维网联盟)的标准,英文全称是Document Object Model,即文档对象模型。它定义了访问HTML 和XML文档的标准。根据W3C的HTML DOM 标准, HTML 文档中的所有内容都是节点。</p>
-<p class="content-text">■整个网站文档是一个文档节点。</p>
+<p class="content-text list-like">整个网站文档是一个文档节点。</p>
 <p class="content-text list-like">每个html标签对应一个根节点,即上例中的html标签,它属于一个根节点。</p>
 <p class="content-text list-like">节点内的文本是文本节点,比如a节点代表一个超链接,它内部的文本也被认为是一个文本节点。</p>
 <p class="content-text list-like">每个节点的属性是属性节点,比如a节点有一个href属性,它就是一个属性节点。</p>
@@ -442,8 +442,7 @@ height: 181px;
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">保存数据</h4>
-<p class="content-text">提取信息后,我们一般会将提取到的数据保存到某处以便后续使用。保存数据的形式多种多样,可以简单保存为TXT文本或JSON文本,也可以保存到数据库,如 MySQL 和 MongoDB等,还可保</p>
-<p class="content-text">存至远程服务器,如借助SFTP进行操作等。</p>
+<p class="content-text">提取信息后,我们一般会将提取到的数据保存到某处以便后续使用。保存数据的形式多种多样,可以简单保存为TXT文本或JSON文本,也可以保存到数据库,如 MySQL 和 MongoDB等,还可保存至远程服务器,如借助SFTP进行操作等。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">自动化程序</h4>

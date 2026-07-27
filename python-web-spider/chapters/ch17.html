@@ -218,7 +218,9 @@ password = admin</code></pre>
 <p class="content-text">本节介绍了利用 Scrapyd-Client 来方便地将项目部署到 Scrapyd 的过程,有了它,部署不再是麻烦事。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>17.3 Gerapy 爬虫管理框架的使用</h2></div>
-<p class="content-text">我们可以通过 Scrapyd-Client 将 Scrapy 项目部署到 Scrapyd 上,并且可以通过 ScrapydAPI 来控制Scrapy 的运行。那么,我们是否可以做到更优化?方法是否更方便可控?我们重新分析一下当前可以优化的问题。□ 使用 Scrapyd-Client 部署时,需要在配置文件中配置好各台主机的地址,然后利用命令行执行部署过程。如果我们省去各台主机的地址配置,将命令行对接图形界面,只需要点击按钮即可实现批量部署,这样就更方便了。□ 使用 ScrapydAPI 可以控制 Scrapyd 任务的启动、终止等工作,但很多操作还需要代码来实现,同时获取爬取日志还比较烦琐。如果我们有一个图形界面,只需要点击按钮即可启动和终止爬虫任务,同时还可以实时查看爬取日志报告,这将大大节省我们的时间和精力。所以我们的目标其实是:更方便地控制爬虫运行、更直观地查看爬虫状态、更实时地查看爬取结果、更简单地实现项目部署、更统一地实现主机管理,而所有这些工作均可通过 Gerapy 来实现。Gerapy 是一个基于 Scrapyd、ScrapydAPI、Django、Vue.js 搭建的分布式爬虫管理框架,本节中我们来简单介绍它的用法。</p>
+<p class="content-text">我们可以通过 Scrapyd-Client 将 Scrapy 项目部署到 Scrapyd 上,并且可以通过 ScrapydAPI 来控制Scrapy 的运行。那么,我们是否可以做到更优化?方法是否更方便可控?我们重新分析一下当前可以优化的问题。</p>
+<p class="content-text list-like">使用 Scrapyd-Client 部署时,需要在配置文件中配置好各台主机的地址,然后利用命令行执行部署过程。如果我们省去各台主机的地址配置,将命令行对接图形界面,只需要点击按钮即可实现批量部署,这样就更方便了。</p>
+<p class="content-text list-like">使用 ScrapydAPI 可以控制 Scrapyd 任务的启动、终止等工作,但很多操作还需要代码来实现,同时获取爬取日志还比较烦琐。如果我们有一个图形界面,只需要点击按钮即可启动和终止爬虫任务,同时还可以实时查看爬取日志报告,这将大大节省我们的时间和精力。所以我们的目标其实是:更方便地控制爬虫运行、更直观地查看爬虫状态、更实时地查看爬取结果、更简单地实现项目部署、更统一地实现主机管理,而所有这些工作均可通过 Gerapy 来实现。Gerapy 是一个基于 Scrapyd、ScrapydAPI、Django、Vue.js 搭建的分布式爬虫管理框架,本节中我们来简单介绍它的用法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
 <p class="content-text">在开始之前,请确保已经正确安装好了 Gerapy,同样使用 pip3 安装即可:</p>
@@ -254,7 +256,8 @@ password = admin</code></pre>
 <p class="content-text">本节中,我们介绍了Gerapy 的简单用法,利用它我们可以方便地实现 Scrapy项目的部署、管理等操作。尤其是对于分布式爬虫的管理来说,Gerapy 可以帮我们提高更多效率,省去更多烦琐的步骤。</p>
 <p class="content-text">在本章前三节的内容中,我们了解了Scrapy项目的一种部署方式——Scrapyd,这是 Scrapy 官方提供的一种用于部署和管理 Scrapy 项目的解决方案,再配合 Gerapy,我们可以更加方便地管理基于Scrapyd 部署的Scrapy项目。当然,上述方案并不是唯一的。随着容器化技术的发展,Docker+Kubernetes 的解决方案变得越来越流行,Kubernetes 毫无疑问已经成了最主流的容器化编排工具,而且使用也越来越广泛。那么,我们能否把 Scrapy 打包成 Docker容器,并迁移到 Kubernetes 进行管理和维护呢?当然是可以的。接下来,我们就来了解下 Scrapy 项目的另外一种部署方式——基于 Docker + Kubernetes 的部署和维护方案,具体的内容包括:</p>
 <p class="content-text list-like">如何把 Scrapy 项目打包成一个Docker镜像;</p>
-<p class="content-text list-like">如何利用 Docker Compose 来方便地维护和打包镜像;■ 如何使用 Kubernetes 来部署 Scrapy 项目的Docker镜像;</p>
+<p class="content-text list-like">如何利用 Docker Compose 来方便地维护和打包镜像;</p>
+<p class="content-text list-like">如何使用 Kubernetes 来部署 Scrapy 项目的Docker镜像;</p>
 <p class="content-text list-like">如何监控 Scrapy 项目的爬取状态。接下来,我们先来了解如何把一个Scrapy 项目制作成一个Docker镜像。</p>
 </section>
 <section class="numbered-section">
@@ -432,9 +435,10 @@ scrapycompositedemo_1       | 2021-07-31 18:29:13 [scrapy.utils.log] INFO: Versi
 <p class="content-text">如此一来,我们就成功使用Docker Compose 来构建、运行、推送我们构建的Docker 镜像。正因为Docker Compose 所提供的配置化功能,我们可以将 Docker 启动和构建所需的参数都写到 docker-compose.yaml 文件里面,我们只需要使用docker-compose 对应的命令就可以轻松完成想要的操作。好,现在我们已经构建好镜像了。在下一节中,我们就来了解在 Kubernetes 里面如何运行镜像吧。</p>
 </section>
 <div class="section-heading" id="section-5"><h2>17.6 Kubernetes 的使用</h2></div>
-<p class="content-text">前面我们已经学习了Docker镜像的搭建过程,另外还学习了 Docker Compose 工具的用法。我们可以使用 Docker Compose 非常方便地启动 Docker 容器运行爬虫,然而这个过程距离真正的大规模运</p>
-<p class="content-text">维还是不够。还是前几节的几个问题:</p>
-<p class="content-text list-like">如何快速部署几十、上百、上千个爬虫程序并协同爬取?■ 如何实现爬虫的批量更新?■ 如何实时查看爬虫的运行状态和日志?其实利用 Kubernetes,我们同样可以非常方便地解决上文提到的各个问题。本节中,我们会首先了解 Kubernetes 的基本概念和原理、核心的组件和 Kubernetes 的基本使用方式,以便为后文实现 Kubernetes 部署和管理 Scrapy 爬虫程序打下基础。</p>
+<p class="content-text">前面我们已经学习了Docker镜像的搭建过程,另外还学习了 Docker Compose 工具的用法。我们可以使用 Docker Compose 非常方便地启动 Docker 容器运行爬虫,然而这个过程距离真正的大规模运维还是不够。还是前几节的几个问题:</p>
+<p class="content-text list-like">如何快速部署几十、上百、上千个爬虫程序并协同爬取?</p>
+<p class="content-text list-like">如何实现爬虫的批量更新?</p>
+<p class="content-text list-like">如何实时查看爬虫的运行状态和日志?其实利用 Kubernetes,我们同样可以非常方便地解决上文提到的各个问题。本节中,我们会首先了解 Kubernetes 的基本概念和原理、核心的组件和 Kubernetes 的基本使用方式,以便为后文实现 Kubernetes 部署和管理 Scrapy 爬虫程序打下基础。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
 <p class="content-text">在本节开始之前,请确保已经对 Docker 等容器技术有了一定的了解,如果你没有相关的经验,请先学习一下 Docker 和容器技术的相关知识。另外,还需要在本机安装 Docker 并在本地启用 Kubernetes服务,具体的操作可以参考</p>
@@ -445,8 +449,10 @@ scrapycompositedemo_1       | 2021-07-31 18:29:13 [scrapy.utils.log] INFO: Versi
 <h3 class="subsection-heading numbered-heading">2. Kubernetes 简介</h3>
 <p class="content-text">Kubernetes,简称K8s(K和s中间含有8个字母),它是用于编排容器化应用程序的云原生系统。Kubernetes 诞生自Google,现在已经由CNCF(云原生计算基金会)维护更新。Kubernetes 是目前最受欢迎的集群管理方案之一,可以非常容易地实现容器的管理和编排。刚刚我们提到,Kubernetes 是一个容器编排系统。对于“编排”二字,我们可能不太容易理解其中的含义。为了对它有更好的理解,我们先回过头来看看容器的定位以及容器解决了什么问题,不能解决什么问题,然后了解下 Kubernetes 能够弥补容器哪些缺失的内容。好,首先来看容器。最常见的容器技术就是 Docker了,它提供了比传统虚拟化技术更轻量级的机制来创建隔离的应用程序的运行环境。比如对于某个应用程序,我们使用容器运行时,不必担心它与宿主机之间产生资源冲突,不必担心多个容器之间产生资源冲突。同时借助于容器技术,我们还能更好地保证开发环境和生产环境的运行一致性。另外,由于每个容器都是独立的,因此可以将多个容器运行在同一台宿主机上,以提高宿主机的资源利用率,从而进一步降低成本。总之,使用容器带来的好处有很多,可以为我们带来极大的便利。不过单单依靠容器技术并不能解决所有问题,也可以说容器技术也引入了新的问题,比如说:</p>
 <p class="content-text list-like">如果容器突然运行异常了,怎么办?</p>
-<p class="content-text list-like">如果容器所在的宿主机突然运行异常了,怎么办?■ 如果有多个容器,它们之间怎么有效地传输数据?■ 如果单个容器达到了瓶颈,如何平稳且有效地进行扩容?■ 如果生产环境是由多台主机组成的,我们怎样更好地决定使用哪台主机来运行哪个容器?以上列举了一些单纯依靠容器技术或者单纯依靠 Docker 不能解决的问题,而Kubernetes 作为容器编排平台,提供了一个可弹性运行的分布式系统框架,各个容器可以运行在Kubernetes平台上,容器的管理、调度、部署、扩容等各个操作都可以经由 Kubernetes来有效实现。比如说,Kubernetes 可以管理单个容器的生命周期,并且可以根据需要来扩展和释放资源。如果某个容器意外关闭,Kubernetes 可以根据对应的策略选择重启该容器,以保证服务正常运行。再比如说,Kubernetes 是一</p>
-<p class="content-text">个分布式平台,当容器所在的主机突然发生异常,Kubernetes可以将异常主机上运行的容器转移到其他正常的主机上运行。另外,Kubernetes 还可以根据容器运行所需要占用的资源自动选择合适的主机来运行。总之,Kubernetes 对容器的调度和管理提供了非常强大的支持,可以帮我们解决上述的诸多问题。</p>
+<p class="content-text list-like">如果容器所在的宿主机突然运行异常了,怎么办?</p>
+<p class="content-text list-like">如果有多个容器,它们之间怎么有效地传输数据?</p>
+<p class="content-text list-like">如果单个容器达到了瓶颈,如何平稳且有效地进行扩容?</p>
+<p class="content-text list-like">如果生产环境是由多台主机组成的,我们怎样更好地决定使用哪台主机来运行哪个容器?以上列举了一些单纯依靠容器技术或者单纯依靠 Docker 不能解决的问题,而Kubernetes 作为容器编排平台,提供了一个可弹性运行的分布式系统框架,各个容器可以运行在Kubernetes平台上,容器的管理、调度、部署、扩容等各个操作都可以经由 Kubernetes来有效实现。比如说,Kubernetes 可以管理单个容器的生命周期,并且可以根据需要来扩展和释放资源。如果某个容器意外关闭,Kubernetes 可以根据对应的策略选择重启该容器,以保证服务正常运行。再比如说,Kubernetes 是一个分布式平台,当容器所在的主机突然发生异常,Kubernetes可以将异常主机上运行的容器转移到其他正常的主机上运行。另外,Kubernetes 还可以根据容器运行所需要占用的资源自动选择合适的主机来运行。总之,Kubernetes 对容器的调度和管理提供了非常强大的支持,可以帮我们解决上述的诸多问题。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. Kubernetes 关键概念</h3>
@@ -481,61 +487,122 @@ scrapycompositedemo_1       | 2021-07-31 18:29:13 [scrapy.utils.log] INFO: Versi
 <h3 class="subsection-heading numbered-heading">4. Kubernetes 案例上手</h3>
 <p class="content-text">下面我们来用一个实际案例了解 Kubernetes 的部署过程。这里我们会介绍如何创建 Namespace,如何使用 YAML来定义 Deployment 和Service,以及怎样访问 Service,通过这些操作,我们可以先对Kubernetes 的操作有个简单的认识。接下来的演示是基于Docker 自带的Kubernetes集群实现的,安装好 Docker之后,我们在 Docker的设置面板中只需要勾选 Enable Kubernetes 即可在本地开启一个 Kubernetes 服务,如图17-12所示。</p>
 <figure class="inline-figure"><img alt="图17-12 Docker 的设置面板" loading="lazy" src="figures/ch17/fig-17_12.jpg"/><figcaption>图17-12 Docker 的设置面板</figcaption></figure>
-<p class="content-text">配置完成之后,可以发现左下角的Kubernetes 是绿色的running 状态,这就说明配置成功了。kubectl 是用来操作 Kubernetes 的命令行工具,可以参考 https://kubernetes.io/zh/docs/tasks/tools/install-kubectl/来安装。安装完成之后,请将 Kubernetes Context 切换为本地 Kubernetes。比如,我这边 Docker Desktop 创建的 Kubernetes 的Context 名称叫作 docker-desktop。如果你也使</p>
-<p class="content-text">用同样的方法创建集群，名字默认也是一样的，此时可以运行如下命令使用该Context:kubectl config use-context docker-desktop运行之后，会有如下提示:Switched to context "docker-desktop".如果你使用的是其他 Kubernetes集群，可以自行更改 Context 名称。这时候我们可以使用kubectl命令来查看当前本地 Kubernetes 集群的运行状态。首先看下节点的信息，命令如下:kubectl get nodes类似的输出如下:NAME STATUS ROLES AGE VERSION docker-desktop Ready master 1d v1.16.6-beta.0这里列出来了节点的相关信息:NAME 代表名称;STATUS 代表当前节点的状态,如果其值是 Ready的话,代表节点状态正常;ROLES 代表角色，这里因为只有一个节点，所以它的 ROLES 就是 master;AGE 代表节点自创建以来到现在的时间;VERSION 代表当前 Kubernetes 的版本号。接着,我们再来查看下 Namespace，命令如下:kubectl get namespaces输出类似如下:NAME STATUS AGE</p>
-<pre class="code-block"><code>default              Active    1d</code></pre>
-<p class="content-text"> kube-node-lease Active 1d kube-public Active 1d kube-system Active 1d这里列出了当前所有的Namespace，它们都是 Kubernetes 预置的Namespace。我们可以自行创建一个 Namespace，将资源部署到新的Namespace下，比如创建一个叫作 service 的Namespace，命令如下:kubectl create namespace service运行结果如下:namespace/service created如果看到如上提示,就说明 Kubernetes 已经创建好了。这时候我们来创建一个示例 Docker 镜像。首先,新建一个文件夹并将其当作工作目录,在该工作目录下创建一个app文件夹,其内创建一个main.py 文件,目录结构如下:├── app│ └── main.py main.py 文件的内容如下:</p>
-<pre class="result-block"><code>from fastapi import FastAPI</code></pre>
-<pre class="code-block"><code>app = FastAPI()</code></pre>
-<pre class="code-block"><code>@app.get('/')
+<p class="content-text">配置完成之后,可以发现左下角的 Kubernetes 是绿色的 running 状态,这就说明配置成功了。kubectl 是用来操作 Kubernetes 的命令行工具,可以参考 https://kubernetes.io/zh/docs/tasks/tools/install-kubectl/ 来安装。安装完成之后,请将 Kubernetes Context 切换为本地 Kubernetes。比如 Docker Desktop 创建的 Context 名称叫作 docker-desktop,可以运行如下命令:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl config use-context docker-desktop</code></pre>
+<p class="content-text">运行之后,会有如下提示:</p>
+<pre class="result-block"><code>Switched to context "docker-desktop".</code></pre>
+<p class="content-text">如果使用的是其他 Kubernetes 集群,可以自行更改 Context 名称。这时候我们可以使用 kubectl 命令来查看当前集群的运行状态。首先查看节点信息:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl get nodes</code></pre>
+<p class="content-text">类似的输出如下:</p>
+<pre class="result-block"><code>NAME             STATUS   ROLES    AGE   VERSION
+docker-desktop   Ready    master   1d    v1.16.6-beta.0</code></pre>
+<p class="content-text">NAME 代表名称;STATUS 代表当前节点的状态,Ready 表示状态正常;ROLES 代表角色;AGE 代表节点自创建以来的时间;VERSION 代表当前 Kubernetes 的版本号。接着查看 Namespace:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl get namespaces</code></pre>
+<p class="content-text">输出类似如下:</p>
+<pre class="result-block"><code>NAME              STATUS   AGE
+default           Active   1d
+kube-node-lease   Active   1d
+kube-public       Active   1d
+kube-system       Active   1d</code></pre>
+<p class="content-text">这里列出了当前所有的 Namespace,它们都是 Kubernetes 预置的 Namespace。我们可以自行创建一个叫作 service 的 Namespace:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl create namespace service</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>namespace/service created</code></pre>
+<p class="content-text">如果看到如上提示,就说明 Kubernetes 已经创建好了。这时候我们来创建一个示例 Docker 镜像。首先新建一个文件夹并将其当作工作目录,在该目录下创建 app 文件夹,其内创建 main.py 文件。main.py 文件的内容如下:</p>
+<pre class="code-block" data-lang="python"><code>from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get('/')
 def index():
-return 'Hello World'</code></pre>
+    return 'Hello World'</code></pre>
 <p class="content-text">这是 FastAPI 编写的一个服务,通过代码可以看出,这里定义了一个路由,访问根路径就可以返回 Hello World。</p>
-<p class="content-text">接着,我们在 app同级目录下创建一个Dockerfile 文件,目录树结构如下:Dockerfile app main.py Dockerfile 的内容如下:FROM python:3.7 RUN pip install fastapi uvicorn EXPOSE 80 COPY./app/app CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]接下来,我们可以在 Dockerfile 所在文件夹下运行命令构建一个 Docker 镜像,如:docker build -t testserver.这样一个镜像就构建好了。我们来运行一下试试看:docker run -p 8888:80 testserver这里我们运行了当前的镜像,启动了一个容器,容器本身是在80端口上运行的。由于我们设置了端口映射,将宿主机的 8888 端口转发到容器的80端口,因此我们在浏览器中打开</p>
+<p class="content-text">接着,我们在 app 同级目录下创建一个 Dockerfile 文件,目录树结构如下:</p>
+<pre class="code-block"><code>├── Dockerfile
+└── app
+    └── main.py</code></pre>
+<p class="content-text">Dockerfile 的内容如下:</p>
+<pre class="code-block" data-lang="dockerfile"><code>FROM python:3.7
+RUN pip install fastapi uvicorn
+EXPOSE 80
+COPY ./app /app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]</code></pre>
+<p class="content-text">接下来,我们可以在 Dockerfile 所在文件夹下运行命令构建一个 Docker 镜像:</p>
+<pre class="code-block" data-lang="bash"><code>docker build -t testserver .</code></pre>
+<p class="content-text">这样一个镜像就构建好了。我们来运行一下试试看:</p>
+<pre class="code-block" data-lang="bash"><code>docker run -p 8888:80 testserver</code></pre>
+<p class="content-text">这里我们运行了当前的镜像,启动了一个容器,容器本身是在80端口上运行的。由于我们设置了端口映射,将宿主机的 8888 端口转发到容器的80端口,因此我们在浏览器中打开 http://localhost:8888/,就可以看到如图17-13所示的结果。</p>
 <figure class="inline-figure"><img alt="图17-13 运行结果" loading="lazy" src="figures/ch17/fig-17_13.jpg"/><figcaption>图17-13 运行结果</figcaption></figure>
-<pre class="result-block"><code>http://localhost:8888/,就可以看到如图17-13所示的结果。</code></pre>
-<p class="content-text">这说明本镜像是没有任何问题的。接下来,我把镜像推送到 Docker Hub。先修改镜像名称,然后推送即可:docker tag testserver germey/testserver docker push germey/testserver这里请自行修改 Docker Hub 的用户名,将germey 替换为你自己的用户名。如果出现类似下面的结果,就说明推送成功了:The push refers to repository [docker.io/germey/testserver] 0c80be9761b3: Layer already exists a4b0f6a9292c: Layer already exists a1f2f42922b1: Layer already exists 4762552ad7d8: Layer already exists</p>
-<pre class="code-block"><code>latest: digest: sha256:b92c66daf4627eb069dc3343e9a9c3d24d6b122db47e847c4deb52dfa5b2f2e0 size: 2636</code></pre>
+<p class="content-text">这说明本镜像是没有任何问题的。接下来,我把镜像推送到 Docker Hub。先修改镜像名称,然后推送即可:</p>
+<pre class="code-block" data-lang="bash"><code>docker tag testserver germey/testserver
+docker push germey/testserver</code></pre>
+<p class="content-text">这里请自行修改 Docker Hub 的用户名,将 germey 替换为你自己的用户名。如果出现类似下面的结果,就说明推送成功了:</p>
+<pre class="result-block"><code>The push refers to repository [docker.io/germey/testserver]
+0c80be9761b3: Layer already exists
+a4b0f6a9292c: Layer already exists
+a1f2f42922b1: Layer already exists
+4762552ad7d8: Layer already exists
+latest: digest: sha256:b92c66daf4627eb069dc3343e9a9c3d24d6b122db47e847c4deb52dfa5b2f2e0 size: 2636</code></pre>
 <p class="content-text">当然,你也可以选择不推送自己的镜像,直接使用我的镜像 germey/testserver 也是没问题的。好,接下来让我们创建一个YAML文件,叫作deployment.yaml,其内容如下:</p>
-<pre class="code-block"><code>apiVersion: apps/v1
-kind: Deployment</code></pre>
-<p class="content-text">metadata:</p>
-<pre class="code-block"><code>name: testserver
-namespace: service</code></pre>
-<p class="content-text">labels:</p>
-<pre class="code-block"><code>app: testserver</code></pre>
-<p class="content-text">spec:</p>
-<pre class="code-block"><code>replicas: 3</code></pre>
-<p class="content-text">selector:matchLabels:</p>
-<pre class="code-block"><code>app: testserver</code></pre>
-<p class="content-text">template:metadata:labels:</p>
-<pre class="code-block"><code>app: testserver</code></pre>
-<p class="content-text">spec:containers:</p>
-<p class="content-text list-like"><strong class="term-label">name:</strong>testserver</p>
-<pre class="code-block"><code>image: germey/testserver</code></pre>
-<p class="content-text">ports:</p>
-<p class="content-text list-like">containerPort: 80这里我们定义了一个 Deployment 对象,一些配置项如kind:其值就是 Deployment,代表我们声明的是 Deployment 对象。</p>
-<p class="content-text list-like">metadata:定义了 Deployment 的基本信息。name: Deployment的名称,我们可以任取,这里也取名为 testserver。namespace:命名空间,这里就使用刚才我们所创建的service 这个命名空间。■ labels: 声明了一些标签,是一些键值对的形式,可以任意取值,它旨在用于指定对用户有意义且相关的对象的标识属性。spec:声明该 Deployment 对象对应的Pod的基本信息。■ replicas:这里指定为3,这就声明了需要创建三个Pod,即创建三个 Pod副本。selector:声明了该 Deployment 如何查找要管理的Pod,这里通过 matchLabels 指定了一个键值对,这样符合该键值对的Pod 就归属该 Deployment管理。另外,还有一些更复杂的匹配,如使用 matchExpressions 匹配某个表达式规则。■ template:声明了 Pod里面运行的容器的信息,其中 metadata 里面声明了Pod的labels,这和上述 selector 的 matchLabels 匹配即可。containers 字段指定运行容器的配置,其中包括容器名称、使用的镜像、容器运行端口等。通过如上配置,我们就完成了Deployment 的声明。现在我们来执行一下部署,此时可以运行如下命令:kubectl apply f deployment.yaml这里 apply 命令就代表 kubectl 应用该项配置,-f代表文件选项,后面要跟一个文件路径,即deployment.yaml。运行结果类似如下:deployment.apps/testserver created如果出现这样的提示,就说明该部署已经生效了。接着我们可以用如下命令来看下Pod的运行状态:kubectl get pod -n service这里注意我们需要使用-n指定 Namespace,运行结果类似如下:NAME testserver-685978f9f9-1j4v6 testserver-685978f9f9-q6v5k testserver-685978f9f9-tspzz READY STATUS RESTARTS AGE 1/1 Running 0 1m 1/1 Running 0 1m 1/1 Running 0 1m可以看到,这里创建了3个Pod(就是刚才 replicas 参数所指定的3),而且都是 Running 状态。</p>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testserver
+  namespace: service
+  labels:
+    app: testserver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: testserver
+  template:
+    metadata:
+      labels:
+        app: testserver
+    spec:
+      containers:
+        - name: testserver
+          image: germey/testserver
+          ports:
+            - containerPort: 80</code></pre>
+<p class="content-text">这里我们定义了一个 Deployment 对象。kind 的值为 Deployment;metadata 定义名称、命名空间和标签;spec 声明副本数、Pod 选择器以及容器所用的镜像和端口。</p>
+<p class="content-text">通过如上配置,我们就完成了 Deployment 的声明。现在运行如下命令执行部署:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f deployment.yaml</code></pre>
+<p class="content-text">运行结果类似如下:</p>
+<pre class="result-block"><code>deployment.apps/testserver created</code></pre>
+<p class="content-text">接着可以用如下命令查看 Pod 的运行状态:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl get pod -n service</code></pre>
+<p class="content-text">这里需要使用 -n 指定 Namespace。结果中可以看到创建了3个 Pod,也就是 replicas 参数指定的3个副本,而且都是 Running 状态。</p>
 <p class="content-text">好,现在 Pod已经创建好了,接下来我们需要将服务通过 Service 暴露出来。接下来,我们声明一个 Service 对象,再创建一个service.yaml 文件,内容如下:</p>
-<pre class="code-block"><code>apiVersion: v1
-kind: Service</code></pre>
-<p class="content-text">metadata:</p>
-<pre class="code-block"><code>name: testserver
-namespace: service</code></pre>
-<p class="content-text">spec:</p>
-<pre class="code-block"><code>type: NodePort</code></pre>
-<p class="content-text">  selector:</p>
-<pre class="code-block"><code>app: testserver</code></pre>
-<p class="content-text"> ports:- protocol: TCP</p>
-<pre class="code-block"><code>port: 8888
-targetPort: 80</code></pre>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: testserver
+  namespace: service
+spec:
+  type: NodePort
+  selector:
+    app: testserver
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 80</code></pre>
 <p class="content-text">这里我们定义了一个Service 对象,部分配置项如下。</p>
 <p class="content-text list-like"><strong class="term-label">kind:</strong>其值就是 Service,代表我们声明的是 Service 对象。</p>
-<p class="content-text list-like">metadata: 定义了 Service 的基本信息。- name: Service 的名称,我们可以任取,这里也取名为 testserver。它和其他对象重名,这是不冲突的,只要在一个命名空间下没有其他相同名称的 Service 即可。- namespace: 表示命名空间,这里就使用刚才我们所创建的 service 这个命名空间。</p>
-<p class="content-text list-like">spec: 声明该 Service 对象对应的Pod的基本信息。- selector: 声明该 Service 如何查找要关联的Pod,这里通过 selector 指定了一个键值对,这样所有带有 app为testserver 标签的Pod 都会被关联到这个Service上。- ports: 声明该 Service 和Pod的通信协议,这里指定为TCP。同时,port 指明了Service 的运行端口,这里声明为8888,但是 targetPort 指的是Pod 内容器的运行端口。由于在Deployment 中容器是运行在80端口的,所以targetPort 指定为80。</p>
-<p class="content-text">现在我们再部署这个 Service 对象,其命令如下:kubectl apply -f service.yaml</p>
-<p class="content-text">运行结果如下:service/testserver created</p>
-<p class="content-text">这就表明 Service 已经创建成功了。接下来,我们其实是仍然不能访问这个 Service的。要访问的话,可以通过端口转发的方式将服务端口映射到宿主机,或者修改 Service 相关的配置,把 Service 的类型修改为 NodePort 或者将Service 进一步通过Ingress 暴露出来。这里我们直接采取端口转发的方式将 Kubernetes 中的Service 转发到本机的某个端口上,命令如下:kubectl port-forward service/testserver 9999:8888 -n service</p>
+<p class="content-text list-like">metadata: 定义了 Service 的基本信息。</p>
+<p class="content-text list-like">name: Service 的名称,我们可以任取,这里也取名为 testserver。它和其他对象重名,这是不冲突的,只要在一个命名空间下没有其他相同名称的 Service 即可。</p>
+<p class="content-text list-like">namespace: 表示命名空间,这里就使用刚才我们所创建的 service 这个命名空间。</p>
+<p class="content-text list-like">spec: 声明该 Service 对象对应的Pod的基本信息。</p>
+<p class="content-text list-like">selector: 声明该 Service 如何查找要关联的Pod,这里通过 selector 指定了一个键值对,这样所有带有 app为testserver 标签的Pod 都会被关联到这个Service上。</p>
+<p class="content-text list-like">ports: 声明该 Service 和Pod的通信协议,这里指定为TCP。同时,port 指明了Service 的运行端口,这里声明为8888,但是 targetPort 指的是Pod 内容器的运行端口。由于在Deployment 中容器是运行在80端口的,所以targetPort 指定为80。</p>
+<p class="content-text">现在我们再部署这个 Service 对象,其命令如下:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f service.yaml</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>service/testserver created</code></pre>
+<p class="content-text">这就表明 Service 已经创建成功了。接下来,我们其实是仍然不能访问这个 Service的。要访问的话,可以通过端口转发的方式将服务端口映射到宿主机,或者修改 Service 相关的配置,把 Service 的类型修改为 NodePort 或者将Service 进一步通过Ingress 暴露出来。这里我们直接采取端口转发的方式将 Kubernetes 中的Service 转发到本机的某个端口上,命令如下:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl port-forward service/testserver 9999:8888 -n service</code></pre>
 <p class="content-text">这里我们将宿主机的9999端口转发到 Service的8888端口,这样我们在本地访问9999端口就相当于访问 Kubernetes 的Service的8888端口了。</p>
 <p class="content-text">运行结果类似如下:</p>
 <pre class="code-block"><code>Forwarding from 127.0.0.1:9999 -&gt; 80
@@ -578,19 +645,19 @@ spec:
     metadata:
       labels:
         app: redis
-    spec:</code></pre>
-<pre class="code-block"><code>containers:
-  image: redis:alpine
-  name: redis
-  resources:
-    limits:
-      memory: "2Gi"
-      cpu: "500m"
-    requests:
-      memory: "500Mi"
-      cpu: "200m"
-  ports:
-  - containerPort: 6379</code></pre>
+    spec:
+      containers:
+        - image: redis:alpine
+          name: redis
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "500m"
+            requests:
+              memory: "500Mi"
+              cpu: "200m"
+          ports:
+            - containerPort: 6379</code></pre>
 <p class="content-text">这里我们声明了一个 Deployment,并在 containers 字段里面使用 redis:alpine 这个镜像进行部署,replicas 实例个数设置为 1,端口设置为 6379。接下来,在 redis 文件夹下创建一个 service.yaml 文件,其内容如下:</p>
 <pre class="code-block"><code>apiVersion: v1
 kind: Service
@@ -619,8 +686,7 @@ service/redis created</code></pre>
 <p class="content-text">运行结果类似如下:</p>
 <pre class="code-block"><code>NAME          READY UP-TO-DATE AVAILABLE AGE
 redis         1/1   1          1         15s</code></pre>
-<p class="content-text">这个结果表明刚才声明的 Deployment 在 Kubernetes 的部署情况,我们可以看到 READY 这一列的结果是1/1,这说明期望部署 1 个 Redis 实例。现在已经部署了 1 个实例,所以已经部署成功了。如果你看到的结果不是这样的,可以耐心等待一会,可能现在 Kubernetes 还在下载 Redis 相关镜</p>
-<p class="content-text">像,你可以使用kubectl 命令查看相关 Pod运行状态。但如果长时间都无法部署成功,请检查 Kubernetes日志。另外,为了方便学习和操作,部署的仅仅是最基础的Redis 数据库实例,并没有配置 Redis 集群,也没有配置持久化存储。在实际生产环境中推荐使用 Helm 部署 Redis集群,具体的操作可以参考</p>
+<p class="content-text">这个结果表明刚才声明的 Deployment 在 Kubernetes 的部署情况,我们可以看到 READY 这一列的结果是1/1,这说明期望部署 1 个 Redis 实例。现在已经部署了 1 个实例,所以已经部署成功了。如果你看到的结果不是这样的,可以耐心等待一会,可能现在 Kubernetes 还在下载 Redis 相关镜像,你可以使用kubectl 命令查看相关 Pod运行状态。但如果长时间都无法部署成功,请检查 Kubernetes日志。另外,为了方便学习和操作,部署的仅仅是最基础的Redis 数据库实例,并没有配置 Redis 集群,也没有配置持久化存储。在实际生产环境中推荐使用 Helm 部署 Redis集群,具体的操作可以参考</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 代理池</h3>
@@ -663,18 +729,27 @@ spec:
 <p class="content-text">和Redis 的 Deployment 声明类似,这里我们按照同样的格式声明了代理池的Deployment,这里镜像使用的是 germey/proxypool,即我的Docker Hub上的代理池镜像,当然这里你也可以自行替换成你的镜像。另外值得注意的是,这里通过 env 声明了两个环境变量,指定了 Redis的链接地址,其中REDIS_HOST 的值是redis.crawler.svc.cluster.local,这个值是有一定规律的,是Kubernetes 根据我们部署的 Service 和 Namespace 名称自动生成的,其格式是&lt;service-name&gt;.&lt;namespace-name&gt;.svc.</p>
 <pre class="code-block"><code>&lt;cluster-domain&gt;。一般情况下 cluster-domain 的值为 cluster.local,而此时 Namespace 的名称为</code></pre>
 <p class="content-text">crawler, Redis的Service 的名称是redis,所以最后的结果就是 redis.crawler.svc.cluster.local。在Kubernetes 其他容器里,可以通过这样的 Host访问其他容器。REDIS_PORT这里就是 Redis Service 的运行端口,即6379。另外,这里还指明了容器运行端口 containerPort 为5555。接下来,再创建一个对应的 Service,在proxypool 文件夹下新建 service.yaml,其内容如下:</p>
-<pre class="code-block"><code>apiVersion: v1
-kind: Service</code></pre>
-<p class="content-text">metadata:labels:</p>
-<pre class="code-block"><code>app: proxypool
-name: proxypool
-namespace: crawler</code></pre>
-<p class="content-text">spec:ports:- name: "5555"</p>
-<pre class="code-block"><code>port: 5555
-targetPort: 5555</code></pre>
-<p class="content-text">  selector:</p>
-<pre class="code-block"><code>app: proxypool</code></pre>
-<p class="content-text">还是同样的格式,这里声明了Service 的运行端口还是5555,targetPort 和 containrPort 对应起来,也是5555。接下来,执行如下命令进行部署:kubectl apply -f proxypool运行成功的结果类似如下:deployment.apps/proxypool created service/proxypool created和 Redis 类似,这里使用如下命令即可查看代理池的部署状态:kubectl get deployment/proxypool -n crawler如果出现类似如下结果,就说明部署成功了:NAME READY UP-TO-DATE AVAILABLE AGE proxypool 1/1 1 1 63s此时我们可以通过 kubectl 的port-forward 命令将 Kubernetes 里面的服务转发到本地测试,执行如下命令:kubectl port-forward svc/proxypool 8888:5555 -n crawler port-forward 命令可以创建本地和 Kubernetes 服务的端口映射,这里指定了转发的服务为svc/proxypool, svc 就是 Service 的意思,端口映射配置为8888:5555。因为我们部署的代理池 Service运行端口是5555,这里我们将其转发到本机的8888运行之后,会有类似如下的输出结果:</p>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: proxypool
+  name: proxypool
+  namespace: crawler
+spec:
+  ports:
+    - name: "5555"
+      port: 5555
+      targetPort: 5555
+  selector:
+    app: proxypool</code></pre>
+<p class="content-text">还是同样的格式,这里声明了 Service 的运行端口为5555,targetPort 和 containerPort 对应起来,也是5555。接下来,执行如下命令进行部署:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f proxypool</code></pre>
+<p class="content-text">运行成功后,可以使用如下命令查看代理池的部署状态:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl get deployment/proxypool -n crawler</code></pre>
+<p class="content-text">此时我们可以通过 kubectl 的 port-forward 命令将 Kubernetes 里面的服务转发到本地测试:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl port-forward svc/proxypool 8888:5555 -n crawler</code></pre>
+<p class="content-text">port-forward 命令可以创建本地和 Kubernetes 服务的端口映射,这里指定转发的服务为 svc/proxypool,端口映射配置为8888:5555。运行之后,会有类似如下的输出结果:</p>
 <pre class="code-block"><code>Forwarding from 127.0.0.1:8888 -&gt; 5555
 Forwarding from [::1]:8888 -&gt; 5555</code></pre>
 <p class="content-text">此时我们在本机浏览器上打开http://localhost:8888/random,就可以直接访问到代理池的API 服务了,如图17-15所示。</p>
@@ -684,40 +759,69 @@ Forwarding from [::1]:8888 -&gt; 5555</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 账号池</h3>
 <p class="content-text">账号池和代理池的部署非常相似。在kubernetes 文件夹下创建 accountpool 文件夹,在accountpool文件夹下创建 deployment.yaml 文件,其内容如下:</p>
-<pre class="code-block"><code>apiVersion: apps/v1
-kind: Deployment</code></pre>
-<p class="content-text">metadata:labels:</p>
-<pre class="code-block"><code>app: accountpool
-name: accountpool
-namespace: crawler</code></pre>
-<p class="content-text">spec:</p>
-<pre class="code-block"><code>replicas: 1</code></pre>
-<p class="content-text"> selector:matchLabels:</p>
-<pre class="code-block"><code>app: accountpool</code></pre>
-<p class="content-text"> template:metadata:labels:</p>
-<pre class="code-block"><code>app: accountpool</code></pre>
-<p class="content-text"> spec:containers:- env:- name: REDIS_HOST value: 'redis.crawler.svc.cluster.local'- name: REDIS_PORT value: '6379'- name: API_PORT value: '6777'- name: WEBSITE</p>
-<pre class="code-block"><code>value: antispider7
-image: germey/accountpool
-name: accountpool</code></pre>
-<p class="content-text"> resources:limits:memory: "500Mi"cpu: "300m"requests:memory: "500Mi"cpu: "300m"ports:- containerPort: 6777</p>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: accountpool
+  name: accountpool
+  namespace: crawler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accountpool
+  template:
+    metadata:
+      labels:
+        app: accountpool
+    spec:
+      containers:
+        - env:
+            - name: REDIS_HOST
+              value: 'redis.crawler.svc.cluster.local'
+            - name: REDIS_PORT
+              value: '6379'
+            - name: API_PORT
+              value: '6777'
+            - name: WEBSITE
+              value: antispider7
+          image: germey/accountpool
+          name: accountpool
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "300m"
+            requests:
+              memory: "500Mi"
+              cpu: "300m"
+          ports:
+            - containerPort: 6777</code></pre>
 <p class="content-text">这里的原理和代理池一样,它指定了 REDIS_HOST 和 REDIS_PORT,同时额外指定了 API_PORT 和WEBSITE 这两个环境变量,并设置了 containerPort 为6777。</p>
 <p class="content-text">再创建 service.yaml 文件,其内容如下:</p>
-<pre class="code-block"><code>apiVersion: v1
-kind: Service</code></pre>
-<p class="content-text">metadata:labels:</p>
-<pre class="code-block"><code>app: accountpool
-name: accountpool
-namespace: crawler</code></pre>
-<p class="content-text">spec:ports:- name: "6777"</p>
-<pre class="code-block"><code>port: 6777
-targetPort: 6777</code></pre>
-<p class="content-text">  selector:</p>
-<pre class="code-block"><code>app: accountpool</code></pre>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: accountpool
+  name: accountpool
+  namespace: crawler
+spec:
+  ports:
+    - name: "6777"
+      port: 6777
+      targetPort: 6777
+  selector:
+    app: accountpool</code></pre>
 <p class="content-text">这里指定 Service 的运行端口为6777。</p>
-<p class="content-text">执行如下命令进行部署:kubectl apply -f accountpool</p>
-<p class="content-text">运行结果类似如下:deployment.apps/accountpool created service/accountpool created</p>
-<p class="content-text">这就说明部署命令执行成功了,稍等片刻,账号池也会部署成功。同样,我们也可以使用同样的命令来将账号池服务转发到本地进行验证:kubectl port-forward svc/accountpool 7777:6777 -n crawler运行结果类似如下:</p>
+<p class="content-text">执行如下命令进行部署:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f accountpool</code></pre>
+<p class="content-text">运行结果类似如下:</p>
+<pre class="result-block"><code>deployment.apps/accountpool created
+service/accountpool created</code></pre>
+<p class="content-text">这就说明部署命令执行成功了,稍等片刻,账号池也会部署成功。同样,我们可以将账号池服务转发到本地进行验证:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl port-forward svc/accountpool 7777:6777 -n crawler</code></pre>
+<p class="content-text">运行结果类似如下:</p>
 <pre class="code-block"><code>Forwarding from 127.0.0.1:7777 -&gt; 6777
 Forwarding from [::1]:7777 -&gt; 6777</code></pre>
 <p class="content-text">此时在本机浏览器打开 http://localhost:7777/antispider7/random,如果能正常获取到结果,就说明账号池也正常运行了。</p>
@@ -725,25 +829,58 @@ Forwarding from [::1]:7777 -&gt; 6777</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 爬虫项目</h3>
 <p class="content-text">因为爬虫项目依赖账号池和代理池,所以这里我们最后才进行部署。在 kubernetes 文件夹下创建scrapycompositedemo 文件夹,并在此文件夹下创建 deployment.yaml 文件,其内容如下:</p>
-<pre class="code-block"><code>apiVersion: apps/v1
-kind: Deployment</code></pre>
-<p class="content-text">metadata:labels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo
-name: scrapycompositedemo
-namespace: crawler</code></pre>
-<p class="content-text">spec:</p>
-<pre class="code-block"><code>replicas: 1</code></pre>
-<p class="content-text"> selector:matchLabels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo</code></pre>
-<p class="content-text"> template:metadata:labels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo</code></pre>
-<p class="content-text"> spec:containers:- env:- name: ACCOUNTPOOL_URL value: 'http://accountpool.crawler.svc.cluster.local:6777/antispider7/random'- name: PROXYPOOL_URL value: 'http://proxypool.crawler.svc.cluster.local:5555/random'- name: REDIS_URL value: 'redis://redis.crawler.svc.cluster.local:6379'</p>
-<pre class="code-block"><code>image: germey/scrapycompositedemo
-name: scrapycompositedemo</code></pre>
-<p class="content-text"> resources:limits:memory: "500Mi"cpu: "300m"requests:memory: "500Mi"cpu: "300m"这里我们配置了 germey/scrapycompositedemo 作为镜像,同时配置了 ACCOUNTPOOL_URL、PROXYPOOL_URL以及 REDIS_URL,这里的Host都设定为了redis.crawler.svc.cluster.local,端口都是各个服务的运行端口。因为 Scrapy 爬虫项目并不提供 HTTP 服务,所以我们只需要部署 Deployment 即可。运行如下命令执行部署:kubectl apply -f scrapycompositedemo我们可以执行如下命令查看部署状态:</p>
-<p class="content-text">kubectl get deployment/scrapycompositedemo -n crawler如果出现类似如下结果,就说明部署成功,并正常运行了:NAME READY UP-TO-DATE AVAILABLE AGE scrapycompositedemo 1/1 1 1 2m46s</p>
-<p class="content-text">另外,我们还可以查看Pod的状态:kubectl get pod -n crawler运行结果类似如下:NAME READY STATUS RESTARTS AGE accountpool-57d498655f-6wv74 1/1 Running 0 17m proxypool-8646f8bcb7-64z98 1/1 Running 0 22m redis-5689c9b5cb-zdft2 1/1 Running 0 44m scrapycompositedemo-cbffd87dd-x8pj8 1/1 Running 0 3m54s</p>
-<p class="content-text">可以看到,前面部署的所有实例都正常运行了。怎么知道爬虫有没有爬取到数据呢?我们可以运行命令查看日志:kubectl logs scrapycompositedemo-cbffd87dd-x8pj8--tail=20 -n crawler这里我们通过 logs 命令输出一个Pod的日志,这里Pod 的名称需要根据上面命令的输出结果得到。另外,这里指定了--tail=20代表输出最后20条日志,运行结果类似如下:</p>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: scrapycompositedemo
+  name: scrapycompositedemo
+  namespace: crawler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scrapycompositedemo
+  template:
+    metadata:
+      labels:
+        app: scrapycompositedemo
+    spec:
+      containers:
+        - env:
+            - name: ACCOUNTPOOL_URL
+              value: 'http://accountpool.crawler.svc.cluster.local:6777/antispider7/random'
+            - name: PROXYPOOL_URL
+              value: 'http://proxypool.crawler.svc.cluster.local:5555/random'
+            - name: REDIS_URL
+              value: 'redis://redis.crawler.svc.cluster.local:6379'
+          image: germey/scrapycompositedemo
+          name: scrapycompositedemo
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "300m"
+            requests:
+              memory: "500Mi"
+              cpu: "300m"</code></pre>
+<p class="content-text">这里我们配置了 germey/scrapycompositedemo 作为镜像,同时配置了 ACCOUNTPOOL_URL、PROXYPOOL_URL以及 REDIS_URL。因为 Scrapy 爬虫项目并不提供 HTTP 服务,所以我们只需要部署 Deployment 即可。运行如下命令执行部署:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f scrapycompositedemo</code></pre>
+<p class="content-text">我们可以执行如下命令查看部署状态:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl get deployment/scrapycompositedemo -n crawler</code></pre>
+<p class="content-text">如果出现类似如下结果,就说明部署成功并正常运行了:</p>
+<pre class="result-block"><code>NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+scrapycompositedemo     1/1     1            1           2m46s</code></pre>
+<p class="content-text">另外,我们还可以查看 Pod 的状态:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl get pod -n crawler</code></pre>
+<p class="content-text">运行结果类似如下:</p>
+<pre class="result-block"><code>NAME                                      READY   STATUS    RESTARTS   AGE
+accountpool-57d498655f-6wv74              1/1     Running   0          17m
+proxypool-8646f8bcb7-64z98                1/1     Running   0          22m
+redis-5689c9b5cb-zdft2                    1/1     Running   0          44m
+scrapycompositedemo-cbffd87dd-x8pj8       1/1     Running   0          3m54s</code></pre>
+<p class="content-text">可以看到,前面部署的所有实例都正常运行了。怎么知道爬虫有没有爬取到数据呢?我们可以运行命令查看日志:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl logs scrapycompositedemo-cbffd87dd-x8pj8 --tail=20 -n crawler</code></pre>
+<p class="content-text">这里我们通过 logs 命令输出一个 Pod 的日志,Pod 的名称需要根据上面命令的输出结果得到。另外,--tail=20 代表输出最后20条日志,运行结果类似如下:</p>
 <pre class="code-block"><code>{'content':'我当时的感觉??和电影一模一样。电影不如小说写的。','id': '2297019006'},
 {'content':'突然想起这本书,还是初中生的时候,看电影之前读的(当时比起电影,还是读书更吸引</code></pre>
 <p class="content-text">我),读的时候觉得故事还可以,好像建立了一个更庞大的世界观(虚构的世界秩序)来着。如果让作者自己来拍,可能又是另一部《爵迹》。',</p>
@@ -766,16 +903,29 @@ name: scrapycompositedemo</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. Dashboard</h3>
-<p class="content-text">我们可能发现,每次都要通过命令查看日志和运行状态非常烦琐,有没有更直观的查看 Kubernetes资源的工具?当然有,我们可以直接使用 Kubernetes 推荐的 Dashboard。官方文档链接为:https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/。我们可以试着部署一下:kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml</p>
+<p class="content-text">我们可能发现,每次都要通过命令查看日志和运行状态非常烦琐,有没有更直观的查看 Kubernetes资源的工具?当然有,我们可以直接使用 Kubernetes 推荐的 Dashboard。官方文档链接为:https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/。我们可以试着部署一下:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml</code></pre>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">随着 Dashboard 版本的更新,此命令可能并不一定是最新的,请参考官方文档的说明进行部署。执行完上述命令之后,可能会看到如下结果:</div></div>
-<p class="content-text">namespace/kubernetes-dashboard created serviceaccount/kubernetes-dashboard created service/kubernetes-dashboard created secret/kubernetes-dashboard-certs created secret/kubernetes-dashboard-csrf created secret/kubernetes-dashboard-key-holder created configmap/kubernetes-dashboard-settings created role.rbac.authorization.k8s.io/kubernetes-dashboard created clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created deployment.apps/kubernetes-dashboard created service/dashboard-metrics-scraper created deployment.apps/dashboard-metrics-scraper created</p>
+<pre class="result-block"><code>namespace/kubernetes-dashboard created
+serviceaccount/kubernetes-dashboard created
+service/kubernetes-dashboard created
+secret/kubernetes-dashboard-certs created
+secret/kubernetes-dashboard-csrf created
+secret/kubernetes-dashboard-key-holder created
+configmap/kubernetes-dashboard-settings created
+role.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+deployment.apps/kubernetes-dashboard created
+service/dashboard-metrics-scraper created
+deployment.apps/dashboard-metrics-scraper created</code></pre>
 <p class="content-text">然后执行如下命令:</p>
-<p class="content-text">kubectl proxy</p>
+<pre class="code-block" data-lang="bash"><code>kubectl proxy</code></pre>
 <p class="content-text">通过本地访问 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/,即可看到一个Dashboard 登录界面,如图17-16所示。</p>
 <figure class="inline-figure"><img alt="图17-16 Dashboard 登录界面" loading="lazy" src="figures/ch17/fig-17_16.jpg"/><figcaption>图17-16 Dashboard 登录界面</figcaption></figure>
 <p class="content-text">此时可以参考官方文档的说明获取登录的token,参考命令如下:</p>
-<p class="content-text">kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/kubernetes-dashboard -o</p>
-<pre class="code-block"><code>jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"</code></pre>
+<pre class="code-block" data-lang="bash"><code>kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/kubernetes-dashboard -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"</code></pre>
 <p class="content-text">可以看到会得到一个 token,类似的内容如下:</p>
 <p class="content-text list-like"><strong class="term-label">eyJhbGciOiJSUzI1NiIsImtpZCI6IjVRQ3FrMkFuMHZmWUV6VnpPWVRhMnZPd2pQVmFhZmV1YTNYZS1Xdm5xeHcifQ.eyJpc3MiOiJrdW：</strong>Jlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlY3MuaW8vc2VydmljZWFjY291bnQvc2VydmljZWFjY291bnQvbmFtZXNwYWN lIjoiadWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGV zLWRhc2hib2FyZC10b2tl bi1wc3MyaiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hp Ym9hcmQiLCJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZ CI6ImZmOWJkNWIzLTM1OWItNDk4Ni05Mm VkLTgzN2NhNzEyZDZlMyIsInN1YiI6InN5c3R1bTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDprdWJlcm5ldGVzLWR hc2hib2FyZCJ9.Bpsdw5gA7DXDv2gwRcoz_ODri1kVZ7RkAxu4EmNC2CT8K8BGmbennI_1SVLLoe2u7gHjCLU24MZFB7Dgj2fasvCJhKQ vojvbRvJA-n09dDL1PufF1pmQ2sGRX-MrbEOzl4QiKE_puwr8PsmRORDKVs24ytfCIS2rkgt6MDBDB6mAMjexSCUzScPnfWF1tTkZBNVH DhHhquZpL3wvrA9SJLdSHg7WS8-vV3yg3ilrt7VC8oimR3Lcsekav4gvpqWlSd_6Hdxq212euLEyBbyTQ1tBLoaJMASOO_GkF DRbdbY72cHF1bc1P6EMJD3EPOs09rU-g58KyiToqQ</p>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">由于 Secret 的名称可能不同,所以如上命令可能会不同,请自行根据实际情况修改,以官方文档为准。</div></div>
@@ -792,52 +942,23 @@ name: scrapycompositedemo</code></pre>
 <p class="content-text">比如将目标副本数量调整为5,如图17-22所示。</p>
 <p class="content-text">缩放资源</p>
 <figure class="inline-figure"><img alt="图17-22 调整目标副本数量" loading="lazy" src="figures/ch17/fig-17_22.jpg"/><figcaption>图17-22 调整目标副本数量</figcaption></figure>
-<p class="content-text">● 此操作相当于: kubectl scale -n crawler deployment scrapycompositedemo --replicas-5规模取消当然,我们也可以使用命令行实现资源的放缩,具体如下:kubectl scale -n crawler deployment scrapycompositedemo --replicas=5执行之后,我们可以看到 Kubernetes 又新创建了4个Pod。我们可以在 Dashboard 中直观地看到新创建的Pod,如图17-23所示。这样就相当于创建了5个爬虫实例,因为它们共享了一个Redis 队列,所以它们就是5个分布式爬虫实例,可以协同运行。如果我们想增加或减少爬虫数量,只需要更改目标副本数量即可,比如将其修改为100,就相当于我们部署了100个爬虫实例,而且这100个爬虫是协同爬取的。是不是非常方便?</p>
-</section>
-<div class="section-heading" id="section-7"><h2>17.8 Scrapy 分布式爬虫的数据统计方案</h2></div>
+<p class="content-text">此操作相当于运行如下命令:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl scale -n crawler deployment scrapycompositedemo --replicas=5</code></pre>
+<p class="content-text">执行之后,我们可以看到 Kubernetes 又新创建了4个Pod。我们可以在 Dashboard 中直观地看到新创建的Pod,如图17-23所示。这样就相当于创建了5个爬虫实例,因为它们共享了一个Redis 队列,所以它们就是5个分布式爬虫实例,可以协同运行。如果我们想增加或减少爬虫数量,只需要更改目标副本数量即可,比如将其修改为100,就相当于我们部署了100个爬虫实例,而且这100个爬虫是协同爬取的。是不是非常方便?</p>
 <figure class="inline-figure"><img alt="图17-23 新创建了 4 个 Pod" loading="lazy" src="figures/ch17/fig-17_23.jpg"/><figcaption>图17-23 新创建了 4 个 Pod</figcaption></figure>
+</section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
 <p class="content-text"> 以上我们就通过一个实战练习实现了分布式爬虫在 Kubernetes 中的部署,并且还可以非常方便地使用 Kubernetes 对 Scrapy 爬虫项目进行管理。相比 Scrapyd 来说,Kubernetes 的功能更加强大,是一个绝佳的管理 Scrapy 爬虫项目的利器。</p>
 <p class="content-text"> 本节涉及的知识点比较多,需要好好消化和练习。本节代码详见 https://github.com/Python3WebSpider/ScrapyCompositeDemo/tree/docker,注意是docker 分支。</p>
+</section>
+<div class="section-heading" id="section-7"><h2>17.8 Scrapy 分布式爬虫的数据统计方案</h2></div>
 <p class="content-text"> 在上一节中,我们已经学习了如何利用 Kubernetes 进行 Scrapy 爬虫的部署,并将其对接了分布式的实现,对接了代理池、账号池,以顺利地实现数据抓取。</p>
 <p class="content-text"> 但这时候我们又遇到了一个难题,怎样监控各个 Scrapy 爬虫的爬取情况呢?比如,这时候我部署了10个 Pod 来运行 Scrapy 分布式爬虫,它们基于 Scrapy-Redis 进行协同爬取,但我们并无法知晓它们一分钟爬取了多少条数据,成功、失败、重试了多少次,难道要通过分析日志得出来吗?</p>
 <p class="content-text"> 另外,假如我们已经能成功获取了这些数据,又想进一步把这些数据可视化出来,做一个实时大屏图表,用什么方式实现比较好?需要自己额外写代码实现吗?还是说已经有了非常成熟的解决方案?围绕这两个问题,我们来探索 Scrapy 爬虫监控方案。</p>
-</section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备</h3>
-<p class="content-text">    在本节开始之前,请确保已经完成了上一节的所有内容并能透彻地理解其原理,另外还需要你能</p>
-<p class="content-text">较为熟练地完成利用 Kubernetes 部署 Scrapy 爬虫和其他服务的操作。</p>
-</section>
-<section class="numbered-section">
-<h3 class="subsection-heading numbered-heading">2. 数据统计</h3>
-<p class="content-text">我们在 Scrapy 运行结果中会注意到它会时不时输出类似这样的结果:</p>
-<pre class="result-block"><code>2021-03-15 21:52:06 [scrapy.extensions.logstats] INFO: Crawled 33 pages (at 33 pages/min), scraped 172 items</code></pre>
-<p class="content-text">(at 172 items/min)这里显示了 Scrapy爬虫的统计结果,里面包含当前Spider的页面(page)爬取速度和结果(item)的提取速度,本例中一分钟爬取了33个页面,提取了172个结果。然而,当前我们基于Scrapy-Redis 通过前面几节的方案实现了分布式爬虫之后,仔细观察会发现每个爬虫输出的结果都是各自的统计结果,比如其中一个 Spider 机器性能和网络比较好,爬取速度快,那么它的统计结果就更高,表现不太好的Spider的统计结果就差一些。这些Spider 的统计信息都是独立的、互不影响的,数据也各不相同。这是为什么呢?回想一下,之前 Scrapy-Redis实现分布式爬虫时,我们有两项关键配置:</p>
-<pre class="code-block"><code>SCHEDULER = "scrapy_redis.scheduler.Scheduler"
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"</code></pre>
-<p class="content-text">这里我们分别配置了 Scheduler 和 RFPDupeFilter,其中 Scheduler 可以实现所有请求通过 Redis队列共享,RFPDupeFilter 可以实现去重指纹通过Redis 集合共享。然而统计信息呢?有哪里配置共享吗?并没有,因此每个 Spider 都是各统计各的,数据各不相干。这样就遇到了一个问题,统计信息不同步而且很分散,这么多Scrapy 爬虫究竟爬取了多少数据也无从得知。如果通过日志来进行数据收集和统计,这个难度和工作量也不小,而且不精确。所以,有没有什么简单方法呢?当然有,按照 Scheduler 和 RFPDupeFilter的思路,将统计信息也通过Redis共享不就可以了吗?</p>
-</section>
-<section class="numbered-section">
-<h3 class="subsection-heading numbered-heading">3. 实现原理</h3>
-<p class="content-text">要实现这个功能,我们需要用到 Scrapy的一个组件,叫作 Stats Collection,翻译过来可以叫统计信息收集器,它是一种 Scrapy的Extension,即扩展组件。Scrapy 通过 Stats Collection 来收集键值对类型的统计信息,其中值一般都是计数器,这么多键值对构成了一个统计表,可以理解为Python中的集合。比如上述例子中的爬取了多少页面,提取了多少结果,这两个信息是可以通过Stats Collection 来保存的。如果说得更直观一点,在Scrapy 爬虫运行完成时,想必我们还注意到过类似如下的统计信息:</p>
-<pre class="code-block"><code>{'downloader/request_bytes': 2925,
-'downloader/request_method_count/GET': 11,
-'downloader/request_count': 11,
-'downloader/response_bytes': 23406,
-'downloader/response_count': 11,
-'downloader/response_status_count/200':</code></pre>
-<p class="content-text">10,</p>
-<pre class="code-block"><code>'downloader/response_status_count/404': 1,
-'elapsed_time_seconds': 3.917599,
-'finish_reason': 'finished',
-'finish_time': datetime.datetime(2021, 3, 15, 14, 1, 36, 275427),
-'item_scraped_count': 100,
-'log_count/DEBUG': 111,
-'log_count/INFO': 10,
-'memusage/max': 55242752,
-'memusage/startup': 55242752,</code></pre>
-<p class="content-text">较为熟练地完成利用 Kubernetes 部署 Scrapy 爬虫和其他服务的操作。</p>
+<p class="content-text">    在本节开始之前,请确保已经完成了上一节的所有内容并能透彻地理解其原理,另外还需要你能较为熟练地完成利用 Kubernetes 部署 Scrapy 爬虫和其他服务的操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 数据统计</h3>
@@ -881,7 +1002,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"</code></pre>
 <pre class="code-block" data-lang="python"><code>import pprint
 import logging
 
-logger = logging.getLogger(_name__)
+logger = logging.getLogger(__name__)
 
 class StatsCollector:
     def __init__(self, crawler):
@@ -920,67 +1041,81 @@ class StatsCollector:
         if self._dump:
             logger.info("Dumping Scrapy stats:\n" + pprint.pformat(self._stats),
                         extra={'spider': spider})
-            self._persist_stats(self._stats, spider)</code></pre>
-<pre class="code-block"><code>def _persist_stats(self, stats, spider):</code></pre>
-<p class="content-text">    pass</p>
-<pre class="code-block"><code>class MemoryStatsCollector (StatsCollector):
-def __init__(self, crawler):
-super().__init__(crawler)
-self.spider_stats = {}</code></pre>
-<pre class="code-block"><code>def _persist_stats(self, stats, spider):
-self.spider_stats[spider.name] = stats</code></pre>
+            self._persist_stats(self._stats, spider)
+
+    def _persist_stats(self, stats, spider):
+        pass
+
+
+class MemoryStatsCollector(StatsCollector):
+    def __init__(self, crawler):
+        super().__init__(crawler)
+        self.spider_stats = {}
+
+    def _persist_stats(self, stats, spider):
+        self.spider_stats[spider.name] = stats</code></pre>
 <p class="content-text">这里可以很明显看到MemoryStatsCollector 继承自 StatsCollector这个类,而StatsCollector 里面又提供了一系列数据获取和设置相关的方法,比如 set_value 接收 key和 value参数,将 value 存储到 stats 这个全局变量里面,get_value 接收 key 这个参数,然后将 value 从 stats 这个全局变量里面取出来并返回。这个 stats 变量就相当于一个大的表,爬虫开始运行时将 stats进行初始化,然后整个爬虫在有任何事件发生的时候可以调用一下数据修改的 set_value方法,将数据的修改记录下来就好了。而MemoryStatsCollector 的实现也非常简单,就是将 stats 初始化为一个Python 字典,所以所有的数据统计结果都是在内存中存储的。如果爬虫运行停止了而且这些数据没有保存下来的话,数据就丢失了,而且这个数据也没有任何共享机制,所以每个Scrapy 爬虫的统计信息都是一个独立的Python 字典,自然也就无法做到统计信息的共享了。到了这里,我们就知道如果要实现 Scrapy 分布式爬虫的统计信息的共享,应该怎么做了吧?那就是将 stats 全局变量通过 Redis 共享!仿照 Scrapy-Redis的其他模块的实现,我们可以将其实现,代码类似如下:</p>
 <pre class="code-block"><code>from scrapy.statscollectors import StatsCollector
 from .connection import from_settings as redis_from_settings
 from .defaults import STATS_KEY, SCHEDULER_PERSIST
 from datetime import datetime</code></pre>
-<pre class="code-block"><code>class RedisStatsCollector (StatsCollector):
-def __init__(self, crawler, spider=None):
-super().__init__(crawler)
-self.server = redis_from_settings(crawler.settings)
-self.spider = spider
-self.spider_name = spider.name if spider else crawler.spidercls.name
-self.stats_key = crawler.settings.get('STATS_KEY', STATS_KEY)
-self.persist = crawler.settings.get(</code></pre>
-<p class="content-text">            'SCHEDULER_PERSIST', SCHEDULER_PERSIST)</p>
-<pre class="code-block"><code>def _get_key(self, spider=None):
-if spider:
-return self.stats_key % {'spider': spider.name}
-if self.spider:
-return self.stats_key % {'spider': self.spider.name}
-return self.stats_key % {'spider': self.spider_name or 'scrapy'}</code></pre>
-<p class="content-text">    @classmethod</p>
-<pre class="code-block"><code>def from_crawler(cls, crawler):
-return cls(crawler)</code></pre>
-<pre class="code-block"><code>def get_value(self, key, default=None, spider=None):
-if self.server.hexists(self._get_key(spider), key):
-return int(self.server.hget(self._get_key(spider), key))
-else:</code></pre>
-<p class="content-text">            pass</p>
-<pre class="code-block"><code>return default
-def get_stats(self, spider=None):
-return self.server.hgetall(self._get_key(spider))
-def set_value(self, key, value, spider=None):
-self.server.hset(self._get_key(spider), key, value)
-def set_stats(self, stats, spider=None):
-self.server.hmset(self._get_key(spider), stats)
-def inc_value(self, key, count=1, start=0, spider=None):
-if not self.server.hexists(self._get_key(spider), key):
-self.set_value(key, start)
-self.server.hincrby(self._get_key(spider), key, count)
-def max_value(self, key, value, spider=None):
-self.set_value(key, max(self.get_value(key, value), value))
-def min_value(self, key, value, spider=None):
-self.set_value(key, min(self.get_value(key, value), value))
-def clear_stats(self, spider=None):
-self.server.delete(self._get_key(spider))
-def open_spider(self, spider):
-if spider:
-self.spider = spider
-def close_spider(self, spider, reason):
-self.spider = None
-if not self.persist:
-self.clear_stats(spider)</code></pre>
+<pre class="code-block" data-lang="python"><code>class RedisStatsCollector(StatsCollector):
+    def __init__(self, crawler, spider=None):
+        super().__init__(crawler)
+        self.server = redis_from_settings(crawler.settings)
+        self.spider = spider
+        self.spider_name = spider.name if spider else crawler.spidercls.name
+        self.stats_key = crawler.settings.get('STATS_KEY', STATS_KEY)
+        self.persist = crawler.settings.get(
+            'SCHEDULER_PERSIST', SCHEDULER_PERSIST)
+
+    def _get_key(self, spider=None):
+        if spider:
+            return self.stats_key % {'spider': spider.name}
+        if self.spider:
+            return self.stats_key % {'spider': self.spider.name}
+        return self.stats_key % {'spider': self.spider_name or 'scrapy'}
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def get_value(self, key, default=None, spider=None):
+        if self.server.hexists(self._get_key(spider), key):
+            return int(self.server.hget(self._get_key(spider), key))
+        return default
+
+    def get_stats(self, spider=None):
+        return self.server.hgetall(self._get_key(spider))
+
+    def set_value(self, key, value, spider=None):
+        self.server.hset(self._get_key(spider), key, value)
+
+    def set_stats(self, stats, spider=None):
+        self.server.hmset(self._get_key(spider), stats)
+
+    def inc_value(self, key, count=1, start=0, spider=None):
+        if not self.server.hexists(self._get_key(spider), key):
+            self.set_value(key, start)
+        self.server.hincrby(self._get_key(spider), key, count)
+
+    def max_value(self, key, value, spider=None):
+        self.set_value(key, max(self.get_value(key, value), value))
+
+    def min_value(self, key, value, spider=None):
+        self.set_value(key, min(self.get_value(key, value), value))
+
+    def clear_stats(self, spider=None):
+        self.server.delete(self._get_key(spider))
+
+    def open_spider(self, spider):
+        if spider:
+            self.spider = spider
+
+    def close_spider(self, spider, reason):
+        self.spider = None
+        if not self.persist:
+            self.clear_stats(spider)</code></pre>
 <p class="content-text">这部分改动需要放在Scrapy-Redis 源码里面,这里主要的改动就是将 stats 修改为Redis HSET实现,因为HSET 就是Redis 中的一个用于键值对存储的数据结构。比如set_value 就可以修改为hset方法实现,get_value 就可以修改为hget方法实现。大家看到这里可能会眉头一紧,心想这个功能还需要自己去修改源码实现吗?这样会增加不少工作量。在Scrapy-Redis 0.6.8及以前的版本中,确实需要这么做。不过幸运的是,我已经把这部分功能实现了并合并到 Scrapy-Redis 源代码中了,自Scrapy-Redis 0.7.1 版本开始,大家就可以直接使用了。另外,默认情况下,大家会安装最新版的Scrapy-Redis,所以大多数情况下是可以直接使用的。怎么使用呢?很简单,只需要在 Scrapy 爬虫项目里面的 settings.py 中添加如下的一行配置即可:</p>
 <pre class="code-block"><code>STATS_CLASS = "scrapy_redis.stats.RedisStatsCollector"</code></pre>
 <p class="content-text">仅仅通过这一行代码的配置,我们就完成了如上所有的工作,不需要手动实现 RedisStatsCollector这个类了。接下来,我们重新运行下 Scrapy爬虫,通过Redis Desktop Manager 连接 Redis看下,这时候就会发现运行过程中就多了一个 Redis的key,如图17-24所示。</p>
@@ -994,7 +1129,9 @@ self.clear_stats(spider)</code></pre>
 <p class="content-text">在本节中,我们首先介绍了 Scrapy 爬虫的统计信息是怎么实现的,然后介绍了如何实现 Scrapy 分布式爬虫的统计信息共享。统计信息共享是一个非常有用的功能,为后面数据可视化打下了基础,后文我们会继续学习如何基于这些信息进行数据可视化。</p>
 </section>
 <div class="section-heading" id="section-8"><h2>17.9 基于 Prometheus 和 Grafana 的分布式爬虫监控方案</h2></div>
-<p class="content-text">在上一节中,我们已经实现了 Scrapy 分布式爬虫的数据统计,这些统计数据可以通过 Redis 共享,以实现数据的集中化存储和同步。接下来,我们可能想做的就是基于这些数据,将其可视化出来,比如我们想要的结果可能是这样的。□ 不用太多复杂的编程或配置就可以搭建一个高性能、高可用、实用又美观的数据可视化面板,面板中可以实时显示爬虫的各个指标的状态。□ 当某项指标异常的时候,可以通过各个方式通知我们,以便及时调整和修复。</p>
+<p class="content-text">在上一节中,我们已经实现了 Scrapy 分布式爬虫的数据统计,这些统计数据可以通过 Redis 共享,以实现数据的集中化存储和同步。接下来,我们可能想做的就是基于这些数据,将其可视化出来,比如我们想要的结果可能是这样的。</p>
+<p class="content-text list-like">不用太多复杂的编程或配置就可以搭建一个高性能、高可用、实用又美观的数据可视化面板,面板中可以实时显示爬虫的各个指标的状态。</p>
+<p class="content-text list-like">当某项指标异常的时候,可以通过各个方式通知我们,以便及时调整和修复。</p>
 <p class="content-text">以上的两个需求其实就恰好对标了监控的两大核心问题——可视化+告警,这两个功能是监控系统的核心重点。</p>
 <p class="content-text">本节中,我们要介绍的就是一个企业级监控数据的监控方案——Prometheus + Grafana,其中前者可以实现流式监控数据的收集、存储、查询、告警,后者可以实现强大又精美的可视化面板,同时也配备了告警功能。二者经常放在一起使用,同时二者还是云原生的重要部件,与Kubernetes 结合起来可以实现全方位的数据监控和告警系统。下面我们就来介绍 Prometheus 和 Grafana, 并介绍如何将二者与Scrapy 爬虫结合来实现数据监控。</p>
 <section class="numbered-section">
@@ -1054,56 +1191,87 @@ scrapy_opened{spider="scrapycompositedemo"} 1.0
 # TYPE scrapy_closed gauge
 # HELP scrapy_downloader_request_bytes
 # TYPE scrapy_downloader_request_bytes gauge
-scrapy_downloader_request_bytes{spider="scrapycompositedemo"}
-930501.0</code></pre>
-<p class="content-text">就是这样一个网页,在原来的基础上,Scrapy 爬虫提供了HTTP服务,并在9410端口上运行了此服务。接下来,我们就重新把这个 Scrapy 项目部署到 Kubernetes上,并通过 Servcie 将 9410端口暴露出来。首先,需要重新构建 Docker 镜像并更新。当然,也可以使用我已经构建好的镜像germey/scrapycompositedemo。修改 kubernetes/scrapycompositedemo/deployment.yaml文件,添加 containerPort 的配置,最终修改结果如下:</p>
-<pre class="result-block"><code>apiVersion: apps/v1
-kind: Deployment</code></pre>
-<p class="content-text">metadata:labels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo
-name: scrapycompositedemo
-namespace: crawler</code></pre>
-<p class="content-text">spec:</p>
-<pre class="code-block"><code>replicas: 1</code></pre>
-<p class="content-text"> selector:matchLabels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo</code></pre>
-<p class="content-text"> template:metadata:labels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo</code></pre>
-<p class="content-text"> spec:containers:env:</p>
-<pre class="code-block"><code>name: ACCOUNTPOOL_URL</code></pre>
-<p class="content-text">        value: 'http://accountpool.crawler.svc.cluster.local:6777/antispider7/random'</p>
-<pre class="code-block"><code>name: PROXYPOOL_URL</code></pre>
-<p class="content-text">        value: 'http://proxypool.crawler.svc.cluster.local:5555/random'</p>
-<pre class="code-block"><code>name: REDIS_URL</code></pre>
-<p class="content-text">value: 'redis://redis.crawler.svc.cluster.local:6379'</p>
-<pre class="code-block"><code>image: germey/scrapycompositedemo
-name: scrapycompositedemo</code></pre>
-<p class="content-text">resources:limits:memory: "500Mi"cpu: "300m"requests:memory: "200Mi"cpu: "100m"ports:</p>
-<pre class="code-block"><code>containerPort: 9410</code></pre>
+scrapy_downloader_request_bytes{spider="scrapycompositedemo"} 930501.0</code></pre>
+<p class="content-text">就是这样一个网页,在原来的基础上,Scrapy 爬虫提供了HTTP服务,并在9410端口上运行了此服务。接下来,我们就重新把这个 Scrapy 项目部署到 Kubernetes上,并通过 Service 将 9410端口暴露出来。首先,需要重新构建 Docker 镜像并更新。当然,也可以使用我已经构建好的镜像germey/scrapycompositedemo。修改 kubernetes/scrapycompositedemo/deployment.yaml文件,添加 containerPort 的配置,最终修改结果如下:</p>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: scrapycompositedemo
+  name: scrapycompositedemo
+  namespace: crawler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scrapycompositedemo
+  template:
+    metadata:
+      labels:
+        app: scrapycompositedemo
+    spec:
+      containers:
+        - env:
+            - name: ACCOUNTPOOL_URL
+              value: 'http://accountpool.crawler.svc.cluster.local:6777/antispider7/random'
+            - name: PROXYPOOL_URL
+              value: 'http://proxypool.crawler.svc.cluster.local:5555/random'
+            - name: REDIS_URL
+              value: 'redis://redis.crawler.svc.cluster.local:6379'
+          image: germey/scrapycompositedemo
+          name: scrapycompositedemo
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "300m"
+            requests:
+              memory: "200Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 9410</code></pre>
 <p class="content-text">这里就将 9410端口暴露出来了,其他配置保持不变。注意,此处如果使用你自己构建的镜像的话,需要把 image 参数换一下。同时新建一个 kubernetes/scrapycompositedemo/service.yaml 文件,内容如下:</p>
-<pre class="code-block"><code>apiVersion: v1
-kind: Service</code></pre>
-<p class="content-text">metadata:labels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo
-name: scrapycompositedemo
-namespace: crawler</code></pre>
-<p class="content-text">spec:ports:- name: "9410"</p>
-<pre class="code-block"><code>port: 9410
-targetPort: 9410</code></pre>
-<p class="content-text">  selector:</p>
-<pre class="code-block"><code>app: scrapycompositedemo</code></pre>
-<p class="content-text">重新运行部署:kubectl apply -f kubernetes/scrapycompositedemo结果如下:deployment.apps/scrapycompositedemo configured service/scrapycompositedemo created这样就成功了。然后我们可以看下Web服务有没有运行成功:kubectl port-forward svc/scrapycompositedemo 9410:9410 -n crawler这时候重新打开 http://localhost:9410/metrics,如果能看到如图 17-28 所示的页面,就说明已经部署成功了,而且通过9410端口就能获取到 Scrapy 分布式爬虫的运行状态统计。</p>
+<pre class="code-block" data-lang="yaml"><code>apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: scrapycompositedemo
+  name: scrapycompositedemo
+  namespace: crawler
+spec:
+  ports:
+    - name: "9410"
+      port: 9410
+      targetPort: 9410
+  selector:
+    app: scrapycompositedemo</code></pre>
+<p class="content-text">重新运行部署:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl apply -f kubernetes/scrapycompositedemo</code></pre>
+<p class="content-text">结果如下:</p>
+<pre class="result-block"><code>deployment.apps/scrapycompositedemo configured
+service/scrapycompositedemo created</code></pre>
+<p class="content-text">然后我们可以检查 Web 服务是否运行成功:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl port-forward svc/scrapycompositedemo 9410:9410 -n crawler</code></pre>
+<p class="content-text">这时候重新打开 http://localhost:9410/metrics,如果能看到如图 17-28 所示的页面,就说明已经部署成功了,而且通过9410端口就能获取到 Scrapy 分布式爬虫的运行状态统计。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. Prometheus 对接</h3>
 <p class="content-text">接下来,我们需要做的就是将上文实现的Exporter 和 Prometheus 来进行对接,也就是将 HTTP页面配置到 Prometheus 里面,这样 Prometheus 就会定时抓取这些指标并存储下来了。由于 Scrapy 爬虫项目是部署在 Kubernetes 上的,对于 Prometheus来说,当然同样要部署到Kubernetes 里面才能访问了。安装 Prometheus时,我推荐使用Helm 来安装,安装方法可以参考https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack。kube-prometheus-stack 是一个Prometheus和 Grafana 的套件,安装此套件可以同时安装好 Prometheus 和 Grafana,非常方便。</p>
-<p class="content-text">个人推荐将 Prometheus 单独安装到一个新的 Namespace下面,比如新建一个 Namespace,叫作monitor:kubectl create namespace monitor然后利用 Helm 来安装对应的Repo 信息:helm repo add prometheus-community https://prometheus-community.github.io/helm-charts helm repo update这一步相当于把一些配置文件添加到Helm中,这样Helm才能对其进行安装。接下来,我们可以运行如下命令安装:helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitor运行成功后,可能会得到如下信息:</p>
-<pre class="code-block"><code>NAME: prometheus-stack</code></pre>
-<p class="content-text">LAST DEPLOYED: Sun Mar 28 22:27:37 2021</p>
-<pre class="code-block"><code>NAMESPACE: monitor
+<p class="content-text">个人推荐将 Prometheus 单独安装到一个新的 Namespace 下面,比如新建一个叫作 monitor 的 Namespace:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl create namespace monitor</code></pre>
+<p class="content-text">然后利用 Helm 添加并更新对应的 Repo 信息:</p>
+<pre class="code-block" data-lang="bash"><code>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update</code></pre>
+<p class="content-text">这一步相当于把一些配置文件添加到 Helm 中,这样 Helm 才能对其进行安装。接下来,运行如下命令安装:</p>
+<pre class="code-block" data-lang="bash"><code>helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitor</code></pre>
+<p class="content-text">运行成功后,可能会得到如下信息:</p>
+<pre class="result-block"><code>NAME: prometheus-stack
+LAST DEPLOYED: Sun Mar 28 22:27:37 2021
+NAMESPACE: monitor
 STATUS: deployed
 REVISION: 1</code></pre>
-<p class="content-text">NOTES:kube-prometheus-stack has been installed. Check its status by running:kubectl --namespace monitor get pods -1 "release=prometheus-stack"如果看到如上结果,就证明已经安装成功了。接下来,我们重新进入 Dashboard,查看 Prometheus 套件的运行情况。运行Dashboard 的流程见17.8节。进入 Dashboard 之后,切换到 Monitor 命名空间,你可能看到如图17-29所示的运行结果,一些状态还是红色或者黄色,不用担心,目前还处在初始化的过程中,耐心等待一段时间,等待全部配置完成之后,就好了。</p>
+<p class="content-text">NOTES:kube-prometheus-stack has been installed. Check its status by running:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl --namespace monitor get pods -l "release=prometheus-stack"</code></pre>
+<p class="content-text">如果看到如上结果,就证明已经安装成功了。接下来,我们重新进入 Dashboard,查看 Prometheus 套件的运行情况。运行Dashboard 的流程见17.8节。进入 Dashboard 之后,切换到 Monitor 命名空间,你可能看到如图17-29所示的运行结果,一些状态还是红色或者黄色,不用担心,目前还处在初始化的过程中,耐心等待一段时间,等待全部配置完成之后,就好了。</p>
 <figure class="inline-figure"><img alt="图17-29 运行结果" loading="lazy" src="figures/ch17/fig-17_29.jpg"/><figcaption>图17-29 运行结果</figcaption></figure>
 <p class="content-text">另外,每个 Chart 预留了一些配置项,这些配置项在 values.yaml 里面是可以复写、修改的,具体的配置可以查看 https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml 文件。比如,通过修改 Prometheus 的配置项,就能达到修改 scrape_configs 的目的,这项配置叫作 prometheusOperator.prometheusSpec.additionalScrapeConfigs.注意 此项配置的名称可能会随着当前 Helm Chart 的修改而不同,主要是明白其原理,具体的配置需要以官方文档为准。这时候我们可以将此项配置进行修改:prometheusOperator:</p>
 <pre class="code-block"><code>#此处省略其他配置项</code></pre>
@@ -1113,19 +1281,25 @@ REVISION: 1</code></pre>
 <pre class="code-block"><code>app: scrapycompositedemo</code></pre>
 <p class="content-text"> targets:- scrapycompositedemo.crawler.svc.cluster.local:9410这里我们添加了刚才的 Scrapy 爬虫的配置项,指定了 labels 和 targets,具体的配置格式可以参考</p>
 <pre class="result-block"><code>https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config.</code></pre>
-<p class="content-text">其中值得注意的是,我们将 targets 配置为 scrapycompositedemo.crawler.svc.cluster.local:9410,可以通过此 Host 在 Kubernetes 中访问到对应的服务。配置完成之后,可以通过如下命令应用此更新:helm upgrade -f values.yaml prometheus-stack prometheus-community/kube-prometheus-stack -n monitor如果出现类似下面的输出结果:Release "prometheus-stack" has been upgraded. Happy Helming!</p>
-<pre class="code-block"><code>NAME: prometheus-stack</code></pre>
-<p class="content-text">LAST DEPLOYED: Sun Mar 28 23:22:44 2021</p>
-<pre class="code-block"><code>NAMESPACE: monitor
+<p class="content-text">其中值得注意的是,我们将 targets 配置为 scrapycompositedemo.crawler.svc.cluster.local:9410,可以通过此 Host 在 Kubernetes 中访问到对应的服务。配置完成之后,可以通过如下命令应用此更新:</p>
+<pre class="code-block" data-lang="bash"><code>helm upgrade -f values.yaml prometheus-stack prometheus-community/kube-prometheus-stack -n monitor</code></pre>
+<p class="content-text">如果出现类似下面的输出结果,就说明升级成功:</p>
+<pre class="result-block"><code>Release "prometheus-stack" has been upgraded. Happy Helming!
+NAME: prometheus-stack
+LAST DEPLOYED: Sun Mar 28 23:22:44 2021
+NAMESPACE: monitor
 STATUS: deployed
 REVISION: 2</code></pre>
-<p class="content-text">NOTES:kube-prometheus-stack has been installed. Check its status by running:kubectl --namespace monitor get pods -l "release=prometheus-stack"</p>
+<p class="content-text">NOTES:kube-prometheus-stack has been installed. Check its status by running:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl --namespace monitor get pods -l "release=prometheus-stack"</code></pre>
 <pre class="code-block"><code>...</code></pre>
 <p class="content-text">就证明更新生效了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. Grafana 配置</h3>
-<p class="content-text">接下来,我们再回到 Grafana 的配置中,我们可以依然在本地通过 kubectl port-forward 将服务转发到本地:kubectl port-forward svc/prometheus-stack-grafana 3000:80 -n monitor注意 这里服务的名称可能随着 Helm Chart 的修改而不同,主要是明白其原理,具体的配置需要以官方文档为准。这里我们将 Grafana 从 80 转发到本地 3000 端口,这时候我们在本地浏览器上打开 http://localhost:3000/,就能看到如图 17-30 所示的结果。</p>
+<p class="content-text">接下来,我们再回到 Grafana 的配置中,依然可以在本地通过 kubectl port-forward 将服务转发到本地:</p>
+<pre class="code-block" data-lang="bash"><code>kubectl port-forward svc/prometheus-stack-grafana 3000:80 -n monitor</code></pre>
+<p class="content-text">注意,这里服务的名称可能随着 Helm Chart 的修改而不同,主要是明白其原理,具体的配置需要以官方文档为准。这里我们将 Grafana 从 80 端口转发到本地 3000 端口,这时候在本地浏览器上打开 http://localhost:3000/,就能看到如图 17-30 所示的结果。</p>
 <figure class="inline-figure"><img alt="图17-30 欢迎界面" loading="lazy" src="figures/ch17/fig-17_30.jpg"/><figcaption>图17-30 欢迎界面</figcaption></figure>
 <p class="content-text">进入了 Grafana的欢迎界面,但是并不知道用户名和密码是什么,这时候密码会存在对应的Secrets文件中。在此 Helm Chart中,它存在一个叫作 prometheus-stack-grafana的Secret中,通过Dashboard 我们可以清楚地看到用户名和密码,如图17-31所示。</p>
 <figure class="inline-figure"><img alt="图17-31 用户名和密码" loading="lazy" src="figures/ch17/fig-17_31.jpg"/><figcaption>图17-31 用户名和密码</figcaption></figure>
@@ -1149,7 +1323,7 @@ REVISION: 2</code></pre>
 <figure class="inline-figure"><img alt="图17-38 配置面板" loading="lazy" src="figures/ch17/fig-17_38.jpg"/><figcaption>图17-38 配置面板</figcaption></figure>
 <p class="content-text">配置完成之后,点击右上角的 Apply 按钮,保存该配置面板。另外,还可以继续增加其他面板。配置好了之后,将整个仪表盘保存下来。比如,最后可以配置成类似图 17-39 所示的页面,这样我们就可以一目了然地看到爬虫的爬取状态了。</p>
 <figure class="inline-figure"><img alt="图17-39 仪表盘" loading="lazy" src="figures/ch17/fig-17_39.jpg"/><figcaption>图17-39 仪表盘</figcaption></figure>
-<p class="content-text">另外,我们还可以设置告警,它既可以在 Grafana 里面使用內置的 Alert 设置,也可以使用 Alert Manager 设置。前者配置更加简单、方便,后者功能更为灵活、强大,可以根据个人偏好进行选择。具体设置方式可以参考如下内容。</p>
+<p class="content-text">另外,我们还可以设置告警,它既可以在 Grafana 里面使用内置的 Alert 设置,也可以使用 Alert Manager 设置。前者配置更加简单、方便,后者功能更为灵活、强大,可以根据个人偏好进行选择。具体设置方式可以参考如下内容。</p>
 <p class="content-text list-like"><strong class="term-label">Grafana Alert 配置:</strong>https://grafana.com/docs/grafana/latest/alerting/create-alerts/。</p>
 <p class="content-text list-like"><strong class="term-label">Prometheus Stack Alert 配置:</strong>https://github.com/prometheus-operator/prometheus-operator。</p>
 </section>

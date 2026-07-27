@@ -67,8 +67,7 @@ xmlhttp.send();</code></pre>
 <section class="minor-section">
 <h4 class="subsection-heading">渲染网页</h4>
 <p class="content-text">JavaScript 有改变网页内容的能力，因此解析完响应内容之后，就可以调用 JavaScript 来基于解析完的内容对网页进行下一步处理了。例如，通过 document.getElementById().innerHTML 操作，可以更改某个元素内的源代码，这样网页显示的内容就改变了。这种操作也被称作 DOM 操作，即对网页文档进行操作，如更改、删除等。</p>
-<p class="content-text">　　上面“发送请求”部分，代码里的 document.getElementById("myDiv").innerHTML=xmlhttp.responseText便是将 ID 为 myDiv 的节点内部的 HTML 代码更改为了服务器返回的内容，这样 myDiv 元素内部便会</p>
-<p class="content-text">呈现服务器返回的新数据，对应的网页内容看上去就更新了。</p>
+<p class="content-text">　　上面“发送请求”部分，代码里的 document.getElementById("myDiv").innerHTML=xmlhttp.responseText便是将 ID 为 myDiv 的节点内部的 HTML 代码更改为了服务器返回的内容，这样 myDiv 元素内部便会呈现服务器返回的新数据，对应的网页内容看上去就更新了。</p>
 <p class="content-text">　　我们观察到，网页更新的 3 个步骤其实都是由 JavaScript 完成的，它完成了整个请求、解析和渲染的过程。</p>
 <p class="content-text">　　再回想微博的下拉刷新，其实就是 JavaScript 向服务器发送了一个 Ajax 请求，然后获取新的微博数据，对其做解析，并渲染在网页中。</p>
 <p class="content-text">　　因此我们知道，真实的网页数据其实是一次次向服务器发送 Ajax 请求得到的，要想抓取这些数据，需要知道 Ajax 请求到底是怎么发送的、发往哪里、发了哪些参数。我们知道这些以后，不就可以用 Python 模拟发送操作，并获取返回数据了吗？</p>
@@ -268,8 +267,7 @@ if __name__ == '__main__':
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 保存数据</h3>
-<p class="content-text">　　好，成功提取详情页信息之后，下一步就要把它们保存起来了。第 5 章我们学习了 MongoDB 的</p>
-<p class="content-text">相关操作，接下来我们就把数据保存到 MongoDB 吧。</p>
+<p class="content-text">　　好，成功提取详情页信息之后，下一步就要把它们保存起来了。第 5 章我们学习了 MongoDB 的相关操作，接下来我们就把数据保存到 MongoDB 吧。</p>
 <p class="content-text">　　保存之前，请确保自己有一个可以正常连接和使用的 MongoDB 数据库，这里我就以本地 localhost的 MongoDB 数据库为例来进行操作，其运行在 27017 端口上，无用户名和密码。</p>
 <p class="content-text">　　将数据导入 MongoDB 需要用到 PyMongo 这个库。接下来我们把它们引入一下，同时定义一下MongoDB 的连接配置，实现方式如下：</p>
 <pre class="code-block" data-lang="python"><code>MONGO_CONNECTION_STRING = 'mongodb://localhost:27017'

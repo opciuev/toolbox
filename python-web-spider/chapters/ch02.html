@@ -151,7 +151,7 @@ request = urllib.request.Request('https://python.org')
 response = urllib.request.urlopen(request)
 print(response.read().decode('utf-8'))</code></pre>
 <p class="content-text">可以发现，我们依然是用 urlopen 方法来发送请求，只不过这次该方法的参数不再是 URL，而是一个 Request 类型的对象。通过构造这个数据结构，一方面可以将请求独立成一个对象，另一方面可更加丰富和灵活地配置参数。下面我们看一下可以通过怎样的参数来构造 Request 类，构造方法如下:</p>
-<pre class="code-block" data-lang="python"><code>class urllib.request.Request(url, data=None, headers={},
+<pre class="code-block"><code>class urllib.request.Request(url, data=None, headers={},
 origin_req_host=None, unverifiable=False, method=None)</code></pre>
 <p class="content-text">第一个参数 url 用于请求 URL，这是必传参数，其他的都是可选参数。</p>
 <p class="content-text">第二个参数 data 如果要传数据，必须传 bytes 类型的。如果数据是字典，可以先用 urllib.parse模块里的 urlencode 方法进行编码。</p>
@@ -166,11 +166,11 @@ origin_req_host=None, unverifiable=False, method=None)</code></pre>
 
 url = 'https://www.httpbin.org/post'
 headers = {
-'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',</code></pre>
-<pre class="code-block" data-lang="python"><code>'Host': 'www.httpbin.org'
+    'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
+    'Host': 'www.httpbin.org'
 }
 dict = {'name': 'germey'}
-data = bytes (parse.urlencode(dict), encoding='utf-8')
+data = bytes(parse.urlencode(dict), encoding='utf-8')
 req = request.Request(url=url, data=data, headers=headers, method='POST')
 response = request.urlopen(req)
 print(response.read().decode('utf-8'))</code></pre>
@@ -326,8 +326,7 @@ handler = urllib.request.HTTPCookieProcessor (cookie)
 opener = urllib.request.build_opener(handler)
 response = opener.open('https://www.baidu.com')
 print(response.read().decode('utf-8'))</code></pre>
-<p class="content-text">可以看到，这里调用 load 方法来读取本地的 Cookie 文件，获取了 Cookie 的内容。这样做的前提</p>
-<p class="content-text">我们首先生成了 LWPCookieJar 格式的 Cookie，并保存成了文件。读取 Cookie 之后，使用同样的方法构建 Handler 类和 Opener 类即可完成操作。</p>
+<p class="content-text">可以看到，这里调用 load 方法来读取本地的 Cookie 文件，获取了 Cookie 的内容。这样做的前提是我们首先生成了 LWPCookieJar 格式的 Cookie，并保存成了文件。读取 Cookie 之后，使用同样的方法构建 Handler 类和 Opener 类即可完成操作。</p>
 <p class="content-text">运行结果正常的话，会输出百度网页的源代码。通过上面的方法，我们就可以设置绝大多数请求的功能。</p>
 </section>
 </section>
@@ -730,7 +729,7 @@ print(r.cookies)</code></pre>
 <pre class="result-block"><code>&lt;class 'requests.models.Response'&gt;
 &lt;class 'str'&gt;
 &lt;!DOCTYPE html&gt;
-&lt;!--STATUS OK--&gt;&lt;html&gt; &lt;head&gt; &lt;meta http-equiv=content-type content=text/html;charse
+&lt;!--STATUS OK--&gt;&lt;html&gt; &lt;head&gt; &lt;meta http-equiv=content-type content=text/html;charset
 &lt;RequestsCookieJar [&lt;Cookie BDORZ=27315 for .baidu.com/&gt;]&gt;</code></pre>
 <p class="content-text">这里我们调用 <code class="inline-code">get</code> 方法实现了与 <code class="inline-code">urlopen</code> 方法相同的操作，返回一个 <code class="inline-code">Response</code> 对象，并将其存放在变量 <code class="inline-code">r</code> 中，然后分别输出了响应的类型、状态码、响应体的类型、内容，以及 <code class="inline-code">Cookie</code>。</p>
 <p class="content-text">观察运行结果可以发现，返回的响应类型是 <code class="inline-code">requests.models.Response</code>，响应体的类型是字符串 <code class="inline-code">str</code>，<code class="inline-code">Cookie</code> 的类型是 <code class="inline-code">RequestsCookieJar</code>。</p>
@@ -1295,7 +1294,7 @@ print(r.text)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">本节的 requests 库的基本用法就介绍到这里了,怎么样?有没有感觉它比 urllib 库使用起来更为方便。本节内容需要好好掌握,后文我们会在实战中使用 requests 库完成一个网站的爬取,顺便巩固 requests 库的相关知识。本节代码参见:https://github.com/Python3 WebSpider/RequestsTest。</p>
+<p class="content-text">本节的 requests 库的基本用法就介绍到这里了,怎么样?有没有感觉它比 urllib 库使用起来更为方便。本节内容需要好好掌握,后文我们会在实战中使用 requests 库完成一个网站的爬取,顺便巩固 requests 库的相关知识。本节代码参见:https://github.com/Python3WebSpider/RequestsTest。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>2.3 正则表达式</h2></div>
 <p class="content-text">在2.2节中,我们已经可以用requests 库来获取网页的源代码,得到HTML代码。但我们真正想要的数据是包含在HTML 代码之中的,要怎样才能从 HTML 代码中获取想要的信息呢?正则表达式就是其中一个有效的方法。本节我们将了解一下正则表达式的相关用法。正则表达式是用来处理字符串的强大工具,它有自己特定的语法结构,有了它,实现字符串的检索、替换、匹配验证都不在话下。当然,对于爬虫来说,有了它,从 HTML 里提取想要的信息就非常方便了。</p>
@@ -1403,8 +1402,7 @@ print(result)
 print(result.group(1))</code></pre>
 <p class="content-text">这里我们依然想获取目标字符串中间的数字,所以正则表达式中间写的依然是<code class="inline-code">(\d+)</code>。而数字两侧由于内容比较杂乱,所以想省略来写,于是都写成<code class="inline-code">.*</code>。最后,组成<code class="inline-code">^He.*(\d+).*Demo$</code>,看样子没什么问题。可我们看下运行结果:</p>
 <pre class="code-block"><code>&lt;_sre.SRE_Match object; span=(0, 40), match='Hello 1234567 World_This is a Regex Demo'&gt;</code></pre>
-<p class="content-text">奇怪的事情发生了,只得到了7这个数字,这是怎么回事?这里涉及贪婪匹配和非贪婪匹配的问题。在贪婪匹配下,<code class="inline-code">.*</code>会匹配尽可能多的字符。正则表达式中<code class="inline-code">.*</code>后面是<code class="inline-code">\d+</code>,也就是至少一个数字,而且没有指定具体几个数字,因此,<code class="inline-code">.*</code>会匹配尽可能多的字符,这里就把123456都匹配了,只给<code class="inline-code">\d+</code>留下一个可满足条件的数字7,因此最后得到的内容就只有数字7。但这很明显会给我们带来很大的不便。有时候,匹配结果会莫名其妙少一部分内容。其实,这里</p>
-<p class="content-text">只需要使用非贪婪匹配就好了。非贪婪匹配的写法是<code class="inline-code">.*?</code>，比通用匹配多了一个<code class="inline-code">?</code>，那么它可以起到怎样的效果？我们再用实例看一下：</p>
+<p class="content-text">奇怪的事情发生了,只得到了7这个数字,这是怎么回事?这里涉及贪婪匹配和非贪婪匹配的问题。在贪婪匹配下,<code class="inline-code">.*</code>会匹配尽可能多的字符。正则表达式中<code class="inline-code">.*</code>后面是<code class="inline-code">\d+</code>,也就是至少一个数字,而且没有指定具体几个数字,因此,<code class="inline-code">.*</code>会匹配尽可能多的字符,这里就把123456都匹配了,只给<code class="inline-code">\d+</code>留下一个可满足条件的数字7,因此最后得到的内容就只有数字7。但这很明显会给我们带来很大的不便。有时候,匹配结果会莫名其妙少一部分内容。其实,这里只需要使用非贪婪匹配就好了。非贪婪匹配的写法是<code class="inline-code">.*?</code>，比通用匹配多了一个<code class="inline-code">?</code>，那么它可以起到怎样的效果？我们再用实例看一下：</p>
 <pre class="code-block" data-lang="python"><code>import re
 
 content = 'Hello 1234567 World_This is a Regex Demo'
@@ -1447,7 +1445,7 @@ AttributeError: 'NoneType' object has no attribute 'group'</code></pre>
 <p class="content-text">发现运行直接报错,也就是说正则表达式没有匹配到这个字符串,返回结果为None,而我们又调用了 <code class="inline-code">group</code> 方法,导致 <code class="inline-code">AttributeError</code>。</p>
 <p class="content-text">那么,为什么加了一个换行符,就匹配不到了呢?这是因为匹配的内容是除换行符之外的任意字符,当遇到换行符时,<code class="inline-code">.*?</code> 就不能匹配了,所以导致匹配失败。这里只需加一个修饰符 <code class="inline-code">re.S</code>,即可修正这个错误:</p>
 <pre class="code-block" data-lang="python"><code>result = re.match('^He.*?(\d+).*?Demo$', content, re.S)</code></pre>
-<p class="content-text">这个修饰符的作用是使匹配内容包括换行符在內的所有字符。此时运行结果如下:</p>
+<p class="content-text">这个修饰符的作用是使匹配内容包括换行符在内的所有字符。此时运行结果如下:</p>
 <pre class="result-block"><code>1234567</code></pre>
 <p class="content-text">这个 <code class="inline-code">re.S</code> 在网页匹配中经常用到。因为 HTML 节点经常会有换行,加上它,就可以匹配节点与节点之间的换行了。另外,还有一些修饰符,在必要的情况下也可以使用,如表2-3所示。</p>
 <p class="table-caption">表2-3 修饰符</p>
@@ -1519,19 +1517,19 @@ print(result)</code></pre>
 <p class="content-text">另外,由于代码中有换行,所以 <code class="inline-code">search</code> 方法的第三个参数需要传入 <code class="inline-code">re.S</code>。于是整个匹配代码如下:</p>
 <pre class="code-block" data-lang="python"><code>result = re.search('&lt;li.*?active.*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;', html, re.S)
 if result:
-print(result.group(1), result.group(2))</code></pre>
+    print(result.group(1), result.group(2))</code></pre>
 <p class="content-text">由于需要获取的歌手和歌名都已经用小括号包围,所以可以用 <code class="inline-code">group</code> 方法获取。运行结果如下:</p>
 <pre class="result-block"><code>齐秦 往事随风</code></pre>
 <p class="content-text">可以看到,这正是 <code class="inline-code">class</code> 为 <code class="inline-code">active</code> 的 <code class="inline-code">li</code> 节点内部的超链接包含的歌手名和歌名。如果正则表达式不加 <code class="inline-code">active</code> (也就是匹配不带 <code class="inline-code">class</code> 为 <code class="inline-code">active</code> 的节点内容),会怎样呢?我们将正则表达式中的 <code class="inline-code">active</code> 去掉,代码改写如下:</p>
 <pre class="code-block" data-lang="python"><code>result = re.search('&lt;li.*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;', html, re.S)
 if result:
-print(result.group(1), result.group(2))</code></pre>
+    print(result.group(1), result.group(2))</code></pre>
 <p class="content-text">由于 <code class="inline-code">search</code> 方法会返回第一个符合条件的匹配目标,于是这里结果就变了:</p>
 <pre class="code-block"><code>任贤齐 沧海一声笑</code></pre>
 <p class="content-text">把 <code class="inline-code">active</code> 标签去掉后,从字符串开头开始搜索,此时符合条件的节点就变成了第二个 <code class="inline-code">li</code> 节点,后面的就不再匹配,所以运行结果就变成第二个 <code class="inline-code">li</code> 节点中的内容。注意,在上面的两次匹配中,<code class="inline-code">search</code> 方法的第三个参数都加了 <code class="inline-code">re.S</code>,这使得 <code class="inline-code">.*?</code> 可以匹配换行,所以含有换行的 <code class="inline-code">li</code> 节点被匹配到了。如果我们将其去掉,结果会是什么?去掉 <code class="inline-code">re.S</code> 的代码如下:</p>
 <pre class="code-block" data-lang="python"><code>result = re.search('&lt;li.*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;', html)
 if result:
-print(result.group(1), result.group(2))</code></pre>
+    print(result.group(1), result.group(2))</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>beyond 光辉岁月</code></pre>
 <p class="content-text">可以看到,结果变成了第四个 <code class="inline-code">li</code> 节点的内容。这是因为第二个和第三个 <code class="inline-code">li</code> 节点都包含换行符,去掉 <code class="inline-code">re.S</code> 之后,<code class="inline-code">.*?</code> 已经不能匹配换行符,所以正则表达式不会匹配这两个 <code class="inline-code">li</code> 节点,而第四个 <code class="inline-code">li</code> 节点中不包含换行符,可以成功匹配。由于绝大部分 HTML 文本包含换行符,所以需要尽量加上 <code class="inline-code">re.S</code> 修饰符,以免出现匹配不到的问题。</p>
@@ -1543,8 +1541,8 @@ print(result.group(1), result.group(2))</code></pre>
 print(results)
 print(type(results))
 for result in results:
-print(result)
-print(result[0], result[1], result[2])</code></pre>
+    print(result)
+    print(result[0], result[1], result[2])</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>[('/2.mp3', '任贤齐', '沧海一声笑'), ('/3.mp3', '齐秦', '往事随风'), ('/4.mp3', 'beyond', '光辉岁月'), ('/5.mp3', '陈慧琳', '记事本'), ('/6.mp3', '邓丽君', '但愿人长久')]
 &lt;class 'list'&gt;
@@ -2014,7 +2012,7 @@ ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c', 'name':'霸王别姬
 'categories': ['剧情','爱情'], 'published_at': '1993-07-26', 'drama':'影片借一出《霸王别姬》的京戏,
 牵扯出三个人之间一段随时代风云变幻的爱恨情仇。段小楼(张丰毅饰)与程蝶衣(张国荣饰)是一对打小一起长大
 的师兄弟,两人一个演生,一个饰旦,一向配合天衣无缝,尤其一出《霸王别姬》,更是誉满京城,为此,两人约定
-合演一輩子《霸王别姬》。但两人对戏剧与人生关系的理解有本质不同,段小楼深知戏非人生,程蝶衣则是人戏不分。
+合演一辈子《霸王别姬》。但两人对戏剧与人生关系的理解有本质不同,段小楼深知戏非人生,程蝶衣则是人戏不分。
 段小楼在认为该成家立业之时迎娶了名妓菊仙(巩俐饰),致使程蝶衣认定菊仙是可耻的第三者,使段小楼做了叛徒,
 自此,三人围绕一出《霸王别姬》生出的爱恨情仇战开始随着时代风云的变迁不断升级,终酿成悲剧。', 'score': 9.5}
 2020-03-08 23:37:39,985 INFO: get detail url https://ssr1.scrape.center/detail/2
