@@ -61,8 +61,10 @@ from PIL import Image</code></pre>
 <pre class="code-block"><code>image = Image.open('captcha.png')
 result = tesserocr.image_to_text(image)
 print(result)</code></pre>
-<p class="content-text">这里先新建了一个图片对象，然后调用 tesserocr 里的 image_to_text 方法将图片转换为了文本。实现过程非常简单，运行结果如下：d241 tesserocr 还提供了一个更加方便的方法，可以直接将图片文件转化为字符串，代码如下：</p>
-<pre class="result-block"><code>import tesserocr
+<p class="content-text">这里先新建了一个图片对象，然后调用 tesserocr 里的 image_to_text 方法将图片转换为了文本。实现过程非常简单，运行结果如下：</p>
+<pre class="result-block"><code>d241</code></pre>
+<p class="content-text">tesserocr 还提供了一个更加方便的方法，可以直接将图片文件转化为字符串，代码如下：</p>
+<pre class="code-block" data-lang="python"><code>import tesserocr
 print(tesserocr.file_to_text('captcha.png'))</code></pre>
 <p class="content-text">输出结果同样是 d241。可以看到，通过 OCR 技术便能成功识别图形验证码的内容。</p>
 </section>
@@ -111,8 +113,7 @@ array = np.array(image)
 array = np.where(array &gt; threshold, 255, 0)
 image = Image.fromarray(array.astype('uint8'))
 image.show()</code></pre>
-<p class="content-text">这里先将变量 threshold 赋值为50,它代表灰度的阈值。接着将图片转化为1</p>
-<p class="content-text">NumPy 的 where 方法对数组进行筛选和处理,其中指定将灰度大于阈值的图片的像素设置为 255,表示白色,否则设置为0,表示黑色。最后看一下处理完的图片长什么样,如图8-4所示。可以看到原来图片中的干扰点已经不见了,整个图片变得黑白分明。此时重新识别验证码,代码如下:</p>
+<p class="content-text">这里先将变量 threshold 赋值为50,它代表灰度的阈值。接着将图片转化为 NumPy 数组,调用 NumPy 的 where 方法对数组进行筛选和处理,其中指定将灰度大于阈值的图片的像素设置为 255,表示白色,否则设置为0,表示黑色。最后看一下处理完的图片长什么样,如图8-4所示。可以看到原来图片中的干扰点已经不见了,整个图片变得黑白分明。此时重新识别验证码,代码如下:</p>
 <pre class="code-block"><code>import tesserocr
 from PIL import Image
 import numpy as np
@@ -124,7 +125,9 @@ array = np.where(array &gt; threshold, 255, 0)
 image = Image.fromarray(array.astype('uint8'))
 print(tesserocr.image_to_text(image))</code></pre>
 <figure class="inline-figure"><img alt="图8-4 处理完的验证码图片" loading="lazy" src="figures/ch08/fig-8_4.jpg"/><figcaption>图8-4 处理完的验证码图片</figcaption></figure>
-<p class="content-text">运行结果如下:b32d这次的结果是正确的。所以,针对一些有干扰的图片,可以做去噪处理,这能提高验证码识别的正确率。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>b32d</code></pre>
+<p class="content-text">这次的结果是正确的。所以,针对一些有干扰的图片,可以做去噪处理,这能提高验证码识别的正确率。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 识别实战</h3>
@@ -173,7 +176,18 @@ if</code></pre>
 <p class="content-text list-like"><strong class="term-label">name：</strong>==main':</p>
 <pre class="code-block"><code>browser = webdriver.Chrome()
 login()</code></pre>
-<p class="content-text">我们首先定义了一个 preprocess方法,用于对验证码图片做去噪处理,逻辑和前面是一样的。接着定义了一个login方法,其执行逻辑是:(1)打开案例网站;(2)找到用户名输入框,输入用户名;(3)找到密码输入框,输入密码;(4) 找到并截取验证码图片,转化为图片对象;(5) 预处理验证码,去除噪声;(6)识别验证码,得到识别结果;(7)去除识别结果中的一些非字母字符和数字字符;(8) 找到验证码输入框,输入验证码结果;(9)点击“登录”按钮;(10)等待“登录成功”的字样出现,如果出现就证明验证码识别正确,否则重复以上步骤重试。其中我们用到了 retrying 来指定重试条件和重试次数,以保证在识别出错的情况下能够反复重试,增加整体的成功概率。运行代码,会弹出浏览器,我们按照以上流程输入相应内容,可能重试几次,就成功登录了网站。浏览器页面如图8-5所示。</p>
+<p class="content-text">我们首先定义了一个 preprocess方法,用于对验证码图片做去噪处理,逻辑和前面是一样的。接着定义了一个login方法,其执行逻辑如下。</p>
+<p class="content-text list-like">打开案例网站。</p>
+<p class="content-text list-like">找到用户名输入框,输入用户名。</p>
+<p class="content-text list-like">找到密码输入框,输入密码。</p>
+<p class="content-text list-like">找到并截取验证码图片,转化为图片对象。</p>
+<p class="content-text list-like">预处理验证码,去除噪声。</p>
+<p class="content-text list-like">识别验证码,得到识别结果。</p>
+<p class="content-text list-like">去除识别结果中的一些非字母字符和数字字符。</p>
+<p class="content-text list-like">找到验证码输入框,输入验证码结果。</p>
+<p class="content-text list-like">点击“登录”按钮。</p>
+<p class="content-text list-like">等待“登录成功”的字样出现,如果出现就证明验证码识别正确,否则重复以上步骤重试。</p>
+<p class="content-text">其中我们用到了 retrying 来指定重试条件和重试次数,以保证在识别出错的情况下能够反复重试,增加整体的成功概率。运行代码,会弹出浏览器,我们按照以上流程输入相应内容,可能重试几次,就成功登录了网站。浏览器页面如图8-5所示。</p>
 <figure class="inline-figure"><img alt="图8-5 浏览器页面" loading="lazy" src="figures/ch08/fig-8_5.jpg"/><figcaption>图8-5 浏览器页面</figcaption></figure>
 <p class="content-text">登录成功的页面如图8-6所示。</p>
 <figure class="inline-figure"><img alt="图8-6 登录成功的页面" loading="lazy" src="figures/ch08/fig-8_6.jpg"/><figcaption>图8-6 登录成功的页面</figcaption></figure>
@@ -190,7 +204,9 @@ login()</code></pre>
 <p class="content-text">说起滑动验证码,比较有代表性的服务商有极验、网易易盾等,验证码效果如图8-7和图8-8所示。</p>
 <figure class="inline-figure"><img alt="图8-7 极验的滑动验证码" loading="lazy" src="figures/ch08/fig-8_7.jpg"/><figcaption>图8-7 极验的滑动验证码</figcaption></figure>
 <figure class="inline-figure"><img alt="图8-8 网易易盾的滑动验证码" loading="lazy" src="figures/ch08/fig-8_8.jpg"/><figcaption>图8-8 网易易盾的滑动验证码</figcaption></figure>
-<p class="content-text">滑动验证码的下方通常有一个滑轨,上面带有类似“拖动滑块完成拼图”字样的文字提示,我们需要向右拖曳滑轨上的滑块,这时正上方的滑块会随它一起向右移动。验证码的右侧有一个滑块缺口,我们将滑块恰好拖到这个缺口处,就算验证成功了,图8-7验证成功的效果如图8-9所示。如果我们想用爬虫自动化完成这一流程,关键步骤有两个:(1)识别目标缺口的位置;(2)将滑块拖到缺口位置。</p>
+<p class="content-text">滑动验证码的下方通常有一个滑轨,上面带有类似“拖动滑块完成拼图”字样的文字提示,我们需要向右拖曳滑轨上的滑块,这时正上方的滑块会随它一起向右移动。验证码的右侧有一个滑块缺口,我们将滑块恰好拖到这个缺口处,就算验证成功了,图8-7验证成功的效果如图8-9所示。如果我们想用爬虫自动化完成这一流程,关键步骤有两个。</p>
+<p class="content-text list-like">识别目标缺口的位置。</p>
+<p class="content-text list-like">将滑块拖到缺口位置。</p>
 <figure class="inline-figure"><img alt="图8-9 极验的滑动验证码验证成功" loading="lazy" src="figures/ch08/fig-8_9.jpg"/><figcaption>图8-9 极验的滑动验证码验证成功</figcaption></figure>
 <p class="content-text">其中第(2)步的实现方式有很多,例如可以用Selenium 等自动化工具模拟这个流程,验证并登录成功后获取对应的 Cookie 或Token 等信息,再进行后续操作,但这种方法的运行效率比较低。也可以直接逆向验证码背后的JavaScript 逻辑,将缺口信息直接传给JavaScript代码,执行获取类似“密钥”信息的操作,再利用获取的“密钥”进行下一步操作。注意出于某些安全方面的考虑,本书不会介绍第(2)步的具体操作,只会讲解第(1)步的技术问题。本节的目标明确了——识别目标缺口的位置,即给定一张滑动验证码的图片,使用图像处理技术识别出缺口的位置。</p>
 </section>
@@ -199,7 +215,10 @@ login()</code></pre>
 <p class="content-text">本节中我们会介绍使用OpenCV 技术识别缺口的方法,输入一张带有缺口的验证码图片,输出标明缺口位置(一般是缺口左侧的横坐标)的图片。这里输入的图片如图8-10所示。最后输出的图片如图8-11所示。</p>
 <figure class="inline-figure"><img alt="图8-10 输入的带有缺口的验证码图片" loading="lazy" src="figures/ch08/fig-8_10.jpg"/><figcaption>图8-10 输入的带有缺口的验证码图片</figcaption></figure>
 <figure class="inline-figure"><img alt="图8-11 输出的标明缺口位置的图片" loading="lazy" src="figures/ch08/fig-8_11.jpg"/><figcaption>图8-11 输出的标明缺口位置的图片</figcaption></figure>
-<p class="content-text">具体的步骤为:(1)对验证码图片进行高斯模糊滤波处理,消除部分噪声干扰;(2)利用边缘检测算法,通过调整相应阈值识别出验证码图片中滑块的边缘;(3)基于上一步得到的各个边缘轮廓信息,对比面积、位置、周长等特征,筛选出最可能的轮廓,得到缺口位置。</p>
+<p class="content-text">具体的步骤如下。</p>
+<p class="content-text list-like">对验证码图片进行高斯模糊滤波处理,消除部分噪声干扰。</p>
+<p class="content-text list-like">利用边缘检测算法,通过调整相应阈值识别出验证码图片中滑块的边缘。</p>
+<p class="content-text list-like">基于上一步得到的各个边缘轮廓信息,对比面积、位置、周长等特征,筛选出最可能的轮廓,得到缺口位置。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
@@ -322,7 +341,9 @@ for contour in contours:
         offset = x
 cv2.imwrite('image_label.png', image_raw)
 print('offset', offset)</code></pre>
-<p class="content-text">这里我们首先调用get_contour_area_threshold、get_arc_length_threshold 和 get_offset_threshold 方法获取3个判断阈值,然后遍历 contours 并根据这些阈值进行筛选,最终得到的x值就是目标缺口位置的偏移量,将其赋给 offset 变量并打印出来。与此同时,我们调用rectangle 方法对目标缺口的外接矩形做了标注,将其保存为image_label.png 图片。代码的运行结果如下:offset 163同时输出的 image_label.png 文件如图 8-15所示。</p>
+<p class="content-text">这里我们首先调用get_contour_area_threshold、get_arc_length_threshold 和 get_offset_threshold 方法获取3个判断阈值,然后遍历 contours 并根据这些阈值进行筛选,最终得到的x值就是目标缺口位置的偏移量,将其赋给 offset 变量并打印出来。与此同时,我们调用rectangle 方法对目标缺口的外接矩形做了标注,将其保存为image_label.png 图片。代码的运行结果如下:</p>
+<pre class="result-block"><code>offset 163</code></pre>
+<p class="content-text">同时输出的 image_label.png 文件如图 8-15所示。</p>
 <figure class="inline-figure"><img alt="图8-15 输出的image_label.png 文件" loading="lazy" src="figures/ch08/fig-8_15.jpg"/><figcaption>图8-15 输出的image_label.png 文件</figcaption></figure>
 <p class="content-text">这样我们就成功提取出目标缺口的位置了,本节的问题得以解决。</p>
 </section>
@@ -381,14 +402,20 @@ path = setting.TRAIN_DATASET_PATH</code></pre>
 <p class="content-text">然后运行 <code class="inline-code">generate.py</code> 文件里的代码:</p>
 <pre class="code-block"><code>python3 generate.py</code></pre>
 <p class="content-text">输出结果类似如下这样:</p>
-<p class="content-text">saved 1: ΧΑΡΑ_1620106547.png saved 2: F6ZO_1620106547.png saved 3: XXGY_1620106547.png</p>
-<pre class="code-block"><code>...</code></pre>
-<p class="content-text">saved 1000: UL1C_1620106547.png saved 1001: MT2U_1620106547.png这里生成了非常多的验证码数据,标注结果直接出现在文件名中,最终生成的训练集数据如图8-17所示。</p>
+<pre class="result-block"><code>saved 1: ΧΑΡΑ_1620106547.png
+saved 2: F6ZO_1620106547.png
+saved 3: XXGY_1620106547.png
+...
+saved 1000: UL1C_1620106547.png
+saved 1001: MT2U_1620106547.png</code></pre>
+<p class="content-text">这里生成了非常多的验证码数据,标注结果直接出现在文件名中,最终生成的训练集数据如图8-17所示。</p>
 <figure class="inline-figure"><img alt="图8-17 生成的训练集数据" loading="lazy" src="figures/ch08/fig-8_17.jpg"/><figcaption>图8-17 生成的训练集数据</figcaption></figure>
 <p class="content-text">利用同样的方法,可以生成验证集,用于验证模型的训练效果。还是修改count 变量和 path 变量:</p>
 <pre class="code-block"><code>count = 3000
 path = setting.EVAL_DATASET_PATH</code></pre>
-<p class="content-text">验证集不需要像训练集那么大,count 就修改为3000,path修改为EVAL_DATASET_PATH,然后重新运行 generate.py 文件里的代码:python3 generate.py这样就生成了验证集数据,如图8-18所示。</p>
+<p class="content-text">验证集不需要像训练集那么大,count 就修改为3000,path修改为EVAL_DATASET_PATH,然后重新运行 generate.py 文件里的代码:</p>
+<pre class="code-block"><code>python3 generate.py</code></pre>
+<p class="content-text">这样就生成了验证集数据,如图8-18所示。</p>
 <figure class="inline-figure"><img alt="图8-18 生成的验证集数据" loading="lazy" src="figures/ch08/fig-8_18.jpg"/><figcaption>图8-18 生成的验证集数据</figcaption></figure>
 <p class="content-text">数据都准备好后,就可以开始训练模型了。</p>
 </section>
@@ -436,7 +463,13 @@ class CNN(nn.Module):
         out = self.rfc(out)
         return out</code></pre>
 <p class="content-text">可以看到这里定义了三层, 每层都是Conv2d(卷积)、BatchNorm2d(批标准化)、Dropout(随机失活)、ReLU(激活函数)和MaxPool2d(池化)的组合, 经过这三层处理后, 由一个全连接网络层输出最终的结果, 用于计算模型的最终损失。</p>
-<p class="content-text">模型的训练过程定义在 train.py 文件中, 整个训练逻辑是这样的:(1) 引入定义好的模型, 即 model.py 文件, 对模型进行初始化;(2) 定义损失函数 loss;(3) 定义优化器 optimizer;(4) 加载数据, 一般包括训练集数据和验证集数据;(5) 执行训练, 这个过程包括反向求导、模型权重更新;(6) 在执行完特定的训练步数后, 验证和保存模型。</p>
+<p class="content-text">模型的训练过程定义在 train.py 文件中,整个训练逻辑如下。</p>
+<p class="content-text list-like">引入定义好的模型,即 model.py 文件,对模型进行初始化。</p>
+<p class="content-text list-like">定义损失函数 loss。</p>
+<p class="content-text list-like">定义优化器 optimizer。</p>
+<p class="content-text list-like">加载数据,一般包括训练集数据和验证集数据。</p>
+<p class="content-text list-like">执行训练,这个过程包括反向求导、模型权重更新。</p>
+<p class="content-text list-like">在执行完特定的训练步数后,验证和保存模型。</p>
 <p class="content-text">了解了基本的逻辑之后, 就可以尝试用现有的数据训练一个深度学习模型了。怎么训练呢?运行训练模型, 即 train.py 文件即可:</p>
 <pre class="code-block"><code>python3 train.py</code></pre>
 <p class="content-text">训练过程的输出结果如下:</p>
@@ -581,20 +614,42 @@ return box_xmin / width, box_ymin / height, box_width / width, box_height / heig
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 训练</h3>
-<p class="content-text">为了达到更好的训练效果,还需要下载一些预训练模型,预训练的意思是已经有一个提前训练好的基础模型了。直接使用预训练模型中的权重文件,就不用从零开始训练模型了,只需要基于之前的模型进行微调即可,这样既节省训练时间,又能达到比较好的效果。先下载预训练模型,YOLO V3 模型才能有不错的训练效果。下载预训练模型的命令如下:bash prepare.sh注意在 Windows环境下,请使用Bash命令行工具(如Git Bash)运行此命令。之后,就能下载 YOLO V3 模型的一些权重文件,包括yolov3.weights 和 darknet.weights。在正式训练模型之前,需要使用这些权重文件初始化 YOLO V3 模型。接下来就是训练了,还是推荐使用GPU来训练,运行如下命令:bash train.sh注意同样,在Windows环境下请使用Bash命令行工具(如Git Bash)运行此命令。在训练过程中,我们可以使用TensorBoard 观察 loss和mAP的变化,运行如下命令:tensorboard --logdir='logs' --port=6006 --host 0.0.0.0</p>
+<p class="content-text">为了达到更好的训练效果,还需要下载一些预训练模型。预训练的意思是已经有一个提前训练好的基础模型了,直接使用预训练模型中的权重文件,就不用从零开始训练模型了,只需要基于之前的模型进行微调即可,这样既节省训练时间,又能达到比较好的效果。先下载预训练模型,YOLO V3 模型才能有不错的训练效果。下载预训练模型的命令如下:</p>
+<pre class="code-block"><code>bash prepare.sh</code></pre>
+<p class="content-text">注意在 Windows环境下,请使用Bash命令行工具(如Git Bash)运行此命令。之后,就能下载 YOLO V3 模型的一些权重文件,包括yolov3.weights 和 darknet.weights。在正式训练模型之前,需要使用这些权重文件初始化 YOLO V3 模型。</p>
+<p class="content-text">接下来就是训练了,还是推荐使用GPU来训练,运行如下命令:</p>
+<pre class="code-block"><code>bash train.sh</code></pre>
+<p class="content-text">注意同样,在Windows环境下请使用Bash命令行工具(如Git Bash)运行此命令。在训练过程中,我们可以使用TensorBoard 观察 loss和mAP的变化,运行如下命令:</p>
+<pre class="code-block"><code>tensorboard --logdir='logs' --port=6006 --host 0.0.0.0</code></pre>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">请确保已经正确安装了本项目的所有依赖库,其中就包括 TensorBoard,安装成功之后便可以使用 tensorboard命令。运行后,打开 http://localhost:6006 观察,loss 的变化和图 8-28 类似。mAP 的变化和图 8-29 类似。</div></div>
 <figure class="inline-figure"><img alt="图8-28 loss的变化" loading="lazy" src="figures/ch08/fig-8_28.jpg"/><figcaption>图8-28 loss的变化</figcaption></figure>
 <figure class="inline-figure"><img alt="图8-29 mAP的变化" loading="lazy" src="figures/ch08/fig-8_29.jpg"/><figcaption>图8-29 mAP的变化</figcaption></figure>
 <p class="content-text">可以看到,loss 最初非常高,之后下降到很低,正确率也逐渐接近 100%。以下是模型训练过程中命令行中的一些输出结果:</p>
-<pre class="code-block"><code>[Epoch 99/100, Batch 27/29]</code></pre>
-<table class="content-table"><thead><tr><th>Metrics</th><th>YOLO Layer o</th><th>YOLO Layer 1</th><th>YOLO Layer 2</th></tr></thead><tbody></tbody></table>
-<p class="content-text">+| grid_size</p>
-<p class="content-text list-like"><strong class="term-label">loss：</strong>0.028268| 0.046053 0.043745 X 0.002108 0.005267| 0.008111 y 0.004561 0.002016| 0.009047 W 0.001284 0.004618 0.000207 h| 0.000594 0.000528| 0.000946 conf 0.019700 0.033624 0.025432 cls 0.000022| 0.000001 0.000002 cls_acc 100.00%100.00%100.00%recall50 1.000000 1.000000 1.000000 recall75 1.000000 1.000000 1.000000 precision 1.000000 0.800000 0.666667 conf_obj 0.994271 0.999249 0.997762 conf_noobj | 0.000126 | 0.000158 0.000140 Total loss 0.11806630343198776这里显示了训练过程中各个指标的变化情况,如 loss、recall、precision 和 conf_obj,分别代表损失(越小越好)、召回率(能识别出的结果占应该识别出的结果的比例,越高越好)、精确率(识别结果中识别正确的概率,越高越好)和置信度(模型有把握识别对的概率,越高越好),可以作为参考。</p>
+<pre class="result-block"><code>[Epoch 99/100, Batch 27/29]
+Metrics             YOLO Layer 0   YOLO Layer 1   YOLO Layer 2
+grid_size
+loss                0.028268       0.046053       0.043745
+x                   0.002108       0.005267       0.008111
+y                   0.004561       0.002016       0.009047
+w                   0.001284       0.004618       0.000207
+h                   0.000594       0.000528       0.000946
+conf                0.019700       0.033624       0.025432
+cls                 0.000022       0.000001       0.000002
+cls_acc             100.00%        100.00%        100.00%
+recall50            1.000000       1.000000       1.000000
+recall75            1.000000       1.000000       1.000000
+precision           1.000000       0.800000       0.666667
+conf_obj            0.994271       0.999249       0.997762
+conf_noobj          0.000126       0.000158       0.000140
+Total loss 0.11806630343198776</code></pre>
+<p class="content-text">这里显示了训练过程中各个指标的变化情况,如 loss、recall、precision 和 conf_obj,分别代表损失(越小越好)、召回率(能识别出的结果占应该识别出的结果的比例,越高越好)、精确率(识别结果中识别正确的概率,越高越好)和置信度(模型有把握识别对的概率,越高越好),可以作为参考。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 测试</h3>
 <p class="content-text">模型训练完毕后,会在 checkpoints 文件夹下生成一些 pth 文件,这些就是模型文件,和 8.3 节的 best_model.pkl 文件原理一样,只是表示形式略有不同,我们可以直接使用这些模型做测试,生成标注结果。</p>
-<p class="content-text">先在测试文件夹 data/captcha/test下放入一些验证码图片,样例如图 8-30所示。运行如下命令做测试:bash detect.sh该命令会读取测试文件夹下的所有图片,并将处理后的结果输出到data/captcha/result文件夹,控制台会输出一些验证码的识别结果。同时,在data/captcha/result文件夹下会生成标注结果,样例如图8-31 所示。</p>
+<p class="content-text">先在测试文件夹 data/captcha/test下放入一些验证码图片,样例如图 8-30所示。运行如下命令做测试:</p>
+<pre class="code-block"><code>bash detect.sh</code></pre>
+<p class="content-text">该命令会读取测试文件夹下的所有图片,并将处理后的结果输出到data/captcha/result文件夹,控制台会输出一些验证码的识别结果。同时,在data/captcha/result文件夹下会生成标注结果,样例如图8-31 所示。</p>
 <figure class="inline-figure"><img alt="图8-30 样例图片" loading="lazy" src="figures/ch08/fig-8_30.jpg"/><figcaption>图8-30 样例图片</figcaption></figure>
 <figure class="inline-figure"><img alt="图8-31 带有标注结果的样例图片" loading="lazy" src="figures/ch08/fig-8_31.jpg"/><figcaption>图8-31 带有标注结果的样例图片</figcaption></figure>
 <p class="content-text">可以看到,缺口被准确识别出来了。实际上,detect.sh命令的作用是运行 detect.py文件,这个文件中的关键代码如下:</p>
@@ -609,7 +664,6 @@ print('bbox', (x1, y1, box_w, box_h), 'offset', x1)</code></pre>
 </section>
 <div class="section-heading" id="section-4"><h2>8.5 使用打码平台识别验证码</h2></div>
 <p class="content-text">在前面四节,我们学习了几种识别验证码的方法,这些方法或多或少存在一些缺点,例如 OCR、OpenCV 的识别正确率不高,深度学习的效果虽然还不错,但是训练和维护模型的流程相对复杂。那有没有其他识别验证码的方法呢?有,就是本节要讲的打码平台。利用打码平台可以轻松识别各种各样的验证码,图形验证码、滑动验证码、点选验证码和逻辑推理验证码都不在话下,而且不需要懂任何算法,以及维护任何模型或服务。打码平台提供了一系列API,只需要向 API 上传验证码图片,它便会返回对应的识别结果。</p>
-<p class="content-text">使用打码平台识别验证码</p>
 <p class="content-text">其实打码平台一般是半自动化的,也就是平台背后既有识别算法、模型的支持,也有人工打码的支持。对于普通的由数字或字母构成的图形验证码,平台背后一般有深度学习模型作为支持,不仅识别精度高而且速度快。对于一些较为复杂的、使用模型或算法难以实现或者难以达到较好效果的验证码,会转到人工处理,打码人员通过平台提供的标注工具做标注,平台再通过API 返回标注结果。</p>
 <p class="content-text">我个人比较推荐的一个平台是超级鹰,其官网为https://www.chaojiying.com/, 首页如图8-32所示,这个平台提供的服务种类非常广泛,可识别的验证码类型非常多;识别效果也很不错。</p>
 <figure class="inline-figure"><img alt="图8-32 超级鹰平台" loading="lazy" src="figures/ch08/fig-8_32.jpg"/><figcaption>图8-32 超级鹰平台</figcaption></figure>
@@ -627,8 +681,7 @@ print('bbox', (x1, y1, box_w, box_h), 'offset', x1)</code></pre>
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
 <p class="content-text">本节需要用到两个Python 库——————opencv-python 和 Pillow,请确保已经正确安装,安装命令如下:</p>
 <pre class="code-block"><code>pip3 install opencv-python pillow</code></pre>
-<p class="content-text">如果在安装过程中遇到问题,可以参考 https://setup.scrape.center/opencv-python 和 https://setup.</p>
-<p class="content-text">scrape.center/pillow。</p>
+<p class="content-text">如果在安装过程中遇到问题,可以参考 https://setup.scrape.center/opencv-python 和 https://setup.scrape.center/pillow。</p>
 <p class="content-text">另外请在超级鹰平台上注册一个账号,并购买一定的题分,具体的操作流程见官网或者联系官方客服。</p>
 <p class="content-text">大家可以自行下载本节测试所用的验证码,地址为https://github.com/Python3WebSpider/CaptchaPlatform, 可以先复制下来:</p>
 <pre class="code-block"><code>git clone https://github.com/Python3WebSpider/CaptchaPlatform.git</code></pre>
@@ -708,12 +761,10 @@ print(result)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 点选验证码</h3>
-<p class="content-text">点选验证码也是多种多样,12306 的验证码就是非常典型的一种点选验证码。本节中我们用</p>
+<p class="content-text">点选验证码也是多种多样,12306 的验证码就是非常典型的一种点选验证码。本节中我们用图 8-36 所示的点选验证码为例进行讲解,该图片被保存为 captcha2.png 文件。</p>
 <figure class="inline-figure"><img alt="图8-36 要识别的点选验证码" loading="lazy" src="figures/ch08/fig-8_36.jpg"/><figcaption>图8-36 要识别的点选验证码</figcaption></figure>
-<p class="figure-caption">图 8-36 所示的点选验证码为例进行讲解,该图片</p>
-<p class="content-text">被保存为 captcha2.png 文件。查阅价格文档,比较符合这个验证码的描述是“坐标多选”,类型是“9004”,会返回 1~4 个坐标,如图 8-37 所示。</p>
+<p class="content-text">查阅价格文档,比较符合这个验证码的描述是“坐标多选”,类型是“9004”,会返回 1~4 个坐标,如图 8-37 所示。</p>
 <figure class="inline-figure"><img alt="图8-37 价格文档" loading="lazy" src="figures/ch08/fig-8_37.jpg"/><figcaption>图8-37 价格文档</figcaption></figure>
-<p class="figure-caption">图 8-37 价格文档</p>
 <p class="content-text">将“图形验证码”代码中的 CAPTCHA_KIND 改成 9004, FILE_NAME 改成 captcha2.png,然后重新运行代码,得到的结果如下:</p>
 <pre class="result-block"><code>{'err_no': 0, 'err_str': 'OK', 'pic_id': '1138416440949200011', 'pic_str': '-|108,133|227,143', 'md5':
 '526d232eb02afa7ed8319051a48ed7e9'}</code></pre>

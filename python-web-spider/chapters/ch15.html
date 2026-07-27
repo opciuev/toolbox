@@ -39,7 +39,7 @@
 <h3 class="subsection-heading numbered-heading">2. 架构</h3>
 <p class="content-text">说了这么多,Scrapy 框架的功能到底强在哪里?组件丰富在哪里?扩展性好在哪里?不要着急,本章后文会逐一讲解它的功能和各个组件的用法。首先从整体上看一下Scrapy 框架的架构,如图15-1所示。</p>
 <figure class="inline-figure"><img alt="图15-1 Scrapy 框架的架构" loading="lazy" src="figures/ch15/fig-15_1.jpg"/><figcaption>图15-1 Scrapy 框架的架构</figcaption></figure>
-<p class="figure-caption">图15-1 来源于 Scrapy 官方文档,初看上去可能比较复杂,下面我们来介绍一下。</p>
+<p class="content-text">图15-1 来源于 Scrapy 官方文档,初看上去可能比较复杂,下面我们来介绍一下。</p>
 <p class="content-text list-like">Engine:图中最中间的部分,中文可以称为引擎,用来处理整个系统的数据流和事件,是整个框架的核心,可以理解为整个框架的中央处理器,负责数据的流转和逻辑的处理。</p>
 <p class="content-text list-like">Item:它是一个抽象的数据结构,所以图中没有体现出来,它定义了爬取结果的数据结构,爬取的数据会被赋值成 Item对象。每个Item 就是一个类,类里面定义了爬取结果的数据字段,可以理解为它用来规定爬取数据的存储格式。”</p>
 <p class="content-text list-like">Scheduler:图中下方的部分,中文可以称为调度器,它用来接受 Engine 发过来的 Request 并将其加入队列中,同时也可以将 Request 发回给 Engine 供 Downloader 执行,它主要维护Request 的调度逻辑,比如先进先出、先进后出、优先级进出等等。</p>
@@ -51,7 +51,16 @@
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 数据流</h3>
-<p class="content-text">上文我们了解了Scrapy 的基本组件和功能,通过图和描述我们可以知道,在整个爬虫运行的过程中,Engine负责了整个数据流的分配和处理,数据流主要包括 Item、Request、Response 这三大部分,那它们又是怎么被 Engine 控制和流转的呢?下面我们结合图 15-1 来对数据流做一个简单说明。(1)启动爬虫项目时,Engine根据要爬取的目标站点找到处理该站点的Spider, Spider 会生成最初需要爬取的页面对应的一个或多个 Request,然后发给 Engine。(2) Engine 从 Spider 中获取这些 Request,然后把它们交给 Scheduler 等待被调度。(3) Engine 向 Scheduler 索取下一个要处理的 Request,这时候 Scheduler 根据其调度逻辑选择合适的Request 发送给 Engine。(4) Engine 将 Scheduler 发来的 Request 转发给 Downloader 进行下载执行,将 Request 发送给Downloader 的过程会经由许多定义好的Downloader Middlewares 的处理。(5) Downloader 将 Request 发送给目标服务器,得到对应的Response,然后将其返回给 Engine。将 Response 返回 Engine 的过程同样会经由许多定义好的 Downloader Middlewares 的处理。(6) Engine 从 Downloader 处接收到的 Response 里包含了爬取的目标站点的内容,Engine 会将此Response 发送给对应的 Spider 进行处理,将Response 发送给 Spider 的过程中会经由定义好的 Spider Middlewares 的处理。(7) Spider 处理 Response,解析 Response 的内容,这时候 Spider 会产生一个或多个爬取结果 Item或者后续要爬取的目标页面对应的一个或多个 Request,然后再将这些 Item 或 Request 发送给 Engine进行处理,将 Item或Request 发送给 Engine 的过程会经由定义好的 Spider Middlewares 的处理。(8) Engine 将 Spider 发回的一个或多个 Item 转发给定义好的 Item Pipelines 进行数据处理或存储的一系列操作,将Spider发回的一个或多个 Request 转发给 Scheduler 等待下一次被调度。重复第(2)步到第(8)步,直到Scheduler 中没有更多的Request,这时候 Engine 会关闭 Spider,整个爬取过程结束。以上步骤介绍了爬虫执行过程中的数据流转过程,起初看起来确实比较复杂,但不用担心,后文我们会结合一些实战案例来慢慢理解这些过程。从整体上看来,各个组件都只专注于一个功能,组件和组件之间的耦合度非常低,也非常容易扩展。再由 Engine将各个组件组合起来,使得各个组件各司其职,互相配合,共同完成爬取工作。另外加上Scrapy 对异步处理的支持,Scrapy 还可以最大限度地利用网络带宽,提高数据爬取和处理的效率。</p>
+<p class="content-text">上文我们了解了Scrapy 的基本组件和功能,通过图和描述我们可以知道,在整个爬虫运行的过程中,Engine负责了整个数据流的分配和处理,数据流主要包括 Item、Request、Response 这三大部分。下面结合图 15-1 对数据流做一个简单说明。</p>
+<p class="content-text list-like">(1) 启动爬虫项目时,Engine根据要爬取的目标站点找到处理该站点的Spider, Spider 会生成最初需要爬取的页面对应的一个或多个 Request,然后发给 Engine。</p>
+<p class="content-text list-like">(2) Engine 从 Spider 中获取这些 Request,然后把它们交给 Scheduler 等待被调度。</p>
+<p class="content-text list-like">(3) Engine 向 Scheduler 索取下一个要处理的 Request,这时候 Scheduler 根据其调度逻辑选择合适的Request 发送给 Engine。</p>
+<p class="content-text list-like">(4) Engine 将 Scheduler 发来的 Request 转发给 Downloader 进行下载执行,将 Request 发送给Downloader 的过程会经由许多定义好的Downloader Middlewares 的处理。</p>
+<p class="content-text list-like">(5) Downloader 将 Request 发送给目标服务器,得到对应的Response,然后将其返回给 Engine。将 Response 返回 Engine 的过程同样会经由许多定义好的 Downloader Middlewares 的处理。</p>
+<p class="content-text list-like">(6) Engine 从 Downloader 处接收到的 Response 里包含了爬取的目标站点的内容,Engine 会将此Response 发送给对应的 Spider 进行处理,将Response 发送给 Spider 的过程中会经由定义好的 Spider Middlewares 的处理。</p>
+<p class="content-text list-like">(7) Spider 处理 Response,解析 Response 的内容,这时候 Spider 会产生一个或多个爬取结果 Item或者后续要爬取的目标页面对应的一个或多个 Request,然后再将这些 Item 或 Request 发送给 Engine进行处理,将 Item或Request 发送给 Engine 的过程会经由定义好的 Spider Middlewares 的处理。</p>
+<p class="content-text list-like">(8) Engine 将 Spider 发回的一个或多个 Item 转发给定义好的 Item Pipelines 进行数据处理或存储的一系列操作,将Spider发回的一个或多个 Request 转发给 Scheduler 等待下一次被调度。重复第(2)步到第(8)步,直到Scheduler 中没有更多的Request,这时候 Engine 会关闭 Spider,整个爬取过程结束。</p>
+<p class="content-text">以上步骤介绍了爬虫执行过程中的数据流转过程,起初看起来确实比较复杂,但不用担心,后文我们会结合一些实战案例来慢慢理解这些过程。从整体上看来,各个组件都只专注于一个功能,组件和组件之间的耦合度非常低,也非常容易扩展。再由 Engine将各个组件组合起来,使得各个组件各司其职,互相配合,共同完成爬取工作。另外加上Scrapy 对异步处理的支持,Scrapy 还可以最大限度地利用网络带宽,提高数据爬取和处理的效率。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 项目结构</h3>
@@ -63,14 +72,26 @@
 <pre class="code-block"><code>scrapy startproject news</code></pre>
 <p class="content-text">这里我们使用 startproject 命令加上项目的名称就创建了一个名为news的Scrapy 爬虫项目。执行完毕之后,当前运行目录下便会出现一个名为 news的文件夹,该文件夹就对应一个Scrapy 爬虫项目。接着进入 news 文件夹,我们可以再利用命令行创建一个Spider 用来专门爬取某个站点的新闻,比如新浪新闻,我们可以使用如下命令创建一个Spider:</p>
 <pre class="code-block"><code>scrapy genspider sina news.sina.com.cn</code></pre>
-<p class="content-text">这里我们利用 genspider 命令加上Spider 的名称再加上对应的域名,成功创建了一个Spider,这个Spider 会对应一个Python文件,出现在项目的 spiders目录下。现在项目文件的结构如下:news__init__.py</p>
-<pre class="code-block"><code>items.py</code></pre>
-<p class="content-text list-like"><strong class="term-label">middlewares.py：</strong> pipelines.py settings.py spiders__init__.py sina.py scrapy.cfg在此将各个文件的功能描述如下。</p>
+<p class="content-text">这里我们利用 genspider 命令加上Spider 的名称再加上对应的域名,成功创建了一个Spider,这个Spider 会对应一个Python文件,出现在项目的 spiders目录下。现在项目文件的结构如下:</p>
+<pre class="code-block"><code>news
+├── scrapy.cfg
+└── news
+    ├── __init__.py
+    ├── items.py
+    ├── middlewares.py
+    ├── pipelines.py
+    ├── settings.py
+    └── spiders
+        ├── __init__.py
+        └── sina.py</code></pre>
+<p class="content-text">在此将各个文件的功能描述如下。</p>
 <p class="content-text list-like"><strong class="term-label">scrapy.cfg:</strong>Scrapy 项目的配置文件,其中定义了项目的配置文件路径、部署信息等。</p>
 <p class="content-text list-like"><strong class="term-label">items.py:</strong>定义了 Item 数据结构,所有Item的定义都可以放这里。</p>
-<p class="content-text">pipelines.py:定义了 Item Pipeline 的实现,所有的 Item Pipeline 的实现都可以放在这里。</p>
-<p class="content-text list-like">settings.py:定义了项目的全局配置。middlewares.py:定义了Spider Middlewares 和 Downloader Middlewares 的实现。</p>
-<p class="content-text list-like">spiders:里面包含一个个 Spider的实现,每个 Spider 都对应一个Python文件。在此我们仅需要对这些文件的结构和用途做初步的了解,后文会对它们进行深入讲解。</p>
+<p class="content-text list-like"><strong class="term-label">pipelines.py:</strong>定义了 Item Pipeline 的实现,所有的 Item Pipeline 的实现都可以放在这里。</p>
+<p class="content-text list-like"><strong class="term-label">settings.py:</strong>定义了项目的全局配置。</p>
+<p class="content-text list-like"><strong class="term-label">middlewares.py:</strong>定义了Spider Middlewares 和 Downloader Middlewares 的实现。</p>
+<p class="content-text list-like"><strong class="term-label">spiders:</strong>里面包含一个个 Spider的实现,每个 Spider 都对应一个Python文件。</p>
+<p class="content-text">在此我们仅需要对这些文件的结构和用途做初步的了解,后文会对它们进行深入讲解。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 总结</h3>
@@ -122,11 +143,11 @@ cannot be changed without changing our thinking."&lt;/span&gt;
 &lt;span&gt;by &lt;small class="author" itemprop="author"&gt;Albert Einstein&lt;/small&gt;
 &lt;a href="/author/Albert-Einstein"&gt; (about)&lt;/a&gt;
 &lt;/span&gt;
-&lt;div class="tags"&gt;</code></pre>
-<p class="content-text">        Tags:</p>
-<pre class="code-block"><code>&lt;meta class="keywords" itemprop="keywords" content="change, deep-thoughts, thinking, world"&gt;
-&lt;a class="tag" href="/tag/change/page/1/"&gt;change&lt;/a&gt;</code></pre>
-<pre class="code-block"><code>&lt;a class="tag" href="/tag/deep-thoughts/page/1/"&gt;deep-thoughts&lt;/a&gt;
+&lt;div class="tags"&gt;
+        Tags:
+&lt;meta class="keywords" itemprop="keywords" content="change, deep-thoughts, thinking, world"&gt;
+&lt;a class="tag" href="/tag/change/page/1/"&gt;change&lt;/a&gt;
+&lt;a class="tag" href="/tag/deep-thoughts/page/1/"&gt;deep-thoughts&lt;/a&gt;
 &lt;a class="tag" href="/tag/thinking/page/1/"&gt;thinking&lt;/a&gt;
 &lt;a class="tag" href="/tag/world/page/1/"&gt;world&lt;/a&gt;
 &lt;/div&gt;
@@ -142,10 +163,11 @@ quote.css('.text').extract()
 ['&lt;span class="text" itemprop="text"&gt;"The world as we have created it is a process of our thinking. It cannot
 be changed without changing our thinking."&lt;/span&gt;']
 quote.css('.text::text').extract()
-["The world as we have created it is a process of our thinking. It cannot be changed without changing our</code></pre>
-<p class="content-text">thinking."']</p>
-<pre class="code-block"><code>quote.css('.text::text').extract_first()</code></pre>
-<p class="content-text">"The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking."这里我们演示了不同提取过程的写法,其提取结果也是各不相同,比如单独调用CSS 方法我们得到的是 Selector 对象组成的列表;调用 extract 方法会进一步从 Selector 对象里提取其内容,再加上::text则会从 HTML 代码中提取出正文文本。因此对于 text,我们只需要获取结果的第一个元素即可,所以使用 extract_first方法,得到的就是一个字符串。而对于tags,我们要获取所有结果组成的列表,所以使用extract方法,得到的就是所有标签字符串组成的列表。</p>
+["The world as we have created it is a process of our thinking. It cannot be changed without changing our
+thinking."']
+quote.css('.text::text').extract_first()
+"The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking."</code></pre>
+<p class="content-text">这里我们演示了不同提取过程的写法,其提取结果也是各不相同,比如单独调用CSS 方法我们得到的是 Selector 对象组成的列表;调用 extract 方法会进一步从 Selector 对象里提取其内容,再加上::text则会从 HTML 代码中提取出正文文本。因此对于 text,我们只需要获取结果的第一个元素即可,所以使用 extract_first方法,得到的就是一个字符串。而对于tags,我们要获取所有结果组成的列表,所以使用extract方法,得到的就是所有标签字符串组成的列表。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 使用 Item</h3>
@@ -204,7 +226,7 @@ class QuotesSpider(scrapy.Spider):
 <pre class="code-block"><code>scrapy crawl quotes</code></pre>
 <p class="content-text">就可以看到 Scrapy 的运行结果了:</p>
 <pre class="result-block"><code>2020-08-29 19:55:46 [scrapy.utils.log] INFO: Scrapy 2.2.1 started (bot: scrapytutorial)
-2020-08-29 19:55:46 [scrapy.utils.log] INFO: Versions: 1xml 4.3.3.0, libxml2 2.9.9, cssselect 1.1.0, parsel
+2020-08-29 19:55:46 [scrapy.utils.log] INFO: Versions: lxml 4.3.3.0, libxml2 2.9.9, cssselect 1.1.0, parsel
 1.6.0, w3lib 1.22.0, Twisted 20.3.0, Python 3.7.3 (default, Apr 24 2020, 18:51:23) - [Clang 11.0.3
 (clang-1103.0.32.62)], pyOpenSSL 19.1.0 (OpenSSL 1.1.1g 21 Apr 2020), cryptography 2.9.2, Platform
 Darwin-19.4.0-x86_64-1386-64bit
@@ -242,7 +264,7 @@ Darwin-19.4.0-x86_64-1386-64bit
 2020-08-29 19:55:46 [scrapy.middleware] INFO: Enabled item pipelines:
 ['scrapytutorial.pipelines.TextPipeline', 'scrapytutorial.pipelines.MongoPipeline']
 2020-08-29 19:55:46 [scrapy.core.engine] INFO: Spider opened
-2020-08-29 19:55:46 [scrapy.extensions.logstats] INFO: Crawled o pages (at 0 pages/min), scraped 0 items (at
+2020-08-29 19:55:46 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at
 0 items/min)
 2020-08-29 19:55:46 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
 2020-08-29 19:55:47 [scrapy.core.engine] DEBUG: Crawled (404) &lt;GET https://quotes.toscrape.com/robots.txt&gt;
@@ -334,9 +356,9 @@ return DropItem('Missing Text')</code></pre>
 <pre class="code-block"><code>class MongoDBPipeline(object):
 def __init__(self, connection_string, database):
 self.connection_string = connection_string
-self.database = database</code></pre>
-<p class="content-text">    @classmethod</p>
-<pre class="code-block"><code>def from_crawler(cls, crawler):
+self.database = database
+@classmethod
+def from_crawler(cls, crawler):
 return cls(
 connection_string=crawler.settings.get('MONGODB_CONNECTION_STRING'),
 database=crawler.settings.get('MONGODB_DATABASE')
@@ -373,17 +395,19 @@ MONGODB_DATABASE = 'scrapytutorial'</code></pre>
 <p class="content-text">我们之前介绍了利用 Beautiful Soup、pyquery以及正则表达式来提取网页数据的方法,确实非常方便。不过 Scrapy 提供了自己的数据提取方法,即内置的,在3.4节我们已经初步了解了 parsel 库的基本用法,Scrapy中的Selector 是就是基于parsel 库来构建的,而同时 parsel又依赖于lxml, Selector 对 parsel 进行了封装,使其能更好地与Scrapy 结合使用。Selector 支持 XPath 选择器、CSS 选择器以及正则表达式,功能全面,解析速度和准确度非常高。本节我们就来详细介绍一下 Selector 的用法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 直接使用</h3>
-<p class="content-text"> Selector 其实并不一定非要在 Scrapy 中使用,它也是一个可以独立使用的模块。我们可以直接利用Selector 这个类来构建一个选择器对象,然后调用它的相关方法(如xpath、css等)来提取数据。例如,针对一段HTML代码,我们可以用如下方式构建 Selector 对象来提取数据:</p>
+<p class="content-text">Selector 其实并不一定非要在 Scrapy 中使用,它也是一个可以独立使用的模块。我们可以直接利用Selector 这个类来构建一个选择器对象,然后调用它的相关方法(如xpath、css等)来提取数据。例如,针对一段HTML代码,我们可以用如下方式构建 Selector 对象来提取数据:</p>
 <pre class="code-block"><code>from scrapy import Selector
 body = '&lt;html&gt;&lt;head&gt;&lt;title&gt;Hello World&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;'
 selector = Selector(text=body)
 title = selector.xpath('//title/text()').extract_first()
 print(title)</code></pre>
-<p class="content-text"> 运行结果如下:Hello World这里没有在 Scrapy 框架中运行,而是把Scrapy中的Selector单独拿出来使用了,构建的时候传入text 参数,就生成了一个Selector 选择器对象,然后就可以像 Scrapy 中的解析方式一样,调用xpath、CSS 等方法来提取数据了。在这里我们查找的是源代码中title内的文本,在XPath选择器最后加 text方法就可以实现文本的提取了。以上内容就是 Selector 的直接使用方式。同Beautiful Soup 等库类似,Selector 也是强大的网页解析库。如果方便的话,我们也可以在其他项目中直接使用 Selector 来提取数据。接下来,我们用实例来详细讲解 Selector 的用法。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>Hello World</code></pre>
+<p class="content-text">这里没有在 Scrapy 框架中运行,而是把Scrapy中的Selector单独拿出来使用了,构建的时候传入text 参数,就生成了一个Selector 选择器对象,然后就可以像 Scrapy 中的解析方式一样,调用xpath、CSS 等方法来提取数据了。在这里我们查找的是源代码中title内的文本,在XPath选择器最后加 text方法就可以实现文本的提取了。以上内容就是 Selector 的直接使用方式。同Beautiful Soup 等库类似,Selector 也是强大的网页解析库。如果方便的话,我们也可以在其他项目中直接使用 Selector 来提取数据。接下来,我们用实例来详细讲解 Selector 的用法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Scrapy Shell</h3>
-<p class="content-text"> 由于 Selector 主要是与Scrapy 结合使用,如Scrapy的回调函数中的参数 response 直接调用 xpath或者 CSS 方法来提取数据,所以在这里我们借助 Scrapy shell 来模拟 Scrapy 请求的过程,讲解相关的提取方法。我们用官方文档的一个样例页面来做演示:https://doc.scrapy.org/en/latest/_static/selectors-sample1.html。开启 Scrapy shell,在命令行输入如下命令:</p>
+<p class="content-text">由于 Selector 主要是与Scrapy 结合使用,如Scrapy的回调函数中的参数 response 直接调用 xpath或者 CSS 方法来提取数据,所以在这里我们借助 Scrapy shell 来模拟 Scrapy 请求的过程,讲解相关的提取方法。我们用官方文档的一个样例页面来做演示:https://doc.scrapy.org/en/latest/_static/selectors-sample1.html。开启 Scrapy shell,在命令行输入如下命令:</p>
 <pre class="code-block"><code>scrapy shell https://doc.scrapy.org/en/latest/_static/selectors-sample1.html</code></pre>
 <p class="content-text">我们就进入 Scrapy shell 模式了。这个过程其实是 Scrapy 发起了一次请求,请求的URL 就是刚才命令行下输入的URL,把一些可操作的变量传递给我们,如 request、response 等,如图15-7所示。</p>
 <figure class="inline-figure"><img alt="图15-7 Scrapy shell 模式" loading="lazy" src="figures/ch15/fig-15_7.jpg"/><figcaption>图15-7 Scrapy shell 模式</figcaption></figure>
@@ -479,10 +503,11 @@ src="image3_thumb.jpg"&gt;&lt;/a&gt;', '&lt;a href="image4.html"&gt;Name: My ima
 <pre class="code-block"><code>&gt;&gt;&gt; response.css('a[href="image1.html"] img').extract_first()
 '&lt;img src="image1_thumb.jpg"&gt;'</code></pre>
 <p class="content-text">接下来的两个用法不太一样。节点的内部文本和属性的获取是这样实现的:</p>
-<pre class="code-block"><code>&gt;&gt;&gt; response.css('a[href="image1.html"]::text').extract_first()</code></pre>
-<p class="content-text">'Name: My image 1 '</p>
-<pre class="code-block"><code>&gt;&gt;&gt; response.css('a[href="image1.html"] img::attr(src)').extract_first()</code></pre>
-<p class="content-text">'image1_thumb.jpg'获取文本和属性需要用::text和::attr的写法,而其他库如 Beautiful Soup 或 pyquery 都有单独的方法。另外,CSS 选择器和XPath 选择器一样,能够嵌套选择。我们可以先用XPath 选择器选中所有节点,再利用 CSS 选择器选中 img 节点,然后用XPath 选择器获取属性。我们用一个实例来感受一下,代码如下所示:</p>
+<pre class="code-block"><code>&gt;&gt;&gt; response.css('a[href="image1.html"]::text').extract_first()
+'Name: My image 1 '
+&gt;&gt;&gt; response.css('a[href="image1.html"] img::attr(src)').extract_first()
+'image1_thumb.jpg'</code></pre>
+<p class="content-text">获取文本和属性需要用::text和::attr的写法,而其他库如 Beautiful Soup 或 pyquery 都有单独的方法。另外,CSS 选择器和XPath 选择器一样,能够嵌套选择。我们可以先用XPath 选择器选中所有节点,再利用 CSS 选择器选中 img 节点,然后用XPath 选择器获取属性。我们用一个实例来感受一下,代码如下所示:</p>
 <pre class="code-block"><code>&gt;&gt;&gt; response.xpath('//a').css('img').xpath('@src').extract()
 ['image1_thumb.jpg', 'image2_thumb.jpg', 'image3_thumb.jpg', 'image4_thumb.jpg', 'image5_thumb.jpg']</code></pre>
 <p class="content-text">我们成功获取了所有 img 节点的src 属性。因此,我们可以随意使用 xpath 和css方法,二者自由组合实现嵌套查询,它们是完全兼容的。</p>
@@ -496,10 +521,10 @@ src="image3_thumb.jpg"&gt;&lt;/a&gt;', '&lt;a href="image4.html"&gt;Name: My ima
 <pre class="code-block"><code>&gt;&gt;&gt; response.xpath('//a/text()').re('(.*?):\s(.*)')
 ['Name', 'My image 1', 'Name', 'My image 2', 'Name', 'My image 3', 'Name', 'My image 4', 'Name', 'My image 5']</code></pre>
 <p class="content-text">类似 extract_first 方法,re_first方法可以选取列表的第一个元素,用法如下:</p>
-<pre class="code-block"><code>&gt;&gt;&gt; response.xpath('//a/text()').re_first('(.*?):\s(.*)')</code></pre>
-<p class="content-text">'Name'</p>
-<pre class="code-block"><code>&gt;&gt;&gt; response.xpath('//a/text()').re_first('Name:\s(.*)')</code></pre>
-<p class="content-text">'My image 1 '</p>
+<pre class="code-block"><code>&gt;&gt;&gt; response.xpath('//a/text()').re_first('(.*?):\s(.*)')
+'Name'
+&gt;&gt;&gt; response.xpath('//a/text()').re_first('Name:\s(.*)')
+'My image 1 '</code></pre>
 <p class="content-text">不论正则匹配了几个分组,结果都会等于列表的第一个元素。</p>
 </section>
 <p class="content-text">值得注意的是,response 对象不能直接调用re 和re_first方法。如果想要对全文进行正则匹配,可以先调用 xpath 方法再正则匹配,代码如下所示:</p>
@@ -608,13 +633,13 @@ yield Request (url, dont_filter=True)</code></pre>
 <pre class="code-block"><code>import scrapy
 from scrapy import Request
 class HttpbinSpider(scrapy.Spider):
-name = 'httpbin'</code></pre>
-<p class="content-text">    allowed domains = ['www.httpbin.org']</p>
-<pre class="code-block"><code>start_url = 'https://www.httpbin.org/get'
+name = 'httpbin'
+allowed_domains = ['www.httpbin.org']
+start_url = 'https://www.httpbin.org/get'
 headers = {
-'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko)</code></pre>
-<p class="content-text">Chrome/83.0.4103.116 Safari/537.36'</p>
-<pre class="code-block"><code>}
+'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko)
+Chrome/83.0.4103.116 Safari/537.36'
+}
 cookies = {'name': 'germey', 'age': '26'}
 def start_requests(self):
 for offset in range(5):
@@ -636,13 +661,13 @@ print('meta', response.meta)</code></pre>
 <p class="content-text list-like">cookies:另外我们还声明了 Cookie,以一个字典的形式声明,然后传给Request的cookies 参数。callback: 在 HttpbinSpider中,我们声明了一个 parse_response 方法,同时我们也将 Request 的callback 参数设置为 parse_response,这样当该 Request请求成功时就会回调 parse_response方法进行处理。</p>
 <p class="content-text list-like">meta: meta可以用来传递额外参数,这里我们将offset 的值也赋值给Request,通过response.meta就能获取这个内容了,这样就实现了 Request 到 Response 的额外信息传递。重新运行看看效果,输出内容如下:</p>
 <pre class="result-block"><code>2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=1&gt; (referer: None)
-2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=2&gt; (referer: None)</code></pre>
-<pre class="result-block"><code>2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=3&gt; (referer: None)
-2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=4&gt; (referer: None)</code></pre>
-<p class="content-text">url https://www.httpbin.org/get?offset=1</p>
-<pre class="code-block"><code>request &lt;GET https://www.httpbin.org/get?offset=1&gt;</code></pre>
-<p class="content-text">status 200</p>
-<pre class="code-block"><code>headers {b'Date': [b'Sat, 29 Aug 2020 17:54:19 GMT'], b'Content-Type': [b'application/json'], b'Server':
+2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=2&gt; (referer: None)
+2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=3&gt; (referer: None)
+2020-08-30 01:54:19 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://www.httpbin.org/get?offset=4&gt; (referer: None)
+url https://www.httpbin.org/get?offset=1
+request &lt;GET https://www.httpbin.org/get?offset=1&gt;
+status 200
+headers {b'Date': [b'Sat, 29 Aug 2020 17:54:19 GMT'], b'Content-Type': [b'application/json'], b'Server':
 [b'gunicorn/19.9.0'], b'Access-Control-Allow-Origin': [b'*'], b'Access-Control-Allow-Credentials': [b'true']}
 text {
 "args": {
@@ -654,17 +679,17 @@ text {
 "Accept-Language": "en",
 "Cookie": "name=germey; age=26",
 "Host": "www.httpbin.org",
-"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko)</code></pre>
-<p class="content-text">                    Chrome/83.0.4103.116 Safari/537.36",</p>
-<pre class="code-block"><code>"X-Amzn-Trace-Id": "Root=1-5f4a964b-8948a0c4fc6cd3ac2e5573ac"
+"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko)
+Chrome/83.0.4103.116 Safari/537.36",
+"X-Amzn-Trace-Id": "Root=1-5f4a964b-8948a0c4fc6cd3ac2e5573ac"
 },
 "origin": "219.142.145.226",
 "url": "https://www.httpbin.org/get?offset=1"
 }
 meta {'offset': 1, 'download_timeout': 180.0, 'download_slot': 'www.httpbin.org', 'download_latency':
-0.6104061603546143}</code></pre>
-<p class="content-text">url https://www.httpbin.org/get?offset=2</p>
-<pre class="code-block"><code>request &lt;GET https://www.httpbin.org/get?offset=2&gt;</code></pre>
+0.6104061603546143}
+url https://www.httpbin.org/get?offset=2
+request &lt;GET https://www.httpbin.org/get?offset=2&gt;</code></pre>
 <p class="content-text">这时候我们看到相应的设置就成功了。</p>
 <p class="content-text list-like"><strong class="term-label">url:</strong>url 上多了我们添加的 Query 参数。</p>
 <p class="content-text list-like">text: 结果的 headers 可以看到 Cookie 和 User-Agent, 说明 Request 的 Cookie 和 User-Agent 都设置成功了。</p>
@@ -741,12 +766,45 @@ text {
 <p class="content-text">在上面的 Spider 例子中,大部分流程实际是在构造 Request 对象和解析 Response 对象,因此对于它们的用法和参数我们需要详细了解一下。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">Request</h4>
-<p class="content-text">在Scrapy中,Request 对象实际上指的就是scrapy.http.Request的一个实例,它包含了HTTP请求的基本信息,用这个 Request 类我们可以构造 Request 对象发送 HTTP请求,它会被 Engine 交给Downloader 进行处理执行,返回一个 Response 对象。这个 Request 类怎么使用呢?那自然要了解一下它的构造参数都有什么,梳理如下。url: Request 的页面链接,即 Request URL。callback: Request 的回调方法,通常这个方法需要定义在Spider 类里面,并且需要对应一个response 参数,代表Request 执行请求后得到的 Response 对象。如果这个 callback 参数不指定,默认会使用 Spider 类里面的 parse 方法。method: Request 的方法,默认是GET,还可以设置为 POST、PUT、DELETE等。meta: Request 请求携带的额外参数,利用meta,我们可以指定任意处理参数,特定的参数经由 Scrapy 各个组件的处理,可以得到不同的效果。另外,meta还可以用来向回调方法传递信息。body: Request 的内容,即 Request Body,往往 Request Body 对应的是POST请求,我们可以使用 FormRequest 或 JsonRequest 更方便地实现 POST请求。headers: Request Headers,是字典形式。cookies: Request 携带的Cookie,可以是字典或列表形式。encoding: Request的编码,默认是utf-8。priority: Request 优先级,默认是0,这个优先级是给 Scheduler 做 Request 调度使用的,数值越大,就越被优先调度并执行。dont_filter: Request 不去重,Scrapy 默认会根据 Request 的信息进行去重,使得在爬取过程中不会出现重复请求,设置为 True 代表这个 Request 会被忽略去重操作,默认是 False。errback:错误处理方法,如果在请求处理过程中出现了错误,这个方法就会被调用。flags:请求的标志,可以用于记录类似的处理。cb_kwargs:回调方法的额外参数,可以作为字典传递。以上便是 Request 的构造参数,利用这些参数,我们可以灵活地实现 Request 的构造。值得注意的是,meta参数是一个十分有用而且易扩展的参数,它可以以字典的形式传递,包含的信息不受限制,所以很多 Scrapy 的插件会基于 meta 参数做一些特殊处理。在默认情况下,Scrapy 就预留了一些特殊的key 作为特殊处理。比如 request.meta['proxy']可以用来设置请求时使用的代理,request.meta['max_retry_times']可以设置用来设置请求的最大重试次数等。更多具体内容可以参见:https://docs.scrapy.org/en/latest/topics/request-response.html#request-meta-special-keys.另外如上文所介绍的,Scrapy还专门为POST请求提供了两个类——— FormRequest 和 JsonRequest,它们都是 Request 类的子类,我们可以利用 FormRequest 的 formdata 参数传递表单内容,利用JsonRequest 的 json 参数传递 JSON 内容,其他的参数和 Request 基本是一致的。二者的详细介绍可以参考官方文档:</p>
-<p class="content-text"> FormRequest: https://docs.scrapy.org/en/latest/topics/request-response.html#formrequest-objects JsonRequest: https://docs.scrapy.org/en/latest/topics/request-response.html#jsonrequest</p>
+<p class="content-text">在Scrapy中,Request 对象实际上指的就是scrapy.http.Request的一个实例,它包含了HTTP请求的基本信息。用这个 Request 类可以构造 Request 对象发送 HTTP请求,它会被 Engine 交给Downloader 进行处理执行,返回一个 Response 对象。Request 的构造参数梳理如下。</p>
+<p class="content-text list-like"><strong class="term-label">url:</strong>Request 的页面链接,即 Request URL。</p>
+<p class="content-text list-like"><strong class="term-label">callback:</strong>Request 的回调方法,通常这个方法需要定义在Spider 类里面,并且需要对应一个response 参数,代表Request 执行请求后得到的 Response 对象。如果这个 callback 参数不指定,默认会使用 Spider 类里面的 parse 方法。</p>
+<p class="content-text list-like"><strong class="term-label">method:</strong>Request 的方法,默认是GET,还可以设置为 POST、PUT、DELETE等。</p>
+<p class="content-text list-like"><strong class="term-label">meta:</strong>Request 请求携带的额外参数,利用meta,我们可以指定任意处理参数,特定的参数经由 Scrapy 各个组件的处理,可以得到不同的效果。另外,meta还可以用来向回调方法传递信息。</p>
+<p class="content-text list-like"><strong class="term-label">body:</strong>Request 的内容,即 Request Body,往往 Request Body 对应的是POST请求,我们可以使用 FormRequest 或 JsonRequest 更方便地实现 POST请求。</p>
+<p class="content-text list-like"><strong class="term-label">headers:</strong>Request Headers,是字典形式。</p>
+<p class="content-text list-like"><strong class="term-label">cookies:</strong>Request 携带的Cookie,可以是字典或列表形式。</p>
+<p class="content-text list-like"><strong class="term-label">encoding:</strong>Request的编码,默认是utf-8。</p>
+<p class="content-text list-like"><strong class="term-label">priority:</strong>Request 优先级,默认是0,这个优先级是给 Scheduler 做 Request 调度使用的,数值越大,就越被优先调度并执行。</p>
+<p class="content-text list-like"><strong class="term-label">dont_filter:</strong>Request 不去重,Scrapy 默认会根据 Request 的信息进行去重,使得在爬取过程中不会出现重复请求,设置为 True 代表这个 Request 会被忽略去重操作,默认是 False。</p>
+<p class="content-text list-like"><strong class="term-label">errback:</strong>错误处理方法,如果在请求处理过程中出现了错误,这个方法就会被调用。</p>
+<p class="content-text list-like"><strong class="term-label">flags:</strong>请求的标志,可以用于记录类似的处理。</p>
+<p class="content-text list-like"><strong class="term-label">cb_kwargs:</strong>回调方法的额外参数,可以作为字典传递。</p>
+<p class="content-text">以上便是 Request 的构造参数,利用这些参数,我们可以灵活地实现 Request 的构造。值得注意的是,meta参数是一个十分有用而且易扩展的参数,它可以以字典的形式传递,包含的信息不受限制,所以很多 Scrapy 的插件会基于 meta 参数做一些特殊处理。在默认情况下,Scrapy 就预留了一些特殊的key 作为特殊处理。比如 request.meta['proxy']可以用来设置请求时使用的代理,request.meta['max_retry_times']可以设置用来设置请求的最大重试次数等。更多具体内容可以参见:https://docs.scrapy.org/en/latest/topics/request-response.html#request-meta-special-keys。</p>
+<p class="content-text">另外如上文所介绍的,Scrapy还专门为POST请求提供了两个类——— FormRequest 和 JsonRequest,它们都是 Request 类的子类,我们可以利用 FormRequest 的 formdata 参数传递表单内容,利用JsonRequest 的 json 参数传递 JSON 内容,其他的参数和 Request 基本是一致的。二者的详细介绍可以参考官方文档:</p>
+<p class="content-text list-like"><strong class="term-label">FormRequest:</strong>https://docs.scrapy.org/en/latest/topics/request-response.html#formrequest-objects</p>
+<p class="content-text list-like"><strong class="term-label">JsonRequest:</strong>https://docs.scrapy.org/en/latest/topics/request-response.html#jsonrequest</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Response</h4>
-<p class="content-text">Request 由 Downloader 执行之后,得到的就是Response 结果了,它代表的是HTTP请求得到的响应结果,同样地我们可以梳理一下其可用的属性和方法,以便我们做解析处理使用。☐ url: Request URL。☐ status: Response 状态码,如果请求成功就是200。☐ headers: Response Headers,是一个字典,字段是一一对应的。☐ body: Response Body,这个通常就是访问页面之后得到的源代码结果了,比如里面包含的是HTML 或者 JSON 字符串,但注意其结果是 bytes 类型。☐ request: Response 对应的 Request 对象。☐ certificate:是twisted.internet.ssl.Certificate 类型的对象,通常代表一个SSL证书对象。☐ ip_address:是一个ipaddress. IPv4Address 或ipaddress. IPv6Address类型的对象,代表服务器的IP地址。☐ urljoin:是对 URL 的一个处理方法,可以传入当前页面的相对URL,该方法处理后返回的就是绝对URL。☐ follow / follow_all:是一个根据 URL 来生成后续 Request 的方法,和直接构造 Request 不同的是,该方法接收的url可以是相对 URL,不必一定是绝对URL。另外 Response 还有几个常用的子类,如TextResponse 和 HtmlResponse, HtmlResponse 又是TextResponse 的子类,实际上回调方法接收的 response 参数就是一个 HtmlResponse 对象,它还有几个常用的方法或属性。☐ text:同 body 属性,但结果是 str类型。☐ encoding: Response 的编码,默认是 utf-8。☐ selector:根据 Response 的内容构造而成的 Selector 对象, Selector 在上一节我们已经了解过,利用它我们可以进一步调用 xpath、css 等方法进行结果的提取。☐ xpath:传入 XPath 进行内容提取,等同于调用 selector 的 xpath 方法。☐ css:传入 CSS 选择器进行内容提取,等同于调用 selector 的css方法。☐ json:是 Scrapy 2.2 新增的方法,利用该方法可以直接将 text 属性转为 JSON 对象。以上便是对 Response 的基本介绍,关于 Response 更详细的解释可以参考官方文档:https://docs.scrapy.org/en/latest/topics/request-response.html#response-subclasses。</p>
+<p class="content-text">Request 由 Downloader 执行之后,得到的就是Response 结果了,它代表的是HTTP请求得到的响应结果。其可用的属性和方法梳理如下。</p>
+<p class="content-text list-like"><strong class="term-label">url:</strong>Request URL。</p>
+<p class="content-text list-like"><strong class="term-label">status:</strong>Response 状态码,如果请求成功就是200。</p>
+<p class="content-text list-like"><strong class="term-label">headers:</strong>Response Headers,是一个字典,字段是一一对应的。</p>
+<p class="content-text list-like"><strong class="term-label">body:</strong>Response Body,这个通常就是访问页面之后得到的源代码结果了,比如里面包含的是HTML 或者 JSON 字符串,但注意其结果是 bytes 类型。</p>
+<p class="content-text list-like"><strong class="term-label">request:</strong>Response 对应的 Request 对象。</p>
+<p class="content-text list-like"><strong class="term-label">certificate:</strong>是twisted.internet.ssl.Certificate 类型的对象,通常代表一个SSL证书对象。</p>
+<p class="content-text list-like"><strong class="term-label">ip_address:</strong>是一个ipaddress. IPv4Address 或ipaddress. IPv6Address类型的对象,代表服务器的IP地址。</p>
+<p class="content-text list-like"><strong class="term-label">urljoin:</strong>是对 URL 的一个处理方法,可以传入当前页面的相对URL,该方法处理后返回的就是绝对URL。</p>
+<p class="content-text list-like"><strong class="term-label">follow / follow_all:</strong>是一个根据 URL 来生成后续 Request 的方法,和直接构造 Request 不同的是,该方法接收的url可以是相对 URL,不必一定是绝对URL。</p>
+<p class="content-text">另外 Response 还有几个常用的子类,如TextResponse 和 HtmlResponse, HtmlResponse 又是TextResponse 的子类,实际上回调方法接收的 response 参数就是一个 HtmlResponse 对象,它还有几个常用的方法或属性。</p>
+<p class="content-text list-like"><strong class="term-label">text:</strong>同 body 属性,但结果是 str类型。</p>
+<p class="content-text list-like"><strong class="term-label">encoding:</strong>Response 的编码,默认是 utf-8。</p>
+<p class="content-text list-like"><strong class="term-label">selector:</strong>根据 Response 的内容构造而成的 Selector 对象, Selector 在上一节我们已经了解过,利用它我们可以进一步调用 xpath、css 等方法进行结果的提取。</p>
+<p class="content-text list-like"><strong class="term-label">xpath:</strong>传入 XPath 进行内容提取,等同于调用 selector 的 xpath 方法。</p>
+<p class="content-text list-like"><strong class="term-label">css:</strong>传入 CSS 选择器进行内容提取,等同于调用 selector 的css方法。</p>
+<p class="content-text list-like"><strong class="term-label">json:</strong>是 Scrapy 2.2 新增的方法,利用该方法可以直接将 text 属性转为 JSON 对象。</p>
+<p class="content-text">以上便是对 Response 的基本介绍,关于 Response 更详细的解释可以参考官方文档:https://docs.scrapy.org/en/latest/topics/request-response.html#response-subclasses。</p>
 </section>
 </section>
 <section class="numbered-section">
@@ -766,9 +824,9 @@ text {
 'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware': 100,
 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware': 300,
 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,
-'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware':</code></pre>
-<p class="content-text">    400,</p>
-<pre class="code-block"><code>'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 500,
+'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware':
+400,
+'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 500,
 'scrapy.downloadermiddlewares.retry.RetryMiddleware': 550,
 'scrapy.downloadermiddlewares.ajaxcrawl.AjaxCrawlMiddleware': 560,
 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware': 580,
@@ -779,7 +837,8 @@ text {
 'scrapy.downloadermiddlewares.stats.DownloaderStats': 850,
 'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': 900,
 }</code></pre>
-<p class="content-text">这是一个字典格式,字典的键名是Scrapy 内置的 Downloader Middleware 的名称,键值代表了调用的优先级,优先级是一个数字,数字越小代表越靠近 Engine,数字越大代表越靠近 Downloader。在默认情况下,Scrapy已经为我们开启了 DOWNLOADER_MIDDLEWARES_BASE 所定义的 Downloader Middleware,比如 RetryMiddleware 带有自动重试功能,RedirectMiddleware 带有自动处理重定向功能,这些功能默认都是开启的。那 Downloader Middleware 里面究竟是怎么实现的呢?其实每个 Downloader Middleware 都可以通过定义 process_request 和 process_response 方法来分别处理 Request 和Response,被开启的 Downloader Middleware 的 process_request 方法和process_response 方法会根据优先级被顺次调用。由于 Request 是从 Engine 发送给 Downloader 的,并且优先级数字越小的 Downloader Middleware越靠近 Engine,所以优先级数字越小的 Downloader Middleware 的 process_request 方法越先被调用。</p>
+<p class="content-text">这是一个字典格式,字典的键名是Scrapy 内置的 Downloader Middleware 的名称,键值代表了调用的优先级。优先级是一个数字,数字越小代表越靠近 Engine,数字越大代表越靠近 Downloader。在默认情况下,Scrapy已经为我们开启了 DOWNLOADER_MIDDLEWARES_BASE 所定义的 Downloader Middleware,比如 RetryMiddleware 带有自动重试功能,RedirectMiddleware 带有自动处理重定向功能,这些功能默认都是开启的。</p>
+<p class="content-text">每个 Downloader Middleware 都可以通过定义 process_request 和 process_response 方法来分别处理 Request 和Response,被开启的 Downloader Middleware 的 process_request 方法和process_response 方法会根据优先级被顺次调用。由于 Request 是从 Engine 发送给 Downloader 的,并且优先级数字越小的 Downloader Middleware越靠近 Engine,所以优先级数字越小的 Downloader Middleware 的 process_request 方法越先被调用。</p>
 <p class="content-text">process_response 方法则相反,由于 Response 是由 Downloader 发送给 Engine 的,优先级数字越大的 Downloader Middleware 越靠近 Downloader,所以优先级数字越大的 Downloader Middleware 的 process_response 越先被调用。</p>
 <p class="content-text">如果我们想将自定义的 Downloader Middleware 添加到项目中,不要直接修改 DOWNLOADER_MIDDLEWARES_BASE变量。Scrapy 提供了另外一个设置变量 DOWNLOADER_MIDDLEWARES,我们直接修改这个变量就可以添加自己定义的Downloader Middleware,以及禁用 DOWNLOADER_MIDDLEWARES_BASE 里面定义的 Downloader Middleware了。</p>
 <p class="content-text">说了这么多可能比较抽象,下面我们具体来看一看 Downloader Middleware 的使用方法,然后结合案例来体会一下 Downloader Middleware 的使用方法。</p>
@@ -787,9 +846,9 @@ text {
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 核心方法</h3>
 <p class="content-text">Scrapy 内置的 Downloader Middleware为Scrapy 提供了基础的功能,但在项目实战中,我们往往需要单独定义 Downloader Middleware。不用担心,这个过程非常简单,我们只需要实现几个方法。每个 Downloader Middleware 都定义了一个或多个方法的类,核心的方法有如下3个:</p>
-<pre class="code-block"><code>process_request(request, spider)</code></pre>
-<p class="content-text">    process_response (request, response, spider)</p>
-<pre class="code-block"><code>process_exception(request, exception, spider)</code></pre>
+<pre class="code-block"><code>process_request(request, spider)
+process_response(request, response, spider)
+process_exception(request, exception, spider)</code></pre>
 <p class="content-text">我们只需要实现至少一个方法,就可以定义一个Downloader Middleware。下面我们来看看这3个方法的详细用法。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">process_request(request, spider)</h4>
@@ -850,9 +909,9 @@ print(response.text)</code></pre>
 <pre class="code-block"><code>from scrapy import signals
 class UserAgentMiddleware(object):
 def __init__(self, user_agent='Scrapy'):
-self.user_agent = user_agent</code></pre>
-<p class="content-text">    @classmethod</p>
-<pre class="code-block"><code>def from_crawler (cls, crawler):
+self.user_agent = user_agent
+@classmethod
+def from_crawler (cls, crawler):
 o = cls(crawler.settings['USER_AGENT'])
 crawler.signals.connect(o.spider_opened, signal=signals.spider_opened)
 return o</code></pre>
@@ -950,7 +1009,10 @@ class ProxyMiddleware(object):
             encoding='utf-8',
             body='Test Downloader Middleware')</code></pre>
 <p class="content-text">这里我们直接把代理设置的逻辑去掉了,返回了一个 HtmlResponse 对象,构造 HtmlResponse 对象时传入了 url、status、encoding、body参数,其中直接赋给 body一个字符串。</p>
-<p class="content-text">重新运行一下,看看输出结果:Test Downloader Middleware这就是 parse 方法的输出结果,可以看到原本 Request 应该去请求 https://www.httpbin.org/get 得到返回结果,但是这里 Response 的内容直接变成了刚才我们所定义的HtmlResponse 的内容,丢弃了原本的Request。因此,如果我们在 process_request 方法中直接返回 Response 对象,原先的Request 就会被直接丢弃,该 Response 经过 process_response 方法处理后会直接传递给 Spider 解析。到现在为止,我们应该能够明白 process_request 的用法及其不同的返回值所起到的作用了。上面我们讲了 process_request 的用法,它是用来处理 Request的,相应地,process_response 就是用来处理 Response的了,我们再来看一下 process_response 的用法。Downloader 对 Request 执行下载之后会得到 Response, 随后 Engine 会将 Response 发送回 Spider 进行处理。但是在Response 被发送给Spider 之前,我们同样可以使用process_response 方法对 Response进行处理。比如这里修改一下 Response 的状态码,添加一个 ChangeResponseMiddleware 的 Downloader Middleware,代码如下:</p>
+<p class="content-text">重新运行一下,看看输出结果:</p>
+<pre class="result-block"><code>Test Downloader Middleware</code></pre>
+<p class="content-text">这就是 parse 方法的输出结果。可以看到原本 Request 应该去请求 https://www.httpbin.org/get 得到返回结果,但是这里 Response 的内容直接变成了刚才我们所定义的HtmlResponse 的内容,丢弃了原本的Request。因此,如果我们在 process_request 方法中直接返回 Response 对象,原先的Request 就会被直接丢弃,该 Response 经过 process_response 方法处理后会直接传递给 Spider 解析。到现在为止,我们应该能够明白 process_request 的用法及其不同的返回值所起到的作用了。</p>
+<p class="content-text">上面我们讲了 process_request 的用法,它是用来处理 Request的,相应地,process_response 就是用来处理 Response的了。Downloader 对 Request 执行下载之后会得到 Response,随后 Engine 会将 Response 发送回 Spider 进行处理。但是在Response 被发送给Spider 之前,我们同样可以使用process_response 方法对 Response进行处理。比如这里修改一下 Response 的状态码,添加一个 ChangeResponseMiddleware 的 Downloader Middleware,代码如下:</p>
 <pre class="code-block"><code>class ChangeResponseMiddleware(object):
 def process_response(self, request, response, spider):
 response.status = 201
@@ -962,7 +1024,10 @@ return response</code></pre>
 'scrapydownloadermiddlewaredemo.middlewares.RandomUserAgentMiddleware': 543,
 'scrapydownloadermiddlewaredemo.middlewares.ChangeResponseMiddleware': 544,
 }</code></pre>
-<p class="content-text">接着将 ProxyMiddleware 换成了ChangeResponseMiddleware,重新运行,控制台输出了如下内容:Status Code: 201可以发现,Response 的状态码被成功修改了。因此如果要想对 Response 进行处理,就可以借助process_response 方法。当然 process_response 方法的不同返回值有不同的作用,如果返回 Request对象,更低优先级的Downloader Middleware 的 process_request 方法会停止执行。这个Request 会重新放到调度队列里,其实它就是一个全新的Request,等待被调度。感兴趣的话可以尝试一下。另外还有一个 process_exception 方法,它是专门用来处理异常的方法。如果需要进行异常处理,我们可以调用此方法。不过这个方法的使用频率相对低一些,不在进行实例演示。</p>
+<p class="content-text">接着将 ProxyMiddleware 换成了ChangeResponseMiddleware,重新运行,控制台输出了如下内容:</p>
+<pre class="result-block"><code>Status Code: 201</code></pre>
+<p class="content-text">可以发现,Response 的状态码被成功修改了。因此如果要想对 Response 进行处理,就可以借助process_response 方法。当然 process_response 方法的不同返回值有不同的作用,如果返回 Request对象,更低优先级的Downloader Middleware 的 process_request 方法会停止执行。这个Request 会重新放到调度队列里,其实它就是一个全新的Request,等待被调度。感兴趣的话可以尝试一下。</p>
+<p class="content-text">另外还有一个 process_exception 方法,它是专门用来处理异常的方法。如果需要进行异常处理,我们可以调用此方法。不过这个方法的使用频率相对低一些,不在进行实例演示。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
@@ -994,15 +1059,15 @@ return response</code></pre>
 <p class="content-text list-like">process_start_requests(start_requests, spider)</p>
 <p class="content-text">只需要实现其中一个方法就可以定义一个Spider Middleware。下面我们来看看这4个方法的详细用法。</p>
 <pre class="code-block"><code>process_spider_input(response, spider)</code></pre>
-<p class="content-text"> 当Response 通过 Spider Middleware 时, process_spider_input 方法被调用,处理该 Response。它有两个参数。response: Response 对象,即被处理的Response。spider: Spider 对象,即该 Response 对应的Spider 对象。process_spider_input 应该返回 None 或者抛出一个异常。如果它返回 None, Scrapy 会继续处理该 Response,调用所有其他的 Spider Middleware 直到Spider 处理该 Response。如果它抛出一个异常,Scrapy 不会调用任何其他 Spider Middleware 的 process_spider_input 方法,并调用 Request 的 errback 方法。errback 的输出将会以另一个方向被重新输入中间件,使用 process_spider_output 方法来处理,当其抛出异常时则调用 process_spider_exception来处理。</p>
+<p class="content-text">当Response 通过 Spider Middleware 时, process_spider_input 方法被调用,处理该 Response。它有两个参数。response: Response 对象,即被处理的Response。spider: Spider 对象,即该 Response 对应的Spider 对象。process_spider_input 应该返回 None 或者抛出一个异常。如果它返回 None, Scrapy 会继续处理该 Response,调用所有其他的 Spider Middleware 直到Spider 处理该 Response。如果它抛出一个异常,Scrapy 不会调用任何其他 Spider Middleware 的 process_spider_input 方法,并调用 Request 的 errback 方法。errback 的输出将会以另一个方向被重新输入中间件,使用 process_spider_output 方法来处理,当其抛出异常时则调用 process_spider_exception来处理。</p>
 <pre class="code-block"><code>process_spider_output(response, result, spider)</code></pre>
-<p class="content-text"> 当 Spider 处理 Response 返回结果时,process_spider_output 方法被调用。它有3个参数。response: Response 对象,即生成该输出的 Response。result:包含 Request 或 Item 对象的可迭代对象,即Spider返回的结果。spider: Spider 对象,即结果对应的Spider 对象。process_spider_output 必须返回包含 Request 或 Item 对象的可迭代对象。</p>
+<p class="content-text">当 Spider 处理 Response 返回结果时,process_spider_output 方法被调用。它有3个参数。response: Response 对象,即生成该输出的 Response。result:包含 Request 或 Item 对象的可迭代对象,即Spider返回的结果。spider: Spider 对象,即结果对应的Spider 对象。process_spider_output 必须返回包含 Request 或 Item 对象的可迭代对象。</p>
 <pre class="code-block"><code>process_spider_exception(response, exception, spider)</code></pre>
-<p class="content-text"> 当Spider 或 Spider Middleware 的 process_spider_input 方法抛出异常时,process_spider_exception方法被调用。它有3个参数。response: Response 对象,即异常被抛出时被处理的 Response。</p>
+<p class="content-text">当Spider 或 Spider Middleware 的 process_spider_input 方法抛出异常时,process_spider_exception方法被调用。它有3个参数。response: Response 对象,即异常被抛出时被处理的 Response。</p>
 <pre class="code-block"><code>exception: Exception 对象,被抛出的异常。</code></pre>
-<p class="content-text"> spider: Spider对象,即抛出该异常的Spider对象。process_spider_exception 必须返回 None 或者一个(包含Response 或Item对象的)可迭代对象。如果它返回 None,那么 Scrapy 将继续处理该异常,调用其他 Spider Middleware 中的process_spider_exception 方法,直到所有 Spider Middleware 都被调用。如果它返回一个可迭代对象,则其他 Spider Middleware 的 process_spider_output 方法被调用,其他的 process_spider_exception 不会被调用。</p>
+<p class="content-text">spider: Spider对象,即抛出该异常的Spider对象。process_spider_exception 必须返回 None 或者一个(包含Response 或Item对象的)可迭代对象。如果它返回 None,那么 Scrapy 将继续处理该异常,调用其他 Spider Middleware 中的process_spider_exception 方法,直到所有 Spider Middleware 都被调用。如果它返回一个可迭代对象,则其他 Spider Middleware 的 process_spider_output 方法被调用,其他的 process_spider_exception 不会被调用。</p>
 <pre class="code-block"><code>process_start_requests(start_requests, spider)</code></pre>
-<p class="content-text"> process_start_requests 方法以 Spider 启动的Request 为参数被调用,执行的过程类似于process_spider_output,只不过它没有相关联的 Response 并且必须返回 Request。它有两个参数。start_requests:包含 Request 的可迭代对象,即 Start Requests。spider: Spider对象,即 Start Requests 所属的 Spider。process_start_requests 方法必须返回另一个包含 Request 对象的可迭代对象。</p>
+<p class="content-text">process_start_requests 方法以 Spider 启动的Request 为参数被调用,执行的过程类似于process_spider_output,只不过它没有相关联的 Response 并且必须返回 Request。它有两个参数。start_requests:包含 Request 的可迭代对象,即 Start Requests。spider: Spider对象,即 Start Requests 所属的 Spider。process_start_requests 方法必须返回另一个包含 Request 对象的可迭代对象。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 实战</h3>
@@ -1169,18 +1234,17 @@ else:
 domain = urlparse_cached(x).hostname
 if domain and domain not in self.domains_seen:
 self.domains_seen.add(domain)
-logger.debug(</code></pre>
-<p class="content-text">                    "Filtered offsite request to % (domain)r: % (request)s",</p>
-<pre class="code-block"><code>{'domain': domain, 'request': x}, extra={'spider': spider})
+logger.debug(
+"Filtered offsite request to % (domain)r: % (request)s",
+{'domain': domain, 'request': x}, extra={'spider': spider})
 self.stats.inc_value('offsite/domains', spider=spider)
 self.stats.inc_value('offsite/filtered', spider=spider)
 else:
 yield x</code></pre>
-<p class="content-text">可以看到,这里首先遍历了 result,然后判断了 Request 类型的元素并赋值为x。然后根据x的dont_filter、url 和 Spider 的 allowed_domains 进行了过滤,如果不符合 allowed_domains,就直接输</p>
+<p class="content-text">可以看到,这里首先遍历了 result,然后判断了 Request 类型的元素并赋值为x。然后根据x的dont_filter、url 和 Spider 的 allowed_domains 进行了过滤,如果不符合 allowed_domains,就直接输出日志并不再返回 Request,只有符合要求的 Request 才会被返回并继续调用。</p>
 </section>
 </section>
 <div class="section-heading" id="section-6"><h2>15.7 Item Pipeline 的使用</h2></div>
-<p class="content-text">出日志并不再返回 Request,只有符合要求的 Request 才会被返回并继续调用。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">UrlLengthMiddleware</h4>
 <p class="content-text">UrlLengthMiddleware 的主要作用是根据 Request 的URL 长度对 Request 进行过滤,如果URL的长度过长,此 Request 就会被忽略。其核心代码实现如下:</p>
@@ -1271,27 +1335,20 @@ print(response)</code></pre>
 <p class="content-text">运行这个 Spider 的命令如下:</p>
 <pre class="code-block"><code>scrapy crawl scrape</code></pre>
 <p class="content-text">运行结果类似如下:</p>
-<pre class="result-block"><code>2020-08-31 21:06:15 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/1&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="result-block"><code>2020-08-31 21:06:15 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/5&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="result-block"><code>2020-08-31 21:06:15 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/4&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/page/1&gt;
-&lt;200 https://ssr1.scrape.center/page/5&gt;</code></pre>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/page/4&gt;
-2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/9&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/page/9&gt;
-2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/8&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/page/8&gt;
-2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/2&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/page/2&gt;
-2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/10&gt;</code></pre>
-<p class="content-text">(referer: None)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/page/10&gt;</code></pre>
+<pre class="result-block"><code>2020-08-31 21:06:15 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/1&gt; (referer: None)
+2020-08-31 21:06:15 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/5&gt; (referer: None)
+2020-08-31 21:06:15 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/4&gt; (referer: None)
+&lt;200 https://ssr1.scrape.center/page/1&gt;
+&lt;200 https://ssr1.scrape.center/page/5&gt;
+&lt;200 https://ssr1.scrape.center/page/4&gt;
+2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/9&gt; (referer: None)
+&lt;200 https://ssr1.scrape.center/page/9&gt;
+2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/8&gt; (referer: None)
+&lt;200 https://ssr1.scrape.center/page/8&gt;
+2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/2&gt; (referer: None)
+&lt;200 https://ssr1.scrape.center/page/2&gt;
+2020-08-31 21:06:16 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/10&gt; (referer: None)
+&lt;200 https://ssr1.scrape.center/page/10&gt;</code></pre>
 <p class="content-text">可以看到对应的列表页的数据就被爬取下来了,Response 的状态码为200。接着我们可以在 parse_index 方法里对 response 的内容进行解析,提取每部电影的详情页链接,通过审查源代码可以发现,其标题对应的CSS 选择器为.item.name,如图15-9所示。</p>
 <figure class="inline-figure"><img alt="图15-9 页面源代码" loading="lazy" src="figures/ch15/fig-15_9.jpg"/><figcaption>图15-9 页面源代码</figcaption></figure>
 <p class="content-text">所以这里我们可以借助 response 的css方法进行提取,提取链接之后生成详情页的Request。可以把 parse_index 方法改写如下:</p>
@@ -1304,24 +1361,18 @@ def parse_detail(self, response):
 print(response)</code></pre>
 <p class="content-text">在这里我们首先筛选了每部电影对应的节点,即.item,然后遍历这些节点提取其中的.name 选择器对应的详情页链接,接着通过response 的urljoin方法拼接成完整的详情页URL,最后构造新的详情页 Request,回调方法设置为 parse_detail,同时在 parse_detail 方法里面打印输出 response。</p>
 <p class="content-text">重新运行,我们可以看到详情页的内容就被爬取下来了,类似的输出如下:</p>
-<pre class="result-block"><code>2020-08-31 21:18:01 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/6&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/1)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/detail/6&gt;
-2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/3&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/1)</p>
-<pre class="result-block"><code>2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/4&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/1)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/detail/3&gt;
+<pre class="result-block"><code>2020-08-31 21:18:01 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/6&gt; (referer: https://ssr1.scrape.center/page/1)
+&lt;200 https://ssr1.scrape.center/detail/6&gt;
+2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/3&gt; (referer: https://ssr1.scrape.center/page/1)
+2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/4&gt; (referer: https://ssr1.scrape.center/page/1)
+&lt;200 https://ssr1.scrape.center/detail/3&gt;
 &lt;200 https://ssr1.scrape.center/detail/4&gt;
-2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/10&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/1)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/detail/10&gt;
-2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/8&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/1)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/detail/8&gt;
-2020-08-31 21:18:03 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/50&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/5)</p>
-<pre class="code-block"><code>&lt;200 https://ssr1.scrape.center/detail/50&gt;</code></pre>
+2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/10&gt; (referer: https://ssr1.scrape.center/page/1)
+&lt;200 https://ssr1.scrape.center/detail/10&gt;
+2020-08-31 21:18:02 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/8&gt; (referer: https://ssr1.scrape.center/page/1)
+&lt;200 https://ssr1.scrape.center/detail/8&gt;
+2020-08-31 21:18:03 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/50&gt; (referer: https://ssr1.scrape.center/page/5)
+&lt;200 https://ssr1.scrape.center/detail/50&gt;</code></pre>
 <p class="content-text">其实现在 parse_detail 里面的 response 就是详情页的内容了,我们可以进一步对详情页的内容进行解析,提取每部电影的名称、类别、评分、简介、导演、演员等信息。</p>
 <p class="content-text">首先让我们新建一个 Item,叫作 MovieItem,定义如下:</p>
 <pre class="code-block" data-lang="python"><code>from scrapy import Item, Field
@@ -1427,9 +1478,9 @@ MONGODB_COLLECTION = 'movies'</code></pre>
 <h4 class="subsection-heading">Elasticsearch</h4>
 <p class="content-text">存储到 Elasticsearch 也是一样,我们需要先创建一个Pipeline,代码实现如下:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch</code></pre>
-<pre class="code-block"><code>class ElasticsearchPipeline (object):</code></pre>
-<p class="content-text">    @classmethod</p>
-<pre class="code-block"><code>def from_crawler(cls, crawler):
+<pre class="code-block"><code>class ElasticsearchPipeline (object):
+@classmethod
+def from_crawler(cls, crawler):
 cls.connection_string = crawler.settings.get('ELASTICSEARCH_CONNECTION_STRING')
 cls.index = crawler.settings.get('ELASTICSEARCH_INDEX')
 return cls()</code></pre>
@@ -1574,7 +1625,9 @@ crawler.signals.connect(ext.item_scraped, signal=signals.item_scraped)
 return ext</code></pre>
 <p class="content-text">这里我们用到了Scrapy 中的signals 对象,所以还需要额外导入一下:</p>
 <pre class="code-block"><code>from scrapy import signals</code></pre>
-<p class="content-text">其中,from_crawler 是一个类方法,第一个参数就是cls 类对象,第二个参数 crawler 代表了Scrapy 运行过程中全局的 Crawler 对象。Crawler 对象里有一个子对象叫作 signals,通过调用 signals 对象的connect方法,我们可以将Scrapy 运行过程中的某个信号和我们自定义的处理方法关联起来。这样在某个事件发生的时候,被关联的处理方法就会被调用。比如这里,connect方法第一个参数我们传入ext.spider_opened 这个对象,而ext 是由 cls 类对象初始化的,所以ext.spider_opened 就代表我们在 NotificationExtension 类中定义的 spider_opened 方法。connect方法的第二个参数我们传入了 signals.spider_opened 这个对象,这就指定了 spider_opened 方法可以被 spider_opened 信号触发。这样在Spider开始运行的时候,会产生 signals.spider_opened 信号,NotificationExtension 类中定义的spider_opened 方法就会被调用了。完成如上定义之后,我们还需要开启这个 Extension,在settings.py 中添加如下内容即可:</p>
+<p class="content-text">其中,from_crawler 是一个类方法,第一个参数就是cls 类对象,第二个参数 crawler 代表了Scrapy 运行过程中全局的 Crawler 对象。Crawler 对象里有一个子对象叫作 signals,通过调用 signals 对象的connect方法,我们可以将Scrapy 运行过程中的某个信号和我们自定义的处理方法关联起来。这样在某个事件发生的时候,被关联的处理方法就会被调用。</p>
+<p class="content-text">比如这里,connect方法第一个参数我们传入ext.spider_opened 这个对象,而ext 是由 cls 类对象初始化的,所以ext.spider_opened 就代表我们在 NotificationExtension 类中定义的 spider_opened 方法。connect方法的第二个参数我们传入了 signals.spider_opened 这个对象,这就指定了 spider_opened 方法可以被 spider_opened 信号触发。这样在Spider开始运行的时候,会产生 signals.spider_opened 信号,NotificationExtension 类中定义的spider_opened 方法就会被调用了。</p>
+<p class="content-text">完成如上定义之后,我们还需要开启这个 Extension,在settings.py 中添加如下内容即可:</p>
 <pre class="code-block"><code>EXTENSIONS = {
 'scrapytutorial.extensions.NotificationExtension': 100,
 }</code></pre>
@@ -1588,14 +1641,14 @@ return ext</code></pre>
 'quotes'}
 2020-11-26 01:46:02.888 | DEBUG | __main__:receive:12 received event ITEM_SCRAPED, data {'spider_name':
 'quotes', 'item': {'text': ""A person's a person, no matter how small."", 'author': 'Dr. Seuss', 'tags':
-['inspirational']}}</code></pre>
-<p class="content-text">127.0.0.1 [26/Jul/2021 01:46:02] "POST /notify HTTP/1.1" 200</p>
-<pre class="result-block"><code>2020-11-26 01:46:02.891 | DEBUG | __main__:receive:12 received event ITEM_SCRAPED, data {'spider_name':
-'quotes', 'item': {'text':</code></pre>
-<p class="content-text">a mind needs books as a sword needs a whetsto...', 'author': 'George R.R.</p>
-<pre class="code-block"><code>Martin', 'tags': ['books', 'mind']}}</code></pre>
-<p class="content-text">127.0.0.1 [26/Jul/2021 01:46:02] "POST /notify HTTP/1.1" 200</p>
-<pre class="result-block"><code>2020-11-26 01:46:02.897 | DEBUG | __main__:receive:12 - received event SPIDER_OPENED, data {'spider_name':
+['inspirational']}}
+127.0.0.1 [26/Jul/2021 01:46:02] "POST /notify HTTP/1.1" 200
+2020-11-26 01:46:02.891 | DEBUG | __main__:receive:12 received event ITEM_SCRAPED, data {'spider_name':
+'quotes', 'item': {'text':
+a mind needs books as a sword needs a whetsto...', 'author': 'George R.R.
+Martin', 'tags': ['books', 'mind']}}
+127.0.0.1 [26/Jul/2021 01:46:02] "POST /notify HTTP/1.1" 200
+2020-11-26 01:46:02.897 | DEBUG | __main__:receive:12 - received event SPIDER_OPENED, data {'spider_name':
 'quotes'}</code></pre>
 <p class="content-text">可以看到 Flask 服务器成功接收到了各个事件(SPIDER_OPENED、ITEM_SCRAPED、SPIDER_OPENED)并输出了对应的数据,这说明在Scrapy 爬取过程中,成功调用了 Extension 并在适当的时机将数据发送到服务器了,验证成功!我们通过一个自定义的Extension,成功实现了Scrapy 爬取过程中和远程服务器的通信,远程服务器接收到这些事件之后就可以对事件和数据做进一步的处理了。</p>
 </section>
@@ -1619,7 +1672,9 @@ return ext</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 对接原理</h3>
-<p class="content-text">在实现之前,我们需要先了解 Scrapy 如何对接 Selenium,即对接的原理是什么。我们已经了解了 Downloader Middleware的用法,非常简单,实现 process_request、process_response、process_exception 中的任意一个方法即可,同时不同方法的返回值不同,其产生的效果也不同。其中有一个知识点我们可以利用。在process_request 方法中,当返回为 Response 对象时,更低优先级的 Downloader Middleware 的 process_request 和 process_exception 方法不会被继续调用,每个 Downloader Middleware 的 process_response 方法转而被依次调用。调用完之后,直接将 Response 对象发送给 Spider 来处理。那也就是说,如果我们实现一个Downloader Middleware,在 process_request 方法中直接返回一个Response 对象,那么 process_request 所接收的Request对象就不会再传给 Spider 处理了,而是经由 process_response 方法处理后交给 Spider,Spider 直接解析 Response 中的结果。在15.4节中,我们其实已经演示了这个过程的实现和最终效果,在process_request 方法中直接返回了一个 HtmlResponse 对象并被Spider 接收、处理了。所以,原理其实就很清楚了,我们可以自定义一个Downloader Middleware 并实现 process_request方法,在 process_request 中,我们可以直接获取Request 对象的URL,然后在 process_request 方法中完成使用 Selenium 请求 URL的过程,获取 JavaScript 渲染后的HTML代码,最后把HTML代码构造为 HtmlResponse 返回即可。这样 HtmlResponse 就会被传给 Spider, Spider拿到的结果就是 JavaScript渲染后的结果了。</p>
+<p class="content-text">在实现之前,我们需要先了解 Scrapy 如何对接 Selenium。我们已经了解了 Downloader Middleware的用法,实现 process_request、process_response、process_exception 中的任意一个方法即可,同时不同方法的返回值不同,其产生的效果也不同。</p>
+<p class="content-text">其中有一个知识点我们可以利用。在process_request 方法中,当返回为 Response 对象时,更低优先级的 Downloader Middleware 的 process_request 和 process_exception 方法不会被继续调用,每个 Downloader Middleware 的 process_response 方法转而被依次调用。调用完之后,直接将 Response 对象发送给 Spider 来处理。也就是说,如果我们实现一个Downloader Middleware,在 process_request 方法中直接返回一个Response 对象,那么 process_request 所接收的Request对象就不会再传给 Spider 处理了,而是经由 process_response 方法处理后交给 Spider,Spider 直接解析 Response 中的结果。</p>
+<p class="content-text">在15.4节中,我们其实已经演示了这个过程的实现和最终效果,在process_request 方法中直接返回了一个 HtmlResponse 对象并被Spider 接收、处理了。所以,我们可以自定义一个Downloader Middleware 并实现 process_request方法,在 process_request 中直接获取Request 对象的URL,使用 Selenium 请求 URL,获取 JavaScript 渲染后的HTML代码,最后把HTML代码构造为 HtmlResponse 返回。这样 HtmlResponse 就会被传给 Spider,Spider拿到的结果就是 JavaScript渲染后的结果了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 对接实战</h3>
@@ -1681,9 +1736,9 @@ time.sleep(5)
 html = browser.page_source
 browser.close()
 return HtmlResponse(url=request.url,
-body=html,</code></pre>
-<p class="content-text">                            request request,</p>
-<pre class="code-block"><code>encoding='utf-8',
+body=html,
+request=request,
+encoding='utf-8',
 status=200)</code></pre>
 <p class="content-text">这里完成了最基本的逻辑实现。在 process_request 方法中,我们首先获取了正在爬取的页面URL; 然后开启 Chrome 浏览器请求这个URL,简单地加个固定的等待时间,获取最终的HTML代码;接着使用HTML代码构造 HtmlResponse 并返回。由于返回的是HtmlResponse 对象,所以原本的 Request就会被忽略了,这个HtmlResponse 对象会被发送给Spider来解析,所以Response拿到的就是 Selenium渲染后的结果了。接下来我们还需要在 settings.py 里面做一些设置,开启这个 Downloader Middleware,同时禁用robots.txt:</p>
 <pre class="code-block"><code>ROBOTSTXT_OBEY = False
@@ -1693,9 +1748,8 @@ DOWNLOADER_MIDDLEWARES = {
 <p class="content-text">这样就成功开启了 SeleniumMiddleware, 每次爬取 Scrapy 都会使用 Selenium 来渲染页面了。然后我们运行一下Spider, 命令如下:</p>
 <pre class="code-block"><code>scrapy crawl book</code></pre>
 <p class="content-text">在运行过程中, Chrome 浏览器就弹出来了, 被爬取页面的URL会被浏览器渲染出来, 最终 Spider得到的 Response 就是 JavaScript 渲染后的结果了。同时可以看到, 控制台显示的运行结果如下:</p>
-<pre class="result-block"><code>2020-09-13 22:42:09 [scrapy.extensions.logstats] INFO: Crawled 21 pages (at 21 pages/min), scraped o items</code></pre>
-<p class="content-text">(at 0 items/min)</p>
-<pre class="result-block"><code>2020-09-13 22:42:10 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/1692648&gt;
+<pre class="result-block"><code>2020-09-13 22:42:09 [scrapy.extensions.logstats] INFO: Crawled 21 pages (at 21 pages/min), scraped o items (at 0 items/min)
+2020-09-13 22:42:10 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/1692648&gt;
 {'cover': 'https://img9.doubanio.com/view/subject/l/public/s9018034.jpg',
 'name': '一个人的村庄',
 'price': '28.00元',
@@ -1740,9 +1794,8 @@ DOWNLOADER_MIDDLEWARES = {
 <p class="content-text">可以看到这次浏览器没有再弹出来了,这是因为在默认情况下,Gerapy Selenium 启用了Chrome的Headless 模式,同时可以看到控制台也有对应的输出结果,爬取速度相比之前有成倍提高,运行结果如下:</p>
 <pre class="result-block"><code>2020-09-13 23:44:05 [gerapy.selenium] DEBUG: selenium_meta {'wait_for': '.item.name', 'script': None, 'sleep'
 None, 'proxy': None, 'pretend': None, 'timeout': None, 'screenshot': None}
-2020-09-13 23:44:05 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/1851672&gt;</code></pre>
-<p class="content-text">  (referer: https://spa5.scrape.center/page/2)</p>
-<pre class="result-block"><code>2020-09-13 23:44:05 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/1927763&gt;
+2020-09-13 23:44:05 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/1851672&gt; (referer: https://spa5.scrape.center/page/2)
+2020-09-13 23:44:05 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/1927763&gt;
 {'cover': 'https://img3.doubanio.com/view/subject/l/public/s9128381.jpg',
 'name':'鲁迅家庭家族和当年绍兴民俗',
 'price': '18.00元,
@@ -1750,21 +1803,22 @@ None, 'proxy': None, 'pretend': None, 'timeout': None, 'screenshot': None}
 'tags': ['鲁迅','人物传记与研究','绍兴','传记','鲁迅周作人胡适']}
 2020-09-13 23:44:05 [gerapy.selenium] DEBUG: selenium_meta {'wait_for': '.item.name', 'script': None, 'sleep':
 None, 'proxy': None, 'pretend': None, 'timeout': None, 'screenshot': None}
-2020-09-13 23:44:05 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/1690744&gt;</code></pre>
-<p class="content-text"> (referer: https://spa5.scrape.center/page/2)这样我们就使用 GerapySelenium 提供的 Downloader Middleware 实现了 Scrapy与Selenium 的对接,非常方便。我们也不需要再去自定义 Downloader Middleware了,同时爬取效率有成倍提升,实现了参数可配置化。另外,GerapySelenium 还提供了很多其他实用配置。</p>
+2020-09-13 23:44:05 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/1690744&gt;
+(referer: https://spa5.scrape.center/page/2)</code></pre>
+<p class="content-text">这样我们就使用 GerapySelenium 提供的 Downloader Middleware 实现了 Scrapy与Selenium 的对接,非常方便。我们也不需要再去自定义 Downloader Middleware了,同时爬取效率有成倍提升,实现了参数可配置化。另外,GerapySelenium 还提供了很多其他实用配置。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">关闭 Headless 模式</h4>
-<p class="content-text">  将 GERAPY_SELENIUM_HEADLESS 设置为False即可,settings.py增加如下代码:</p>
+<p class="content-text">将 GERAPY_SELENIUM_HEADLESS 设置为False即可,settings.py增加如下代码:</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">忽略 HTTPS 错误</h4>
 <pre class="code-block"><code>GERAPY_SELENIUM_HEADLESS = True</code></pre>
-<p class="content-text">  将 GERAPY_SELENIUM_IGNORE_HTTPS_ERRORS 设置为 True 即可,settings.py 增加如下代码:</p>
+<p class="content-text">将 GERAPY_SELENIUM_IGNORE_HTTPS_ERRORS 设置为 True 即可,settings.py 增加如下代码:</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">开启 WebDriver反屏蔽功能</h4>
 <pre class="code-block"><code>GERAPY_SELENIUM_IGNORE_HTTPS_ERRORS = True</code></pre>
-<p class="content-text"> 该功能默认是开启的,就是将当前浏览器伪装成正常的浏览器,隐藏 WebDriver 的一些特征,如需关闭,则给 settings.py 增加如下代码:</p>
+<p class="content-text">该功能默认是开启的,就是将当前浏览器伪装成正常的浏览器,隐藏 WebDriver 的一些特征,如需关闭,则给 settings.py 增加如下代码:</p>
 <pre class="code-block"><code>GERAPY_SELENIUM_PRETEND = False</code></pre>
 </section>
 </section>
@@ -1868,9 +1922,10 @@ from scrapy_splash import SplashRequest</code></pre>
 function main(splash, args)
 assert(splash:go(args.url))
 assert(splash:wait(5))
-return splash:html()</code></pre>
-<p class="content-text list-like"><strong class="term-label">end：</strong>"""</p>
-<pre class="code-block"><code>class BookSpider(Spider):
+return splash:html()
+end
+"""
+class BookSpider(Spider):
 name = 'book'
 allowed_domains = ['spa5.scrape.center']
 base_url = 'https://spa5.scrape.center'</code></pre>
@@ -1912,9 +1967,9 @@ yield item</code></pre>
 'price': 'NT$ 280',
 'score': '8.0',
 'tags': ['奇幻','小说','魔幻','美国','TerryGoodkind']}
-2020-09-14 00:57:35 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/11601310</code></pre>
-<p class="content-text">via</p>
-<pre class="result-block"><code>https://splash.cuiqingcai.com/execute&gt; (referer: None)
+2020-09-14 00:57:35 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/11601310
+via
+https://splash.cuiqingcai.com/execute&gt; (referer: None)
 2020-09-14 00:57:35 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/21993088
 via https://splash.cuiqingcai.com/execute&gt; (referer: None)
 2020-09-14 00:57:35 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/21365989
@@ -1949,7 +2004,8 @@ via https://splash.cuiqingcai.com/execute&gt; (referer: None)
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 对接原理</h3>
 <pre class="result-block"><code>https://setup.scrape.center/pyppeteer 里面的介绍。</code></pre>
-<p class="content-text">在实现之前,我们还是来了解一下 Scrapy 对接 Pyppeteer 的原理。在前面我们已经了解了Scrapy对接 Selenium 的实现方式,Scrapy 和 Pyppeteer 的对接方式和它是基本一致的。我们可以自定义一个 Downloader Middleware 并实现 process_request 方法,在process_request 中直接获取 Request对象的URL,然后在 process_request 方法中完成使用 Pyppeteer请求 URL 的过程,获取 JavaScript 渲染后的HTML代码,最后把HTML代码构造为 HtmlResponse 返回。这样,HtmlResponse 就会被传给 Spider,Spider 拿到的结果就是 JavaScript 渲染后的结果了。这里唯一不太一样的是,Pyppeteer 需要借助 asyncio 实现异步爬取,也就是说调用的必须是 async修饰的方法。虽然 Scrapy 也支持异步,但其异步是基于Twisted实现的,二者怎么实现兼容呢?Scrapy开发团队为此做了很多工作,从Scrapy 2.0版本开始,Scrapy已经可以支持 asyncio了。我们知道,Twisted 的异步对象叫作 Deferred,而asyncio 里面的异步对象叫作 Future,其支持的原理就是实现了Future 到 Deferred 的转换,代码如下:</p>
+<p class="content-text">在实现之前,我们先了解一下 Scrapy 对接 Pyppeteer 的原理。在前面我们已经了解了Scrapy对接 Selenium 的实现方式,Scrapy 和 Pyppeteer 的对接方式与它基本一致。我们可以自定义一个 Downloader Middleware 并实现 process_request 方法,在process_request 中直接获取 Request对象的URL,使用 Pyppeteer请求 URL,获取 JavaScript 渲染后的HTML代码,最后把HTML代码构造为 HtmlResponse 返回。这样,HtmlResponse 就会被传给 Spider,Spider 拿到的结果就是 JavaScript 渲染后的结果了。</p>
+<p class="content-text">这里唯一不太一样的是,Pyppeteer 需要借助 asyncio 实现异步爬取,也就是说调用的必须是 async修饰的方法。虽然 Scrapy 也支持异步,但其异步是基于Twisted实现的。Scrapy开发团队为此做了很多工作,从Scrapy 2.0版本开始,Scrapy已经可以支持 asyncio了。Twisted 的异步对象叫作 Deferred,而asyncio 里面的异步对象叫作 Future,其支持的原理就是实现了Future 到 Deferred 的转换,代码如下:</p>
 <pre class="code-block"><code>import asyncio
 from twisted.internet.defer import Deferred
 
@@ -2032,9 +2088,9 @@ await asyncio.sleep(5)
 html = await page.content()
 pyppeteer_response.headers.pop('content-encoding', None)
 pyppeteer_response.headers.pop('Content-Encoding', None)
-response = HtmlResponse(</code></pre>
-<p class="content-text">            page.url,</p>
-<pre class="code-block"><code>status=pyppeteer_response.status,
+response = HtmlResponse(
+page.url,
+status=pyppeteer_response.status,
 headers=pyppeteer_response.headers,
 body=str.encode(html),
 encoding='utf-8',
@@ -2048,9 +2104,10 @@ return as_deferred(self._process_request(request, spider))</code></pre>
 <p class="content-text">首先我们声明了Pyppeteer 的日志级别,防止控制台输出过多的日志。然后我们声明了一个as_deferred 方法,如上文所述,它可以将 Future 对象转化为 Deferred 对象。接着在 process_request方法中,我们调用了 as_deferred 方法,它的参数是_process_request 方法返回的 Future 对象,该Future 对象会被转换为 Deferred 对象。_process_request 方法中实现了 Scrapy 对接 Pyppeteer 的核心逻辑,主要流程就是获取 Request 对象的URL,然后使用 Pyppeteer 把它打开,将最终的渲染结果构造一个 HtmlResponse 对象并返回,这里我们将 Pyppeteer 的headless 参数设置为了False,以便观察浏览器的运行状态。</p>
 <p class="content-text">定义好 PyppeteerMiddleware之后,我们还需要在 settings.py 里面增加一些配置。第一个至关重要的就是更换 Twisted 的 Reactor 对象,在 settings.py 中增加如下定义:</p>
 <pre class="code-block"><code>TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'</code></pre>
-<p class="content-text">接着我们可以再定义一下并发数、Downloader Middleware 的配置和其他配置,settings.py 配置如下:ROBOTSTXT OBEY = False</p>
-<pre class="code-block"><code>CONCURRENT_REQUESTS = 3
-DOWNLOADER MIDDLEWARES = {
+<p class="content-text">接着我们可以再定义一下并发数、Downloader Middleware 的配置和其他配置,settings.py 配置如下:</p>
+<pre class="code-block"><code>ROBOTSTXT_OBEY = False
+CONCURRENT_REQUESTS = 3
+DOWNLOADER_MIDDLEWARES = {
 'scrapypyppeteerdemo.middlewares.PyppeteerMiddleware': 543,
 }</code></pre>
 <p class="content-text">以上我们初步完成了Scrapy 和 Pyppeteer 的对接流程。下面我们运行一下Spider,命令如下:</p>
@@ -2058,21 +2115,20 @@ DOWNLOADER MIDDLEWARES = {
 <p class="content-text">可以看到 Spider在的运行过程中,与Pyppeteer 对应的 Chromium 浏览器弹出来并加载了对应的页面,控制台输出如下:</p>
 <pre class="result-block"><code>2020-09-19 14:58:25 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/
 34672176&gt; (referer: https://spa5.scrape.center/page/1)
-[I:pyppeteer.launcher] Browser listening on: ws://127.0.0.1:62777/devtools/browser/65d32e49-48d6-4d1e-</code></pre>
-<p class="content-text">bc53-134f5090ba32</p>
-<pre class="result-block"><code>2020-09-19 14:58:26 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/
+[I:pyppeteer.launcher] Browser listening on: ws://127.0.0.1:62777/devtools/browser/65d32e49-48d6-4d1e-
+bc53-134f5090ba32
+2020-09-19 14:58:26 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/
 34672176&gt;
 {'cover': 'https://img1.doubanio.com/view/subject/l/public/s33519539.jpg',
 'name':'呼吸',
 'price': '42',
 'score': '8.6',
-'tags': ['科幻','科幻小说','特德·姜','小说','短篇小说']}</code></pre>
-<p class="content-text">:pyppeteer.launcher] terminate chrome process...</p>
-<pre class="result-block"><code>2020-09-19 14:58:26 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/6082808&gt;</code></pre>
-<p class="content-text">(referer: https://spa5.scrape.center/page/1)</p>
-<pre class="result-block"><code>[I:pyppeteer.launcher] Browser listening on: ws://127.0.0.1:63033/devtools/browser/d7ea1c79-2787-4668-9596-</code></pre>
-<p class="content-text">9e894c61865</p>
-<pre class="result-block"><code>2020-09-19 14:58:27 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/6082808&gt;
+'tags': ['科幻','科幻小说','特德·姜','小说','短篇小说']}
+:pyppeteer.launcher] terminate chrome process...
+2020-09-19 14:58:26 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://spa5.scrape.center/detail/6082808&gt; (referer: https://spa5.scrape.center/page/1)
+[I:pyppeteer.launcher] Browser listening on: ws://127.0.0.1:63033/devtools/browser/d7ea1c79-2787-4668-9596-
+9e894c61865
+2020-09-19 14:58:27 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://spa5.scrape.center/detail/6082808&gt;
 {'cover': 'https://img9.doubanio.com/view/subject/1/public/s6384944.jpg',
 'name':'百年孤独',
 'price': '39.50元',
@@ -2109,9 +2165,12 @@ base_url = 'https://spa5.scrape.center'
 def start_requests(self):
 start_url = f'{self.base_url}/page/1'
 yield PyppeteerRequest(start_url, callback=self.parse_index, wait_for='.item .name')
-def parse_index(self, response):</code></pre>
-<p class="content-text"> """extract books and get next page:param response::return:"""</p>
-<pre class="code-block"><code>items = response.css('.item')
+def parse_index(self, response):
+"""extract books and get next page
+:param response:
+:return:
+"""
+items = response.css('.item')
 for item in items:
 href = item.css('.top a::attr(href)').extract_first()
 detail_url = response.urljoin(href)
@@ -2263,7 +2322,8 @@ loader.add_xpath('price', '//p[@id="price"]')
 loader.add_css('stock', 'p#stock]')
 loader.add_value('last_updated', 'today')
 return loader.load_item()</code></pre>
-<p class="content-text">这里首先声明一个 Product Item,用该 Item 和 Response 对象实例化 ItemLoader,调用 add_xpath 方法把来自两个不同位置的数据提取出来,分配给 name 属性,再用 add_xpath、add_css、add_value 等方法对不同属性依次赋值,最后调用 load_item 方法实现对 Item 的解析。这种方式比较规则化,我们可以把一些参数和规则单独提取出来,做成配置文件或存到数据库,实现可配置化。另外,Item Loader 的每个字段中都包含了一个 Input Processor(输入处理器)和一个 Output Processor(输出处理器),利用它们我们可以灵活地对 Item 的每个字段进行处理。Input Processor 收到数据时立刻提取数据,Input Processor 的结果被收集起来并且保存在 ItemLoader 内,但是不分配给Item。收集到所有的数据后,load_item 方法被调用来填充再生成 Item 对象。在调用时会先调用 Output Processor 来处理之前收集到的数据,然后再存入 Item 中,这样就生成了 Item。类似的用法如下:</p>
+<p class="content-text">这里首先声明一个 Product Item,用该 Item 和 Response 对象实例化 ItemLoader,调用 add_xpath 方法把来自两个不同位置的数据提取出来,分配给 name 属性,再用 add_xpath、add_css、add_value 等方法对不同属性依次赋值,最后调用 load_item 方法实现对 Item 的解析。这种方式比较规则化,我们可以把一些参数和规则单独提取出来,做成配置文件或存到数据库,实现可配置化。</p>
+<p class="content-text">另外,Item Loader 的每个字段中都包含了一个 Input Processor(输入处理器)和一个 Output Processor(输出处理器),利用它们我们可以灵活地对 Item 的每个字段进行处理。Input Processor 收到数据时立刻提取数据,Input Processor 的结果被收集起来并且保存在 ItemLoader 内,但是不分配给Item。收集到所有的数据后,load_item 方法被调用来填充再生成 Item 对象。在调用时会先调用 Output Processor 来处理之前收集到的数据,然后再存入 Item 中,这样就生成了 Item。类似的用法如下:</p>
 <pre class="code-block"><code>from itemloaders.processors import TakeFirst, MapCompose, Join
 from scrapy.loader import ItemLoader</code></pre>
 <pre class="code-block"><code>class ProductItemLoader(ItemLoader):
@@ -2274,11 +2334,11 @@ price_in = MapCompose (unicode.strip)</code></pre>
 <p class="content-text">这里我们定义了一个 ProductItemLoader 继承了 ItemLoader 类,并定义了几个属性的 Input Processor 和 Output Processor,比如 name 属性的 Input Processor 就使用了 MapCompose, Output Processor就使用了 Join,这样利用 ProductItemLoader,我们就可以灵活地实现特定属性的数据收集和处理。另外可以看到这里用到了 TakeFirst、MapCompose、Join,这些都是 Scrapy 提供的一些 Processor,分别可以实现提取首个内容、迭代处理、字符串拼接的操作,利用这些 Processor 的组合,我们可以灵活地实现对特定字段数据的处理。其实 Scrapy 已经给我们提供了不少 Processor,我们来了解一下。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">Identity</h4>
-<p class="content-text">    Identity 是最简单的 Processor,不进行任何处理,直接返回原来的数据。</p>
+<p class="content-text">Identity 是最简单的 Processor,不进行任何处理,直接返回原来的数据。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">TakeFirst</h4>
-<p class="content-text"> TakeFirst 返回列表的第一个非空值,类似 extract_first 的功能,常用作 Output Processor,示例代码如下:</p>
+<p class="content-text">TakeFirst 返回列表的第一个非空值,类似 extract_first 的功能,常用作 Output Processor,示例代码如下:</p>
 <pre class="code-block"><code>from scrapy.loader.processors import TakeFirst
 processor = TakeFirst()
 print(processor(['', 1, 2, 3]))</code></pre>
@@ -2287,15 +2347,18 @@ print(processor(['', 1, 2, 3]))</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Join</h4>
-<p class="content-text">    Join 方法相当于字符串的 join 方法,可以把列表拼合成字符串,字符串默认使用空格分隔,示例代码如下:</p>
+<p class="content-text">Join 方法相当于字符串的 join 方法,可以把列表拼合成字符串,字符串默认使用空格分隔,示例代码如下:</p>
 <pre class="code-block"><code>from scrapy.loader.processors import Join
 processor = Join()
 print(processor(['one', 'two', 'three']))</code></pre>
-<p class="content-text">输出结果如下:one two three它也可以通过参数更改默认的分隔符,例如改成逗号:</p>
-<pre class="result-block"><code>from scrapy.loader.processors import Join
+<p class="content-text">输出结果如下:</p>
+<pre class="result-block"><code>one two three</code></pre>
+<p class="content-text">它也可以通过参数更改默认的分隔符,例如改成逗号:</p>
+<pre class="code-block"><code>from scrapy.loader.processors import Join
 processor = Join(',')
 print(processor (['one', 'two', 'three']))</code></pre>
-<p class="content-text">运行结果如下:one, two, three</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>one, two, three</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Compose</h4>
@@ -2303,7 +2366,9 @@ print(processor (['one', 'two', 'three']))</code></pre>
 <pre class="code-block"><code>from scrapy.loader.processors import Compose
 processor = Compose (str.upper, lambda s: s.strip())
 print(processor('hello world'))</code></pre>
-<p class="content-text">运行结果如下:HELLO WORLD在这里我们构造了一个Compose Processor,传入一个开头带有空格的字符串。Compose Processor的参数有两个:第一个是str.upper,它可以将字母全部转为大写;第二个是一个匿名函数,它调用strip 方法去除头尾空白字符。Compose 会顺次调用两个参数,最后返回结果的字符串全部转化为大写并且去除了开头的空格。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>HELLO WORLD</code></pre>
+<p class="content-text">在这里我们构造了一个Compose Processor,传入一个开头带有空格的字符串。Compose Processor的参数有两个:第一个是str.upper,它可以将字母全部转为大写;第二个是一个匿名函数,它调用strip 方法去除头尾空白字符。Compose 会顺次调用两个参数,最后返回结果的字符串全部转化为大写并且去除了开头的空格。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">MapCompose</h4>
@@ -2323,7 +2388,8 @@ print(processor (['Hello', 'World', 'Python']))</code></pre>
 <pre class="code-block"><code>from scrapy.loader.processors import SelectJmes
 processor = SelectJmes('foo')
 print(processor({'foo': 'bar'}))</code></pre>
-<p class="content-text">运行结果如下:bar</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>bar</code></pre>
 <p class="content-text">以上内容便是 ItemLoader 和一些常用的 Processor 的用法。我们一下子又接触了不少新概念,如CrawlSpider、Rule、LinkExtractor、Item Loaders、Processor,你可能感觉有点懵,不知道如何使用。不用担心,下面我们通过一个实例来将这些内容综合运用一下,实现一个规则化的Scrapy爬虫。</p>
 </section>
 </section>
@@ -2339,8 +2405,14 @@ print(processor({'foo': 'bar'}))</code></pre>
 <pre class="code-block"><code>scrapy startproject scrapyuniversaldemo</code></pre>
 <p class="content-text">然后我们进入到该文件夹,这次我们便需要创建一个CrawlSpider,而不再单纯的是Spider。要创建 CrawlSpider,需要指定一个模板。我们可以先看看有哪些可用模板,命令如下所示:</p>
 <pre class="code-block"><code>scrapy genspider -1</code></pre>
-<p class="content-text">运行结果如下所示:Available templates:basic crawl csvfeed xmlfeed之前创建 Spider 的时候,我们默认使用了第一个模板 basic。这次要创建CrawlSpider,需要使用第二个模板 crawl,创建命令如下所示:</p>
-<pre class="result-block"><code>scrapy genspider -t crawl movie ssr1.scrape.center</code></pre>
+<p class="content-text">运行结果如下所示:</p>
+<pre class="result-block"><code>Available templates:
+  basic
+  crawl
+  csvfeed
+  xmlfeed</code></pre>
+<p class="content-text">之前创建 Spider 的时候,我们默认使用了第一个模板 basic。这次要创建CrawlSpider,需要使用第二个模板 crawl,创建命令如下所示:</p>
+<pre class="code-block"><code>scrapy genspider -t crawl movie ssr1.scrape.center</code></pre>
 <p class="content-text">运行之后便会生成一个 CrawlSpider,其内容如下所示:</p>
 <pre class="code-block"><code>import scrapy
 from scrapy.linkextractors import LinkExtractor
@@ -2372,17 +2444,13 @@ print(response.url)</code></pre>
 <p class="content-text">运行一下当前 CrawlSpider,命令如下:</p>
 <pre class="code-block"><code>scrapy crawl movie</code></pre>
 <p class="content-text">便可以看到如下输出:</p>
-<pre class="result-block"><code>2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/9&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/)</p>
-<pre class="result-block"><code>https://ssr1.scrape.center/detail/3
-2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/6&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/)</p>
-<pre class="result-block"><code>https://ssr1.scrape.center/detail/9
-2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/1&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/)</p>
-<pre class="result-block"><code>2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/5&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/)</p>
-<pre class="result-block"><code>https://ssr1.scrape.center/detail/2
+<pre class="result-block"><code>2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/9&gt; (referer: https://ssr1.scrape.center/)
+https://ssr1.scrape.center/detail/3
+2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/6&gt; (referer: https://ssr1.scrape.center/)
+https://ssr1.scrape.center/detail/9
+2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/1&gt; (referer: https://ssr1.scrape.center/)
+2020-10-09 11:20:53 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/5&gt; (referer: https://ssr1.scrape.center/)
+https://ssr1.scrape.center/detail/2
 https://ssr1.scrape.center/detail/1
 https://ssr1.scrape.center/detail/5</code></pre>
 <p class="content-text">由于内容过多,这里省略了部分输出结果。我们可以看到首页对应的10个详情页链接就被提取出来了,同时这些链接又被进一步构造成了 Request 执行了爬取,爬取成功后,通过回调 parse_detail方法,打印输出了对应的链接。这些逻辑我们通过一个简单的 Rule 的配置就完成了,是不是感觉比之前方便多了?</p>
@@ -2395,14 +2463,11 @@ Rule(LinkExtractor(restrict_css='.item .name'), follow=True, callback='parse_det
 Rule(LinkExtractor(restrict_css='.next'), follow=True),
 )</code></pre>
 <p class="content-text">这里我们又增加了一条 Rule,定义了 restrict_css 为 .next,同时指定了 follow 为 True。但因为这次我们不需要从列表页提取 Item,所以这里我们无须额外指定 callback。这样整个爬取逻辑就已经定义好了,我们重新运行一下 CrawlSpider,可以看到 CrawlSpider 就可以爬取分页信息了,输出结果如下:</p>
-<pre class="result-block"><code>2020-10-09 11:52:29 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/76&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/8)</p>
-<pre class="result-block"><code>https://ssr1.scrape.center/detail/75
-2020-10-09 11:52:29 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/72&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/8)</p>
-<pre class="result-block"><code>https://ssr1.scrape.center/detail/74
-2020-10-09 11:52:29 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/10&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/page/9)</p>
+<pre class="result-block"><code>2020-10-09 11:52:29 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/76&gt; (referer: https://ssr1.scrape.center/page/8)
+https://ssr1.scrape.center/detail/75
+2020-10-09 11:52:29 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/72&gt; (referer: https://ssr1.scrape.center/page/8)
+https://ssr1.scrape.center/detail/74
+2020-10-09 11:52:29 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/page/10&gt; (referer: https://ssr1.scrape.center/page/9)</code></pre>
 <p class="content-text">接下来我们需要做的就是解析页面内容了,刚才我们只是简单定义了 parse_detail 方法,下面我们来使用 Item Loaders 实现内容的提取。首先我们还是需要定义一个 MovieItem,内容如下:</p>
 <pre class="code-block"><code>from scrapy import Field, Item
 class MovieItem(Item):</code></pre>
@@ -2427,21 +2492,20 @@ yield item</code></pre>
 <pre class="result-block"><code>2020-10-09 12:31:03 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://ssr1.scrape.center/detail/6&gt;
 {'categories': ['喜剧', '爱情', '古装'],
 'cover': 'https://po.meituan.net/movie/da64660f82b98cdc1b8a3804e69609e04108.jpg@464w_644h_1e_1c',
-'drama': '唐伯虎(周星驰饰)身为江南四大才子之首,却有道不尽的心酸。宁王想让唐伯虎帮其图谋作反,被唐伯虎</code></pre>
-<p class="content-text">拒绝意淫结仇。唐伯虎在与朋友出游时,遇到了貌若天仙的秋香(巩俐饰)并对她一见钟情,决心要到华府当家丁以追求秋香,唐伯虎被取名华安。期间华太师遇到了宁王上门刁难,幸好有唐伯虎出面相助,并暴露了自己是唐伯虎的身份。秋香才知道华安是自己欣赏的唐伯虎。华夫人跟唐家有怨,因此二人便开始斗法。怎料宁王跟夺命书生再次上门,华夫人不是对手,幸得唐伯虎出手,华夫人也答应把秋香许配给唐伯虎。',</p>
-<pre class="code-block"><code>'name': '唐伯虎点秋香 - Flirting Scholar',
+'drama': '唐伯虎(周星驰饰)身为江南四大才子之首,却有道不尽的心酸。宁王想让唐伯虎帮其图谋作反,被唐伯虎
+拒绝意淫结仇。唐伯虎在与朋友出游时,遇到了貌若天仙的秋香(巩俐饰)并对她一见钟情,决心要到华府当家丁以追求秋香,唐伯虎被取名华安。期间华太师遇到了宁王上门刁难,幸好有唐伯虎出面相助,并暴露了自己是唐伯虎的身份。秋香才知道华安是自己欣赏的唐伯虎。华夫人跟唐家有怨,因此二人便开始斗法。怎料宁王跟夺命书生再次上门,华夫人不是对手,幸得唐伯虎出手,华夫人也答应把秋香许配给唐伯虎。',
+'name': '唐伯虎点秋香 - Flirting Scholar',
 'published_at': '1993-07-01',
 'score': '9.5'}
-2020-10-09 12:31:03 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/9&gt;</code></pre>
-<p class="content-text">(referer: https://ssr1.scrape.center/)</p>
+2020-10-09 12:31:03 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://ssr1.scrape.center/detail/9&gt; (referer: https://ssr1.scrape.center/)</code></pre>
 <p class="content-text">但现在这种实现方式并不能实现可配置化,下面我们尝试将这个方法改写为 Item Loaders 来实现。通过 add_xpath、add_css、add_value 等方式实现配置化提取。我们可以改写 parse_detail,如下所示:</p>
 <pre class="code-block"><code>def parse_detail (self, response):
 loader = MovieItemLoader(item=MovieItem(), response=response)
 loader.add_css('name', '.item h2::text')
 loader.add_css('categories', 'categories button span::text')
-loader.add_css('cover', '.cover::attr(src)')</code></pre>
-<p class="content-text">    loader.add_css('published_at', '.info span::text', re='(\d{4}-\d{2}-\d{2})\s?上映')</p>
-<pre class="code-block"><code>loader.add_xpath('score', '//p[contains(@class, "score")]/text()')
+loader.add_css('cover', '.cover::attr(src)')
+loader.add_css('published_at', '.info span::text', re='(\d{4}-\d{2}-\d{2})\s?上映')
+loader.add_xpath('score', '//p[contains(@class, "score")]/text()')
 loader.add_xpath('drama', '//div[contains(@class, "drama")]/p/text()')
 yield loader.load_item()</code></pre>
 <p class="content-text">这里我们定义了一个 ItemLoader的子类,名为MovieItemLoader,其实现如下所示:</p>
@@ -2453,9 +2517,11 @@ categories_out = Identity()
 score_out = Compose (TakeFirst(), str.strip)
 drama_out = Compose (TakeFirst(), str.strip)</code></pre>
 <p class="content-text">这里我们定义了4个字段,说明如下:</p>
-<pre class="code-block"><code>default_output_processor: 上文中,由于大多数字段需要利用 extract_first 方法来获得第</code></pre>
-<p class="content-text">一个提取结果,而在 parse_detail 方法中我们并没有指定抽取第一个结果,所以最终的结果仍然是一个列表形式。那 extract_first 方法对应的逻辑我们需要放到哪里实现呢?答案是需要 MovieItemLoader 来实现。这里我们定义了一个 default_output_processor,意思是通用的输出处理器,这里指定为了TakeFirst。这样默认情况下,每个字段的第一个提取结果就会作为该字段的最终结果,相当于默认情况下每个字段提取完毕之后就调用了 extract_first 方法。比如 name字段,原本抽取结果为['少年派的奇幻漂流 - Life of Pi'],经过 TakeFirst 处理后,结果就是少年派的奇幻漂流 - Life of Pi。categories_out: 原本的提取结果是一个列表,而我们希望最终获取的也是列表,所以需要保持原来的结果不变,而刚才我们已经定义了 default_output_processor 来提取第一个结果作为字段内容,这里我们需要将其覆盖,定义categories_out 字段,覆盖默认的 default_output_processor,这里定义为Identity,保持原结果不变。</p>
-<p class="content-text list-like">score_out: 使用默认的 TakeFirst 提取之后,结果前后包含一些空格信息,我们需要进一步将其去除,所以这里使用了 Compose,参数依次传入了 TakeFirst 和 str.strip,这样就能取出第一个结果并去除前后的空格了。drama_out: 和 score_out 也是一样的逻辑。好,这时候我们重新运行一下 CrawlSpider,结果和刚才是完全一样的。至此,我们已经实现了爬虫的半规则化。</p>
+<p class="content-text list-like"><strong class="term-label">default_output_processor:</strong>上文中,由于大多数字段需要利用 extract_first 方法来获得第一个提取结果,而在 parse_detail 方法中我们并没有指定抽取第一个结果,所以最终的结果仍然是一个列表形式。这里将通用的输出处理器指定为TakeFirst,这样默认情况下,每个字段的第一个提取结果就会作为该字段的最终结果。比如 name字段,原本抽取结果为['少年派的奇幻漂流 - Life of Pi'],经过 TakeFirst 处理后,结果就是少年派的奇幻漂流 - Life of Pi。</p>
+<p class="content-text list-like"><strong class="term-label">categories_out:</strong>原本的提取结果是一个列表,而我们希望最终获取的也是列表,所以需要保持原来的结果不变。这里定义为Identity,覆盖默认的 default_output_processor。</p>
+<p class="content-text list-like"><strong class="term-label">score_out:</strong>使用默认的 TakeFirst 提取之后,结果前后包含一些空格信息,我们需要进一步将其去除,所以这里使用了 Compose,参数依次传入了 TakeFirst 和 str.strip,这样就能取出第一个结果并去除前后的空格了。</p>
+<p class="content-text list-like"><strong class="term-label">drama_out:</strong>和 score_out 是一样的逻辑。</p>
+<p class="content-text">好,这时候我们重新运行一下 CrawlSpider,结果和刚才是完全一样的。至此,我们已经实现了爬虫的半规则化。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 配置抽取</h3>
@@ -2467,19 +2533,19 @@ drama_out = Compose (TakeFirst(), str.strip)</code></pre>
 "type":"电影",
 "home": "https://ssr1.scrape.center/",
 "settings": {
-"USER_AGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko)</code></pre>
-<p class="content-text">  Chrome/60.0.3112.90 Safari/537.36"</p>
-<pre class="code-block"><code>"start_urls": [</code></pre>
-<p class="content-text">  "https://ssr1.scrape.center/"</p>
-<pre class="code-block"><code>"allowed_domains": [
+"USER_AGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko)
+Chrome/60.0.3112.90 Safari/537.36"
+"start_urls": [
+"https://ssr1.scrape.center/"
+"allowed_domains": [
 },
 ],
 ],
 "rules": [
 {
-"link_extractor": {</code></pre>
-<p class="content-text">  "ssr1.scrape.center"</p>
-<pre class="code-block"><code>"restrict_css": ".item .name"
+"link_extractor": {
+"ssr1.scrape.center"
+"restrict_css": ".item .name"
 },
 "follow": true,
 "callback": "parse_detail"
@@ -2491,7 +2557,9 @@ drama_out = Compose (TakeFirst(), str.strip)</code></pre>
 }
 ]
 }</code></pre>
-<p class="content-text">这里我们将一些配置进行了抽离,第一个字段 spider 即 Spider 的名称,在这里是 universal。然后定义了一些描述字段,比如 type、home 等说明爬取目标站点的类别、首页等。然后就是一些重要配置了,比如可以使用 settings 定义 CrawlSpider 的custom_settings 属性,使用 start_urls 定义初始爬取链接,使用allowed_domains 定义允许爬取的域名,这些信息都会被读取然后初始化为 CrawlSpider 的属性。另外我们还将 rules进行了抽离,配置为了JSON形式,是列表类型,每个成员都代表一个Rule 的配置。进一步地,每个Rule的配置又单独分离了link_extractor 并配置上对应的属性,比如restrict_css代表 LinkExtractor 的 restrict_css 属性。我们会使用rules 字段的信息来初始化CrawlSpider 的rules 属性。这样我们将基本的配置抽取出来。如果要启动爬虫,只需要从该配置文件中读取,然后动态加载到Spider 中即可。所以我们需要定义一个读取该JSON文件的方法,新建一个utils.py文件,和 items.py文件并列,内容如下所示:</p>
+<p class="content-text">这里我们将一些配置进行了抽离,第一个字段 spider 即 Spider 的名称,在这里是 universal。然后定义了一些描述字段,比如 type、home 等说明爬取目标站点的类别、首页等。还可以使用 settings 定义 CrawlSpider 的custom_settings 属性,使用 start_urls 定义初始爬取链接,使用allowed_domains 定义允许爬取的域名,这些信息都会被读取然后初始化为 CrawlSpider 的属性。</p>
+<p class="content-text">另外我们还将 rules进行了抽离,配置为JSON列表,每个成员都代表一个Rule 的配置。每个Rule的配置又单独分离了link_extractor 并配置上对应的属性,比如restrict_css代表 LinkExtractor 的 restrict_css 属性。我们会使用rules 字段的信息来初始化CrawlSpider 的rules 属性。</p>
+<p class="content-text">这样我们将基本的配置抽取出来。如果要启动爬虫,只需要从该配置文件中读取,然后动态加载到Spider 中即可。所以我们需要定义一个读取该JSON文件的方法,新建一个utils.py文件,和 items.py文件并列,内容如下所示:</p>
 <pre class="code-block"><code>from os.path import realpath, dirname, join
 import json
 def get_config(name):
@@ -2531,9 +2599,9 @@ self.start_urls = config.get('start_urls')
 self.allowed_domains = config.get('allowed_domains')
 rules = []
 for rule_kwargs in config.get('rules'):
-link_extractor = LinkExtractor(**rule_kwargs.get('link_extractor'))</code></pre>
-<p class="content-text">            rule_kwargs['link_extractor'] = link_extractor</p>
-<pre class="code-block"><code>rule = Rule(**rule_kwargs)
+link_extractor = LinkExtractor(**rule_kwargs.get('link_extractor'))
+rule_kwargs['link_extractor'] = link_extractor
+rule = Rule(**rule_kwargs)
 rules.append(rule)
 self.rules = rules
 super(UniversalSpider, self).__init__(*args, **kwargs)</code></pre>
@@ -2542,9 +2610,9 @@ super(UniversalSpider, self).__init__(*args, **kwargs)</code></pre>
 loader = MovieItemLoader(item=MovieItem(), response=response)
 loader.add_css('name', '.item h2::text')
 loader.add_css('categories', 'categories button span::text')
-loader.add_css('cover', '.cover::attr(src)')</code></pre>
-<p class="content-text">    loader.add_css('published_at', '.info span::text', re='(\d{4}-\d{2}-\d{2})\s?上映')</p>
-<pre class="code-block"><code>loader.add_xpath('score', '//p[contains(@class, "score")]/text()')
+loader.add_css('cover', '.cover::attr(src)')
+loader.add_css('published_at', '.info span::text', re='(\d{4}-\d{2}-\d{2})\s?上映')
+loader.add_xpath('score', '//p[contains(@class, "score")]/text()')
 loader.add_xpath('drama', '//div[contains(@class, "drama")]/p/text()')
 yield loader.load_item()</code></pre>
 <p class="content-text">我们需要将这些配置也抽离出来。这里的变量主要有 ItemLoader 类的选用、Item 类的选用、ItemLoader 方法参数的定义。我们将可变参数进行抽离,在 JSON 文件中添加 item 的配置,参考如下:</p>
@@ -2613,13 +2681,15 @@ loader.add_css(key, extractor.get('arg'), **{'re': extractor.get('re')})
 if extractor.get('method') == 'value':</code></pre>
 <pre class="code-block"><code>loader.add_value(key, extractor.get('args'), **{'re': extractor.get('re')})
 yield loader.load_item()</code></pre>
-<p class="content-text">这里首先获取 Item的配置信息,然后获取class 的配置,将Item进行初始化。接着利用 Item再初始化 ItemLoader,赋值为loader对象。接下来我们遍历Item的attrs代表的各个属性依次进行提取。首先我们需要判断 method 字段,调用对应的处理方法进行处理。如method为css,就调用ItemLoader的add_css方法进行提取。所有配置动态加载完毕之后,调用load_item方法将 Item 提取出来。至此,Spider 的设置、起始链接、属性、提取方法全部实现了可配置化。这时候我们就可以使用配置文件来启动 CrawlSpider了,运行命令如下:python3 run.py movie运行结果如下:</p>
+<p class="content-text">这里首先获取 Item的配置信息,然后获取class 的配置,将Item进行初始化。接着利用 Item再初始化 ItemLoader,赋值为loader对象。接下来我们遍历Item的attrs代表的各个属性依次进行提取。首先我们需要判断 method 字段,调用对应的处理方法进行处理。如method为css,就调用ItemLoader的add_css方法进行提取。所有配置动态加载完毕之后,调用load_item方法将 Item 提取出来。至此,Spider 的设置、起始链接、属性、提取方法全部实现了可配置化。这时候我们就可以使用配置文件来启动 CrawlSpider了,运行命令如下:</p>
+<pre class="code-block"><code>python3 run.py movie</code></pre>
+<p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>2020-10-09 18:42:24 [scrapy.core.scraper] DEBUG: Scraped from &lt;200 https://ssr1.scrape.center/detail/6&gt;
 {'categories': ['喜剧','爱情','古装'],
 'cover': 'https://po.meituan.net/movie/da64660f82b98cdc1b8a3804e69609e041108.jpg@464w_644h_1e_1c',
-'drama':'唐伯虎(周星驰饰)身为江南四大才子之首,却有道不尽的心酸。宁王想让唐伯虎帮其图谋作反,被唐伯虎</code></pre>
-<p class="content-text">拒绝意淫结仇。唐伯虎在与朋友出游时,遇到了貌若天仙的秋香(巩俐饰)并对她一见钟情,决心要到华府当家丁以追求秋香,唐伯虎被取名华安。期间华太师遇到了宁王上门刁难,幸好有唐伯虎出面相助,并暴露了自己是唐伯虎的身份。秋香才知道华安是自己欣赏的唐伯虎。华夫人跟唐家有怨,因此二人便开始斗法。怎料宁王跟夺命书生再次上门,华夫人不是对手,幸得唐伯虎出手,华夫人也答应把秋香许配给唐伯虎。',</p>
-<pre class="code-block"><code>'name':'唐伯虎点秋香 - Flirting Scholar',
+'drama':'唐伯虎(周星驰饰)身为江南四大才子之首,却有道不尽的心酸。宁王想让唐伯虎帮其图谋作反,被唐伯虎
+拒绝意淫结仇。唐伯虎在与朋友出游时,遇到了貌若天仙的秋香(巩俐饰)并对她一见钟情,决心要到华府当家丁以追求秋香,唐伯虎被取名华安。期间华太师遇到了宁王上门刁难,幸好有唐伯虎出面相助,并暴露了自己是唐伯虎的身份。秋香才知道华安是自己欣赏的唐伯虎。华夫人跟唐家有怨,因此二人便开始斗法。怎料宁王跟夺命书生再次上门,华夫人不是对手,幸得唐伯虎出手,华夫人也答应把秋香许配给唐伯虎。',
+'name':'唐伯虎点秋香 - Flirting Scholar',
 'published_at': '1993-07-01',
 'score': '9.5'}</code></pre>
 <p class="content-text">可以看到爬取结果和之前也是完全相同的,抽离规则成功!综上所述,整个项目的规则化包括如下内容。</p>
@@ -2720,9 +2790,9 @@ print(response)</code></pre>
 <p class="content-text">前面我们也已经分析过了怎样以登录身份请求接口,其实就是在 Request Headers 中加上authorization 这个字段就好了,怎么来实现呢?在前面我们也已经学习了 Downloader Middleware 的用法,它可以在 Request 被下载执行前对 Request 做一些处理,所以这里我们可以借助于 Downloader Middleware 来实现。</p>
 <p class="content-text">接下来我们在 middlewares.py 里面添加一个 Downloader Middleware,代码如下:</p>
 <pre class="code-block"><code>class AuthorizationMiddleware(object):
-authorization = 'jwt eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluliwi</code></pre>
-<p class="content-text">ZXhwIjoxNjAzNTYwMDEzLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjAzNTE2ODEzfQ.IT1wRGt4lem0JyDH-k MvLzPyN4dP8BzqQcxc-1IBj-6I'</p>
-<pre class="code-block"><code>def process_request(self, request, spider):
+authorization = 'jwt eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluliwi
+ZXhwIjoxNjAzNTYwMDEzLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjAzNTE2ODEzfQ.IT1wRGt4lem0JyDH-k MvLzPyN4dP8BzqQcxc-1IBj-6I'
+def process_request(self, request, spider):
 request.headers['authorization'] = self.authorization</code></pre>
 <p class="content-text">这里实现了一个AuthorizationMiddleware类,并实现了一个 process_request 方法,在这个方法里,我们为 request 变量的 headers 属性添加了 authorization 字段。注意这里 authorization 的值你可以改写成自己的,当前的authorization 可能已经无法使用了,请登录站点并分析 Ajax接口,复制 authorization 字段并替换。</p>
 <p class="content-text">定义之后我们还需要开启对 AuthorizationMiddleware的调用,在settings.py 里面添加代码如下:</p>
@@ -2798,9 +2868,9 @@ token = r.json().get('token')
 logger.debug(f'get credential {token}')
 self.credential_operator.set(username, token)</code></pre>
 <p class="content-text">这里的主要逻辑就是实现 generate 方法,利用用户名和密码,模拟请求登录接口 API,然后获取返回结果的 token。模拟登录的返回结果类似如下:</p>
-<pre class="code-block"><code>{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjAzNj</code></pre>
-<p class="content-text">A3NDYxLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjAzNTY0MjYxfQ.X_agHfQZCG1IE2YdVj90x34Gou90uBbr</p>
-<pre class="code-block"><code>AgtKomyiflA"}</code></pre>
+<pre class="result-block"><code>{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjAzNj
+A3NDYxLCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjAzNTY0MjYxfQ.X_agHfQZCG1IE2YdVj90x34Gou90uBbr
+AgtKomyiflA"}</code></pre>
 <p class="content-text">这里 token 的值其实就是 Request Headers 里面 authorization 字段 jwt 后面跟的内容,我们利用此 token 来构造 authorization 即可。接下来我们再实现一下 Antispider7Tester,实现如下:</p>
 <pre class="code-block"><code>class Antispider7Tester (BaseTester):
 def __init__(self, website=None):
@@ -2819,7 +2889,9 @@ logger.info('credential is not valid, delete it')
 self.credential_operator.delete(username)
 except ConnectionError:
 logger.info('test failed')</code></pre>
-<p class="content-text">由于 credential 就是刚才我们存的token值,所以这里我们只需要获取 credential 构造authorization 即可完成模拟登录检查。这里我们添加了 Request Headers 的 authorization 之后,请求 TEST_URL_MAP 里面指定的首页 URL,即 https://antispider7.scrape.center/api/book/?limit=18&amp;offset=0,如果返回状态码是200,则证明接口正常请求,模拟登录成功,当前的账号没有被封禁;否则就删除该账号对应的 credential 内容,等待 Antispider7Generator 再次生成。这样我们就完成了账号池的credential 生成和测试逻辑了。另外,由于该站点有单账号访问频率限制,所以这里我们不能让 Tester 的测试频率设定得太高,不然它占用了请求次数就得不偿失了。比如我们可以在 setting.py 里面把CYCLE_TESTER 设置得很大,比如600就是10分钟检查一次,1800就是半小时检查一次,可以自行设定。接下来我们就可以导入一些账号来运行账号池了,这里我们可以简单实现一个脚本,导入一些账号和密码,那账号密码怎么来呢?我们可以自己利用注册接口注册,也可以使用我已经注册好的一些账号,用户名和密码都是一样的,有admin1、admin2、admin3……………。这里我们可以先导入100个账号来测试下,编写脚本如下:</p>
+<p class="content-text">由于 credential 就是刚才我们存的token值,所以这里我们只需要获取 credential 构造authorization 即可完成模拟登录检查。这里我们添加了 Request Headers 的 authorization 之后,请求 TEST_URL_MAP 里面指定的首页 URL,即 https://antispider7.scrape.center/api/book/?limit=18&amp;offset=0。如果返回状态码是200,则证明接口正常请求,模拟登录成功,当前的账号没有被封禁;否则就删除该账号对应的 credential 内容,等待 Antispider7Generator 再次生成。这样我们就完成了账号池的credential 生成和测试逻辑。</p>
+<p class="content-text">另外,由于该站点有单账号访问频率限制,所以这里我们不能让 Tester 的测试频率设定得太高,不然它占用了请求次数就得不偿失了。比如我们可以在 setting.py 里面把CYCLE_TESTER 设置得很大,比如600就是10分钟检查一次,1800就是半小时检查一次,可以自行设定。</p>
+<p class="content-text">接下来我们就可以导入一些账号来运行账号池了,这里我们可以简单实现一个脚本,导入一些账号和密码。账号密码可以自己利用注册接口注册,也可以使用我已经注册好的一些账号,用户名和密码都是一样的,有admin1、admin2、admin3……………。这里我们可以先导入100个账号来测试下,编写脚本如下:</p>
 <pre class="code-block"><code>from accountpool.storages.redis import RedisClient
 conn = RedisClient('account', 'antispider7')
 start = 1
@@ -2870,14 +2942,14 @@ request.headers['authorization'] = authorization</code></pre>
 <p class="content-text">接下来再次运行 Spider,结果如下:</p>
 <pre class="result-block"><code>2020-10-25 03:14:58 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET
 https://antispider7.scrape.center/api/book/?limit=18&amp;offset=504&gt; (referer: None)
-2020-10-25 03:14:58 [middlewares.authorization] DEBUG: set authorization jwt eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.</code></pre>
-<p class="content-text list-like"><strong class="term-label">eyJ1c2VyX2lkIjooNywidXNlcm5hbWUiOiJhZG1pbjM4IiwiZXhwIjoxNjAzNjA5NDk1LCJlbWFpbCI6IiIsIm9yaWdfaWFOIjoxNjAzN：</strong>TY2Mjk1fQ.MXfQ7A6-qj2_HBohbeH9-yWfD70lZZ-DwvN3JWFdFpI</p>
-<pre class="result-block"><code>2020-10-25 03:14:58 [middlewares.proxy] DEBUG: set proxy 125.26.56.87:8080
+2020-10-25 03:14:58 [middlewares.authorization] DEBUG: set authorization jwt eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.
+eyJ1c2VyX2lkIjooNywidXNlcm5hbWUiOiJhZG1pbjM4IiwiZXhwIjoxNjAzNjA5NDk1LCJlbWFpbCI6IiIsIm9yaWdfaWFOIjoxNjAzN：TY2Mjk1fQ.MXfQ7A6-qj2_HBohbeH9-yWfD70lZZ-DwvN3JWFdFpI
+2020-10-25 03:14:58 [middlewares.proxy] DEBUG: set proxy 125.26.56.87:8080
 &lt;200 https://antispider7.scrape.center/api/book/?limit=18&amp;offset=504&gt;
 2020-10-25 03:15:03 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET https://antispider7.scrape.center/api/
 book/?limit=18&amp;offset=684&gt; (referer: None)
 2020-10-25 03:15:03 [middlewares.authorization] DEBUG: set authorization jwt eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.</code></pre>
-<p class="content-text list-like"><strong class="term-label">eyJ1c2VyX2lkIjozNiwidXNlcm5hbWUiOiJhZG1pbjI3IiwiZXhwIjoxNjAzNjA5NDUxLCJ1bWFpbCI6IiIsIm9yaWdfaWFOIjoxNjAzN：</strong>TY2MjUxfQ.iojBYnykCGI41HBc-Ei5h98wENUq81xPX78QG1yYkWc</p>
+<pre class="result-block"><code>eyJ1c2VyX2lkIjozNiwidXNlcm5hbWUiOiJhZG1pbjI3IiwiZXhwIjoxNjAzNjA5NDUxLCJ1bWFpbCI6IiIsIm9yaWdfaWFOIjoxNjAzN：TY2MjUxfQ.iojBYnykCGI41HBc-Ei5h98wENUq81xPX78QG1yYkWc</code></pre>
 <pre class="result-block"><code>2020-10-25 03:15:03 [middlewares.proxy] DEBUG: set proxy 43.225.195.90:50878</code></pre>
 <p class="content-text">这时候我们就可以发现,绝大多数的请求都经成功返回了200状态码,持续爬取一段时间,依然没有问题。到现在,封IP 和封账号的问题就被解决了。最后让我们完善一下 Spider 的逻辑:</p>
 <pre class="code-block"><code>import json
@@ -2905,11 +2977,12 @@ item = BookItem()
 for field in item.fields:
 item[field] = data.get(field)
 yield item</code></pre>
-<p class="content-text">另外,个人推荐再配置一些参数:ROBOTSTXT OBEY = False</p>
-<pre class="code-block"><code>RETRY_HTTP_CODES = [401, 403, 500, 502, 503, 504]
-CONCURRENT_REQUESTS = 10</code></pre>
-<p class="content-text">DOWNLOAD TIMEOUT = 10</p>
-<pre class="code-block"><code>RETRY_TIMES = 10</code></pre>
+<p class="content-text">另外,个人推荐再配置一些参数:</p>
+<pre class="code-block"><code>ROBOTSTXT_OBEY = False
+RETRY_HTTP_CODES = [401, 403, 500, 502, 503, 504]
+CONCURRENT_REQUESTS = 10
+DOWNLOAD_TIMEOUT = 10
+RETRY_TIMES = 10</code></pre>
 <p class="content-text">下面解释一下这些参数。</p>
 <p class="content-text list-like">ROBOTSTXT_OBEY:是否遵守 robots协议,这里设置为了False,在爬取时不遵守 robots.txt 协议,可以免去最开始 robots.txt 的爬取步骤。</p>
 <p class="content-text list-like">RETRY_HTTP_CODES:需要重试的状态码,这里设置为[401,403, 500, 502, 503,504]。这样如果遇到这些状态码,该请求会重新发起,如果不进行这样的设置,该请求失败了就会被丢弃。</p>

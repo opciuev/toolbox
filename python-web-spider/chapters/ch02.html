@@ -28,7 +28,9 @@
 <p class="content-text">拿 urllib 这个库来说，有了它，我们只需要关心请求的链接是什么，需要传递的参数是什么，以及如何设置可选的请求头，而无须深入到底层去了解到底是怎样传输和通信的。有了 urllib 库，只用两行代码就可以完成一次请求和响应的处理过程，得到网页内容，是不是感觉方便极了？</p>
 <p class="content-text">接下来，就让我们从最基础的部分开始了解 HTTP 库的使用方法吧。</p>
 <div class="section-heading" id="section-0"><h2>2.1 urllib 的使用</h2></div>
-<p class="content-text">首先介绍一个 Python 库，叫作 urllib，利用它就可以实现 HTTP 请求的发送，而且不需要关心 HTTP 协议本身甚至更底层的实现，我们要做的是指定请求的 URL、请求头、请求体等信息。此外 urllib 还可以把服务器返回的响应转化为 Python 对象，我们通过该对象便可以方便地获取响应的相关信息，如响应状态码、响应头、响应体等。<strong>注意</strong> 在 Python 2 中，有 urllib 和 urllib2 两个库来实现 HTTP 请求的发送。而在 Python 3 中，urllib2 库已经不存在了，统一为了 urllib。首先，我们了解一下 urllib 库的使用方法，它是 Python 内置的 HTTP 请求库，也就是说不需要额外安装，可直接使用。urllib 库包含如下 4 个模块。</p>
+<p class="content-text">首先介绍一个 Python 库，叫作 urllib，利用它就可以实现 HTTP 请求的发送，而且不需要关心 HTTP 协议本身甚至更底层的实现，我们要做的是指定请求的 URL、请求头、请求体等信息。此外 urllib 还可以把服务器返回的响应转化为 Python 对象，我们通过该对象便可以方便地获取响应的相关信息，如响应状态码、响应头、响应体等。</p>
+<div class="note-box"><p><strong>注意</strong> 在 Python 2 中，有 urllib 和 urllib2 两个库来实现 HTTP 请求的发送。而在 Python 3 中，urllib2 库已经不存在了，统一为了 urllib。</p></div>
+<p class="content-text">首先，我们了解一下 urllib 库的使用方法，它是 Python 内置的 HTTP 请求库，也就是说不需要额外安装，可直接使用。urllib 库包含如下 4 个模块。</p>
 <p class="content-text list-like"><strong class="term-label">request:</strong>这是最基本的 HTTP 请求模块，可以模拟请求的发送。就像在浏览器里输入网址然后按下回车一样，只需要给库方法传入 URL 以及额外的参数，就可以模拟实现发送请求的过程了。</p>
 <p class="content-text list-like"><strong class="term-label">error:</strong>异常处理模块。如果出现请求异常，那么我们可以捕获这些异常，然后进行重试或其他操作以保证程序运行不会意外终止。</p>
 <p class="content-text list-like"><strong class="term-label">parse:</strong>一个工具模块。提供了许多 URL 的处理方法，例如拆分、解析、合并等。</p>
@@ -58,8 +60,8 @@ print(type(response))</code></pre>
 <p class="content-text">得到响应之后，我们把它赋值给 response 变量，然后就可以调用上述那些方法和属性，得到返回结果的一系列信息了。</p>
 <p class="content-text">例如，调用 read 方法可以得到响应的网页内容、调用 status 属性可以得到响应结果的状态码（200 代表请求成功，404 代表网页未找到等）。</p>
 <p class="content-text">下面再通过一个实例来看看：</p>
-<pre class="code-block" data-lang="python"><code>import urllib.request</code></pre>
-<pre class="code-block" data-lang="python"><code>response = urllib.request.urlopen('https://www.python.org')
+<pre class="code-block" data-lang="python"><code>import urllib.request
+response = urllib.request.urlopen('https://www.python.org')
 print(response.status)
 print(response.getheaders())
 print(response.getheader('Server'))</code></pre>
@@ -157,7 +159,7 @@ origin_req_host=None, unverifiable=False, method=None)</code></pre>
 <p class="content-text">第二个参数 data 如果要传数据，必须传 bytes 类型的。如果数据是字典，可以先用 urllib.parse模块里的 urlencode 方法进行编码。</p>
 <p class="content-text">第三个参数 headers 是一个字典，这就是请求头，我们在构造请求时，既可以通过 headers 参数直接构造此项，也可以通过调用请求实例的 add_header 方法添加。</p>
 <p class="content-text">添加请求头最常见的方法就是通过修改 User-Agent 来伪装浏览器。默认的 User-Agent 是Python-urllib，我们可以通过修改这个值来伪装浏览器。例如要伪装火狐浏览器，就可以把 User-Agent设置为:</p>
-<p class="content-text">Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11</p>
+<pre class="code-block" data-lang="text"><code>Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11</code></pre>
 <p class="content-text">第四个参数 origin_req_host 指的是请求方的 host 名称或者 IP 地址。</p>
 <p class="content-text">第五个参数 unverifiable 表示请求是否是无法验证的，默认取值是 False，意思是用户没有足够的权限来接收这个请求的结果。例如，请求一个 HTML 文档中的图片，但是没有自动抓取图像的权限，这时 unverifiable 的值就是 True。</p>
 <p class="content-text">第六个参数 method 是一个字符串，用来指示请求使用的方法，例如 GET、POST 和 PUT 等。</p>
@@ -210,7 +212,7 @@ req.add_header('User-Agent', 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)')</
 <p class="content-text list-like">HTTPCookieProcessor 用于处理 Cookie。</p>
 <p class="content-text list-like">ProxyHandler 用于设置代理,代理默认为空。</p>
 <p class="content-text list-like">HTTPPasswordMgr用于管理密码,它维护着用户名密码的对照表。</p>
-<p class="content-text">HTTPBasicAuthHandler 用于管理认证,如果一个链接在打开时需要认证,那么可以用这个类来解决认证问题。</p>
+<p class="content-text list-like">HTTPBasicAuthHandler 用于管理认证,如果一个链接在打开时需要认证,那么可以用这个类来解决认证问题。</p>
 <p class="content-text">关于这些类如何使用,现在先不急着了解,后面会用实例演示。</p>
 <p class="content-text">另一个比较重要的类是 OpenerDirector,我们可以称之为 Opener。我们之前用过的 urlopen 方法,实际上就是 urllib 库为我们提供的一个 Opener。</p>
 <p class="content-text">那么,为什么要引入 Opener 呢?因为需要实现更高级的功能。之前使用的 Request 类和 urlopen 类相当于类库已经封装好的极其常用的请求方法,利用这两个类可以完成基本的请求,但是现在我们需要实现更高级的功能,就需要深入一层进行配置,使用更底层的实例来完成操作,所以这里就用到了 Opener。</p>
@@ -363,8 +365,8 @@ except error.HTTPError as e:
     print(e.reason, e.code, e.headers, sep='\n')</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>Not Found
-Server: nginx/1.10.3 (Ubuntu)</code></pre>
-<pre class="result-block"><code>Date: Sat, 30 May 2020 16:08:42 GMT
+Server: nginx/1.10.3 (Ubuntu)
+Date: Sat, 30 May 2020 16:08:42 GMT
 Content-Type: text/html; charset=UTF-8
 Transfer-Encoding: chunked
 Connection: close
@@ -444,7 +446,7 @@ fragment='comment')</code></pre>
 <pre class="result-block"><code>ParseResult(scheme='http', netloc='www.baidu.com', path='/index.html', params='user', query='id=5',
 fragment='comment')</code></pre>
 <p class="content-text">可见，scheme 参数只有在 URL 中不包含协议信息的时候才生效。如果 URL 中有，就会返回解析出的 scheme。</p>
-<p class="content-text"><code class="inline-code">allow_fragments</code>: 是否忽略 fragment。如果此项被设置为 False，那么 fragment 部分就会被忽略，它会被解析为 path、params 或者 query 的一部分，而 fragment 部分为空。</p>
+<p class="content-text list-like"><strong class="term-label"><code class="inline-code">allow_fragments</code>:</strong> 是否忽略 fragment。如果此项被设置为 False，那么 fragment 部分就会被忽略，它会被解析为 path、params 或者 query 的一部分，而 fragment 部分为空。</p>
 <p class="content-text">下面我们用实例来看一下：</p>
 <pre class="code-block" data-lang="python"><code>from urllib.parse import urlparse
 result = urlparse('https://www.baidu.com/index.html;user?id=5#comment', allow_fragments=False)
@@ -512,8 +514,8 @@ print(urljoin('https://www.baidu.com', 'https://cuiqingcai.com/FAQ.html'))
 print(urljoin('https://www.baidu.com/about.html', 'https://cuiqingcai.com/FAQ.html'))
 print(urljoin('https://www.baidu.com/about.html', 'https://cuiqingcai.com/FAQ.html?question=2'))
 print(urljoin('https://www.baidu.com?wd=abc', 'https://cuiqingcai.com/index.php'))
-print(urljoin('https://www.baidu.com', '?category=2#comment'))</code></pre>
-<pre class="code-block" data-lang="python"><code>print(urljoin('www.baidu.com', '?category=2#comment'))
+print(urljoin('https://www.baidu.com', '?category=2#comment'))
+print(urljoin('www.baidu.com', '?category=2#comment'))
 print(urljoin('www.baidu.com#comment', '?category=2'))</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>https://www.baidu.com/FAQ.html
@@ -597,8 +599,8 @@ print(unquote(url))</code></pre>
 <p class="content-text">Robots 协议也称作爬虫协议、机器人协议,全名为网络爬虫排除标准 (Robots Exclusion Protocol),用来告诉爬虫和搜索引擎哪些页面可以抓取、哪些不可以。它通常是一个叫作 robots.txt 的文本文件,一般放在网站的根目录下。</p>
 <p class="content-text">搜索爬虫在访问一个站点时,首先会检查这个站点根目录下是否存在 robots.txt 文件,如果存在,就会根据其中定义的爬取范围来爬取。如果没有找到这个文件,搜索爬虫便会访问所有可直接访问的页面。</p>
 <p class="content-text">下面我们看一个 robots.txt 的样例:</p>
-<pre class="code-block"><code>User-agent: *</code></pre>
-<pre class="code-block"><code>Disallow: /
+<pre class="code-block"><code>User-agent: *
+Disallow: /
 Allow: /public/</code></pre>
 <p class="content-text">这限定了所有搜索爬虫只能爬取 public 目录。将上述内容保存成 <code class="inline-code">robots.txt</code> 文件，放在网站的根目录下，和网站的入口文件（例如 <code class="inline-code">index.php</code>、<code class="inline-code">index.html</code> 和 <code class="inline-code">index.jsp</code> 等）放在一起。</p>
 <p class="content-text">上面样例中的 <code class="inline-code">User-agent</code> 描述了搜索爬虫的名称，这里将其设置为 <code class="inline-code">*</code>，代表 Robots 协议对所有爬取爬虫都有效。例如，我们可以这样设置：</p>
@@ -666,8 +668,8 @@ False</code></pre>
 <p class="content-text">可以看到,这里我们利用 Baiduspider 可以抓取百度的首页以及 homepage 页面,但是 Googlebot 就不能抓取 homepage 页面。</p>
 <p class="content-text">打开百度的 robots.txt 文件,可以看到如下信息:</p>
 <pre class="code-block"><code>User-agent: Baiduspider
-Disallow: /baidu</code></pre>
-<pre class="code-block"><code>Disallow: /s?
+Disallow: /baidu
+Disallow: /s?
 Disallow: /ulink?
 Disallow: /link?
 Disallow: /home/news/data/
@@ -801,8 +803,8 @@ print(r.text)</code></pre>
 <p class="content-text">另外,网页的返回类型虽然是 str类型,但是它很特殊,是JSON 格式的。所以,如果想直接解析返回结果,得到一个JSON 格式的数据,可以直接调用json方法。实例如下:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 r = requests.get('https://www.httpbin.org/get')
-print(type(r.text))</code></pre>
-<pre class="code-block" data-lang="python"><code>print(r.json())
+print(type(r.text))
+print(r.json())
 print(type(r.json()))</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>&lt;class'str'&gt;
@@ -894,8 +896,8 @@ print(r.text)</code></pre>
     "Content-Length": "18",
     "Content-Type": "application/x-www-form-urlencoded"
   }
-}</code></pre>
-<pre class="result-block" data-lang="json"><code>},
+}
+},
 "Host": "www.httpbin.org",
 "User-Agent": "python-requests/2.22.0",
 "X-Amzn-Trace-Id": "Root=1-5e6e3b52-0f36782ea980fce53c8c6524"
@@ -937,13 +939,13 @@ exit() if not r.status_code == requests.codes.ok else print('Request Successfull
 <p class="content-text">这样我们就不需要再在程序里写状态码对应的数字了,用字符串表示状态码会显得更加直观。</p>
 <p class="content-text">当然,肯定不能只有ok这一个条件码。</p>
 <p class="content-text">下面列出了返回码和相应的查询条件:</p>
-<p class="content-text">信息性状态码</p>
+<h4 class="subsection-heading">信息性状态码</h4>
 <pre class="result-block"><code>100: ('continue',)
 101: ('switching_protocols',)
 102: ('processing',)
 103: ('checkpoint',)
 122: ('uri_too_long', 'request_uri_too_long')</code></pre>
-<p class="content-text">成功状态码</p>
+<h4 class="subsection-heading">成功状态码</h4>
 <pre class="result-block"><code>200: ('ok', 'okay', 'all_ok', 'all_okay', 'all_good', '\o/', '')
 201: ('created',)
 202: ('accepted',)
@@ -954,7 +956,7 @@ exit() if not r.status_code == requests.codes.ok else print('Request Successfull
 207: ('multi_status', 'multiple_status', 'multi_stati', 'multiple_stati')
 208: ('already_reported',)
 226: ('im_used',)</code></pre>
-<p class="content-text">重定向状态码</p>
+<h4 class="subsection-heading">重定向状态码</h4>
 <pre class="result-block"><code>300: ('multiple_choices',)
 301: ('moved_permanently', 'moved', '\o-')
 302: ('found',)
@@ -964,7 +966,7 @@ exit() if not r.status_code == requests.codes.ok else print('Request Successfull
 306: ('switch_proxy',)
 307: ('temporary_redirect', 'temporary_moved', 'temporary')
 308: ('permanent_redirect', 'resume_incomplete', 'resume',), # These 2 to be removed in 3.0</code></pre>
-<p class="content-text">客户端错误状态码</p>
+<h4 class="subsection-heading">客户端错误状态码</h4>
 <pre class="result-block"><code>400: ('bad_request', 'bad')
 401: ('unauthorized',)
 402: ('payment_required', 'payment')
@@ -998,7 +1000,7 @@ exit() if not r.status_code == requests.codes.ok else print('Request Successfull
 450: ('blocked_by_windows_parental_controls', 'parental_controls')
 451: ('unavailable_for_legal_reasons', 'legal_reasons')
 499: ('client_closed_request',)</code></pre>
-<p class="content-text">服务端错误状态码</p>
+<h4 class="subsection-heading">服务端错误状态码</h4>
 <pre class="result-block"><code>500: ('internal_server_error', 'server_error', '/o\\', 'x')
 
 501: ('not_implemented',),
@@ -1010,13 +1012,13 @@ exit() if not r.status_code == requests.codes.ok else print('Request Successfull
 507: ('insufficient_storage',),
 509: ('bandwidth_limit_exceeded', 'bandwidth'),
 510: ('not_extended',),
-511: ('network_authentication_required', 'network_auth', 'network_authentication')
-例如想判断结果是不是404状态,就可以用requests.codes.not_found作为内置的状态码做比较。</code></pre>
+511: ('network_authentication_required', 'network_auth', 'network_authentication')</code></pre>
+<p class="content-text">例如想判断结果是不是404状态,就可以用requests.codes.not_found作为内置的状态码做比较。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 高级用法</h3>
 <p class="content-text">通过本节前面部分,我们已经了解了 requests 库的基本用法,如基本的GET、POST请求以及Response 对象。本节我们再来了解一些requests 库的高级用法,如文件上传、Cookie设置、代理设置等。</p>
-<p class="content-text">文件上传</p>
+<h4 class="subsection-heading">文件上传</h4>
 <p class="content-text">我们知道使用 requests 库可以模拟提交一些数据。除此之外,要是有网站需要上传文件,也可以用它来实现,非常简单,实例如下:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 
@@ -1046,7 +1048,7 @@ print(r.text)</code></pre>
 "url": "https://www.httpbin.org/post"
 }</code></pre>
 <p class="content-text">以上结果省略部分内容,上传文件后,网站会返回响应,响应中包含 files 字段和 form 字段,而form 字段是空的,这证明文件上传部分会单独用一个files 字段来标识。</p>
-<p class="content-text">Cookie 设置</p>
+<h4 class="subsection-heading">Cookie 设置</h4>
 <p class="content-text">前面我们使用 urllib 库处理过Cookie, 写法比较复杂,有了 requests 库以后,获取和设置 Cookie只 需一步即可完成。</p>
 <p class="content-text">我们先用一个实例看一下获取 Cookie 的过程:</p>
 <pre class="code-block" data-lang="python"><code>import requests
@@ -1161,8 +1163,8 @@ readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
 InsecureRequestWarning)</code></pre>
 <p class="content-text">不过我们发现其中报了一个警告,它建议我们给它指定证书。我们可以通过设置忽略警告的方式来屏蔽这个警告:</p>
 <pre class="code-block" data-lang="python"><code>import requests
-from requests.packages import urllib3</code></pre>
-<pre class="code-block" data-lang="python"><code>urllib3.disable_warnings()
+from requests.packages import urllib3
+urllib3.disable_warnings()
 response = requests.get('https://ssr2.scrape.center/', verify=False)
 print(response.status_code)</code></pre>
 <p class="content-text">或者通过捕获警告到日志的方式忽略警告:</p>
@@ -1230,9 +1232,9 @@ requests.get(url, auth=auth)</code></pre>
 <h4 class="subsection-heading">代理设置</h4>
 <p class="content-text">某些网站在测试的时候请求几次，都能正常获取内容。但是一旦开始大规模爬取，面对大规模且频繁的请求时，这些网站就可能弹出验证码，或者跳转到登录认证页面，更甚者可能会直接封禁客户端的 IP，导致在一定时间段内无法访问。</p>
 <p class="content-text">那么，为了防止这种情况发生，我们需要设置代理来解决这个问题，这时就需要用到 proxies 参数。可以用这样的方式设置：</p>
-<pre class="code-block"><code>
-import requests</code></pre>
-<pre class="code-block" data-lang="python"><code>proxies = {
+<pre class="code-block" data-lang="python"><code>import requests
+
+proxies = {
 'http': 'http://10.10.10.10:1080',
 'https': 'http://10.10.10.10:1080',
 }
@@ -1347,7 +1349,7 @@ print(r.text)</code></pre>
 <h3 class="subsection-heading numbered-heading">2. match</h3>
 <p class="content-text">这里首先介绍第一个常用的匹配方法——————<code class="inline-code">match</code>，向它传入要匹配的字符串以及正则表达式，就可以检测这个正则表达式是否和字符串相匹配。</p>
 <p class="content-text"><code class="inline-code">match</code>方法会尝试从字符串的起始位置开始匹配正则表达式，如果匹配，就返回匹配成功的结果；如果不匹配，就返回<code class="inline-code">None</code>。实例如下：</p>
-<p class="content-text">达式:</p>
+<p class="content-text">接着写了一个正则表达式：</p>
 <pre class="code-block" data-lang="python"><code>import re
 content = 'Hello 123 4567 World This is a Regex Demo'
 print(len(content))
@@ -1359,7 +1361,7 @@ print(result.span())</code></pre>
 <pre class="result-block"><code>&lt;_sre.SRE_Match object; span=(0, 25), match= 'Hello 123 4567 World_This'&gt;
 Hello 123 4567 World_This
 (0, 25)</code></pre>
-<p class="content-text">这个实例首先声明了一个字符串,其中包含英文字母、空白字符、数字等。接着写了一个正则表</p>
+<p class="content-text">这个实例首先声明了一个字符串,其中包含英文字母、空白字符、数字等。所使用的正则表达式如下：</p>
 <pre class="code-block"><code>`^Hello\s\d\d\d\s\d{4}\s\w{10}`</code></pre>
 <p class="content-text">用它来匹配声明的那个长字符串。开头的<code class="inline-code">^</code>表示匹配字符串的开头,也就是以<code class="inline-code">Hello</code>开头;然后<code class="inline-code">\s</code>表示匹配空白字符,用来匹配目标字符串里<code class="inline-code">Hello</code>后面的空格;<code class="inline-code">\d</code>表示匹配数字,3个<code class="inline-code">\d</code>用来匹配<code class="inline-code">123</code>;紧接着的1个<code class="inline-code">\s</code>表示匹配空格;目标字符串的后面还有<code class="inline-code">4567</code>,我们其实依然可以用4个<code class="inline-code">\d</code>来匹配,但是这么写比较烦琐,所以可以用<code class="inline-code">\d</code>后面跟<code class="inline-code">{4}</code>的形式代表匹配4次数字;后面又是1个空白字符,最后<code class="inline-code">\w{10}</code>则表示匹配10个字母及下划线。我们注意到,这里其实并没有把目标字符串匹配完,不过这样依然可以进行匹配,只是匹配结果短一点而已。</p>
 <p class="content-text">在<code class="inline-code">match</code>方法中,第一个参数是传入了正则表达式,第二个参数是传入了要匹配的字符串。将输出结果打印出来,可以看到结果是<code class="inline-code">SRE_Match</code>对象,证明匹配成功。该对象包含两个方法:<code class="inline-code">group</code>方法可以输出匹配到的内容,结果是<code class="inline-code">Hello 123 4567 World_This</code>,这恰好是正则表达式按照规则匹配的内容;<code class="inline-code">span</code>方法可以输出匹配的范围,结果是<code class="inline-code">(0,25)</code>,这是匹配到的结果字符串在原字符串中的位置范围。</p>
@@ -1375,10 +1377,10 @@ print(result.group())
 print(result.group(1))
 print(result.span())</code></pre>
 <p class="content-text">通过这个实例,我们把字符串中的<code class="inline-code">1234567</code>提取出来了,可以看到其中数字部分的正则表达式被<code class="inline-code">()</code>括了起来。然后调用<code class="inline-code">group(1)</code>获取了匹配结果。运行结果如下:</p>
-<pre class="result-block"><code>&lt;_sre.SRE_Match object; span=(0, 19), match= 'Hello 1234567 World'&gt;</code></pre>
-<p class="content-text">Hello 1234567 World 1234567 (0, 19)</p>
+<pre class="result-block"><code>&lt;_sre.SRE_Match object; span=(0, 19), match= 'Hello 1234567 World'&gt;
+Hello 1234567 World 1234567 (0, 19)</code></pre>
 <p class="content-text">可以看到,我们成功得到了1234567。这里用的是group(1),它与group()有所不同,后者会输出完整的匹配结果,前者会输出第一个被()包围的匹配结果。假如正则表达式后面还有用()包围的内容,那么可以依次用 group(2)、group(3)等获取。</p>
-<p class="content-text">通用匹配</p>
+<h4 class="subsection-heading">通用匹配</h4>
 <p class="content-text">刚才我们写的正则表达式其实比较复杂,只要出现空白字符就需要写 <code class="inline-code">\s</code> 匹配,出现数字就需要写<code class="inline-code">\d</code>匹配,这样的工作量非常大。其实完全没必要这么做,因为还有一个万能匹配可以用,就是<code class="inline-code">.*</code>。其中,可以匹配任意字符(除换行符),<code class="inline-code">*</code>代表匹配前面的字符无限次,所以它们组合在一起就可以匹配任意字符了。有了它,我们就不用挨个字符进行匹配了。接着上面的例子,我们利用<code class="inline-code">.*</code>改写一下正则表达式:</p>
 <pre class="code-block" data-lang="python"><code>import re
 
@@ -1392,7 +1394,7 @@ print(result.span())</code></pre>
 Hello 123 4567 World_This is a Regex Demo
 (0, 41)</code></pre>
 <p class="content-text">可以看到,group 方法输出了匹配的全部字符串,也就是说我们写的正则表达式匹配到了目标字符串的全部内容;span方法输出(0,41),这是整个字符串的长度。因此,使用<code class="inline-code">.*</code>能够简化正则表达式的书写。</p>
-<p class="content-text">贪婪与非贪婪</p>
+<h4 class="subsection-heading">贪婪与非贪婪</h4>
 <p class="content-text">使用通用匹配<code class="inline-code">.*</code>匹配到的内容有时候并不是我们想要的结果。看下面的例子:</p>
 <pre class="code-block" data-lang="python"><code>import re
 
@@ -1426,7 +1428,7 @@ print('result2', result2.group(1))</code></pre>
 <pre class="result-block"><code>result1
 result2 kEraCN</code></pre>
 <p class="content-text">可以观察到，<code class="inline-code">.*?</code>没有匹配到任何结果，而<code class="inline-code">.*</code>则是尽量多匹配内容，成功得到了匹配结果。</p>
-<p class="content-text">修饰符</p>
+<h4 class="subsection-heading">修饰符</h4>
 <p class="content-text">在正则表达式中，可以用一些可选标志修饰符来控制匹配的模式。修饰符被指定为一个可选的标志。我们用实例来看一下：</p>
 <pre class="code-block" data-lang="python"><code>import re
 
@@ -1706,8 +1708,8 @@ print(response.text)</code></pre>
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate",
     "Host": "www.httpbin.org",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",</code></pre>
-<pre class="code-block"><code>"X-Amzn-Trace-Id": "Root=1-60a293b9-1042225a73778881454d1f62"
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+"X-Amzn-Trace-Id": "Root=1-60a293b9-1042225a73778881454d1f62"
 },
 }
 "origin": "203.184.131.36",
@@ -1791,8 +1793,7 @@ with httpx.Client (headers=headers) as client:
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 支持 HTTP/2.0</h3>
-<p class="content-text">现在是要在客户端上开启对 HTTP/2.0 的支持，就像“基本使用”小节所说的那样，同样是声明</p>
-<p class="content-text">Client 对象，然后将 http2 参数设置为 True，如果不设置，那么默认支持 HTTP/1.1，即不开启对 HTTP/2.0 的支持。</p>
+<p class="content-text">现在是要在客户端上开启对 HTTP/2.0 的支持，就像“基本使用”小节所说的那样，同样是声明 Client 对象，然后将 http2 参数设置为 True，如果不设置，那么默认支持 HTTP/1.1，即不开启对 HTTP/2.0 的支持。</p>
 <p class="content-text">写法如下:</p>
 <pre class="code-block" data-lang="python"><code>import httpx
 client = httpx.Client(http2=True)
@@ -1850,8 +1851,7 @@ if __name__ == '__main__':
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 爬取列表页</h3>
-<p class="content-text">第一步爬取肯定要从列表页入手，我们首先观察一下列表页的结构和翻页规则。在浏览器中访问</p>
-<pre class="result-block"><code>https://ssr1.scrape.center/，然后打开浏览器开发者工具，如图2-16所示。</code></pre>
+<p class="content-text">第一步爬取肯定要从列表页入手，我们首先观察一下列表页的结构和翻页规则。在浏览器中访问 <code class="inline-code">https://ssr1.scrape.center/</code>，然后打开浏览器开发者工具，如图2-16所示。</p>
 <figure class="inline-figure"><img alt="图2-16 列表页及其 HTML" loading="lazy" src="figures/ch02/fig-2_16.jpg"/><figcaption>图2-16 列表页及其 HTML</figcaption></figure>
 <p class="content-text">观察每一个电影信息区块对应的 HTML 以及进入到详情页的 URL，可以发现每部电影对应的区块都是一个 div 节点，这些节点的 class 属性中都有 el-card 这个值。每个列表页有 10 个这样的 div 节点，也就对应着 10 部电影的信息。</p>
 <p class="content-text">接下来再分析一下是怎么从列表页进入详情页的，我们选中第一个电影的名称，看下结果，如图2-17所示。</p>
@@ -1962,7 +1962,9 @@ if __name__ == '__main__':
 <p class="content-text">看着有点复杂吧,不用担心,正则表达式在手,我们都可以轻松搞定。接着实现一下代码吧。我们已经成功获取了详情页URL,下面当然是定义一个详情页的爬取方法了,实现如下:</p>
 <pre class="code-block" data-lang="python"><code>def scrape_detail(url):
     return scrape_page(url)</code></pre>
-<p class="content-text">这里定义了一个 scrape_detail方法,接收一个参数url,并通过调用scrape_page 方法获得网页源代码。由于我们刚才已经实现了 scrape_page 方法,所以这里不用再写一遍页面爬取的逻辑,直接调用即可,做到了代码复用。另外有人会说,这个 scrape_detail 方法里面只调用了 scrape_page方法,而没有别的功能,那爬取详情页直接用 scrape_page 方法不就好了,还有必要再单独定义 scrape_detail方法吗?有必要,单独定义一个 scrape_detail方法在逻辑上会显得更清晰,而且以后如果想对 scrape_detail 方法进行改动,例如添加日志输出、增加预处理,都可以在scrape_detail里实现,而不用改动 scrape_page方法,灵活性会更好。好了,详情页的爬取方法已经实现了,接着就是对详情页的解析了,实现如下:</p>
+<p class="content-text">这里定义了一个 scrape_detail方法,接收一个参数url,并通过调用scrape_page 方法获得网页源代码。由于我们刚才已经实现了 scrape_page 方法,所以这里不用再写一遍页面爬取的逻辑,直接调用即可,做到了代码复用。</p>
+<p class="content-text">另外有人会说,这个 scrape_detail 方法里面只调用了 scrape_page方法,而没有别的功能,那爬取详情页直接用 scrape_page 方法不就好了,还有必要再单独定义 scrape_detail方法吗?有必要,单独定义一个 scrape_detail方法在逻辑上会显得更清晰,而且以后如果想对 scrape_detail 方法进行改动,例如添加日志输出、增加预处理,都可以在scrape_detail里实现,而不用改动 scrape_page方法,灵活性会更好。</p>
+<p class="content-text">好了,详情页的爬取方法已经实现了,接着就是对详情页的解析了,实现如下:</p>
 <pre class="code-block" data-lang="python"><code>def parse_detail(html):
     cover_pattern = re.compile('class="item.*?&lt;img.*?src="(.*?)".*?class="cover"&gt;', re.S)
     name_pattern = re.compile('&lt;h2.*?&gt;(.*?)&lt;/h2&gt;')
@@ -1997,11 +1999,11 @@ if __name__ == '__main__':
 <pre class="code-block" data-lang="python"><code>def main():
     for page in range(1, TOTAL_PAGE + 1):
         index_html = scrape_index(page)
-        detail_urls = parse_index(index_html)</code></pre>
-<pre class="code-block" data-lang="python"><code>for detail_url in detail_urls:
-    detail_html = scrape_detail(detail_url)
-    data = parse_detail(detail_html)
-    logging.info('get detail data %s', data)</code></pre>
+        detail_urls = parse_index(index_html)
+        for detail_url in detail_urls:
+            detail_html = scrape_detail(detail_url)
+            data = parse_detail(detail_html)
+            logging.info('get detail data %s', data)</code></pre>
 <p class="content-text">这里我们首先遍历 <code class="inline-code">detail_urls</code>,获取了每个详情页的URL;然后依次调用了 <code class="inline-code">scrape_detail</code> 和 <code class="inline-code">parse_detail</code> 方法;最后得到了每个详情页的提取结果,赋值为 <code class="inline-code">data</code> 并输出。</p>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>2020-03-08 23:37:35,936 INFO: scraping https://ssr1.scrape.center/page/1...

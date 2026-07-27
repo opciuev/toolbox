@@ -148,8 +148,7 @@ print(result[0])</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 子节点</h3>
-<p class="content-text">通过 <code class="inline-code">/</code> 或 <code class="inline-code">//</code> 即可查找元素的子节点或子孙节点。假如现在想选择 li 节点的所有直接子节点 a，</p>
-<p class="content-text">则可以这样实现：</p>
+<p class="content-text">通过 <code class="inline-code">/</code> 或 <code class="inline-code">//</code> 即可查找元素的子节点或子孙节点。假如现在想选择 li 节点的所有直接子节点 a，则可以这样实现：</p>
 <pre class="code-block" data-lang="python"><code>from lxml import etree
 
 html = etree.parse('./test.html', etree.HTMLParser())
@@ -482,8 +481,8 @@ print(soup.title.string)</code></pre>
   &lt;/p&gt;
   &lt;p class="story"&gt;
    ...
-  &lt;/p&gt;</code></pre>
-<pre class="code-block" data-lang="html"><code> &lt;/body&gt;
+  &lt;/p&gt;
+ &lt;/body&gt;
 &lt;/html&gt;
 The Dormouse's story</code></pre>
 <p class="content-text">这里首先声明一个变量 html，这是一个 HTML 字符串。但是需要注意的是，它并不是一个完整的 HTML 字符串，因为 body 节点和 html 节点都没有闭合。接着，我们将它当作第一个参数传给BeautifulSoup 对象，该对象的第二个参数为解析器的类型（这里使用 lxml），此时就完成了BeautifulSoup 对象的初始化。然后，将这个对象赋值给 soup 变量。</p>
@@ -547,8 +546,7 @@ print(soup.p['class'])</code></pre>
 <p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="text"><code>dromouse
 ['title']</code></pre>
-<p class="content-text">这里需要注意，有的返回结果是字符串，有的返回结果是由字符串组成的列表。例如，name 属性的值是唯一的，于是返回结果就是单个字符串。而对于 class 属性，一个节点元素可能包含多个</p>
-<pre class="code-block"><code>class，所以返回的就是列表。在实际处理过程中，我们要注意判断类型。</code></pre>
+<p class="content-text">这里需要注意，有的返回结果是字符串，有的返回结果是由字符串组成的列表。例如，name 属性的值是唯一的，于是返回结果就是单个字符串。而对于 class 属性，一个节点元素可能包含多个 class，所以返回的就是列表。在实际处理过程中，我们要注意判断类型。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取内容</h4>
@@ -663,8 +661,8 @@ for i, child in enumerate(soup.p.descendants):
 7 &lt;a class="sister" href="http://example.com/lacie" id="link2"&gt;Lacie&lt;/a&gt;
 8 Lacie
 9
-              and</code></pre>
-<pre class="code-block" data-lang="text"><code>10 &lt;a class="sister" href="http://example.com/tillie" id="link3"&gt;Tillie&lt;/a&gt;
+              and
+10 &lt;a class="sister" href="http://example.com/tillie" id="link3"&gt;Tillie&lt;/a&gt;
 11 Tillie
 12
               and they lived at the bottom of a well.</code></pre>
@@ -719,8 +717,8 @@ print(list(enumerate(soup.a.parents)))</code></pre>
 [(0, &lt;p class="story"&gt;
 &lt;a class="sister" href="http://example.com/elsie" id="link1"&gt;
 &lt;span&gt;Elsie&lt;/span&gt;
-&lt;/a&gt;</code></pre>
-<pre class="code-block" data-lang="html"><code>&lt;/p&gt;), (1, &lt;body&gt;
+&lt;/a&gt;
+&lt;/p&gt;), (1, &lt;body&gt;
 &lt;p class="story"&gt;
 &lt;a class="sister" href="http://example.com/elsie" id="link1"&gt;
 &lt;span&gt;Elsie&lt;/span&gt;
@@ -993,8 +991,8 @@ print(soup.find(class_='list'))</code></pre>
 &lt;class 'bs4.element.Tag'&gt;
 &lt;ul class="list" id="list-1"&gt;
 &lt;li class="element"&gt;Foo&lt;/li&gt;
-&lt;li class="element"&gt;Bar&lt;/li&gt;</code></pre>
-<pre class="code-block" data-lang="html"><code>&lt;li class="element"&gt;Jay&lt;/li&gt;
+&lt;li class="element"&gt;Bar&lt;/li&gt;
+&lt;li class="element"&gt;Jay&lt;/li&gt;
 &lt;/ul&gt;</code></pre>
 <p class="content-text">可以看到，返回结果不再是列表形式，而是第一个匹配的节点元素，类型依然是 Tag 类型。</p>
 <p class="content-text">另外还有许多查询方法，用法与介绍过的 find_all、find 完全相同，区别在于查询范围不同，在此做一下简单的说明。</p>
@@ -1284,8 +1282,8 @@ print(container)</code></pre>
         &lt;li class="item-1"&gt;&lt;a href="link2.html"&gt;second item&lt;/a&gt;&lt;/li&gt;
         &lt;li class="item-0 active"&gt;&lt;a href="link3.html"&gt;&lt;span class="bold"&gt;third item&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
         &lt;li class="item-1 active"&gt;&lt;a href="link4.html"&gt;fourth item&lt;/a&gt;&lt;/li&gt;
-        &lt;li class="item-0"&gt;&lt;a href="link5.html"&gt;fifth item&lt;/a&gt;&lt;/li&gt;</code></pre>
-<pre class="code-block" data-lang="html"><code>    &lt;/ul&gt;
+        &lt;li class="item-0"&gt;&lt;a href="link5.html"&gt;fifth item&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
 <p class="content-text">这里我们首先用 <code class="inline-code">.list</code> 选取 class 为 list 的节点，然后调用 parent 方法得到其父节点，其类型依然是 PyQuery。</p>
 <p class="content-text">这里的父节点是指直接父节点，也就是说，parent 方法不会继续查找父节点的父节点，即祖先节点。</p>
@@ -1627,7 +1625,6 @@ print(li)</code></pre>
 <div class="note-box"><p>源 PDF 缺失书页 124-125，3.3 节末尾及 3.4 节前半部分无法从该文件恢复；以下内容从现有页面继续。</p></div>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 提取文本</h3>
-<p class="content-text">内容提取出来。</p>
 <p class="content-text">运行结果如下：</p>
 <pre class="result-block" data-lang="text"><code>first item
 third item
@@ -1698,8 +1695,7 @@ print(result)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">parsel 库是一个融合了 XPath、CSS 选择器和正则表达式的提取库，功能强大又灵活，建议好好学习一下，同时可以为之后学习 Scrapy 框架打下基础，有关 parsel 更多的用法可以参考其官方文档</p>
-<pre class="result-block"><code>https://parsel.readthedocs.io/。</code></pre>
+<p class="content-text">parsel 库是一个融合了 XPath、CSS 选择器和正则表达式的提取库，功能强大又灵活，建议好好学习一下，同时可以为之后学习 Scrapy 框架打下基础，有关 parsel 更多的用法可以参考其官方文档 <code class="inline-code">https://parsel.readthedocs.io/</code>。</p>
 <p class="content-text">本节代码参见：https://github.com/Python3WebSpider/ParselTest。</p>
 </section>
 </article>

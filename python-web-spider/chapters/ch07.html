@@ -23,8 +23,10 @@
 <main class="main-content">
 <h1 class="chapter-title">第7章 JavaScript动态渲染页面爬取</h1>
 <article class="ocr-content">
-<p class="content-text">JavaScript 动态渲染页面爬取</p>
-<p class="content-text">在第5章中,我们了解了Ajax 数据的分析和爬取方式,这其实也是JavaScript 动态渲染页面的一种情形,通过直接分析 Ajax,使我们仍然可以借助 requests 或 urllib 实现数据爬取。不过 JavaScript 动态渲染的页面不止 Ajax一种。例如,有些页面的分页部分由 JavaScript 生成,而非原始 HTML代码,这其中并不包含 Ajax请求。再例如 ECharts的官方实例(详见 http://echarts.baidu.com/demo.html),其图形都是经过 JavaScript 计算之后生成的。还有类似淘宝这种页面,即使是 Ajax 获取的数据,其Ajax 接口中也含有很多加密参数,使我们难以直接找出规律,也很难直接通过 分析 Ajax 爬取数据。为了解决这些问题,我们可以直接模拟浏览器运行,然后爬取数据,这样就可以实现在浏览器中看到的内容是什么样,爬取的源码就是什么样——所见即所爬。此时我们无须去管网页内部的JavaScript 使用什么算法渲染页面,也不用管网页后台的Ajax 接口到底含有哪些参数。Python 提供了许多模拟浏览器运行的库,例如Selenium、Splash、Pyppeteer、Playwright等,可以 帮助我们实现所见即所爬,有了这些库,就不用再为如何爬取动态渲染的页面发愁了。</p>
+<p class="content-text">在第5章中,我们了解了Ajax 数据的分析和爬取方式,这其实也是JavaScript 动态渲染页面的一种情形,通过直接分析 Ajax,使我们仍然可以借助 requests 或 urllib 实现数据爬取。不过 JavaScript 动态渲染的页面不止 Ajax一种。</p>
+<p class="content-text">例如,有些页面的分页部分由 JavaScript 生成,而非原始 HTML代码,这其中并不包含 Ajax请求。再例如 ECharts的官方实例(详见 http://echarts.baidu.com/demo.html),其图形都是经过 JavaScript 计算之后生成的。还有类似淘宝这种页面,即使是 Ajax 获取的数据,其Ajax 接口中也含有很多加密参数,使我们难以直接找出规律,也很难直接通过 分析 Ajax 爬取数据。</p>
+<p class="content-text">为了解决这些问题,我们可以直接模拟浏览器运行,然后爬取数据,这样就可以实现在浏览器中看到的内容是什么样,爬取的源码就是什么样——所见即所爬。此时我们无须去管网页内部的JavaScript 使用什么算法渲染页面,也不用管网页后台的Ajax 接口到底含有哪些参数。</p>
+<p class="content-text">Python 提供了许多模拟浏览器运行的库,例如Selenium、Splash、Pyppeteer、Playwright等,可以 帮助我们实现所见即所爬,有了这些库,就不用再为如何爬取动态渲染的页面发愁了。</p>
 <div class="section-heading" id="section-0"><h2>7.1 Selenium 的使用</h2></div>
 <p class="content-text">上面讲解了 Ajax的分析方法,利用Ajax 接口可以非常方便地爬取数据。只要能找到 Ajax 接口的 规律,就可以通过某些参数构造出对应的请求,自然就能轻松爬取数据啦。但是在很多情况下,Ajax请求的接口含有加密参数,例如 token、sign等,示例网址 https://spa2.scrape.center/ 的Ajax 接口就包 含一个 token 参数,如图7-1所示。</p>
 <figure class="inline-figure"><img alt="图7-1 包含 token 参数的Ajax 接口" loading="lazy" src="figures/ch07/fig-7_1.jpg"/><figcaption>图7-1 包含 token 参数的Ajax 接口</figcaption></figure>
@@ -376,12 +378,11 @@ browser.get('https://www.taobao.com')
 time.sleep(1)
 browser.switch_to.window(browser.window_handles[0])
 browser.get('https://python.org')</code></pre>
-<p class="content-text">这里首先访问百度,然后调用execute_script方法,向其参数传入 window.open()这个JavaScript语句,表示新开启一个选项卡。接着,我们想切换到这个新开的选项卡。window_handles 属性用于获取当前开启的所有选项卡,返回值是选项卡的代号列表。要想切换选项卡,只需要调用switch_to.window</p>
-<p class="content-text">方法即可,其中参数是目的选项卡的代号。这里我们将新开选项卡的代号传入,就切换到了第2个选项卡,然后在这个选项卡下打开一个新页面,再重新调用switch_to.window方法切换回第1个选项卡。控制台的输出结果如下:</p>
+<p class="content-text">这里首先访问百度,然后调用execute_script方法,向其参数传入 window.open()这个JavaScript语句,表示新开启一个选项卡。接着,我们想切换到这个新开的选项卡。window_handles 属性用于获取当前开启的所有选项卡,返回值是选项卡的代号列表。要想切换选项卡,只需要调用switch_to.window方法即可,其中参数是目的选项卡的代号。这里我们将新开选项卡的代号传入,就切换到了第2个选项卡,然后在这个选项卡下打开一个新页面,再重新调用switch_to.window方法切换回第1个选项卡。控制台的输出结果如下:</p>
+<pre class="result-block"><code>['CDwindow-4f58e3a7-7167-4587-bedf-9cd8c867f435', 'CDwindow-6e05f076-6d77-453a-a36c-32baacc447df']</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">15. 异常处理</h3>
-<pre class="result-block"><code>['CDwindow-4f58e3a7-7167-4587-bedf-9cd8c867f435', 'CDwindow-6e05f076-6d77-453a-a36c-32baacc447df']</code></pre>
 <p class="content-text">在使用 Selenium的过程中,难免会遇到一些异常,例如超时、节点未找到等,一旦出现此类异常,程序便不会继续运行了。此时我们可以使用 try except 语句捕获各种异常。首先,演示一下节点未找到的异常,示例如下:</p>
 <pre class="code-block"><code>from selenium import webdriver
 browser = webdriver.Chrome()
@@ -403,15 +404,14 @@ print('Time Out')
 try:
 browser.find_element_by_id('hello')
 except NoSuchElementException:
-print('No Element')</code></pre>
-<p class="content-text">finally:</p>
-<pre class="code-block"><code>browser.close()</code></pre>
+print('No Element')
+finally:
+browser.close()</code></pre>
 <p class="content-text">这里我们使用 try except 语句捕获各类异常。例如,对查找节点的方法 find_element_by_id捕获NoSuchElementException 异常,这样一旦出现这样的错误,就会进行异常处理,程序也不会中断。控制台的输出结果如下:No Element关于更多的异常类,可以参考官方文档:http://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions.</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">16. 反屏蔽</h3>
-<p class="content-text">现在有很多网站增加了对 Selenium的检测,防止一些爬虫的恶意爬取,如果检测到有人使用Selenium 打开浏览器,就直接屏蔽。在大多数情况下,检测的基本原理是检测当前浏览器窗口下的window.navigator 对象中是否包含</p>
-<p class="content-text">webdriver 属性。因为在正常使用浏览器时,这个属性应该是undefined,一旦使用了Selenium,它就会给 window.navigator 对象设置 webdriver属性。很多网站通过 JavaScript 语句判断是否存在webdriver 属性,如果存在就直接屏蔽。一个典型的案例网站 https://antispiderl.scrape.center/就是使用上述原理,检测是否存在 webdriver属性,如果我们使用 Selenium 直接爬取该网站的数据,网站就会返回如图7-6所示的页面。</p>
+<p class="content-text">现在有很多网站增加了对 Selenium的检测,防止一些爬虫的恶意爬取,如果检测到有人使用Selenium 打开浏览器,就直接屏蔽。在大多数情况下,检测的基本原理是检测当前浏览器窗口下的window.navigator 对象中是否包含 webdriver 属性。因为在正常使用浏览器时,这个属性应该是undefined,一旦使用了Selenium,它就会给 window.navigator 对象设置 webdriver属性。很多网站通过 JavaScript 语句判断是否存在webdriver 属性,如果存在就直接屏蔽。一个典型的案例网站 https://antispiderl.scrape.center/就是使用上述原理,检测是否存在 webdriver属性,如果我们使用 Selenium 直接爬取该网站的数据,网站就会返回如图7-6所示的页面。</p>
 <figure class="inline-figure"><img alt="图7-6 使用 Selenium 打开浏览器的结果" loading="lazy" src="figures/ch07/fig-7_6.jpg"/><figcaption>图7-6 使用 Selenium 打开浏览器的结果</figcaption></figure>
 <p class="content-text">这时可能有人会说直接使用 JavaScript 语句把 webdriver 属性置空不就行了,例如调用execute_script 方法执行这行代码:</p>
 <pre class="code-block"><code>Object.defineProperty (navigator, "webdriver", {get: () =&gt; undefined})</code></pre>
@@ -558,20 +558,24 @@ end</code></pre>
 <section class="minor-section">
 <h4 class="subsection-heading">args 属性</h4>
 <p class="content-text">该属性用于获取页面加载时配置的参数,例如请求 URL。对于GET请求,args属性还可以用于获取GET请求的参数;对于POST请求,args 属性还可以用于获取表单提交的数据。此外,Splash 支持将 main 方法的第二个参数直接设置为args,例如:</p>
-<pre class="code-block"><code>function main(splash, args)</code></pre>
-<p class="content-text"> local url = args.url end这里的第二个参数 args 就相当于 splash.args 属性,以上代码等价于:</p>
-<pre class="code-block"><code>function main(splash)</code></pre>
-<p class="content-text"> local url = splash.args.url end</p>
+<pre class="code-block"><code>function main(splash, args)
+    local url = args.url
+end</code></pre>
+<p class="content-text">这里的第二个参数 args 就相当于 splash.args 属性,以上代码等价于:</p>
+<pre class="code-block"><code>function main(splash)
+    local url = splash.args.url
+end</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">js_enabled 属性</h4>
 <p class="content-text">这个属性是 Splash 执行 JavaScript代码的开关,将其设置为true 或 false 可以控制是否执行JavaScript 代码,默认取true。例如:</p>
 <pre class="code-block"><code>function main(splash, args)
-splash:go("https://www.baidu.com")</code></pre>
-<p class="content-text">  splash.js_enabled = false</p>
-<pre class="code-block"><code>local title = splash:evaljs("document.title")
-return {title=title}</code></pre>
-<p class="content-text list-like"><strong class="term-label">end：</strong>这里我们将 js_enabled 设置为false,代表禁止执行JavaScript 代码,然后重新调用evaljs 方法执行了JavaScript代码,此时运行这段代码,就会抛出异常:</p>
+    splash:go("https://www.baidu.com")
+    splash.js_enabled = false
+    local title = splash:evaljs("document.title")
+    return {title=title}
+end</code></pre>
+<p class="content-text">这里我们将 js_enabled 设置为false,代表禁止执行JavaScript 代码,然后重新调用evaljs 方法执行了JavaScript代码,此时运行这段代码,就会抛出异常:</p>
 <pre class="code-block"><code>{
 "error": 400,
 "type": "ScriptError",
@@ -589,13 +593,13 @@ return {title=title}</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">resource_timeout 属性</h4>
-<p class="content-text">此属性用于设置页面加载的超时时间,单位是秒。如果设置为0或nil(类似Python中的None),</p>
-<p class="content-text">代表不检测超时。示例如下:</p>
-<pre class="code-block"><code>function main(splash)</code></pre>
-<p class="content-text">    splash.resource_timeout = 0.1</p>
-<pre class="code-block"><code>assert(splash:go('https://www.taobao.com'))
-return splash:png()</code></pre>
-<p class="content-text list-like"><strong class="term-label">end：</strong>这里将超时时间设置为了0.1秒。意味着如果在0.1秒内没有得到响应,就抛出异常:</p>
+<p class="content-text">此属性用于设置页面加载的超时时间,单位是秒。如果设置为0或nil(类似Python中的None),代表不检测超时。示例如下:</p>
+<pre class="code-block"><code>function main(splash)
+    splash.resource_timeout = 0.1
+    assert(splash:go('https://www.taobao.com'))
+    return splash:png()
+end</code></pre>
+<p class="content-text">这里将超时时间设置为了0.1秒。意味着如果在0.1秒内没有得到响应,就抛出异常:</p>
 <pre class="code-block"><code>{
 "error": 400,
 "type": "ScriptError",
@@ -613,15 +617,17 @@ return splash:png()</code></pre>
 <section class="minor-section">
 <h4 class="subsection-heading">images_enabled 属性</h4>
 <p class="content-text">此属性用于设置是否加载图片,默认是加载。禁用该属性可以节省网络流量并提高页面的加载速度,但是需要注意,这样可能会影响 JavaScript 渲染。因为禁用该属性之后,它的外层 DOM 节点的高度会受影响,进而影响DOM节点的位置。当JavaScript 对图片节点执行操作时,就会受到影响。另外有一点值得注意,Splash 会使用缓存。意味着即使禁用 images_enabled 属性,一开始加载出来的网页图片也会在重新加载页面后显示出来,这种情况下直接重启 Splash 即可。禁用 images_enabled 属性的示例如下:</p>
-<pre class="code-block"><code>function main(splash, args)</code></pre>
-<p class="content-text">    splash.images_enabled = false</p>
-<pre class="code-block"><code>assert(splash:go('https://www.jd.com'))
-return {png-splash:png()}</code></pre>
-<p class="content-text list-like"><strong class="term-label">end：</strong>这样返回的页面截图不会带有任何图片,加载速度也会快很多。</p>
+<pre class="code-block"><code>function main(splash, args)
+    splash.images_enabled = false
+    assert(splash:go('https://www.jd.com'))
+    return {png-splash:png()}
+end</code></pre>
+<p class="content-text">这样返回的页面截图不会带有任何图片,加载速度也会快很多。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">plugins_enabled 属性</h4>
-<p class="content-text">此属性用于控制是否开启浏览器插件(如Flash插件),默认取 false,表示不开启。可以使用如下代码开启/关闭 plugins_enabled:splash.plugins_enabled = true/false</p>
+<p class="content-text">此属性用于控制是否开启浏览器插件(如Flash插件),默认取 false,表示不开启。可以使用如下代码开启或关闭 plugins_enabled:</p>
+<pre class="code-block"><code>splash.plugins_enabled = true/false</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">scroll_position 属性</h4>
@@ -688,8 +694,11 @@ local get_div_count = splash:jsfunc(({function () {</code></pre>
 return divs.length;}
 }))
 splash:go("https://www.baidu.com")
-return ("There are %s DIVs"): format(get_div_count())</code></pre>
-<p class="content-text list-like"><strong class="term-label">end：</strong>这段代码的运行结果如下:There are 21 DIVs这里我们先声明了一个JavaScript 定义的方法get_div_count,然后在页面加载成功后调用此方法计算出了页面中div 节点的个数。关于从 JavaScript 方法转换到Lua脚本的更多细节,可以参考官方文档: https://splash.readthedocs.io/en/stable/scripting-ref.html#splash-jsfunc。</p>
+return ("There are %s DIVs"): format(get_div_count())
+end</code></pre>
+<p class="content-text">这段代码的运行结果如下:</p>
+<pre class="result-block"><code>There are 21 DIVs</code></pre>
+<p class="content-text">这里我们先声明了一个JavaScript 定义的方法get_div_count,然后在页面加载成功后调用此方法计算出了页面中div 节点的个数。关于从 JavaScript 方法转换到Lua脚本的更多细节,可以参考官方文档: https://splash.readthedocs.io/en/stable/scripting-ref.html#splash-jsfunc。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">evaljs 方法</h4>
@@ -705,8 +714,11 @@ return ("There are %s DIVs"): format(get_div_count())</code></pre>
 splash:go("https://www.baidu.com")
 splash:runjs("foo = function() {return 'bar'}")
 local result = splash:evaljs("foo()")
-return result</code></pre>
-<p class="content-text list-like"><strong class="term-label">end：</strong>这里我们先用 runjs方法声明了一个JavaScript 方法 foo,然后通过 evaljs 方法调用 foo 方法得到的结果。运行结果如下:bar可以看到,这里我们成功模拟了发送 POST请求,并发送了表单数据。</p>
+return result
+end</code></pre>
+<p class="content-text">这里我们先用 runjs方法声明了一个JavaScript 方法 foo,然后通过 evaljs 方法调用 foo 方法得到的结果。运行结果如下:</p>
+<pre class="result-block"><code>bar</code></pre>
+<p class="content-text">可以看到,这里我们成功模拟了发送 POST请求,并发送了表单数据。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">html 方法</h4>
@@ -817,7 +829,19 @@ results [index] = text.node.innerHTML
 end
 end
 return treat.as_array(results)</code></pre>
-<p class="content-text">这里我们通过 CSS 选择器选中了节点的正文内容,然后遍历所有节点,获取了其中的文本。运行结果如下:Splash Response: Array[10] 0: ""The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.""1: ""It is our choices, Harry, that show what we truly are, far more than our abilities.""2: "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle."3: ""The person, be it gentleman or lady, who has not pleasure in a good novel, must be intolerably stupid.""4: ""Imperfection is beauty, madness is genius and it's better to be absolutely ridiculous than absolutely boring.""5: ""Try not to become a man of success. Rather become a man of value.""6: ""It is better to be hated for what you are than to be loved for what you are not.""7: ""I have not failed. I've just found 10,000 ways that won't work.""8: ""A woman is like a tea bag; you never know how strong it is until it's in hot water.""9: ""A day without sunshine is like, you know, night.""可以发现,我们成功获取了10个节点的正文内容。</p>
+<p class="content-text">这里我们通过 CSS 选择器选中了节点的正文内容,然后遍历所有节点,获取了其中的文本。运行结果如下:</p>
+<pre class="result-block"><code>Splash Response: Array[10]
+0: ""The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.""
+1: ""It is our choices, Harry, that show what we truly are, far more than our abilities.""
+2: "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle."
+3: ""The person, be it gentleman or lady, who has not pleasure in a good novel, must be intolerably stupid.""
+4: ""Imperfection is beauty, madness is genius and it's better to be absolutely ridiculous than absolutely boring.""
+5: ""Try not to become a man of success. Rather become a man of value.""
+6: ""It is better to be hated for what you are than to be loved for what you are not.""
+7: ""I have not failed. I've just found 10,000 ways that won't work.""
+8: ""A woman is like a tea bag; you never know how strong it is until it's in hot water.""
+9: ""A day without sunshine is like, you know, night.""</code></pre>
+<p class="content-text">可以发现,我们成功获取了10个节点的正文内容。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">mouse_click 方法</h4>
@@ -842,7 +866,9 @@ end</code></pre>
 <p class="content-text">前面我们介绍了Splash Lua 脚本的用法,但这些脚本是在 Splash 页面里测试运行的,如何才能利用Splash 渲染页面? Splash 怎样才能和Python程序结合使用并爬取 JavaScript 渲染的页面?其实,Splash 给我们提供了一些HTTP API,我们只需要请求这些 API 并传递相应的参数即可获取页面渲染后的结果,下面我们学习这些API。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">render.html</h4>
-<p class="content-text">此API 用于获取 JavaScript 渲染的页面的HTML代码,API 地址是Splash 的运行地址加上此API 的名称,例如 http://localhost:8050/render.html,我们可以用curl 工具测试一下:curl http://localhost:8050/render.html?url=https://www.baidu.com我们给此API 传递了一个url参数,以指定渲染的URL,返回结果即为页面渲染后的源代码。用Python 实现的代码如下:</p>
+<p class="content-text">此API 用于获取 JavaScript 渲染的页面的HTML代码,API 地址是Splash 的运行地址加上此API 的名称,例如 http://localhost:8050/render.html,我们可以用curl 工具测试一下:</p>
+<pre class="code-block"><code>curl http://localhost:8050/render.html?url=https://www.baidu.com</code></pre>
+<p class="content-text">我们给此API 传递了一个url参数,以指定渲染的URL,返回结果即为页面渲染后的源代码。用Python 实现的代码如下:</p>
 <pre class="code-block"><code>import requests
 url = 'http://localhost:8050/render.html?url=https://www.baidu.com'
 response = requests.get(url)
@@ -852,7 +878,7 @@ print(response.text)</code></pre>
 url = 'http://localhost:8050/render.html?url=https://www.taobao.com&amp;amp;wait=5'
 response = requests.get(url)
 print(response.text)</code></pre>
-<p class="content-text">战略意图: 正在对用户提供的图片内容进行OCR，并根据用户给出的特定规则过滤和格式化文本。增加等待时间后,得到响应的时间会相应变长,如这里我们等待大约5秒钟才能获取JavaScript 渲染后的淘宝页面源代码。另外,此API还支持代理设置、图片加载设置、请求头设置和请求方法设置,具体的用法可以参见官方文档 https://splash.readthedocs.io/en/stable/api.html#render-html。</p>
+<p class="content-text">增加等待时间后,得到响应的时间会相应变长,如这里我们等待大约5秒钟才能获取JavaScript 渲染后的淘宝页面源代码。另外,此API还支持代理设置、图片加载设置、请求头设置和请求方法设置,具体的用法可以参见官方文档 https://splash.readthedocs.io/en/stable/api.html#render-html。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">render.png</h4>
@@ -876,15 +902,20 @@ with open('taobao.png', 'wb') as f:
 <section class="minor-section">
 <h4 class="subsection-heading">render.har</h4>
 <p class="content-text">此API 用于获取页面加载的HAR数据,示例如下:</p>
-<p class="content-text">curl http://localhost:8050/render.har?url=https://www.jd.com&amp;wait=5运行结果非常多,是一个JSON格式的数据,里面包含页面加载过程中的HAR数据,如图7-18所示。</p>
+<pre class="code-block"><code>curl http://localhost:8050/render.har?url=https://www.jd.com&amp;wait=5</code></pre>
+<p class="content-text">运行结果非常多,是一个JSON格式的数据,里面包含页面加载过程中的HAR数据,如图7-18所示。</p>
 <figure class="inline-figure"><img alt="图7-18 render.har方法的运行结果" loading="lazy" src="figures/ch07/fig-7_18.jpg"/><figcaption>图7-18 render.har方法的运行结果</figcaption></figure>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">render.json</h4>
-<p class="content-text">此API 包含前面介绍的所有render 相关的API 的功能,返回值是JSON 格式的数据,示例如下:curl http://localhost:8050/render.json?url=https://www.httpbin.org运行结果如下:</p>
+<p class="content-text">此API 包含前面介绍的所有render 相关的API 的功能,返回值是JSON 格式的数据,示例如下:</p>
+<pre class="code-block"><code>curl http://localhost:8050/render.json?url=https://www.httpbin.org</code></pre>
+<p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>{"title": "httpbin (1): HTTP Client Testing Service", "url": "https://www.httpbin.org/", "requestedUrl":
 "https://www.httpbin.org/", "geometry": [0, 0, 1024, 768]}</code></pre>
-<p class="content-text">可以看到,这里返回了JSON 格式的请求数据。我们可以通过传入不同的参数控制返回结果。例如,传入html=1,返回结果会增加页面源代码;传入png=1,返回结果会增加PNG格式的页面截图;传入har=1,返回结果会增加页面的HAR数据。例如:curl http://localhost:8050/render.json?url=https://www.httpbin.org&amp;html=1&amp;har=1这样返回的结果中便会包含页面源代码和 HAR 数据。此外,还有其他参数可以设置,可以参考官方文档 https://splash.readthedocs.io/en/stable/api.html#render-json。</p>
+<p class="content-text">可以看到,这里返回了JSON 格式的请求数据。我们可以通过传入不同的参数控制返回结果。例如,传入html=1,返回结果会增加页面源代码;传入png=1,返回结果会增加PNG格式的页面截图;传入har=1,返回结果会增加页面的HAR数据。例如:</p>
+<pre class="code-block"><code>curl http://localhost:8050/render.json?url=https://www.httpbin.org&amp;html=1&amp;har=1</code></pre>
+<p class="content-text">这样返回的结果中便会包含页面源代码和 HAR 数据。此外,还有其他参数可以设置,可以参考官方文档 https://splash.readthedocs.io/en/stable/api.html#render-json。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">execute</h4>
@@ -949,7 +980,9 @@ print(response.text)</code></pre>
 <p class="content-text">在7.1节,我们学习了Selenium的基本用法,其功能的确非常强大,但很多时候会发现它也有一些不太方便的地方,例如配置环境时,需要先安装好相关浏览器,例如 Chrome、Firefox等,然后到官方网站下载对应的驱动。最重要的是,需要安装对应的Python Selenium库,而且得看版本是否对应,这确实不太方便。另外,如果要大规模部署 Selenium,一些环境配置问题也是很头疼的。本节,我们介绍 Selenium的另一个替代品:Pyppeteer。注意是 Pyppeteer,不是Puppeteer, Puppeteer 是基于Node.js的,Pyppeteer是基于Python的。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Pyppeteer 介绍</h3>
-<p class="content-text">Puppeteer 是 Google 基于Node.js 开发的一个工具,有了它,我们可以利用JavaScript 控制 Chrome浏览器的一些操作。当然,Puppeteer 也可以应用于网络爬虫上,其API极其完善,功能非常强大。Pyppeteer 又是什么呢?它其实是 Puppeteer 的Python 版实现,但不是Google 开发的,是由一位来自日本的工程师依据 Puppeteer的一些功能开发出来的非官方版本。Pyppeteer 的背后实际上有一个类似于Chrome的浏览器——Chromium,它执行一些动作,从而进行网页渲染。首先,介绍一下Chromium 浏览器和Chrome 浏览器的渊源。Chromium 是 Google 为了研发Chrome启动的项目,是完全开源的。二者基于相同的源代码而构建,Chrome 的所有新功能都会先在Chromium 上实现,待验证稳定后才移植到Chrome上,因此Chromium 的版本更新频率更高,同时包含很多新功能。但作为一款独立的浏览器,Chromium的用户群体要小众得多。两款浏览器“同根同源”,有着同样的logo,只是配色不同,Chromium logo的颜色是不同深度的蓝色,Chrome logo的颜色是蓝色、红色、黄色和绿色这4种颜色，如图7-19所示。</p>
+<p class="content-text">Puppeteer 是 Google 基于Node.js 开发的一个工具,有了它,我们可以利用JavaScript 控制 Chrome浏览器的一些操作。当然,Puppeteer 也可以应用于网络爬虫上,其API极其完善,功能非常强大。Pyppeteer 又是什么呢?它其实是 Puppeteer 的Python 版实现,但不是Google 开发的,是由一位来自日本的工程师依据 Puppeteer的一些功能开发出来的非官方版本。</p>
+<p class="content-text">Pyppeteer 的背后实际上有一个类似于Chrome的浏览器——Chromium,它执行一些动作,从而进行网页渲染。首先,介绍一下Chromium 浏览器和Chrome 浏览器的渊源。Chromium 是 Google 为了研发Chrome启动的项目,是完全开源的。二者基于相同的源代码而构建,Chrome 的所有新功能都会先在Chromium 上实现,待验证稳定后才移植到Chrome上,因此Chromium 的版本更新频率更高,同时包含很多新功能。</p>
+<p class="content-text">但作为一款独立的浏览器,Chromium的用户群体要小众得多。两款浏览器“同根同源”,有着同样的logo,只是配色不同,Chromium logo的颜色是不同深度的蓝色,Chrome logo的颜色是蓝色、红色、黄色和绿色这4种颜色，如图7-19所示。</p>
 <figure class="inline-figure"><img alt="图7-19 Chromium 浏览器和 Chrome 浏览器的logo" loading="lazy" src="figures/ch07/fig-7_19.jpg"/><figcaption>图7-19 Chromium 浏览器和 Chrome 浏览器的logo</figcaption></figure>
 <p class="content-text">总的来说,两款浏览器的内核一样,实现方式也一样,可以看作开发版和正式版,功能上没有太大区别。</p>
 <p class="content-text">Pyppeteer 就是依赖 Chromium 浏览器运行的。如果第一次运行 Pyppeteer 的时候,没有安装Chromium 浏览器,程序就会帮我们自动安装和配置好,免去了烦琐的环境配置等工作。另外,Pyppeteer是基于Python 的新特性 async 实现的,所以它的一些操作执行也支持异步方式,和Selenium 相比效率也提高了。下面我们就一起了解一下 Pyppeteer 的相关用法。</p>
@@ -978,7 +1011,9 @@ async def main():
     print('Names:', names)
     await browser.close()
 asyncio.get_event_loop().run_until_complete(main())</code></pre>
-<p class="content-text">运行结果如下:Names:['霸王别姬- Farewell My Concubine','这个杀手不太冷- Léon','肖申克的救赎- The Shawshank Redemption','泰坦尼克号 - Titanic','罗马假日 - Roman Holiday','唐伯虎点秋香 - Flirting Scholar','乱世佳人- Gone with the Wind','喜剧之王 - The King of Comedy','楚门的世界- The Truman Show','狮子王 - The Lion King']先粗略看一下代码,大体意思是访问了测试网站,然后等待.item.name节点加载出来,随后通过pyquery 从页面源码中提取电影的名称并输出,最后关闭 Pyppeteer。运行结果和之前用 Selenium 实现的结果一样,我们成功模拟了页面的加载行为,然后提取了页面上所有所有电影的名称。那么,其中具体发生了什么?我们来逐行解析一下。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>Names:['霸王别姬- Farewell My Concubine','这个杀手不太冷- Léon','肖申克的救赎- The Shawshank Redemption','泰坦尼克号 - Titanic','罗马假日 - Roman Holiday','唐伯虎点秋香 - Flirting Scholar','乱世佳人- Gone with the Wind','喜剧之王 - The King of Comedy','楚门的世界- The Truman Show','狮子王 - The Lion King']</code></pre>
+<p class="content-text">先粗略看一下代码,大体意思是访问了测试网站,然后等待.item.name节点加载出来,随后通过pyquery 从页面源码中提取电影的名称并输出,最后关闭 Pyppeteer。运行结果和之前用 Selenium 实现的结果一样,我们成功模拟了页面的加载行为,然后提取了页面上所有所有电影的名称。那么,其中具体发生了什么?我们来逐行解析一下。</p>
 <p class="content-text list-like">调用 launch 方法新建了一个 Browser对象,并赋值给 browser变量。这一步相当于启动了浏览器。</p>
 <p class="content-text list-like">调用 browser 的 newPage方法,新建了一个Page对象,并赋值给page变量。相当于在浏览器中新建了一个选项卡,这时候虽然启动了一个新的选项卡,但是还未访问任何页面,浏览器依然是空白的。</p>
 <p class="content-text list-like">调用 page 的 goto方法,相当于在浏览器中输入goto方法的参数中的URL,之后浏览器加载对应的页面。</p>
@@ -1399,10 +1434,18 @@ with sync_playwright() as p:
         page.screenshot(path=f'screenshot-{browser_type.name}.png')
         print(page.title())
         browser.close()</code></pre>
-<p class="content-text">这里我们首先导入并直接调用了sync_playwright方法,该方法的返回值是一个PlaywrightContextManager对象,可以理解为一个浏览器上下文管理器,我们将其赋值为p变量。然后依次调用p的chromium、firefox 和 webkit 属性创建了 Chromium、Firefox 以及Webkit 浏览器实例。接着用一个 for 循环依次执行了这3个浏览器实例的launch方法,同时设置 headless 参数为False。注意 如果不把 headless 参数设置为 False,就会以默认的无头模式启动浏览器,我们将看不到任何窗口。在for 循环中,launch方法返回的是一个Browser对象,我们将其赋值为browser 变量。然后调用browser 的 new_page 方法新建了一个选项卡,返回值是一个 Page 对象,将其赋值为page,这整个过程其实和 Pyppeteer 非常类似。之后调用page的一系列API完成了各种自动化操作,调用 goto 方法加载某个页面,这里访问的是百度首页;调用screenshot 方法获取页面截图,往其参数中传入的文件名称是截图自动保存后的图片名称,这里的名称中我们加入了browser_type的name属性,代表浏览器的类型,于是3次循环中 screenshot 方法的结果分别是 chromium、firefox 和 webkit。另外,还调用了 title 方法,该方法会返回页面的标题,即HTML 源代码中 title节点中的文字,也就是选项卡上的文字,并将返回的页面标题打印到控制台。最后,调用browser 的close方法关闭整个浏览器,代码结束。运行一下这段代码,可以看到有3个浏览器依次启动,分别是Chromium、Firefox 和 Webkit 浏览器,启动后都是加载百度首页,页面加载完后,生成页面截图,然后把页面标题打印到控制台,就退出了。此时,当前目录下会生成3个截图文件,图片都是百度首页,文件名中都带有对应浏览器的名称,如图7-30所示。</p>
+<p class="content-text">这里我们首先导入并直接调用了sync_playwright方法,该方法的返回值是一个PlaywrightContextManager对象,可以理解为一个浏览器上下文管理器,我们将其赋值为p变量。然后依次调用p的chromium、firefox 和 webkit 属性创建了 Chromium、Firefox 以及Webkit 浏览器实例。</p>
+<p class="content-text">接着用一个 for 循环依次执行了这3个浏览器实例的launch方法,同时设置 headless 参数为False。注意 如果不把 headless 参数设置为 False,就会以默认的无头模式启动浏览器,我们将看不到任何窗口。在for 循环中,launch方法返回的是一个Browser对象,我们将其赋值为browser 变量。然后调用browser 的 new_page 方法新建了一个选项卡,返回值是一个 Page 对象,将其赋值为page,这整个过程其实和 Pyppeteer 非常类似。</p>
+<p class="content-text">之后调用page的一系列API完成了各种自动化操作,调用 goto 方法加载某个页面,这里访问的是百度首页;调用screenshot 方法获取页面截图,往其参数中传入的文件名称是截图自动保存后的图片名称,这里的名称中我们加入了browser_type的name属性,代表浏览器的类型,于是3次循环中 screenshot 方法的结果分别是 chromium、firefox 和 webkit。另外,还调用了 title 方法,该方法会返回页面的标题,即HTML 源代码中 title节点中的文字,也就是选项卡上的文字,并将返回的页面标题打印到控制台。最后,调用browser 的close方法关闭整个浏览器,代码结束。</p>
+<p class="content-text">运行一下这段代码,可以看到有3个浏览器依次启动,分别是Chromium、Firefox 和 Webkit 浏览器,启动后都是加载百度首页,页面加载完后,生成页面截图,然后把页面标题打印到控制台,就退出了。此时,当前目录下会生成3个截图文件,图片都是百度首页,文件名中都带有对应浏览器的名称,如图7-30所示。</p>
 <figure class="inline-figure"><img alt="screenshot-chromium.png screenshot-firefox.png screenshot-webkit.png 图7-30 同步模式示例的运行结果" loading="lazy" src="figures/ch07/fig-7_30.jpg"/><figcaption>screenshot-chromium.png screenshot-firefox.png screenshot-webkit.png 图7-30 同步模式示例的运行结果</figcaption></figure>
-<p class="content-text">控制台的运行结果如下:百度一下,你就知道百度一下,你就知道百度一下,你就知道可以发现,我们非常方便地启动了三种浏览器,完成了自动化操作,并通过几个API 就获取了页面的截图和数据,整个过程速度非常快,这就是 Playwright 最为基本的用法。当然,除了同步模式,Playwright 还提供了支持异步模式的API,如果我们的项目里面使用了asyncio 关键字,就应该使用异步模式,写法如下:</p>
-<pre class="result-block" data-lang="python"><code>import asyncio
+<p class="content-text">控制台的运行结果如下:</p>
+<pre class="result-block"><code>百度一下,你就知道
+百度一下,你就知道
+百度一下,你就知道</code></pre>
+<p class="content-text">可以发现,我们非常方便地启动了三种浏览器,完成了自动化操作,并通过几个API 就获取了页面的截图和数据,整个过程速度非常快,这就是 Playwright 最为基本的用法。</p>
+<p class="content-text">当然,除了同步模式,Playwright 还提供了支持异步模式的API,如果我们的项目里面使用了asyncio 关键字,就应该使用异步模式,写法如下:</p>
+<pre class="code-block" data-lang="python"><code>import asyncio
 from playwright.async_api import async_playwright
 
 async def main():
@@ -1494,7 +1537,9 @@ with sync_playwright() as p:
     page.wait_for_load_state(state='networkidle')
     page.screenshot(path='browser-iphone.png')
     browser.close()</code></pre>
-<p class="content-text">这里我们先用 PlaywrightContextManager 对象的 devices 属性指定了一台移动设备,传入的参数是移动设备的型号,例如iPhone 12 Pro Max,当然也可以传入其他内容,例如iPhone 8、Pixel 2等。前面我们已经了解了 BrowserContext对象,它也可以用来模拟移动端浏览器,初始化一些移动设备信息、语言、权限、位置等内容。这里我们就创建了一个移动端 BrowserContext对象,最后把返回的BrowserContext 对象赋值给 context 变量。接着,我们调用 context 的 new_page方法创建了一个新的选项卡,然后跳转到一个用于获取浏览器信息的网站,调用 wait_for_load_state 方法等待页面的某个状态完成,这里我们传入的 state networkidle,也就是网络空闲状态。因为在页面初始化和数据加载过程中,肯定有网络请求伴随产生,所以加载过程肯定不算 networkidle 状态,意味着这里传入 networkidle 可以标识当前页面初始化和数据加载完成的状态。加载完成后,我们调用screenshot 方法获取了当前的页面截图,最后关闭了浏览器。运行一下代码,可以发现弹出了一个移动版浏览器,然后加载出了对应的页面,如图7-33所示。输出的截图也是浏览器中显示的结果,可以看到,这里显示的浏览器信息是iPhone上的Safari浏览器,也就是说我们成功模拟了一个移动端浏览器。</p>
+<p class="content-text">这里我们先用 PlaywrightContextManager 对象的 devices 属性指定了一台移动设备,传入的参数是移动设备的型号,例如iPhone 12 Pro Max,当然也可以传入其他内容,例如iPhone 8、Pixel 2等。前面我们已经了解了 BrowserContext对象,它也可以用来模拟移动端浏览器,初始化一些移动设备信息、语言、权限、位置等内容。这里我们就创建了一个移动端 BrowserContext对象,最后把返回的BrowserContext 对象赋值给 context 变量。</p>
+<p class="content-text">接着,我们调用 context 的 new_page方法创建了一个新的选项卡,然后跳转到一个用于获取浏览器信息的网站,调用 wait_for_load_state 方法等待页面的某个状态完成,这里我们传入的 state networkidle,也就是网络空闲状态。因为在页面初始化和数据加载过程中,肯定有网络请求伴随产生,所以加载过程肯定不算 networkidle 状态,意味着这里传入 networkidle 可以标识当前页面初始化和数据加载完成的状态。</p>
+<p class="content-text">加载完成后,我们调用screenshot 方法获取了当前的页面截图,最后关闭了浏览器。运行一下代码,可以发现弹出了一个移动版浏览器,然后加载出了对应的页面,如图7-33所示。输出的截图也是浏览器中显示的结果,可以看到,这里显示的浏览器信息是iPhone上的Safari浏览器,也就是说我们成功模拟了一个移动端浏览器。</p>
 <figure class="inline-figure"><img alt="图7-33 当前的页面截图" loading="lazy" src="figures/ch07/fig-7_33.jpg"/><figcaption>图7-33 当前的页面截图</figcaption></figure>
 <p class="content-text">这样我们就成功模拟了移动端浏览器并做了一些设置,其操作API和PC版浏览器是完全一样的。</p>
 </section>
@@ -1548,13 +1593,27 @@ page.click("#nav-bar :text('Contact us')")</code></pre>
 def on_response(response):
 print(f'Status {response.status}: {response.url}')
 with sync_playwright() as p:
-browser = p.chromium.launch (headless=False)</code></pre>
-<pre class="code-block"><code>page = browser.new_page()
+browser = p.chromium.launch (headless=False)
+page = browser.new_page()
 page.on('response', on_response)
 page.goto('https://spa6.scrape.center/')
 page.wait_for_load_state('networkidle')
 browser.close()</code></pre>
-<p class="content-text">我们在创建 Page 对象后,就开始监听 response事件,同时将回调方法设置为 on_response,on_response 接收一个参数,然后输出响应中的状态码和链接。运行上述代码后,可以看到控制台输出如下结果:Status 200: https://spa6.scrape.center/Status 200: https://spa6.scrape.center/css/app.ea9d802a.css Status 200: https://spa6.scrape.center/js/app.5ef0d454.js Status 200: https://spa6.scrape.center/js/chunk-vendors.77daf991.js Status 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css Status 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css Status 200: https://spa6.scrape.center/js/chunk-19c920f8.c3a1129d.js Status 200: https://spa6.scrape.center/img/logo.a508a8f0.png Status 200: https://spa6.scrape.center/fonts/element-icons.535877f5.woff Status 301: https://spa6.scrape.center/api/movie?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTES Status 200: https://spa6.scrape.center/api/movie/?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTE5 Status 200: https://po.meituan.net/movie/da64660f82b98cdc1b8a3804e69609e041108.jpg@464w_644h_1e_1c Status 200: https://po.meituan.net/movie/283292171619cdfd5b240c8fd093f1eb255670.jpg@464w_644h_1e_1c Status 200: https://p1.meituan.net/movie/b607fba7513e7f15eab170aac1e1400d878112.jpg@464w_644h_1e_1c注意这里省略了部分重复的内容。可以发现,这个输出结果其实正好对应浏览器 Network 面板中的所有请求和响应,和图7-34里的内容是一一对应的。</p>
+<p class="content-text">我们在创建 Page 对象后,就开始监听 response事件,同时将回调方法设置为 on_response,on_response 接收一个参数,然后输出响应中的状态码和链接。运行上述代码后,可以看到控制台输出如下结果:</p>
+<pre class="result-block"><code>Status 200: https://spa6.scrape.center/
+Status 200: https://spa6.scrape.center/css/app.ea9d802a.css
+Status 200: https://spa6.scrape.center/js/app.5ef0d454.js
+Status 200: https://spa6.scrape.center/js/chunk-vendors.77daf991.js
+Status 200: https://spa6.scrape.center/css/chunk-19c920f8.2a6496e0.css
+Status 200: https://spa6.scrape.center/js/chunk-19c920f8.c3a1129d.js
+Status 200: https://spa6.scrape.center/img/logo.a508a8f0.png
+Status 200: https://spa6.scrape.center/fonts/element-icons.535877f5.woff
+Status 301: https://spa6.scrape.center/api/movie?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTES
+Status 200: https://spa6.scrape.center/api/movie/?limit=10&amp;offset=0&amp;token=NGMwMzFhNGEzMTFiMzJkOGEOZTQ1YjUz MTc2OWNiYTI1YzkOZDM3MSwxNjIyOTE4NTE5
+Status 200: https://po.meituan.net/movie/da64660f82b98cdc1b8a3804e69609e041108.jpg@464w_644h_1e_1c
+Status 200: https://po.meituan.net/movie/283292171619cdfd5b240c8fd093f1eb255670.jpg@464w_644h_1e_1c
+Status 200: https://p1.meituan.net/movie/b607fba7513e7f15eab170aac1e1400d878112.jpg@464w_644h_1e_1c</code></pre>
+<p class="content-text">注意这里省略了部分重复的内容。可以发现,这个输出结果其实正好对应浏览器 Network 面板中的所有请求和响应,和图7-34里的内容是一一对应的。</p>
 <figure class="inline-figure"><img alt="图7-34 浏览器的Network 面板" loading="lazy" src="figures/ch07/fig-7_34.jpg"/><figcaption>图7-34 浏览器的Network 面板</figcaption></figure>
 <p class="content-text">我们之前分析过这个网站,其真实的数据都是 Ajax 加载的,同时Ajax请求中还带有加密参数,不好轻易获取。但有了on_response方法,如果我们想截获Ajax请求,岂不是就非常容易了?改写一下这里的判定条件,输出对应的JSON结果,代码如下:</p>
 <pre class="code-block"><code>from playwright.sync_api import sync_playwright
@@ -1625,7 +1684,9 @@ page.wait_for_load_state('networkidle')
 href = page.get_attribute('a.name', 'href')
 print(href)
 browser.close()</code></pre>
-<p class="content-text">这里我们调用了 get_attribute 方法,传入的selector 参数值是a.name,代表查找class 为 name的a节点,name 参数值传入了 href,代表获取超链接的内容,输出结果如下:/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIx可以看到获取了对应节点的 href属性,但只有一条结果,这是因为如果传入的选择器匹配了多个节点,就只会用第一个。那么怎样获取所有匹配到的节点呢?</p>
+<p class="content-text">这里我们调用了 get_attribute 方法,传入的selector 参数值是a.name,代表查找class 为 name的a节点,name 参数值传入了 href,代表获取超链接的内容,输出结果如下:</p>
+<pre class="result-block"><code>/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIx</code></pre>
+<p class="content-text">可以看到获取了对应节点的 href属性,但只有一条结果,这是因为如果传入的选择器匹配了多个节点,就只会用第一个。那么怎样获取所有匹配到的节点呢?</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取多个节点</h4>
@@ -1641,7 +1702,27 @@ with sync_playwright() as p:
         print(element.get_attribute('href'))
         print(element.text_content())
     browser.close()</code></pre>
-<p class="content-text">这里通过 query_selector_all方法获取了所有匹配到的节点,每个节点各对应一个ElementHandle 对象,可以调用 ElementHandle 对象的get_attribute 方法获取节点属性,也可以通过 text_content方法获取节点文本。运行结果如下:/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIx霸王别姬 - Farewell My Concubine/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z2ltbHlmeHMqLSFpLTAtbWIy这个杀手不太冷- Léon/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIz肖申克的救赎 - The Shawshank Redemption/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIO泰坦尼克号 - Titanic/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI1罗马假日 - Roman Holiday/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI2唐伯虎点秋香 - Flirting Scholar/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI3乱世佳人- Gone with the Wind/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI4喜剧之王 - The King of Comedy/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI5楚门的世界 - The Truman Show/detail/ZWYzNCNOZXVxMGJOdWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIxMA==狮子王 - The Lion King</p>
+<p class="content-text">这里通过 query_selector_all方法获取了所有匹配到的节点,每个节点各对应一个ElementHandle 对象,可以调用 ElementHandle 对象的get_attribute 方法获取节点属性,也可以通过 text_content方法获取节点文本。运行结果如下:</p>
+<pre class="result-block"><code>/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIx
+霸王别姬 - Farewell My Concubine
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z2ltbHlmeHMqLSFpLTAtbWIy
+这个杀手不太冷- Léon
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIz
+肖申克的救赎 - The Shawshank Redemption
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIO
+泰坦尼克号 - Titanic
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI1
+罗马假日 - Roman Holiday
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI2
+唐伯虎点秋香 - Flirting Scholar
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI3
+乱世佳人- Gone with the Wind
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI4
+喜剧之王 - The King of Comedy
+/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWI5
+楚门的世界 - The Truman Show
+/detail/ZWYzNCNOZXVxMGJOdWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIxMA==
+狮子王 - The Lion King</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">获取单个节点</h4>
@@ -1656,7 +1737,10 @@ with sync_playwright() as p:
     print(element.get_attribute('href'))
     print(element.text_content())
     browser.close()</code></pre>
-<p class="content-text">运行结果如下:/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx霸王别姬 - Farewell My Concubine可以看到这里只输出了第一个节点的信息。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>/detail/ZWYzNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx
+霸王别姬 - Farewell My Concubine</code></pre>
+<p class="content-text">可以看到这里只输出了第一个节点的信息。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">网络劫持</h4>
@@ -1678,7 +1762,6 @@ browser.close()</code></pre>
 <p class="content-text">也许有人会说这个设置看起来没什么用啊?其实是有用的,图片资源都是二进制文件,我们在爬取过程中可能并不想关心具体的二进制文件内容,而只关心图片的URL是什么,所以浏览器中是否把图片加载出来就不重要了,如此设置可以提高整个页面的加载速度,提高爬取效率。另外,利用这个功能,还可以对一些响应内容进行修改,例如直接将响应结果修改为自定义的文本内容。</p>
 </section>
 </section>
-<div class="section-heading" id="section-4"><h2>7.5 Selenium 爬取实战</h2></div>
 <p class="content-text">这里首先定义一个HTML 文本文件,命名为custom_response.html,内容如下:</p>
 <pre class="code-block" data-lang="html"><code>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
@@ -1705,8 +1788,9 @@ with sync_playwright() as p:
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 总结</h3>
 <p class="content-text">本节介绍了 Playwright 的基本用法,其API强大又易于使用,同时具备很多 Selenium、Pyppeteer不具备的更好用的API,是新一代爬取 JavaScript 渲染页面的利器。本节代码参见:https://github.com/Python3WebSpider/PlaywrightTest。</p>
-<p class="content-text">在7.1节,我们学习了Selenium的基本用法,本节结合一个实际案例体会一下 Selenium的适用场景以及使用方法。</p>
 </section>
+<div class="section-heading" id="section-4"><h2>7.5 Selenium 爬取实战</h2></div>
+<p class="content-text">在7.1节,我们学习了Selenium的基本用法,本节结合一个实际案例体会一下 Selenium的适用场景以及使用方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
 <p class="content-text">请先确保已经做好了如下准备工作。</p>
@@ -1757,7 +1841,11 @@ def scrape_index(page):
 url = INDEX_URL.format(page=page)</code></pre>
 <p class="content-text">scrape_page(url, condition=EC.visibility_of_all_elements_located,</p>
 <pre class="code-block"><code>locator=(By.CSS_SELECTOR, '#index.item'))</code></pre>
-<p class="content-text">这里我们定义了两个方法。第一个方法 scrape_page 依然是一个通用的爬取方法,可以对任意URL进行爬取、状态监听以及异常处理,接收 url、condition、locator 三个参数:url就是要爬取的页面的URL;condition 是页面加载成功的判断条件,可以是expected_conditions 中的某一项,如visibility_of_all_elements_located、visibility_of_element_located 等;locator 是定位器,是一个元组,通过配置查询条件和参数来获取一个或多个节点,如(By.CSS_SELECTOR, '#index.item')代表通过CSS 选择器查找 #index.item来获取列表页所有的电影信息节点。另外,我们在爬取过程中添加了超时检测,如果到规定时间(这里为10秒)还没有加载出对应的节点,就抛出TimeoutException 异常并输出错误日志。第二个方法 scrape_index 则是爬取列表页的方法,接收一个参数page,通过调用scrape_page方法并传入 condition 参数和 locator 参数,完成对列表页的爬取。这里的 condition 我们传入的是visibility_of_all_elements_located,代表所有节点都加载出来才算成功。注意,这里爬取页面时,不需要返回任何结果,因为执行完 scrape_index方法后,页面正好处于加载完成状态,利用browser 对象即可进行进一步的信息提取。现在已经可以加载出列表页了,下一步当然就是解析列表页,从中提取详情页的URL。这里定义一个解析列表页的方法,具体如下:</p>
+<p class="content-text">这里我们定义了两个方法。第一个方法 scrape_page 依然是一个通用的爬取方法,可以对任意URL进行爬取、状态监听以及异常处理,接收 url、condition、locator 三个参数。</p>
+<p class="content-text">url就是要爬取的页面的URL;condition 是页面加载成功的判断条件,可以是expected_conditions 中的某一项,如visibility_of_all_elements_located、visibility_of_element_located 等;locator 是定位器,是一个元组,通过配置查询条件和参数来获取一个或多个节点,如(By.CSS_SELECTOR, '#index.item')代表通过CSS 选择器查找 #index.item来获取列表页所有的电影信息节点。</p>
+<p class="content-text">另外,我们在爬取过程中添加了超时检测,如果到规定时间(这里为10秒)还没有加载出对应的节点,就抛出TimeoutException 异常并输出错误日志。</p>
+<p class="content-text">第二个方法 scrape_index 则是爬取列表页的方法,接收一个参数page,通过调用scrape_page方法并传入 condition 参数和 locator 参数,完成对列表页的爬取。这里的 condition 我们传入的是visibility_of_all_elements_located,代表所有节点都加载出来才算成功。注意,这里爬取页面时,不需要返回任何结果,因为执行完 scrape_index方法后,页面正好处于加载完成状态,利用browser 对象即可进行进一步的信息提取。</p>
+<p class="content-text">现在已经可以加载出列表页了,下一步当然就是解析列表页,从中提取详情页的URL。这里定义一个解析列表页的方法,具体如下:</p>
 <pre class="code-block"><code>from urllib.parse import urljoin
 def parse_index():
 elements = browser.find_elements_by_css_selector('#index .item .name')
@@ -1783,9 +1871,9 @@ logging.info('details urls %s', list(detail_urls))</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 爬取详情页</h3>
 <p class="content-text">既然已经成功拿到详情页的URL了,接下来就进一步爬取详情页并提取对应的信息吧。基于同样的逻辑,这里也可以加一个判断条件,如果电影名称加载出来,就代表详情页加载成功。实现时,调用scrape_page 方法即可,代码如下:</p>
-<pre class="code-block"><code>def scrape_detail(url):</code></pre>
-<p class="content-text">    scrape_page(url, condition=EC.visibility_of_element_located,</p>
-<pre class="code-block"><code>locator=(By.TAG_NAME, 'h2'))</code></pre>
+<pre class="code-block"><code>def scrape_detail(url):
+    scrape_page(url, condition=EC.visibility_of_element_located,
+                locator=(By.TAG_NAME, 'h2'))</code></pre>
 <p class="content-text">这里的判定条件 condition 传入的是 visibility_of_element_located,即单个元素出现即可。locator 传入的是(By.TAG_NAME, 'h2'),即h2这个节点,也就是电影名称对应的节点,如图7-41所示。</p>
 <figure class="inline-figure"><img alt="图7-41 电影名称对应的节点 h2" loading="lazy" src="figures/ch07/fig-7_41.jpg"/><figcaption>图7-41 电影名称对应的节点 h2</figcaption></figure>
 <p class="content-text">如果执行了 scrape_detail方法,没有抛出 TimeoutException 异常,就表示页面加载成功了。下面定义一个解析详情页的方法来提取我们想要的信息。实现如下:</p>
@@ -1903,7 +1991,6 @@ async def init():
     tab = await browser.newPage()
     await tab.setViewport({'width': WINDOW_WIDTH, 'height': WINDOW_HEIGHT})</code></pre>
 <p class="content-text">这里先声明了 browser 变量和 tab 变量,前者代表 Pyppeteer 所用的浏览器对象,后者代表新建的页面选项卡。这两项都被设置为了全局变量,能够方便其他方法调用。然后定义了一个 init 方法,该方法中调用了 Pyppeteer 的 launch 方法,并且给 headless 参数传入 HEADLESS,将 Pyppeteer 设置为非无头模式,还通过 args 参数指定了隐藏提示条和设置了浏览器窗口的宽高。</p>
-<p class="content-text">JavaScript 动态渲染页面爬取</p>
 <p class="content-text">接下来,我们像之前一样,定义一个通用的爬取方法:</p>
 <pre class="code-block"><code>from pyppeteer.errors import TimeoutError
 
@@ -2130,10 +2217,24 @@ browser.close()</code></pre>
 <p class="content-text">0},{'text':'那', 'left': 32},{'text':'儿','left': 80}]面对这样的结果,怎么排序呢?直接调用sorted 方法就行,它有两个参数,一个是key,用来指定根据什么排序,这里我们直接使用lambda 表达式提取 span 节点的 left属性,所以最终结果是根据left 的值排序而得;另一个参数是 reverse,用来指定排序方式,此处将其设置为False,表示从小到大排序。排序完的 items 变成了这样:</p>
 <pre class="code-block"><code>[{'text': '明', 'left': 0}, {'text': '朝', 'left': 16}, {'text': '那', 'left': 32},{'text':'些', 'left':
 48}, {'text': '', 'left': 64}, {'text': '', 'left': 80}]</code></pre>
-<p class="content-text">最后将其中的 text 值提取出来并拼接,就得到了最终结果。代码的运行结果如下:清白家风法老的宠妃终结篇(上下册)士为知己(全二册)那些年,我们一起追的女孩非我倾城(全三册)明朝那些事儿我和你的笑忘书王小波全集第一卷怦然心动龙枪传奇(全三册)黎明之街认知心理学及其启示银河帝国:基地小学教材全解-四年级语文下等等,似乎少了几个标题,内容中间为什么会出现空余?再继续排查,会发现有些标题节点内部没有分为一个个 span 节点,这些标题内部的文字本身就有序,如图7-47所示。</p>
+<p class="content-text">最后将其中的 text 值提取出来并拼接,就得到了最终结果。代码的运行结果如下:</p>
+<pre class="result-block"><code>清白家风
+法老的宠妃终结篇(上下册)
+士为知己(全二册)
+那些年,我们一起追的女孩
+非我倾城(全三册)
+明朝那些事儿
+我和你的笑忘书
+王小波全集第一卷
+怦然心动
+龙枪传奇(全三册)
+黎明之街
+认知心理学及其启示
+银河帝国:基地
+小学教材全解-四年级语文下</code></pre>
+<p class="content-text">等等,似乎少了几个标题,内容中间为什么会出现空余?再继续排查,会发现有些标题节点内部没有分为一个个 span 节点,这些标题内部的文字本身就有序,如图7-47所示。</p>
 <figure class="inline-figure"><img alt="图7-47 本身就有序的标题" loading="lazy" src="figures/ch07/fig-7_47.jpg"/><figcaption>图7-47 本身就有序的标题</figcaption></figure>
 </section>
-<div class="section-heading" id="section-7"><h2>7.8 字体反爬案例分析与爬取实战</h2></div>
 <p class="content-text">经过观察和推测,不难发现内部没有 span 节点的 h3 标题节点都带有一个额外的取值为 name whole 的 class 属性,其余标题节点的内部则都分为了一个个 span节点。搞清楚问题所在,接下来稍微加判断即可,改写解析方法:</p>
 <pre class="code-block" data-lang="python"><code>def parse_name(name_html):
     has_whole = name_html('.whole')
@@ -2149,12 +2250,32 @@ browser.close()</code></pre>
             })
         items = sorted(items, key=lambda x: x['left'], reverse=False)
         return ''.join([item.get('text') for item in items])</code></pre>
-<p class="content-text">运行结果如下:Wonder清白家风法老的宠妃终结篇(上下册)士为知己(全二册)那些年,我们一起追的女孩非我倾城(全三册)明朝那些事儿我和你的笑忘书王小波全集第一卷怦然心动龙枪编年史(全3册)龙枪传奇(全三册)黎明之街认知心理学及其启示银河帝国2:基地与帝国银河帝国:基地小学教材全解-四年级语文下越界言论(第3卷)我们成功爬取了书籍网站上每本书的名称!</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>Wonder
+清白家风
+法老的宠妃终结篇(上下册)
+士为知己(全二册)
+那些年,我们一起追的女孩
+非我倾城(全三册)
+明朝那些事儿
+我和你的笑忘书
+王小波全集第一卷
+怦然心动
+龙枪编年史(全3册)
+龙枪传奇(全三册)
+黎明之街
+认知心理学及其启示
+银河帝国2:基地与帝国
+银河帝国:基地
+小学教材全解-四年级语文下
+越界言论(第3卷)</code></pre>
+<p class="content-text">我们成功爬取了书籍网站上每本书的名称!</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
 <p class="content-text">本节分析的是一个特殊案例,通过这个案例可以知道,有时候我们使用 Selenium 爬取的内容并不一定和亲眼所见的完全符合,所以还需要小心。本节代码参见:https://github.com/Python3WebSpider/ScrapeAntispider3。</p>
-<p class="content-text">本节再分析一个反爬案例,该案例将真实的数据隐藏到字体文件里,使我们即使获取了页面源代码,也没法直接提取数据的真实值。</p>
 </section>
+<div class="section-heading" id="section-7"><h2>7.8 字体反爬案例分析与爬取实战</h2></div>
+<p class="content-text">本节再分析一个反爬案例,该案例将真实的数据隐藏到字体文件里,使我们即使获取了页面源代码,也没法直接提取数据的真实值。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 案例介绍</h3>
 <p class="content-text">案例网站为 https://antispider4.scrape.center/,打开之后看着和之前的电影网站没什么不同。我们按照7.7节类似的分析逻辑来爬取一些信息,例如电影标题、类别、评分等,代码实现如下:</p>
@@ -2175,7 +2296,18 @@ categories = [o.text() for o in item('.categories button').items()]
 score = item('.score').text()
 print(f'name: {name} categories: {categories} score: {score}')
 browser.close()</code></pre>
-<p class="content-text">这里先用 Selenium打开案例网站,等待所有电影加载出来,然后获取页面源代码,并通过 pyquery提取和解析每一个电影的信息,得到名称、类别和评分,之后输出,运行结果如下:name: 霸王别姬 - Farewell My Concubine categories: ['剧情', '爱情'] score:name:这个杀手不太冷- Léon categories: ['剧情','动作','犯罪'] score:name:肖申克的救赎 - The Shawshank Redemption categories: ['剧情','犯罪'] score:name:泰坦尼克号 - Titanic categories: ['剧情','爱情','灾难'] score:name:罗马假日 - Roman Holiday categories: ['剧情','喜剧','爱情'] score:name:唐伯虎点秋香- Flirting Scholar categories: ['喜剧','爱情','古装'] score:name: 乱世佳人- Gone with the Wind categories: ['剧情', '爱情','历史','战争'] score:name: 喜剧之王 - The King of Comedy categories: ['剧情','喜剧','爱情'] score:name:楚门的世界- The Truman Show categories: ['剧情', '科幻'] score:name:狮子王 - The Lion King categories: ['动画','歌舞','冒险'] score:很奇怪,结果中的score字段不包含任何信息,这是怎么回事?经过仔细观察,发现评分对应的源代码并不包含数字信息,如图7-48所示。</p>
+<p class="content-text">这里先用 Selenium打开案例网站,等待所有电影加载出来,然后获取页面源代码,并通过 pyquery提取和解析每一个电影的信息,得到名称、类别和评分,之后输出,运行结果如下:</p>
+<pre class="result-block"><code>name: 霸王别姬 - Farewell My Concubine categories: ['剧情', '爱情'] score:
+name:这个杀手不太冷- Léon categories: ['剧情','动作','犯罪'] score:
+name:肖申克的救赎 - The Shawshank Redemption categories: ['剧情','犯罪'] score:
+name:泰坦尼克号 - Titanic categories: ['剧情','爱情','灾难'] score:
+name:罗马假日 - Roman Holiday categories: ['剧情','喜剧','爱情'] score:
+name:唐伯虎点秋香- Flirting Scholar categories: ['喜剧','爱情','古装'] score:
+name: 乱世佳人- Gone with the Wind categories: ['剧情', '爱情','历史','战争'] score:
+name: 喜剧之王 - The King of Comedy categories: ['剧情','喜剧','爱情'] score:
+name:楚门的世界- The Truman Show categories: ['剧情', '科幻'] score:
+name:狮子王 - The Lion King categories: ['动画','歌舞','冒险'] score:</code></pre>
+<p class="content-text">很奇怪,结果中的score字段不包含任何信息,这是怎么回事?经过仔细观察,发现评分对应的源代码并不包含数字信息,如图7-48所示。</p>
 <figure class="inline-figure"><img alt="图7-48 评分对应的源代码" loading="lazy" src="figures/ch07/fig-7_48.jpg"/><figcaption>图7-48 评分对应的源代码</figcaption></figure>
 <p class="content-text">span 节点里就什么信息都没有,提取不出来自然也不足为奇了,那页面上的评分结果是怎么显示出来的呢?其实也是CSS 在作怪。</p>
 </section>
@@ -2292,7 +2424,17 @@ for item in items.items():
     print(f'name: {name} categories: {categories) score: {score}')
 browser.close()</code></pre>
 <p class="content-text">这里我们定义了 parse_score方法,它接收一个PyQuery对象 item,对应一个电影条目。首先提取该 item 中所有带有 icon这个class的节点,然后遍历这些节点,从class属性里提取对应的icon 代号,例如 icon-789,提取的结果就是789,和我们刚构造的icon_map 是相对应的,将其赋值为 icon_key。使用 icon_key 从 icon_map 中查找对应的真实值,赋值为 icon_value。最后将 icon_value 拼合成一个字符串返回。</p>
-<p class="content-text">运行结果如下:name: 霸王别姬- Farewell My Concubine categories: ['剧情','爱情'] score: 9.5 name:这个杀手不太冷- Léon categories: ['剧情','动作','犯罪'] score: 9.5 name:肖申克的救赎 - The Shawshank Redemption categories: ['剧情','犯罪'] score: 9.5 name:泰坦尼克号 - Titanic categories: ['剧情','爱情','灾难'] score: 9.5 name:罗马假日 - Roman Holiday categories: ['剧情', '喜剧','爱情'] score: 9.5 name:唐伯虎点秋香 - Flirting Scholar categories: ['喜剧','爱情','古装'] score: 9.5 name: 乱世佳人 - Gone with the Wind categories: ['剧情','爱情','历史','战争']Score: 9.5 name:喜剧之王 - The King of Comedy categories: ['剧情','喜剧', '爱情'] score: 9.5 name:楚门的世界- The Truman Show categories: ['剧情','科幻'] score: 9.0 name: 狮子王 - The Lion King categories: ['动画','歌舞','冒险'] score: 9.0</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>name: 霸王别姬- Farewell My Concubine categories: ['剧情','爱情'] score: 9.5
+name:这个杀手不太冷- Léon categories: ['剧情','动作','犯罪'] score: 9.5
+name:肖申克的救赎 - The Shawshank Redemption categories: ['剧情','犯罪'] score: 9.5
+name:泰坦尼克号 - Titanic categories: ['剧情','爱情','灾难'] score: 9.5
+name:罗马假日 - Roman Holiday categories: ['剧情', '喜剧','爱情'] score: 9.5
+name:唐伯虎点秋香 - Flirting Scholar categories: ['喜剧','爱情','古装'] score: 9.5
+name: 乱世佳人 - Gone with the Wind categories: ['剧情','爱情','历史','战争']Score: 9.5
+name:喜剧之王 - The King of Comedy categories: ['剧情','喜剧', '爱情'] score: 9.5
+name:楚门的世界- The Truman Show categories: ['剧情','科幻'] score: 9.0
+name: 狮子王 - The Lion King categories: ['动画','歌舞','冒险'] score: 9.0</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>

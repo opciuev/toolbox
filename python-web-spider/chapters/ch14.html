@@ -23,7 +23,9 @@
 <main class="main-content">
 <h1 class="chapter-title">第14章 页面智能解析</h1>
 <article class="ocr-content">
-<p class="content-text">在前面所讲的内容中,解析页面利用的都是规则匹配,这种方式可能需要借助浏览器找到最佳的Selector、XPath,甚至需要正则表达式辅助提取细节,同时利用 Beautiful Soup、pyquery、Re 等库提取和解析内容。在一般情况下,这么做是没有问题的。但如果切换了场景,例如分析舆情,就需要爬取成千上万个新闻网站,把这些网站上的新闻文章都爬取下来,包括标题、正文、发布时间等,我们会发现不同新闻网站的页面差别非常大,标题、正文、发布时间对应的正则表达式、Selector、XPath 等各不相同。这时如果手动针对每一个网站写正则表达式、Selector、XPath等,那工作量实在太大了。如果配置不当,还会产生解析错误的问题。例如正则表达式在某些情况下无法匹配,Selector、XPath 编写错误或者提取不全。另外,如果页面突然改版了,之前配置的规则可能就没法用了,这也是一个隐患。目前有一种更智能的方法可以帮我们解析出网站内的新闻列表链接、标题、正文、发布时间等,用起来很方便。但内容的爬取过程毕竟是用算法实现的,所以正确率达不到100%,而且即便是人工写出来的正则表达式、Selector、XPath,也难免会有不兼容和错误的情况,因此在能容忍一定错误的情况下,用比较智能的解析方案爬取页面内容是明智的。本章中我们就来学习一下智能解析页面的原理和实现算法。</p>
+<p class="content-text">在前面所讲的内容中,解析页面利用的都是规则匹配,这种方式可能需要借助浏览器找到最佳的Selector、XPath,甚至需要正则表达式辅助提取细节,同时利用 Beautiful Soup、pyquery、Re 等库提取和解析内容。在一般情况下,这么做是没有问题的。</p>
+<p class="content-text">但如果切换了场景,例如分析舆情,就需要爬取成千上万个新闻网站,把这些网站上的新闻文章都爬取下来,包括标题、正文、发布时间等,我们会发现不同新闻网站的页面差别非常大,标题、正文、发布时间对应的正则表达式、Selector、XPath 等各不相同。这时如果手动针对每一个网站写正则表达式、Selector、XPath等,那工作量实在太大了。如果配置不当,还会产生解析错误的问题。例如正则表达式在某些情况下无法匹配,Selector、XPath 编写错误或者提取不全。另外,如果页面突然改版了,之前配置的规则可能就没法用了,这也是一个隐患。</p>
+<p class="content-text">目前有一种更智能的方法可以帮我们解析出网站内的新闻列表链接、标题、正文、发布时间等,用起来很方便。但内容的爬取过程毕竟是用算法实现的,所以正确率达不到100%,而且即便是人工写出来的正则表达式、Selector、XPath,也难免会有不兼容和错误的情况,因此在能容忍一定错误的情况下,用比较智能的解析方案爬取页面内容是明智的。本章中我们就来学习一下智能解析页面的原理和实现算法。</p>
 <div class="section-heading" id="section-0"><h2>14.1 页面智能解析简介</h2></div>
 <p class="content-text">简言之,页面的智能解析就是利用算法从页面的HTML代码中提取想要的内容,算法会自动计算出目标内容在代码中的位置并将它们提取出来。</p>
 <section class="numbered-section">
@@ -182,9 +184,9 @@ print(json.dumps(response.json(), indent=2, ensure_ascii=False))</code></pre>
   ]
 }</code></pre>
 <pre class="code-block"><code>...&lt;/blockquote&gt; &lt;/blockquote&gt;",
-"text":"“我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”</code></pre>
-<p class="content-text">“...”,</p>
-<pre class="code-block"><code>"authors": [
+"text":"“我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”
+“...”,
+"authors": [
 {
 "name":"中国新闻网”,
 "link": "https://feng.ifeng.com/author/308904"
@@ -244,7 +246,14 @@ response = diffbot.request(url, token, api)</code></pre>
 <h3 class="subsection-heading numbered-heading">4. 提取标题</h3>
 <p class="content-text">一般来说,标题是相对比较好提取的,根据几个关键信息就能完成绝大多数标题的提取。详情页的标题一般包含在title节点中,例如:</p>
 <pre class="code-block"><code>&lt;title&gt;故宫,你低调点!故宫:不,实力已不允许我继续低调_凤凰网资讯_凤凰网&lt;/title&gt;</code></pre>
-<p class="content-text">此时如果直接进行提取,那么得到的标题内容如下:故宫,你低调点!故宫:不,实力已不允许我继续低调凤凰网资讯_凤凰网但真实的标题的内容应该为:故宫,你低调点!故宫:不,实力已不允许我继续低调所以,一味提取 title 节点内的内容并不准确,因为网站会额外增加一些信息,例如这里网站本身的信息。此时怎么办呢?在绝大部分情况下,标题是由h节点表示的,一般为h1、h2、h3、h4等,其内部的文本就是完整的标题,那么问题又来了,html里面有那么多h节点,怎么确定哪个是标题对应的h节点呢?答案你应该也想到了,把title节点和h节点的内容结合起来不就好了吗?于是可以初步总结出下面两步提取思路。(1)提取页面的h节点(如h1、h2等),将其内容和title节点的文本做比对,和后者相似度最高的内容很可能就是详情页的标题。(2) 如果未在页面中找到h节点,则只能使用 title节点的文本作为结果。一般来说,使用以上方法可以应对90%以上的标题提取问题。另外,有些网站为了使 SEO 效果比较好,会添加一些 meta标签,如url、title、keywords、category等,这些信息也可以成为参考依据,用它们进一步校验或补充网站的基本信息。在上面的例子中,就有一个meta 节点:</p>
+<p class="content-text">此时如果直接进行提取,那么得到的标题内容如下:</p>
+<pre class="result-block"><code>故宫,你低调点!故宫:不,实力已不允许我继续低调凤凰网资讯_凤凰网</code></pre>
+<p class="content-text">但真实的标题内容应该为:</p>
+<pre class="result-block"><code>故宫,你低调点!故宫:不,实力已不允许我继续低调</code></pre>
+<p class="content-text">所以,一味提取 title 节点内的内容并不准确,因为网站会额外增加一些信息,例如这里网站本身的信息。此时怎么办呢?在绝大部分情况下,标题是由h节点表示的,一般为h1、h2、h3、h4等,其内部的文本就是完整的标题。页面里有很多h节点,可以把title节点和h节点的内容结合起来,初步总结出下面两步提取思路。</p>
+<p class="content-text list-like">(1) 提取页面的h节点(如h1、h2等),将其内容和title节点的文本做比对,和后者相似度最高的内容很可能就是详情页的标题。</p>
+<p class="content-text list-like">(2) 如果未在页面中找到h节点,则只能使用 title节点的文本作为结果。</p>
+<p class="content-text">一般来说,使用以上方法可以应对90%以上的标题提取问题。另外,有些网站为了使 SEO 效果比较好,会添加一些 meta标签,如url、title、keywords、category等,这些信息也可以成为参考依据,用它们进一步校验或补充网站的基本信息。在上面的例子中,就有一个meta 节点:</p>
 <pre class="code-block"><code>&lt;meta property="og:title" content="故宫,你低调点!故宫:不,实力已不允许我继续低调"&gt;</code></pre>
 <p class="content-text">可以看到其中指定了property为og:title,这是一种常见写法,其内容正好是标题信息,于是我们能通过它提取标题。综合以上内容,借助title节点、h节点和meta节点,我们已经可以应对绝大多数的标题提取了。</p>
 </section>
@@ -257,8 +266,7 @@ response = diffbot.request(url, token, api)</code></pre>
 <p class="content-text list-like">正文内容所在的p节点内可能包含code、span等节点,这些内容大部分属于正文中的特殊样式字符,往往也需要归类到正文内容中。受开源项目 GeneralNewsExtractor 和论文《基于文本及符号密度的网页正文提取方法》(以下简称论文)的启发,我得到了一个比较有效的正文文本提取依据指标——文本密度。</p>
 <p class="content-text">文本密度是什么呢?简单理解就是单位标签内包含的文字个数。例如一个p节点内包含100个字,那么可以简单地计算出文本密度为100;如果包含5个字,那么文本密度为5。一般来说,正文区域以一个节点为一个段落,而一个段落包含的字通常比较多,文本密度可能上百;对于其他区域,例如页面导航区域,通常会包含多个节点,这些链接可能总共也就十几二十个字,因此文本密度要低很多。综上,文本密度可以作为判断正文内容的重要参考指标。</p>
 <p class="content-text">当然,论文本身不仅局限于纯文本和节点的大小比例,还考虑到了文本中包含的超链接。论文中定义,如果i为HTML DOM 树中的一个节点,那么该节点的文本密度为:</p>
-<pre class="code-block"><code>TD₁ =</code></pre>
-<p class="content-text">T-LT,TG-LTG,</p>
+<div class="formula-block">TD₁ = T-LT,TG-LTG,</div>
 <p class="content-text">如下为其中各个符号的含义。</p>
 <p class="content-text list-like"><strong class="term-label">TD:</strong>节点的文本密度。</p>
 <p class="content-text list-like"><strong class="term-label">T:</strong>节点中字符串的字数。</p>
@@ -267,7 +275,8 @@ response = diffbot.request(url, token, api)</code></pre>
 <p class="content-text list-like"><strong class="term-label">LTG:</strong>节点中带链接的标签的数量。</p>
 <p class="content-text">以上各项需要好好理解一下,其实文本密度基本上等同于单位标签内包含的文字个数,这里额外考虑了节点内包含超链接的情况。因为一般而言,正文区域带超链接的情况是比较少的,而侧边栏、页面导航等区域,带超链接的概率非常高,所以这些地方的文本密度就会低下来,上面那么算能够更好地排除这些内容的干扰。</p>
 <p class="content-text">另外,论文中还提到了一个指标,叫作符号密度。研究发现,正文中一般会带标点符号,而网页链接、广告信息由于文字比较少,通常是不包含标点符号的,因此我们还可以借助符号密度排除一些内容。</p>
-<p class="content-text">论文中对于符号密度的定义如下:SbD; =T-LT,Sb, +1</p>
+<p class="content-text">论文中对于符号密度的定义如下:</p>
+<div class="formula-block">SbD; =T-LT,Sb, +1</div>
 <p class="content-text">如下为其中各个符号的含义。</p>
 <p class="content-text list-like"><strong class="term-label">SbD;:</strong>节点的符号密度。</p>
 <p class="content-text list-like"><strong class="term-label">T:</strong>节点中字符串的字数。</p>
@@ -280,7 +289,8 @@ response = diffbot.request(url, token, api)</code></pre>
 <p class="content-text list-like"><strong class="term-label">SD:</strong>所有节点的文本密度标准差。</p>
 <p class="content-text list-like"><strong class="term-label">TD:</strong>节点i的文本密度。</p>
 <p class="content-text list-like"><strong class="term-label">PNum:</strong>节点i包含的p节点的数量。</p>
-<p class="content-text list-like">SbD:节点i的符号密度。遍历各个节点,利用该公式为每个节点计算分数,然后根据最终得分确定正文节点,提取正文内容。通过对比实验数据,可知一些中文新闻网站的正文内容提取正确率能达到90%以上,甚至部分可以达到99%。另外,论文作者还在不同网站上对该算法进行了评测,计算出了P(Precision)、R(Recall)、Score (F1-Score)值,结果如表14-1所示。</p>
+<p class="content-text list-like"><strong class="term-label">SbD:</strong>节点i的符号密度。</p>
+<p class="content-text">遍历各个节点,利用该公式为每个节点计算分数,然后根据最终得分确定正文节点,提取正文内容。通过对比实验数据,可知一些中文新闻网站的正文内容提取正确率能达到90%以上,甚至部分可以达到99%。另外,论文作者还在不同网站上对该算法进行了评测,计算出了P(Precision)、R(Recall)、Score (F1-Score)值,结果如表14-1所示。</p>
 <p class="table-caption">表14-1 在不同网站对算法做的评测</p>
 <table class="content-table"><thead><tr><th>网站</th><th>P</th><th>R</th><th>Score</th></tr></thead><tbody><tr><td>cleanEval-Eng</td><td>93.88%</td><td>77.43%</td><td>73.11%</td></tr>
 <tr><td>cleanEval-Zh</td><td>81.62%</td><td>69.18%</td><td>62.16%</td></tr>
@@ -349,7 +359,11 @@ return hs or []</code></pre>
 <pre class="code-block"><code>title_extracted_by_meta = extract_by_meta(element)
 title_extracted_by_h = extract_by_h(element)
 title_extracted_by_title = extract_by_title(element)</code></pre>
-<p class="content-text">运行结果如下:title_extracted_by_meta 故宫,你低调点!故宫:不,实力已不允许我继续低调title_extracted_by_h['故宫,你低调点!故宫:不,实力已不允许我继续低调','为您推荐','精品有声','好书精选'] title_extracted_by_title 故宫,你低调点!故宫:不,实力已不允许我继续低调_凤凰网可以观察到,3个方法返回的结果差不多,都包含真实的标题信息,另外后两个结果中有一些不太一样的内容。如我们所料,title_extracted_by_meta 是完全正确的标题。假设不存在和 meta 节点相匹配的结果,如何依靠title_extracted_by_title 和 title_extracted_by_h 得到真实的标题呢?可以观察到,title_extracted_by_title 相对真正的标题多了网站名称,title_extracted_by_h是h节点组成的列表,其中有一个是真正的标题。有了这两部分信息,只需要求得和 title_extracted_by_title 最相似的h节点的内容就可以了。</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>title_extracted_by_meta 故宫,你低调点!故宫:不,实力已不允许我继续低调
+title_extracted_by_h ['故宫,你低调点!故宫:不,实力已不允许我继续低调','为您推荐','精品有声','好书精选']
+title_extracted_by_title 故宫,你低调点!故宫:不,实力已不允许我继续低调_凤凰网</code></pre>
+<p class="content-text">可以观察到,3个方法返回的结果差不多,都包含真实的标题信息,另外后两个结果中有一些不太一样的内容。如我们所料,title_extracted_by_meta 是完全正确的标题。假设不存在和 meta 节点相匹配的结果,如何依靠title_extracted_by_title 和 title_extracted_by_h 得到真实的标题呢?可以观察到,title_extracted_by_title 相对真正的标题多了网站名称,title_extracted_by_h是h节点组成的列表,其中有一个是真正的标题。有了这两部分信息,只需要求得和 title_extracted_by_title 最相似的h节点的内容就可以了。</p>
 <p class="content-text">可以采取的解决方案有很多,例如直接使用最基本的相似度算法——Jaccard算法,即用两个字符串的交集字符数量除以两个字符串的并集字符数量。代码实现如下:</p>
 <pre class="code-block"><code>def similarity(s1, s2):
 if not s1 or not s2:
@@ -377,32 +391,32 @@ return title_extracted_by_h[0]</code></pre>
 <h3 class="subsection-heading numbered-heading">4. 提取正文</h3>
 <p class="content-text">终于轮到重头戏——提取正文了,我们一起来实现14.2节介绍的文本密度和符号密度的计算吧。首先需要做一些预处理工作。html 节点内通常有很多噪声,非常影响正文内容的提取,script、style 这些内容不仅一定不会包含正文,还会严重影响文本密度的计算,所以有必要先定义一个预处理方法:</p>
 <pre class="code-block"><code>from lxml.html import HtmlElement, etree</code></pre>
-<pre class="code-block"><code>CONTENT_USELESS_TAGS = ['meta', 'style', 'script', 'link', 'video', 'audio', 'iframe', 'source', 'svg', 'path',</code></pre>
-<p class="content-text">'symbol', 'img', 'footer', 'header']</p>
-<pre class="code-block"><code>CONTENT_STRIP_TAGS = ['span', 'blockquote']
+<pre class="code-block"><code>CONTENT_USELESS_TAGS = ['meta', 'style', 'script', 'link', 'video', 'audio', 'iframe', 'source', 'svg', 'path',
+'symbol', 'img', 'footer', 'header']
+CONTENT_STRIP_TAGS = ['span', 'blockquote']
 CONTENT_NOISE_XPATHS = [
 '//div[contains(@class, "comment")]',
 '//div[contains(@class, "advertisement")]',
 '//div[contains(@class, "advert"))',
 '//div[contains(@style, "display: none")]',
 ]</code></pre>
-<pre class="code-block"><code>def preprocess4content (element: HtmlElement):
-#删除标签和内容</code></pre>
-<p class="content-text">    etree.strip_elements (element, *CONTENT_USELESS_TAGS)</p>
-<pre class="code-block" data-lang="python"><code>#只删除标签对
-etree.strip_tags(element, *CONTENT_STRIP_TAGS)
-#删除噪声标签
-remove_children (element, CONTENT_NOISE_XPATHS)
-for child in children (element):
-    #把span和strong 标签里面的文本合并到父级 p标签里面
-    if child.tag.lower() == 'p':
-        etree.strip_tags(child, 'span')
-        etree.strip_tags(child, 'strong')
-    if not (child.text and child.text.strip()):
-        remove_element(child)
-    # 如果 div 标签里没有任何子节点,就把它转换为p 标签
-    if child.tag.lower() == 'div' and not child.getchildren():
-        child.tag = 'p'</code></pre>
+<pre class="code-block" data-lang="python"><code>def preprocess4content (element: HtmlElement):
+    #删除标签和内容
+    etree.strip_elements (element, *CONTENT_USELESS_TAGS)
+    #只删除标签对
+    etree.strip_tags(element, *CONTENT_STRIP_TAGS)
+    #删除噪声标签
+    remove_children (element, CONTENT_NOISE_XPATHS)
+    for child in children (element):
+        #把span和strong 标签里面的文本合并到父级 p标签里面
+        if child.tag.lower() == 'p':
+            etree.strip_tags(child, 'span')
+            etree.strip_tags(child, 'strong')
+        if not (child.text and child.text.strip()):
+            remove_element(child)
+        # 如果 div 标签里没有任何子节点,就把它转换为p 标签
+        if child.tag.lower() == 'div' and not child.getchildren():
+            child.tag = 'p'</code></pre>
 <p class="content-text">这里我们定义了一些规则,CONTENT_USELESS_TAGS 代表一些噪声节点,直接调用 strip_elements 方法把这些节点及其内容删除即可。CONTENT_STRIP_TAGS 中节点的文本内容是需要保留的,但是标签可以删掉。CONTENT_NOISE_XPATHS 代表一些很明显不是正文的节点,如评论、广告等,直接删除就好。其中还调用了几个工具方法,这些方法的定义如下:</p>
 <pre class="code-block" data-lang="python"><code>def remove_element(element: HtmlElement):
     parent = element.getparent()
@@ -480,7 +494,12 @@ def density_of_punctuation(element: Element):
     result = (element.number_of_char - element.number_of_a_char) / \
              (element.number_of_punctuation + 1)
     return result or 1</code></pre>
-<p class="content-text">这里列举的几个计算方法,接收的参数都是 Element 对象,返回值是对应字段的结果。number_of_a_char 方法用于获取节点内带超链接的字符数,实现流程是查找当前节点内所有的 a 节点,然后统计这些 a 节点内的字符数量;number_of_punctuation 方法用于获取节点内标点符号的数量,实现流程是先获取节点内的所有文本,然后统计其中属于标点符号的字符,这里声明了标点符号的集合 PUNCTUATION;density_of_text 方法用于计算节点的文本密度,其计算规则和 14.2 节的公式完全一致,这里就是number_of_char 和 number_of_a_char 的差除以 number_of_descendants 和 number_of_a_descendants 的差;density_of_punctuation 方法用于计算节点的符号密度,其计算规则也和 14.2 节的公式完全一致,即 number_of_char 和 number_of_a_char 的差除以 number_of_punctuation 加1。通过这些方法,我们就可以计算 Element 对象的各个指标了,最重要的当属文本密度 density_of_text 和符号密度 density_of_punctuation。最后一步是利用 14.2节介绍的公式,计算节点的最终分数并选取分数最高的节点提取其文本内容,最终得到的结果就是正文内容。提取正文的方法定义如下:</p>
+<p class="content-text">这里列举的几个计算方法,接收的参数都是 Element 对象,返回值是对应字段的结果。</p>
+<p class="content-text list-like"><strong class="term-label">number_of_a_char:</strong>用于获取节点内带超链接的字符数,实现流程是查找当前节点内所有的 a 节点,然后统计这些 a 节点内的字符数量。</p>
+<p class="content-text list-like"><strong class="term-label">number_of_punctuation:</strong>用于获取节点内标点符号的数量,实现流程是先获取当前节点内的所有文本,然后统计其中属于标点符号的字符,这里声明了标点符号的集合 PUNCTUATION。</p>
+<p class="content-text list-like"><strong class="term-label">density_of_text:</strong>用于计算节点的文本密度,其计算规则和 14.2 节的公式完全一致,这里就是number_of_char 和 number_of_a_char 的差除以 number_of_descendants 和 number_of_a_descendants 的差。</p>
+<p class="content-text list-like"><strong class="term-label">density_of_punctuation:</strong>用于计算节点的符号密度,其计算规则也和 14.2 节的公式完全一致,即 number_of_char 和 number_of_a_char 的差除以 number_of_punctuation 加1。</p>
+<p class="content-text">通过这些方法,我们就可以计算 Element 对象的各个指标了,最重要的当属文本密度 density_of_text 和符号密度 density_of_punctuation。最后一步是利用 14.2节介绍的公式,计算节点的最终分数并选取分数最高的节点提取其文本内容,最终得到的结果就是正文内容。提取正文的方法定义如下:</p>
 <pre class="code-block"><code>def process(element: Element):
     # 预处理
     preprocess4content(element)
@@ -507,7 +526,36 @@ def density_of_punctuation(element: Element):
     text = '\n'.join(paragraphs)
     text = text.strip()
     return text</code></pre>
-<p class="content-text">这里定义了一个 process方法,并向其中传入HTML根节点进行处理。首先调用 preprocess4content方法做预处理,然后调用 descendants_of_body 方法获取了 body 节点的所有子孙节点,赋值为descendants。接着对 descendants 进行遍历,计算出各个子孙节点的文本密度、符号密度以及文本密度的标准差,最后求得分数 density_score。求得所有子孙节点的 density_score之后,排序找出 density_score 最高的节点,然后提取其p节点的文本内容即为正文,如上代码中的最后一部分便实现了排序和提取过程。调用 process 方法来提取示例新闻页面的正文,运行结果如下:““我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”“重檐之上的月光,曾照进古人的宫殿;城墙上绵延的灯彩,映出了角楼的瑰丽。今夜,一群博物馆人将我点一段话。”“半小时后,“紫禁城上元之夜”的灯光点亮了北京夜空。”“午门城楼及东西雁翅楼用白、黄、红三种颜色光源装扮!”“太和门广场变成了超大的夜景灯光秀场!”“图片来源:东方IC 版权作品请勿转载”“午门城宫博物院供图”“故宫的角楼被灯光装点出满满的节日气氛!”“故宫博物院供图”“令人惊叹的是,故宫的“网红”藏品《清明上河图》《千里江山图卷》在“灯会”中展开画卷。”“灯光版《清明上河图》”“以灯为笔,以屋顶为,故宫博物院最北端神武门也被灯光点亮!”“故宫博物院供图”“上元之夜,故宫邀请了劳动模范、北京榜样、快递小哥、环卫工人、解放军和武警官兵、消防指战员、公安干警等各界代表以及预约成功的观众,共3000人故宫博物院供图”“时间退回到两天前,故宫博物院发布了2月19日(正月十五)、20日(正月十六)即将举办“紫禁城上元之夜”文化活动的消息。”“图片来源:视觉中国”“18日凌晨,一众网友前往故宫博物院官网抢票,网站甚节就有诸多讲究。”“有灯无月不娱人,有月无灯不算春。”“春到人间人似玉,灯烧月下月如怠。”“满街珠翠游村女,沸地笙歌赛社神。”“不展芳尊开口笑,如何消得此良辰。”——唐伯虎《元宵》“明代宫中过上节,皇宵节晚会”。“2月18日,北京故宫午门调试灯光。中新社记者杜洋摄”“其中,灯戏颇为有趣。由多人舞灯拼出吉祥文字及图案,每人手执彩灯、身着不同颜色的服装,翩翩起舞,类似于现代的大型团体操表演。”“但这紫禁城,恭亲王奕与英法联军交换了《天津条约》批准书,并订立《中英北京条约》《中法北京条约》作为补充。”“战争结束了,侵略者摇身一变成了游客。一位外国“摄影师”拍下了当年的紫禁城,并在日记里写到,百年。”“直到上世纪40年代时,故宫的环境仍然并不是想象中的博物馆的状态。曾有故宫博物院工作人员撰文回忆,当时的故宫内杂草丛生,房倒屋漏,有屋顶竟长出了树木。光是清理当时宫中存留的垃圾、杂草就用单霁翔到任故宫院长。那时,他拿到的故宫博物院介绍,写了这座博物馆诸多的“世界之最”。可他觉得,当自己真正走到观众中间,这些“世界之最”都没有了。2月18日,北京故宫午门调试灯光。中新社记者杜洋摄外环境进行了大整治。游客没有地方休息,那就拆除了宫中的临时建筑、新增供游客休息的椅子;游客排队上厕所,那就将一个职工食堂都改成了洗手间;游客买票难,那就全面采用电子购票,新增多个售票点;馆。今年,持续整个正月的“过大年”展览和“紫禁城上元之夜”,让本该是淡季的故宫变得一票难求。在普通人眼中,近600 岁的故宫正变得越来越年轻。资料图:故宫博物院院长单霁翔。中新社记者刘关关摄。元宵节活动进行评估后,或结合二十四节气等重要时间节点推出夜场活动。你期待吗?作者:上官云宋宇晟可以看到,正文被成功提取出来了。</p>
+<p class="content-text">这里定义了一个 process方法,并向其中传入HTML根节点进行处理。首先调用 preprocess4content方法做预处理,然后调用 descendants_of_body 方法获取了 body 节点的所有子孙节点,赋值为descendants。接着对 descendants 进行遍历,计算出各个子孙节点的文本密度、符号密度以及文本密度的标准差,最后求得分数 density_score。</p>
+<p class="content-text">求得所有子孙节点的 density_score之后,排序找出 density_score 最高的节点,然后提取其p节点的文本内容即为正文,如上代码中的最后一部分便实现了排序和提取过程。调用 process 方法来提取示例新闻页面的正文,运行结果如下:</p>
+<pre class="result-block"><code>““我的名字叫紫禁城,快要600岁了,这上元的夜啊,总是让我沉醉,这么久了却从未停止。”
+“重檐之上的月光,曾照进古人的宫殿;城墙上绵延的灯彩,映出了角楼的瑰丽。今夜,一群博物馆人将我点一段话。”
+“半小时后,“紫禁城上元之夜”的灯光点亮了北京夜空。”
+“午门城楼及东西雁翅楼用白、黄、红三种颜色光源装扮!”
+“太和门广场变成了超大的夜景灯光秀场!”
+“图片来源:东方IC 版权作品请勿转载”
+“午门城宫博物院供图”
+“故宫的角楼被灯光装点出满满的节日气氛!”
+“故宫博物院供图”
+“令人惊叹的是,故宫的“网红”藏品《清明上河图》《千里江山图卷》在“灯会”中展开画卷。”
+“灯光版《清明上河图》”
+“以灯为笔,以屋顶为,故宫博物院最北端神武门也被灯光点亮!”
+“故宫博物院供图”
+“上元之夜,故宫邀请了劳动模范、北京榜样、快递小哥、环卫工人、解放军和武警官兵、消防指战员、公安干警等各界代表以及预约成功的观众,共3000人故宫博物院供图”
+“时间退回到两天前,故宫博物院发布了2月19日(正月十五)、20日(正月十六)即将举办“紫禁城上元之夜”文化活动的消息。”
+“图片来源:视觉中国”
+“18日凌晨,一众网友前往故宫博物院官网抢票,网站甚节就有诸多讲究。”
+“有灯无月不娱人,有月无灯不算春。”
+“春到人间人似玉,灯烧月下月如怠。”
+“满街珠翠游村女,沸地笙歌赛社神。”
+“不展芳尊开口笑,如何消得此良辰。”——唐伯虎《元宵》
+“明代宫中过上节,皇宵节晚会”。
+“2月18日,北京故宫午门调试灯光。中新社记者杜洋摄”
+“其中,灯戏颇为有趣。由多人舞灯拼出吉祥文字及图案,每人手执彩灯、身着不同颜色的服装,翩翩起舞,类似于现代的大型团体操表演。”
+“但这紫禁城,恭亲王奕与英法联军交换了《天津条约》批准书,并订立《中英北京条约》《中法北京条约》作为补充。”
+“战争结束了,侵略者摇身一变成了游客。一位外国“摄影师”拍下了当年的紫禁城,并在日记里写到,百年。”
+“直到上世纪40年代时,故宫的环境仍然并不是想象中的博物馆的状态。曾有故宫博物院工作人员撰文回忆,当时的故宫内杂草丛生,房倒屋漏,有屋顶竟长出了树木。光是清理当时宫中存留的垃圾、杂草就用单霁翔到任故宫院长。那时,他拿到的故宫博物院介绍,写了这座博物馆诸多的“世界之最”。可他觉得,当自己真正走到观众中间,这些“世界之最”都没有了。2月18日,北京故宫午门调试灯光。中新社记者杜洋摄外环境进行了大整治。游客没有地方休息,那就拆除了宫中的临时建筑、新增供游客休息的椅子;游客排队上厕所,那就将一个职工食堂都改成了洗手间;游客买票难,那就全面采用电子购票,新增多个售票点;馆。今年,持续整个正月的“过大年”展览和“紫禁城上元之夜”,让本该是淡季的故宫变得一票难求。在普通人眼中,近600 岁的故宫正变得越来越年轻。资料图:故宫博物院院长单霁翔。中新社记者刘关关摄。元宵节活动进行评估后,或结合二十四节气等重要时间节点推出夜场活动。你期待吗?作者:上官云宋宇晟</code></pre>
+<p class="content-text">可以看到,正文被成功提取出来了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 提取发布时间</h3>
@@ -661,11 +709,11 @@ print(jsonify(extract_detail(html)))</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
-<p class="content-text"> 上一节中我们已经将示例列表页的HTML代码保存下来了，文件名为list.html。另外，本节主要还是用XPath 解析页面和操作节点，所以需要用到 lxml 库。</p>
+<p class="content-text">上一节中我们已经将示例列表页的HTML代码保存下来了，文件名为list.html。另外，本节主要还是用XPath 解析页面和操作节点，所以需要用到 lxml 库。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 数据预处理</h3>
-<p class="content-text"> 和提取详情页正文时一样，由于原始 HTML 代码中包含很多干扰内容，所以先对HTML 代码进行预处理，整个预处理方法和提取详情页正文时也基本类似，这里为了更加灵活地修改处理逻辑，单独定义了一个 preprocess4list 方法：</p>
+<p class="content-text">和提取详情页正文时一样，由于原始 HTML 代码中包含很多干扰内容，所以先对HTML 代码进行预处理，整个预处理方法和提取详情页正文时也基本类似，这里为了更加灵活地修改处理逻辑，单独定义了一个 preprocess4list 方法：</p>
 <pre class="code-block" data-lang="python"><code>from lxml.html import HtmlElement, etree
 
 LIST_USELESS_TAGS = ['meta', 'style', 'script', 'link', 'video', 'audio', 'iframe', 'source', 'svg', 'path',
@@ -702,11 +750,11 @@ def preprocess4list(element: HtmlElement):
         # 如果 div 标签不包含任何子节点,它可以被转换为 p 节点
         if child.tag.lower() == 'div' and not child.getchildren():
             child.tag = 'p'</code></pre>
-<p class="content-text"> 这里同样定义了一些规则，LIST_USELESS_TAGS 代表一些噪声节点，可以直接调用 strip_elements方法把其整个节点和内容删除。LIST_STRIP_TAGS 节点的文本内容需要保留，标签可以删掉。LIST_NOISE_XPATHS 代表一些明显不是列表内容的节点，例如评论、广告等，直接删除就好。其中还用到了工具方法 remove_children、remove_element 等，它们的定义也已经在 14.3 节阐明，这里不再赘述。</p>
+<p class="content-text">这里同样定义了一些规则，LIST_USELESS_TAGS 代表一些噪声节点，可以直接调用 strip_elements方法把其整个节点和内容删除。LIST_STRIP_TAGS 节点的文本内容需要保留，标签可以删掉。LIST_NOISE_XPATHS 代表一些明显不是列表内容的节点，例如评论、广告等，直接删除就好。其中还用到了工具方法 remove_children、remove_element 等，它们的定义也已经在 14.3 节阐明，这里不再赘述。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 选取组节点</h3>
-<p class="content-text"> 现在实现前两步：根据成员节点的特征（同类型且连续）找出所有符合条件的候选组节点，然后根据规定的组节点特征（例如字数、成员节点数量等）排除冗余组节点。</p>
+<p class="content-text">现在实现前两步：根据成员节点的特征（同类型且连续）找出所有符合条件的候选组节点，然后根据规定的组节点特征（例如字数、成员节点数量等）排除冗余组节点。</p>
 <p class="content-text">为了方便操作,这里扩展一下 Element 对象的属性:</p>
 <pre class="code-block" data-lang="python"><code>class Element (HtmlElement):
     id: int = None

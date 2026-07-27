@@ -23,12 +23,17 @@
 <main class="main-content">
 <h1 class="chapter-title">第9章 代理的使用</h1>
 <article class="ocr-content">
-<p class="content-text">在使用爬虫的过程中经常会遇到这样的情况,爬虫最初还可以正常运行,正常爬取数据,一切看起来都是那么美好,然而一杯茶的工夫过去,就可能出现了错误,比如返回403 Forbidden,这时打开网页,可能会看到“您的IP访问频率太高”这样的提示,或者跳出一个验证码让我们识别,通过之后才可以访问,但是过一会儿又会变成这样。出现上述现象的原因是网站采取了一些反爬虫措施。例如服务器会检测某个IP在单位时间内的请求次数,如果这个次数超过了指定的阈值,就直接拒绝服务,并返回一些错误信息,这种情况可以称为封IP。这样,网站就成功把我们的爬虫封禁了。既然服务器检测的是某个IP在单位时间内的请求次数,那么借助某种方式把IP伪装起来,让服务器识别不出是由我们本机发起的请求,不就可以成功防止封IP了吗?这时代理就派上用场了。本章会详细介绍代理的基本知识以及各种代理的使用方式,包括代理的设置、代理池的维护、付费代理的使用、ADSL拨号代理的搭建方法等内容,希望能够帮助爬虫脱离封IP的苦海。</p>
+<p class="content-text">在使用爬虫的过程中经常会遇到这样的情况,爬虫最初还可以正常运行,正常爬取数据,一切看起来都是那么美好,然而一杯茶的工夫过去,就可能出现了错误,比如返回403 Forbidden,这时打开网页,可能会看到“您的IP访问频率太高”这样的提示,或者跳出一个验证码让我们识别,通过之后才可以访问,但是过一会儿又会变成这样。</p>
+<p class="content-text">出现上述现象的原因是网站采取了一些反爬虫措施。例如服务器会检测某个IP在单位时间内的请求次数,如果这个次数超过了指定的阈值,就直接拒绝服务,并返回一些错误信息,这种情况可以称为封IP。这样,网站就成功把我们的爬虫封禁了。既然服务器检测的是某个IP在单位时间内的请求次数,那么借助某种方式把IP伪装起来,让服务器识别不出是由我们本机发起的请求,不就可以成功防止封IP了吗?</p>
+<p class="content-text">这时代理就派上用场了。本章会详细介绍代理的基本知识以及各种代理的使用方式,包括代理的设置、代理池的维护、付费代理的使用、ADSL拨号代理的搭建方法等内容,希望能够帮助爬虫脱离封IP的苦海。</p>
 <div class="section-heading" id="section-0"><h2>9.1 代理的设置</h2></div>
 <p class="content-text">我们在第2章和第7章介绍了很多请求库,例如urllib、requests、Selenium、Pyppeteer、Playwright等,但是没有统一梳理过代理的设置方法,本节我们就针对这些库梳理一下代理的设置方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">请先了解一下代理的基本原理,参考本书1.5节即可,这有助于更好地理解和学习本节内容。另外,需要先获取一个可用代理,代理就是IP 地址和端口的组合,格式是&lt;ip&gt;:&lt;port&gt;。如果代理需要访问认证,则还需要额外的用户名和密码两个信息。那怎么获取一个可用代理呢?使用搜索引擎搜索“代理”关键字,会返回许多代理服务网站,网站上有很多免费代理或付费代理,例如快代理的免费HTTP代理 https://www.kuaidaili.com/free/就提供了很多免费代理,但在大多数情况下这些免费代理并不一定稳定,所以比较靠谱的方法是购买付费代理。付费代理的各大代理商家都有套餐,数量不多,稳定可用,可以自行选购。除了购买付费代理,也可以在本机配置一些代理软件,具体的配置方法可以参考 https://setup.scrape.center/proxy-client,运行代理软件后会在本机创建HTTP或SOCKS代理服务,所以代理地址一般是 127.0.0.1:&lt;port&gt;这样的格式,不同代理软件使用的端口可能不同。我的本机上安装着一个代理软件,它会在7890端口上创建HTTP代理服务,在7891端口上创建SOCKS 代理服务,因此HTTP代理地址为127.0.0.1:7890, SOCKS 代理地址为127.0.0.1:7891,只要设置了这个代理,就可以成功将本机IP 切换到代理软件连接的服务器的IP。在本章之后的示例里,我将使用这个代理软件演示设置方法,大家可以替换成自己的可用代理。</p>
+<p class="content-text">请先了解一下代理的基本原理,参考本书1.5节即可,这有助于更好地理解和学习本节内容。另外,需要先获取一个可用代理,代理就是IP 地址和端口的组合,格式是&lt;ip&gt;:&lt;port&gt;。如果代理需要访问认证,则还需要额外的用户名和密码两个信息。</p>
+<p class="content-text">那怎么获取一个可用代理呢?使用搜索引擎搜索“代理”关键字,会返回许多代理服务网站,网站上有很多免费代理或付费代理,例如快代理的免费HTTP代理 https://www.kuaidaili.com/free/就提供了很多免费代理,但在大多数情况下这些免费代理并不一定稳定,所以比较靠谱的方法是购买付费代理。付费代理的各大代理商家都有套餐,数量不多,稳定可用,可以自行选购。</p>
+<p class="content-text">除了购买付费代理,也可以在本机配置一些代理软件,具体的配置方法可以参考 https://setup.scrape.center/proxy-client,运行代理软件后会在本机创建HTTP或SOCKS代理服务,所以代理地址一般是 127.0.0.1:&lt;port&gt;这样的格式,不同代理软件使用的端口可能不同。我的本机上安装着一个代理软件,它会在7890端口上创建HTTP代理服务,在7891端口上创建SOCKS 代理服务,因此HTTP代理地址为127.0.0.1:7890, SOCKS 代理地址为127.0.0.1:7891,只要设置了这个代理,就可以成功将本机IP 切换到代理软件连接的服务器的IP。</p>
+<p class="content-text">在本章之后的示例里,我将使用这个代理软件演示设置方法,大家可以替换成自己的可用代理。</p>
 <p class="content-text">设置代理后的测试网址是http://www.httpbin.org/get,访问该链接可以得到请求相关的信息,返回结果中的 origin 字段就是客户端的IP,我们可以根据它判断代理是否设置成功,即是否成功伪装了IP。接下来就看一下各个请求库是如何设置代理的吧。</p>
 </section>
 <section class="numbered-section">
@@ -578,45 +583,49 @@ print(result)</code></pre>
 <section class="minor-section">
 <h4 class="subsection-heading">获取模块</h4>
 <p class="content-text">获取模块主要负责从各大网站爬取代理并将代理保存到存储模块,代码实现见 https://github.com/Python3WebSpider/ProxyPool/tree/master/proxypool/crawlers。这个模块的代码逻辑相对简单,例如可以定义一些爬取代理的方法,示例如下:</p>
-<pre class="code-block"><code>from proxypool.crawlers.base import BaseCrawler
+<pre class="code-block" data-lang="python"><code>from proxypool.crawlers.base import BaseCrawler
 from proxypool.schemas.proxy import Proxy
-import re</code></pre>
-<pre class="code-block"><code>MAX_PAGE = 5
-BASE_URL = 'http://www.ip3366.net/free/?stype=1&amp;page={page}'</code></pre>
-<pre class="code-block"><code>class IP3366Crawler(BaseCrawler):</code></pre>
-<p class="content-text"> """ip3366 爬虫,http://www.ip3366.net/"""</p>
-<pre class="code-block"><code>urls = [BASE_URL.format(page=i) for i in range(1, 8)]</code></pre>
-</section>
-</section>
-<h2 class="chapter-title-inline">\s * 匹配空格,起到换行作用</h2>
-<pre class="code-block"><code>def parse(self, html):
-ip_address = re.compile('&lt;tr&gt;\s*&lt;td&gt;(.*?)&lt;/td&gt;\s*&lt;td&gt;(.*?)&lt;/td&gt;')
-re_ip_address = ip_address.findall(html)
-for address, port in re_ip_address:
-proxy = Proxy(host=address.strip(), port=int(port.strip()))
-yield proxy</code></pre>
+import re
+
+MAX_PAGE = 5
+BASE_URL = 'http://www.ip3366.net/free/?stype=1&amp;page={page}'
+
+class IP3366Crawler(BaseCrawler):
+    """ip3366 爬虫,http://www.ip3366.net/"""
+    urls = [BASE_URL.format(page=i) for i in range(1, 8)]
+
+    def parse(self, html):
+        # \s* 匹配空格,起到换行作用
+        ip_address = re.compile('&lt;tr&gt;\s*&lt;td&gt;(.*?)&lt;/td&gt;\s*&lt;td&gt;(.*?)&lt;/td&gt;')
+        re_ip_address = ip_address.findall(html)
+        for address, port in re_ip_address:
+            proxy = Proxy(host=address.strip(), port=int(port.strip()))
+            yield proxy</code></pre>
 <p class="content-text">这里定义了一个代理类 IP3366Crawler,用来爬取IP3366网站的公开代理,通过parse 方法解析页面的源代码,然后构造一个个 Proxy 对象并返回。我们在其父类 BaseCrawler 里定义了通用的页面爬取方法 fetch,代码实现如下:</p>
-<pre class="code-block"><code>from retrying import retry
+<pre class="code-block" data-lang="python"><code>from retrying import retry
 import requests
 from loguru import logger
+
 class BaseCrawler(object):
-urls = []
-@retry(stop_max_attempt_number=3, retry_on_result=lambda x: x is None)
-def fetch(self, url, **kwargs):
-try:
-response = requests.get(url, **kwargs)
-if response.status_code == 200:
-return response.text
-except requests.ConnectionError:
-return</code></pre>
-<p class="content-text">@logger.catch</p>
-<pre class="code-block"><code>def crawl(self):
-for url in self.urls:
-logger.info(f'fetching {url}')
-html = self.fetch(url)
-for proxy in self.parse(html):
-logger.info(f'fetched proxy {proxy.string()} from {url}')
-yield proxy</code></pre>
+    urls = []
+
+    @retry(stop_max_attempt_number=3, retry_on_result=lambda x: x is None)
+    def fetch(self, url, **kwargs):
+        try:
+            response = requests.get(url, **kwargs)
+            if response.status_code == 200:
+                return response.text
+        except requests.ConnectionError:
+            return
+
+    @logger.catch
+    def crawl(self):
+        for url in self.urls:
+            logger.info(f'fetching {url}')
+            html = self.fetch(url)
+            for proxy in self.parse(html):
+                logger.info(f'fetched proxy {proxy.string()} from {url}')
+                yield proxy</code></pre>
 <p class="content-text">如果要扩展一个代理类 Crawler,只需要继承 BaseCrawler 并实现 parse 方法即可,扩展性较好。fetch 方法可以读取Crawler里定义的全局变量 urls 并对其中的页面进行爬取,Crawler 再调用 parse方法解析页面即可。这样,就可以让一个个Crawler 从各个不同的代理网站爬取代理,最后统一将所有 Crawler 汇总起来,遍历调用即可。如何汇总呢?这里是通过检测代码,只要检测到 BaseCrawler 的子类,就将其算作一个有效的Crawler,可以直接遍历 Python 文件包,代码实现如下:</p>
 <pre class="code-block"><code>import pkgutil
 from.base import BaseCrawler
@@ -627,9 +636,10 @@ module = loader.find_module(name).load module (name)
 for name, value in inspect.getmembers (module):
 globals() [name] = value
 if inspect.isclass (value) and issubclass (value, BaseCrawler) and value is not BaseCrawler:
-classes.append(value)</code></pre>
-<p class="content-text">_ all = ALL = classes这里我们调用了 walk_packages 方法,遍历了整个 crawlers 模块下的类,并判断每个类是否为eCrawler 的子类,如果是就将其添加到 classes 中并返回。最后只要将遍历 classes 里面的类并依次实例化,调用各自的 crawl 方法即可完成代理的爬取和提取,代码实现见 https://github.com/</p>
-<p class="content-text">Python3WebSpider/ProxyPool/blob/master/proxypool/processors/getter.py。</p>
+classes.append(value)
+__all__ = ALL = classes</code></pre>
+<p class="content-text">这里我们调用了 walk_packages 方法,遍历了整个 crawlers 模块下的类,并判断每个类是否为 BaseCrawler 的子类,如果是就将其添加到 classes 中并返回。最后只要遍历 classes 里面的类并依次实例化,调用各自的 crawl 方法即可完成代理的爬取和提取,代码实现见 https://github.com/Python3WebSpider/ProxyPool/blob/master/proxypool/processors/getter.py。</p>
+</section>
 <section class="minor-section">
 <h4 class="subsection-heading">检测模块</h4>
 <p class="content-text">我们已经成功获取了各个网站的代理,现在需要一个检测模块对所有代理进行多轮检测。如果检测代理可用,就把其分数置为100,检测不可用,就把分数减1,这样可以实时改变每个代理的可用情况。要获取有效代理时,从分数高的代理中选择即可。由于代理非常多,为了提高检测效率,这里使用异步请求库 aiohttp来检测。requests 是一个同步请求库,在使用requests 发出一个请求后,程序需要等待网页加载完才能继续执行。也就是网页加载的过程会导致我们的程序阻塞,如果服务器响应得非常慢,例如十几秒才加载出来,那我们就需要先等待十几秒的时间,这期间程序不会继续往下执行,但完全可以去做其他的事情,例如调度其他请求或者解析网页等。如果服务器响应得比较快,那么使用requests 和aiohttp的效果差距就没那么大。可检测一个代理一般需要十多秒甚至几十秒的时间,这时候使用aiohttp库的优势就大大体现出来了,效率可能会提高几十倍不止。检测模块的实现示例如下:</p>
@@ -813,6 +823,7 @@ if __name__ == '__main__':
     scheduler.run()</code></pre>
 <p class="content-text">这里首先定义了3个常量ENABLE_TESTER、ENABLE_GETTER 和 ENABLE_SERVER,都是布尔类型,分别表示测试模块、获取模块和接口模块的开关,如果都取True,代表3个模块都开启了。这个模块的启动入口是run方法,这个方法会判断模块的开关是否开启,如果开启,就新建一个Process 进程设置好启动目标,然后调用start方法运行该进程,对3个模块都如此操作,之后3个进程并行执行,互不干扰。3个调度方法的结构也非常清晰。例如,run_tester 方法用于调度检测模块,方法中首先声明一个Tester 对象,然后进入死循环,不断地调用其run方法,执行完一轮后就休眠一段时间,休眠结束后再重新执行。这里把休眠时间定义为一个常量,如20秒,即每隔20秒进行一次代理检测。最后,只需要调用 Scheduler 类的run方法即可启动整个代理池。以上内容便是整个代理池的架构和各个模块对应的实现逻辑。</p>
 </section>
+</section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 运行</h3>
 <p class="content-text">现在,我们将代码整合在一起,并运行,运行之后的输出结果如下:</p>
@@ -949,7 +960,10 @@ print('Error', e.args)</code></pre>
 125.87.109.115:19573
 114.106.136.68:21288
 180.105.236.213:19387</code></pre>
-<p class="content-text">这些就是可用的代理了。为了防止代理被滥用,快代理设置了白名单机制:(1)需要设置 IP 白名单或用户名密码才能使用私密代理;(2) IP 白名单和用户名密码最好二选一,如果是使用用户名密码访问的,请不要设置 IP 白名单。可以根据其提示设置用户名密码访问或IP白名单访问,这里我使用的是IP白名单,这个IP得是我们对外开放的公网IP,可以通过很多方式查询到,例如通过百度直接查询,如图9-7所示。</p>
+<p class="content-text">这些就是可用的代理了。为了防止代理被滥用,快代理设置了白名单机制。</p>
+<p class="content-text list-like">需要设置 IP 白名单或用户名密码才能使用私密代理。</p>
+<p class="content-text list-like">IP 白名单和用户名密码最好二选一,如果是使用用户名密码访问的,请不要设置 IP 白名单。</p>
+<p class="content-text">可以根据其提示设置用户名密码访问或IP白名单访问,这里我使用的是IP白名单,这个IP得是我们对外开放的公网IP,可以通过很多方式查询到,例如通过百度直接查询,如图9-7所示。</p>
 <figure class="inline-figure"><img alt="图9-7 通过百度查询 IP" loading="lazy" src="figures/ch09/fig-9_7.jpg"/><figcaption>图9-7 通过百度查询 IP</figcaption></figure>
 <p class="content-text">此时我的IP地址为120.244.118.134,把这个IP设置到快代理的后台,我就可以正常使用代理了。当然,你需要找到你的IP,然后设置白名单。以上流程完成后,我们用代码实现一下,测试图9-6中的IP 是否可用:</p>
 <pre class="code-block" data-lang="python"><code>import requests
@@ -1028,13 +1042,11 @@ print(response.text)</code></pre>
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
 <p class="content-text">本节讲了两种代理的设置方案,各有各的优势。</p>
 <p class="content-text list-like">通过接口提取代理:我们可以灵活地控制使用哪个代理,同时可以将代理对接到代理池中维护起来,整体的使用灵活性更高。</p>
-<section class="minor-section">
-<h4 class="subsection-heading">使用隧道代理:我们无须关心具体使用哪个代理,会更加省心。</h4>
+<p class="content-text list-like">使用隧道代理:我们无须关心具体使用哪个代理,会更加省心。</p>
 <p class="content-text">两种方案各有利弊,可以根据具体的业务场景具体选择。</p>
+</section>
 <div class="section-heading" id="section-3"><h2>9.4 ADSL 拨号代理的搭建方法</h2></div>
 <p class="content-text">我们在9.2节尝试维护过一个代理池,从中可以挑选出许多可用的代理,但这些代理常常稳定性不高、响应速度慢,而且大概率是公共代理,意味着同一时间可能有多个人使用,故被封的概率很大。另外,这些代理的有效时间可能比较短,虽然代理池一直在筛选可用代理,但不免存在没有及时更新状态的情况,这样有可能导致我们得到不可用的代理。在9.3节,我们也了解了付费代理,其质量相对免费代理会好不少,的确算是一个相对不错的方案,但本节要介绍的方案可以使我们既能不断更换代理,又可以保证代理的稳定性。大家可能会在一些付费代理套餐中注意到这样一个套餐——独享代理或私密代理,这种代理其实是使用专用服务器搭建了代理服务,相对一般的付费代理来说,稳定性更好,速度也更快,同时IP可以动态变化。这种代理的IP切换大多是基于ADSL拨号机制实现的,一台云主机每拨号一次就可以换一个IP,同时云主机上搭建了代理服务,我们可以直接使用该云主机的HTTP代理来进行数据爬取。本节就来讲解搭建一个ADSL拨号代理服务的方法。</p>
-</section>
-</section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 什么是 ADSL</h3>
 <p class="content-text">ADSL 的英文全称是 Asymmetric Digital Subscriber Line,即非对称数字用户环路。它的上行带宽和下行带宽不对称,采用频分复用技术把普通电话线分成了电话、上行和下行3个相对独立的信道,从而避免了相互之间的干扰。</p>
@@ -1071,12 +1083,43 @@ adsl-stop</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 设置代理服务器</h3>
-<p class="content-text">当前云主机使用的是Linux的CentOS系统,它是无法作为一个HTTP代理服务器使用的,因为该云主机上目前并没有运行相关的代理软件。要想让它提供HTTP代理服务,需要安装并运行相关的代理服务软件。那什么软件能提供这种代理服务呢?目前业界比较流行的有Squid 和 TinyProxy,在云主机上配置好它们后,它们会在特定端口上运行一个HTTP代理。知道了云主机当前的IP,我们就能使用Squid 或TinyProxy 提供的HTTP代理了。这里以 Squid 为例演示一下配置过程。首先安装Squid,在CentOS系统上安装Squid的命令如下:sudo yum -y update yum -y install squid运行完这两行命令后,Squid 就安装成功了。如果想启动 Squid,可以运行如下命令:systemctl start squid如果想配置开机自动启动,可以运行如下命令:systemctl enable squid成功启动 Squid 后,可以使用如下命令查看它当前的运行状态:systemctl status squid结果如图 9-12 所示,可以看到Squid 已经成功运行了。</p>
+<p class="content-text">当前云主机使用的是Linux的CentOS系统,它是无法作为一个HTTP代理服务器使用的,因为该云主机上目前并没有运行相关的代理软件。要想让它提供HTTP代理服务,需要安装并运行相关的代理服务软件。那什么软件能提供这种代理服务呢?目前业界比较流行的有Squid 和 TinyProxy,在云主机上配置好它们后,它们会在特定端口上运行一个HTTP代理。知道了云主机当前的IP,我们就能使用Squid 或TinyProxy 提供的HTTP代理了。</p>
+<p class="content-text">这里以 Squid 为例演示一下配置过程。首先安装Squid,在CentOS系统上安装Squid的命令如下:</p>
+<pre class="code-block"><code>sudo yum -y update
+yum -y install squid</code></pre>
+<p class="content-text">运行完这两行命令后,Squid 就安装成功了。如果想启动 Squid,可以运行如下命令:</p>
+<pre class="code-block"><code>systemctl start squid</code></pre>
+<p class="content-text">如果想配置开机自动启动,可以运行如下命令:</p>
+<pre class="code-block"><code>systemctl enable squid</code></pre>
+<p class="content-text">成功启动 Squid 后,可以使用如下命令查看它当前的运行状态:</p>
+<pre class="code-block"><code>systemctl status squid</code></pre>
+<p class="content-text">结果如图 9-12 所示,可以看到Squid 已经成功运行了。</p>
 <figure class="inline-figure"><img alt="图9-12 成功运行的 Squid" loading="lazy" src="figures/ch09/fig-9_12.jpg"/><figcaption>图9-12 成功运行的 Squid</figcaption></figure>
-<p class="content-text">Squid 默认会运行在3128端口,相当于在云主机的3128端口启动了代理服务。接下来我们测试一下Squid 的代理效果,在该云主机上运行curl命令,请求 https://www.httpbin.org,并使用在云主机上配置的代理服务:curl -x http://127.0.0.1:3128 https://www.httpbin.org/get这里 curl 的-x参数代表设置HTTP代理,由于现在是在云主机上运行,所以直接将代理设置为了http://127.0.0.1:3128。运行完毕之后,再用ifconfig命令查看下当前云主机的IP,结果如图9所示。</p>
+<p class="content-text">Squid 默认会运行在3128端口,相当于在云主机的3128端口启动了代理服务。接下来我们测试一下Squid 的代理效果,在该云主机上运行curl命令,请求 https://www.httpbin.org,并使用在云主机上配置的代理服务:</p>
+<pre class="code-block"><code>curl -x http://127.0.0.1:3128 https://www.httpbin.org/get</code></pre>
+<p class="content-text">这里 curl 的-x参数代表设置HTTP代理,由于现在是在云主机上运行,所以直接将代理设置为了http://127.0.0.1:3128。运行完毕之后,再用ifconfig命令查看下当前云主机的IP,结果如图9所示。</p>
 <figure class="inline-figure"><img alt="图9-13 使用代理请求测试网站" loading="lazy" src="figures/ch09/fig-9_13.jpg"/><figcaption>图9-13 使用代理请求测试网站</figcaption></figure>
-<p class="content-text">可以看到测试网站的返回结果中的 origin 字段里的IP和用 ifconfig 获取的IP是一致的。接下来,在自己的本机上(非云主机)运行如下命令测试代理的连通情况,这里的IP 就需要更换为云主机本身的IP了,从图9-13可以看到云主机当前拨号的IP是106.45.104.166,所以需要运行如下命令:curl -x http://106.45.104.166:3128 https://www.httpbin.org/get然而发现并没有输出对应的结果,代理连接失败。其实失败的原因在于 Squid 默认不开启“允许外网访问”,对此我们可以修改 Squid 的相关配置,例如修改当前代理的运行端口、允许连接的IP,配置高匿代理等,这些都需要用到配置文件/etc/squid/squid.conf。要开启“允许公网访问”,最简单的方法就是将配置文件中的这行:http_access deny all修改为:http_access allow all意思是允许来自所有IP的请求连接本代理。另外还需要在配置文件的开头配置 acl的部分添加:acl all src 0.0.0.0/0然后,将 Squid 配置成高度匿名代理,这样目标网站就无法通过一些参数(如X-Forwarded-For)得知爬虫机本身的IP了,所以在配置文件中再添加如下内容:request_header_access Via deny all request_header_access X-Forwarded-For deny all考虑到有些云主机厂商默认封禁了 Squid 代理所在的3128端口,因此建议更换一个端口,例如3328,修改这行即可:http_port 3128将其中的3128 修改为3328:</p>
-<p class="content-text">http_port 3328修改完这些配置信息后,保存配置文件,重新启动Squid 代理:systemctl restart squid此时重新在本机上(非云主机)运行刚才的curl命令(将端口修改为3328):curl -x http://106.45.104.166:3328 https://www.httpbin.org/get返回结果如下:</p>
+<p class="content-text">可以看到测试网站的返回结果中的 origin 字段里的IP和用 ifconfig 获取的IP是一致的。接下来,在自己的本机上(非云主机)运行如下命令测试代理的连通情况,这里的IP 就需要更换为云主机本身的IP了,从图9-13可以看到云主机当前拨号的IP是106.45.104.166,所以需要运行如下命令:</p>
+<pre class="code-block"><code>curl -x http://106.45.104.166:3128 https://www.httpbin.org/get</code></pre>
+<p class="content-text">然而发现并没有输出对应的结果,代理连接失败。其实失败的原因在于 Squid 默认不开启“允许外网访问”,对此我们可以修改 Squid 的相关配置,例如修改当前代理的运行端口、允许连接的IP,配置高匿代理等,这些都需要用到配置文件/etc/squid/squid.conf。</p>
+<p class="content-text">要开启“允许公网访问”,最简单的方法就是将配置文件中的这行:</p>
+<pre class="code-block"><code>http_access deny all</code></pre>
+<p class="content-text">修改为:</p>
+<pre class="code-block"><code>http_access allow all</code></pre>
+<p class="content-text">意思是允许来自所有IP的请求连接本代理。另外还需要在配置文件的开头配置 acl的部分添加:</p>
+<pre class="code-block"><code>acl all src 0.0.0.0/0</code></pre>
+<p class="content-text">然后,将 Squid 配置成高度匿名代理,这样目标网站就无法通过一些参数(如X-Forwarded-For)得知爬虫机本身的IP了,所以在配置文件中再添加如下内容:</p>
+<pre class="code-block"><code>request_header_access Via deny all
+request_header_access X-Forwarded-For deny all</code></pre>
+<p class="content-text">考虑到有些云主机厂商默认封禁了 Squid 代理所在的3128端口,因此建议更换一个端口,例如3328,修改这行即可:</p>
+<pre class="code-block"><code>http_port 3128</code></pre>
+<p class="content-text">将其中的3128 修改为3328:</p>
+<pre class="code-block"><code>http_port 3328</code></pre>
+<p class="content-text">修改完这些配置信息后,保存配置文件,重新启动Squid 代理:</p>
+<pre class="code-block"><code>systemctl restart squid</code></pre>
+<p class="content-text">此时重新在本机上(非云主机)运行刚才的curl命令(将端口修改为3328):</p>
+<pre class="code-block"><code>curl -x http://106.45.104.166:3328 https://www.httpbin.org/get</code></pre>
+<p class="content-text">返回结果如下:</p>
 <pre class="result-block"><code>{
 "args": {},
 "headers": {
@@ -1100,11 +1143,24 @@ adsl-stop</code></pre>
 <p class="content-text list-like">配置一个可以公网访问的Redis数据库,每台云主机都将自己的代理存储到 Redis 数据库的对应位置,由Redis 数据库维护这些代理。</p>
 <p class="content-text list-like">申请多台拨号云主机,并按照上文所讲内容,在这些主机上配置好Squid 代理服务,为每台云主机设置定时拨号来更换IP。</p>
 <p class="content-text list-like">每台云主机在拨号前先删除 Redis 数据库中原来的代理,拨号成功后测试一下代理的可用性,并将最新的代理更新到 Redis 数据库中。</p>
-<p class="content-text">接下来就实操一下吧。我们使用Python 语言,先在云主机上安装 Python库:yum -y install python3关于自动拨号、连接 Redis 数据库、获取本机代理、设置Redis 数据库的操作,我已经写好了一个Python 包并发布到 PyPi了,大家可以直接使用这个包完成如上操作,这个包叫作 adslproxy,可以在云主机上使用pip3 工具安装:</p>
+<p class="content-text">接下来就实操一下吧。我们使用Python 语言,先在云主机上安装 Python库:</p>
+<pre class="code-block"><code>yum -y install python3</code></pre>
+<p class="content-text">关于自动拨号、连接 Redis 数据库、获取本机代理、设置Redis 数据库的操作,我已经写好了一个Python 包并发布到 PyPi了,大家可以直接使用这个包完成如上操作,这个包叫作 adslproxy,可以在云主机上使用pip3 工具安装:</p>
 <pre class="code-block"><code>pip3 install adslproxy</code></pre>
-<p class="content-text">安装完毕后,可以使用export 命令设置环境变量:export REDIS_HOST=&lt;Redis 数据库的地址&gt; export REDIS_PORT=&lt;Redis 数据库的端口&gt; export REDIS_PASSWORD=&lt;Redis 数据库的密码&gt; export PROXY_PORT=&lt;拨号云主机配置的代理端口&gt; export DIAL_BASH=&lt;拨号脚本&gt; export DIAL_IFNAME=&lt;网卡名称&gt; export CLIENT_NAME=&lt;云主机的唯一标识&gt; export DIAL_CYCLE=&lt;拨号间隔&gt;这里的 REDIS_HOST、REDIS_PORT、REDIS_PASSWORD 是远程 Redis的连接信息,就不再赘述了。PROXY_PORT 是云主机上代理服务的端口,我们已经设置为了 3328。DIAL_BASH是拨号命令,即pppoe-stop;pppoe-start,当然对于不同的云主机厂商来说,该脚本的内容也可能不同,以实际为准。DIAL_IFNAME 是拨号云主机上的网卡名称,程序可以通过获取该网卡的信息来获取当前拨号主机的IP地址,从之前的操作可以发现,网卡名称是pppo,当然这个名称也以实际为准。CLIENT_NAME 是云主机的唯一标识,用来在Redis 数据库中存储主机和代理的映射,因为我们有多台云主机,所以应该把不同云主机的名称设置为不同的字符串,例如adsl1、adsl2等。这里我们的设置如图9-14所示。</p>
+<p class="content-text">安装完毕后,可以使用export 命令设置环境变量:</p>
+<pre class="code-block"><code>export REDIS_HOST=&lt;Redis 数据库的地址&gt;
+export REDIS_PORT=&lt;Redis 数据库的端口&gt;
+export REDIS_PASSWORD=&lt;Redis 数据库的密码&gt;
+export PROXY_PORT=&lt;拨号云主机配置的代理端口&gt;
+export DIAL_BASH=&lt;拨号脚本&gt;
+export DIAL_IFNAME=&lt;网卡名称&gt;
+export CLIENT_NAME=&lt;云主机的唯一标识&gt;
+export DIAL_CYCLE=&lt;拨号间隔&gt;</code></pre>
+<p class="content-text">这里的 REDIS_HOST、REDIS_PORT、REDIS_PASSWORD 是远程 Redis的连接信息,就不再赘述了。PROXY_PORT 是云主机上代理服务的端口,我们已经设置为了 3328。DIAL_BASH是拨号命令,即pppoe-stop;pppoe-start,当然对于不同的云主机厂商来说,该脚本的内容也可能不同,以实际为准。DIAL_IFNAME 是拨号云主机上的网卡名称,程序可以通过获取该网卡的信息来获取当前拨号主机的IP地址,从之前的操作可以发现,网卡名称是pppo,当然这个名称也以实际为准。CLIENT_NAME 是云主机的唯一标识,用来在Redis 数据库中存储主机和代理的映射,因为我们有多台云主机,所以应该把不同云主机的名称设置为不同的字符串,例如adsl1、adsl2等。这里我们的设置如图9-14所示。</p>
 <figure class="inline-figure"><img alt="图9-14 我们设置的环境变量" loading="lazy" src="figures/ch09/fig-9_14.jpg"/><figcaption>图9-14 我们设置的环境变量</figcaption></figure>
-<p class="content-text">设置好环境变量之后,就可以运行adslproxy 命令进行拨号了,命令如下:adslproxy send运行结果如下:</p>
+<p class="content-text">设置好环境变量之后,就可以运行adslproxy 命令进行拨号了,命令如下:</p>
+<pre class="code-block"><code>adslproxy send</code></pre>
+<p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>2021-07-11 15:30:03.062 | INFO | adslproxy.sender.sender: loop:90 - Starting dial...
 2021-07-11 15:30:03.063 | INFO | adslproxy.sender.sender:run:99 Dial started, remove proxy
 2021-07-11 15:30:03.063 | INFO | adslproxy.sender.sender: remove_proxy:62 Removing adsl1...
@@ -1119,8 +1175,7 @@ adsl-stop</code></pre>
 2021-07-11 15:33:37.214 INFO | adslproxy.sender.sender: remove_proxy:69 Removed adsl1 successfully
 2021-07-11 15:33:38.617 INFO | adslproxy.sender.sender: run:111 Get new IP 106.45.105.219
 2021-07-11 15:33:48.750 INFO | adslproxy.sender.sender:run:120 Valid proxy 106.45.105.219:3328</code></pre>
-<p class="content-text">从中可以看到,因为在云主机拨号之后,当前代理就失效了,所以程序在拨号之前先尝试从 Redis</p>
-<p class="content-text">数据库中删除当前云主机的代理。然后开始执行拨号操作,拨号成功之后如果验证代理是可用的,再将该代理存储到 Redis 数据库中。这样循环往复运行,就达到了定时更换IP的效果,同时Redis 数据库中存储的也是实时可用的代理。最后,们可以购买多台拨号云主机,并都按前面那样配置,这样就有多个稳定且定时更新的代理可用了,Redis 数据库会实时更新各台云主机的代理,如图9-15所示。</p>
+<p class="content-text">从中可以看到,因为在云主机拨号之后,当前代理就失效了,所以程序在拨号之前先尝试从 Redis 数据库中删除当前云主机的代理。然后开始执行拨号操作,拨号成功之后如果验证代理是可用的,再将该代理存储到 Redis 数据库中。这样循环往复运行,就达到了定时更换IP的效果,同时Redis 数据库中存储的也是实时可用的代理。最后,我们可以购买多台拨号云主机,并都按前面那样配置,这样就有多个稳定且定时更新的代理可用了,Redis 数据库会实时更新各台云主机的代理,如图9-15所示。</p>
 <figure class="inline-figure"><img alt="图9-15 Redis 数据库中存储的各个代理" loading="lazy" src="figures/ch09/fig-9_15.jpg"/><figcaption>图9-15 Redis 数据库中存储的各个代理</figcaption></figure>
 <p class="content-text">图9-15显示的是4台ADSL拨号云主机经配置并运行后,Redis 数据库中的内容,其中的代理都是实时可用的。</p>
 </section>

@@ -23,16 +23,16 @@
 <main class="main-content">
 <h1 class="chapter-title">第6章 异步爬虫</h1>
 <article class="ocr-content">
-<p class="content-text">　　我们知道爬虫是 IO 密集型任务,例如使用 requests 库来爬取某个站点,当发出一个请求后,程序必须等待网站返回响应,才能接着运行,而在等待响应的过程中,整个爬虫程序是一直在等待的,实际上没有做任何事情。对于这种情况,我们有没有优化方案呢?</p>
-<p class="content-text">　　当然有,本章我们就来了解一下异步爬虫的基本概念和实现。</p>
+<p class="content-text">我们知道爬虫是 IO 密集型任务,例如使用 requests 库来爬取某个站点,当发出一个请求后,程序必须等待网站返回响应,才能接着运行,而在等待响应的过程中,整个爬虫程序是一直在等待的,实际上没有做任何事情。对于这种情况,我们有没有优化方案呢?</p>
+<p class="content-text">当然有,本章我们就来了解一下异步爬虫的基本概念和实现。</p>
 <div class="section-heading" id="section-0"><h2>6.1 协程的基本原理</h2></div>
-<p class="content-text">　　要实现异步机制的爬虫,那自然和协程脱不了关系。</p>
+<p class="content-text">要实现异步机制的爬虫,那自然和协程脱不了关系。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 案例引入</h3>
-<p class="content-text">　　在介绍协程之前,先来看一个案例网站,地址为https://www.httpbin.org/delay/5,访问这个链接需要先等待五秒才能得到结果,这是因为服务器强制等待了5 秒时间才返回响应。</p>
-<p class="content-text">　　平时我们浏览网页的时候,绝大部分网页的响应速度还是很快的,如果写爬虫来爬取,那么从发出请求到接收响应的时间不会很长,因此需要我们等待的时间并不多。</p>
-<p class="content-text">　　然而像上面这个网站,发出一次请求至少需要5 秒才能得到响应,如果用 requests 库写爬虫来爬取,那么每次都要等待5 秒及以上才能拿到结果。</p>
-<p class="content-text">　　下面来测试一下,我们用requests 写一个遍历程序,直接遍历100 次案例网站,试试看有什么效果,实现代码如下:</p>
+<p class="content-text">在介绍协程之前,先来看一个案例网站,地址为https://www.httpbin.org/delay/5,访问这个链接需要先等待五秒才能得到结果,这是因为服务器强制等待了5 秒时间才返回响应。</p>
+<p class="content-text">平时我们浏览网页的时候,绝大部分网页的响应速度还是很快的,如果写爬虫来爬取,那么从发出请求到接收响应的时间不会很长,因此需要我们等待的时间并不多。</p>
+<p class="content-text">然而像上面这个网站,发出一次请求至少需要5 秒才能得到响应,如果用 requests 库写爬虫来爬取,那么每次都要等待5 秒及以上才能拿到结果。</p>
+<p class="content-text">下面来测试一下,我们用requests 写一个遍历程序,直接遍历100 次案例网站,试试看有什么效果,实现代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 import logging
 import time
@@ -49,11 +49,11 @@ for _ in range(1, TOTAL_NUMBER + 1):
     response = requests.get(URL)
 end_time = time.time()
 logging.info('total time %s seconds', end_time - start_time)</code></pre>
-<p class="content-text">　　这里我们直接用循环的方式构造了100 个请求,使用的是 requests 单线程,在爬取之前和爬取之后分别记录了时间,最后输出了爬取100 个页面消耗的总时间。</p>
-<p class="content-text">　　运行结果如下:</p>
+<p class="content-text">这里我们直接用循环的方式构造了100 个请求,使用的是 requests 单线程,在爬取之前和爬取之后分别记录了时间,最后输出了爬取100 个页面消耗的总时间。</p>
+<p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>2020-08-03 01:01:36,781 - INFO: scraping https://www.httpbin.org/delay/5
-2020-08-03 01:01:43,410 - INFO: scraping https://www.httpbin.org/delay/5</code></pre>
-<pre class="result-block" data-lang="text"><code>2020-08-03 01:01:50,029 - INFO: scraping https://www.httpbin.org/delay/5
+2020-08-03 01:01:43,410 - INFO: scraping https://www.httpbin.org/delay/5
+2020-08-03 01:01:50,029 - INFO: scraping https://www.httpbin.org/delay/5
 2020-08-03 01:01:56,702 - INFO: scraping https://www.httpbin.org/delay/5
 2020-08-03 01:02:03,345 - INFO: scraping https://www.httpbin.org/delay/5
 2020-08-03 01:02:09,958 - INFO: scraping https://www.httpbin.org/delay/5
@@ -91,7 +91,9 @@ logging.info('total time %s seconds', end_time - start_time)</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">协程</h4>
-<p class="content-text">协程,英文叫作 coroutine,又称微线程、纤程,是一种运行在用户态的轻量级线程。协程拥有自己的寄存器上下文和栈。协程在调度切换时,将寄存器上下文和栈保存到其他地方,等切回来的时候,再恢复先前保存的寄存器上下文和栈。因此,协程能保留上一次调用时的状态,即所有局部状态的一个特定组合,每次过程重入,就相当于进入上一次调用的状态。协程本质上是个单进程,相对于多进程来说,它没有线程上下文切换的开销,没有原子操作锁定及同步的开销,编程模型也非常简单。我们可以使用协程来实现异步操作,例如在网络爬虫场景下,我们发出一个请求之后,需要等待一定时间才能得到响应,但其实在这个等待过程中,程序可以干许多其他事情,等得到响应之后再切换回来继续处理,这样可以充分利用 CPU 和其他资源,这就是协程的优势。</p>
+<p class="content-text">协程,英文叫作 coroutine,又称微线程、纤程,是一种运行在用户态的轻量级线程。协程拥有自己的寄存器上下文和栈。协程在调度切换时,将寄存器上下文和栈保存到其他地方,等切回来的时候,再恢复先前保存的寄存器上下文和栈。因此,协程能保留上一次调用时的状态,即所有局部状态的一个特定组合,每次过程重入,就相当于进入上一次调用的状态。</p>
+<p class="content-text">协程本质上是个单进程,相对于多进程来说,它没有线程上下文切换的开销,没有原子操作锁定及同步的开销,编程模型也非常简单。</p>
+<p class="content-text">我们可以使用协程来实现异步操作,例如在网络爬虫场景下,我们发出一个请求之后,需要等待一定时间才能得到响应,但其实在这个等待过程中,程序可以干许多其他事情,等得到响应之后再切换回来继续处理,这样可以充分利用 CPU 和其他资源,这就是协程的优势。</p>
 </section>
 </section>
 <section class="numbered-section">
@@ -126,7 +128,9 @@ print('After calling loop')</code></pre>
 After calling execute
 Number: 1
 After calling loop</code></pre>
-<p class="content-text">　　首先,我们引入了 asyncio 包,这样才可以使用 async 和 await 关键字。然后使用 async 定义了一个 execute 方法,该方法接收一个数字参数 x,执行之后会打印这个数字。随后我们直接调用了 execute 方法,然而这个方法并没有执行,而是返回了一个 coroutine 协程对象。之后我们使用 get_event_loop 方法创建了一个事件循环 loop,并调用 loop 对象的run_until_complete 方法将协程对象注册到了事件循环中,接着启动。最后,我们才看到 execute 方法打印出了接收的数字。可见,async 定义的方法会变成一个无法直接执行的协程对象,必须将此对象注册到事件循环中才可以执行。前面我们还提到了 task,它是对协程对象的进一步封装,比协程对象多了运行状态,例如 running、finished 等,我们可以利用这些状态获取协程对象的执行情况。在上面的例子中,当我们把协程对象 coroutine 传递给 run_until_complete 方法的时候,实际上它进行了一个操作,就是将 coroutine 封装成 task 对象。对此,我们也可以显式地进行声明,代码如下所示:</p>
+<p class="content-text">首先,我们引入了 asyncio 包,这样才可以使用 async 和 await 关键字。然后使用 async 定义了一个 execute 方法,该方法接收一个数字参数 x,执行之后会打印这个数字。随后我们直接调用了 execute 方法,然而这个方法并没有执行,而是返回了一个 coroutine 协程对象。之后我们使用 get_event_loop 方法创建了一个事件循环 loop,并调用 loop 对象的run_until_complete 方法将协程对象注册到了事件循环中,接着启动。最后,我们才看到 execute 方法打印出了接收的数字。</p>
+<p class="content-text">可见,async 定义的方法会变成一个无法直接执行的协程对象,必须将此对象注册到事件循环中才可以执行。</p>
+<p class="content-text">前面我们还提到了 task,它是对协程对象的进一步封装,比协程对象多了运行状态,例如 running、finished 等,我们可以利用这些状态获取协程对象的执行情况。在上面的例子中,当我们把协程对象 coroutine 传递给 run_until_complete 方法的时候,实际上它进行了一个操作,就是将 coroutine 封装成 task 对象。对此,我们也可以显式地进行声明,代码如下所示:</p>
 <pre class="code-block" data-lang="python"><code>import asyncio
 
 async def execute(x):
@@ -252,7 +256,9 @@ Task Result: &lt;Response [200]&gt;</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 协程实现</h3>
-<p class="content-text">前面说了好一通,又是 async 关键字,又是coroutine,又是task,又是callback的,似乎并没有从中看出协程的优势,反而写法上更加奇怪和麻烦了?别急,上述案例只是为后面的使用作铺垫。接下来,我们正式看看协程在解决IO 密集型任务方面到底有怎样的优势。在前面的代码中,我们用一个网络请求作为例子,这本身就是一个耗时等待操作,因为在请求网页之后需要等待页面响应并返回结果。耗时等待操作一般都是IO 操作,例如文件读取、网络请求等。协程在处理这种操作时是有很大优势的,当遇到需要等待的情况时,程序可以暂时挂起,转而执行其他操作,从而避免因一直等待一个程序而耗费过多的时间,能够充分利用资源。为了表现协程的优势,我们还是以本节开头介绍的网站 https://www.httpbin.org/delay/5为例,因为该网站响应比较慢,所以可以通过爬取时间让大家直观感受到爬取速度的提升。为了让大家更好地理解协程的正确使用方法,这里先来看看大家使用协程时常犯的错误,后面再给出正确的例子作为对比。首先,还是拿之前的 requests 库进行网页请求,之后再重新使用上面的方法请求一遍:</p>
+<p class="content-text">前面说了好一通,又是 async 关键字,又是coroutine,又是task,又是callback的,似乎并没有从中看出协程的优势,反而写法上更加奇怪和麻烦了?别急,上述案例只是为后面的使用作铺垫。接下来,我们正式看看协程在解决IO 密集型任务方面到底有怎样的优势。</p>
+<p class="content-text">在前面的代码中,我们用一个网络请求作为例子,这本身就是一个耗时等待操作,因为在请求网页之后需要等待页面响应并返回结果。耗时等待操作一般都是IO 操作,例如文件读取、网络请求等。协程在处理这种操作时是有很大优势的,当遇到需要等待的情况时,程序可以暂时挂起,转而执行其他操作,从而避免因一直等待一个程序而耗费过多的时间,能够充分利用资源。</p>
+<p class="content-text">为了表现协程的优势,我们还是以本节开头介绍的网站 https://www.httpbin.org/delay/5为例,因为该网站响应比较慢,所以可以通过爬取时间让大家直观感受到爬取速度的提升。为了让大家更好地理解协程的正确使用方法,这里先来看看大家使用协程时常犯的错误,后面再给出正确的例子作为对比。首先,还是拿之前的 requests 库进行网页请求,之后再重新使用上面的方法请求一遍:</p>
 <pre class="code-block" data-lang="python"><code>import asyncio
 import requests
 import time
@@ -336,13 +342,13 @@ Get response from https://www.httpbin.org/delay/5 response &lt;Response [200]&gt
 Waiting for https://www.httpbin.org/delay/5
 Get response from https://www.httpbin.org/delay/5 response &lt;Response [200]&gt;
 Cost time: 65.394437756259273</code></pre>
-<p class="content-text">　　还是报错,协程还不是异步执行的,也就是说我们仅仅将涉及 IO 操作的代码封装到 async 修饰的方法里是不可行的。只有使用支持异步操作的请求方式才可以实现真正的异步,这里 aiohttp 就派上用场了。</p>
+<p class="content-text">还是报错,协程还不是异步执行的,也就是说我们仅仅将涉及 IO 操作的代码封装到 async 修饰的方法里是不可行的。只有使用支持异步操作的请求方式才可以实现真正的异步,这里 aiohttp 就派上用场了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 使用 aiohttp</h3>
 <p class="content-text">aiohttp 是一个支持异步请求的库,它和 asyncio 配合使用,可以使我们非常方便地实现异步请求操作。我们使用 pip3 安装即可:</p>
 <pre class="code-block" data-lang="bash"><code>pip3 install aiohttp</code></pre>
-<p class="content-text">　　具体的安装方法可以参考:https://setup.scrape.center/aiohttp。aiohttp 的官方文档链接为 https://aiohttp.readthedocs.io/,它分为两部分,一部分是 Client,一部分是 Server。下面我们将 aiohttp 投入使用,将代码改写成如下样子:</p>
+<p class="content-text">具体的安装方法可以参考:https://setup.scrape.center/aiohttp。aiohttp 的官方文档链接为 https://aiohttp.readthedocs.io/,它分为两部分,一部分是 Client,一部分是 Server。下面我们将 aiohttp 投入使用,将代码改写成如下样子:</p>
 <pre class="code-block" data-lang="python"><code>import asyncio
 import aiohttp
 import time
@@ -384,7 +390,12 @@ Get response from https://www.httpbin.org/delay/5 response &lt;ClientResponse(ht
 'Content-Length': '360', 'Connection': 'keep-alive', 'Server': 'gunicorn/19.9.0',
 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': 'true')&gt;
 Cost time: 6.033240079879761</code></pre>
-<p class="content-text">成功了!我们发现这次请求的耗时直接由51 秒变成了6 秒,耗费时间减少了非常多。这里我们使用了 await,其后面跟着 get 方法。在执行10 个协程的时候,如果遇到 await,就会将当前协程挂起,转而执行其他协程,直到其他协程也挂起或执行完毕,再执行下一个协程。开始运行时,事件循环会运行第一个 task。对于第一个 task 来说,当执行到第一个 await 跟着的 get 方法时,它会被挂起,但这个 get 方法第一步的执行是非阻塞的,挂起之后会立马被唤醒,立即又进入执行,并创建了ClientSession 对象。接着遇到第二个 await,调用 session.get 请求方法,然后就被挂起了。由于请求需要耗时很久,所以一直没有被唤醒,好在第一个 task 被挂起了,那么接下来该怎么办呢?事件循环会寻找当前未被挂起的协程继续执行,于是转而去执行第二个task,流程操作和第一个 task 也是一样的,以此类推,直到执行第十个 task 的session.get 方法之后,全部的 task 都被挂起了。所有 task 都已经处于挂起状态,那怎么办?只好等待了。5 秒之后,几个请求几乎同时有了响应,然后几个 task 也被唤醒接着执行,并输出请求结果,最后总耗时是6 秒!怎么样?这就是异步操作的便捷之处,当遇到阻塞式操作时,task 被挂起,程序接着去执行其他task,而不是傻傻地等着,这样可以充分利用 CPU,而不必把时间浪费在等待 IO 上。有人会说,在上面的例子中,发出网络请求后,接下来的5 秒都是在等待,这5 秒之内,CPU 可以处理的 task 数量远不止这些,既然这样的话,那么我们放10 个、20 个、50 个、100 个、1000 个 task一起执行,最后得到所有结果的耗时不都是差不多的吗?因为这些任务被挂起后都是一起等待的。从理论上来说,确实是这样,不过有个前提,就是服务器即使在同一时刻接收无限次请求,依然要能保证正常返回结果,也就是服务器应该无限抗压,另外还要忽略 IO 传输时延。满足了这两点,确实可以做到无限个 task 一起执行,并且在预想时间内得到结果。但由于不同服务器处理 task 的实现机制不同,可能某些服务器并不能承受那么高的并发量,因此响应速度也会减慢。这里我们以百度为例,测试一下并发量分别为1、3、5、10、...、500时的耗时情况,代码如下:</p>
+<p class="content-text">成功了!我们发现这次请求的耗时直接由51 秒变成了6 秒,耗费时间减少了非常多。</p>
+<p class="content-text">这里我们使用了 await,其后面跟着 get 方法。在执行10 个协程的时候,如果遇到 await,就会将当前协程挂起,转而执行其他协程,直到其他协程也挂起或执行完毕,再执行下一个协程。开始运行时,事件循环会运行第一个 task。对于第一个 task 来说,当执行到第一个 await 跟着的 get 方法时,它会被挂起,但这个 get 方法第一步的执行是非阻塞的,挂起之后会立马被唤醒,立即又进入执行,并创建了ClientSession 对象。接着遇到第二个 await,调用 session.get 请求方法,然后就被挂起了。</p>
+<p class="content-text">由于请求需要耗时很久,所以一直没有被唤醒,好在第一个 task 被挂起了,那么接下来该怎么办呢?事件循环会寻找当前未被挂起的协程继续执行,于是转而去执行第二个task,流程操作和第一个 task 也是一样的,以此类推,直到执行第十个 task 的session.get 方法之后,全部的 task 都被挂起了。所有 task 都已经处于挂起状态,那怎么办?只好等待了。5 秒之后,几个请求几乎同时有了响应,然后几个 task 也被唤醒接着执行,并输出请求结果,最后总耗时是6 秒!</p>
+<p class="content-text">怎么样?这就是异步操作的便捷之处,当遇到阻塞式操作时,task 被挂起,程序接着去执行其他task,而不是傻傻地等着,这样可以充分利用 CPU,而不必把时间浪费在等待 IO 上。</p>
+<p class="content-text">有人会说,在上面的例子中,发出网络请求后,接下来的5 秒都是在等待,这5 秒之内,CPU 可以处理的 task 数量远不止这些,既然这样的话,那么我们放10 个、20 个、50 个、100 个、1000 个 task一起执行,最后得到所有结果的耗时不都是差不多的吗?因为这些任务被挂起后都是一起等待的。从理论上来说,确实是这样,不过有个前提,就是服务器即使在同一时刻接收无限次请求,依然要能保证正常返回结果,也就是服务器应该无限抗压,另外还要忽略 IO 传输时延。满足了这两点,确实可以做到无限个 task 一起执行,并且在预想时间内得到结果。</p>
+<p class="content-text">但由于不同服务器处理 task 的实现机制不同,可能某些服务器并不能承受那么高的并发量,因此响应速度也会减慢。这里我们以百度为例,测试一下并发量分别为1、3、5、10、...、500时的耗时情况,代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import asyncio
 import aiohttp
 import time
@@ -439,7 +450,7 @@ Number: 500 Cost time: 1.8213098049163818</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 基本实例</h3>
-<p class="content-text">　　我们来看一个基本的 aiohttp 请求案例,代码如下:</p>
+<p class="content-text">我们来看一个基本的 aiohttp 请求案例,代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import aiohttp
 import asyncio
 
@@ -456,15 +467,15 @@ async def main():
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())</code></pre>
-<p class="content-text">　　这里使用 aiohttp 爬取了我的个人博客,获得了源码和响应状态码,并打印出来,运行结果如下:</p>
+<p class="content-text">这里使用 aiohttp 爬取了我的个人博客,获得了源码和响应状态码,并打印出来,运行结果如下:</p>
 <pre class="result-block"><code>html: &lt;!DOCTYPE HTML&gt;
 &lt;html&gt;
 &lt;head&gt;
 &lt;meta charset="UTF-8"&gt;
 &lt;meta name="baidu-tc-verification" content=...
 status: 200</code></pre>
-<p class="content-text">　　由于网页源码过长,这里只截取了输出的一部分。可以看到,我们成功获取了网页的源代码及响应状态码 200,也就是完成了一次基本的HTTP 请求,即我们成功使用aiohttp 通过异步的方式完成了网页爬取。当然,这个操作用之前讲的 requests 也可以做到。</p>
-<p class="content-text">　　能够发现,aiohttp 的请求方法的定义和之前有明显的区别,主要包括如下几点。</p>
+<p class="content-text">由于网页源码过长,这里只截取了输出的一部分。可以看到,我们成功获取了网页的源代码及响应状态码 200,也就是完成了一次基本的HTTP 请求,即我们成功使用aiohttp 通过异步的方式完成了网页爬取。当然,这个操作用之前讲的 requests 也可以做到。</p>
+<p class="content-text">能够发现,aiohttp 的请求方法的定义和之前有明显的区别,主要包括如下几点。</p>
 <p class="content-text list-like">首先在导入库的时候,除了必须引入 aiohttp 这个库,还必须引入asyncio 库。因为要实现异步爬取,需要启动协程,而协程则需要借助于 asyncio 里面的事件循环才能执行。除了事件循环,asyncio 里面也提供了很多基础的异步操作。</p>
 <p class="content-text list-like">异步爬取方法的定义和之前有所不同,每个异步方法的前面都要统一加 async 来修饰。</p>
 <p class="content-text list-like">with as 语句前面同样需要加 async 来修饰。在 Python 中, with as 语句用于声明一个上下文管理器,能够帮我们自动分配和释放资源。而在异步方法中,with as 前面加上 async 代表声明一个支持异步的上下文管理器。</p>
@@ -681,12 +692,13 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(main())</code></pre>
-<p class="content-text">这里我们声明 CONCURRENCY (代表爬取的最大并发量)为5,同时声明爬取的目标 URL 为百度。接着,借助 Semaphore 创建了一个信号量对象,将其赋值为semaphore,这样就可以用它来控制最大并发量了。怎么使用呢?这里我们把 semaphore 直接放置在了对应的爬取方法里,使用 async with 语句将 semaphore 作为上下文对象即可。这样一来,信号量便可以控制进入爬取的最大协程数量,即我们声明的 CONCURRENCY 的值。在 main 方法里,我们声明了10000 个 task,将其传递给gather 方法运行。倘若不加以限制,那这10000 个 task 会被同时执行,并发数量相当大。但有了信号量的控制之后,同时运行的 task 数量最大会被控制在5 个,这样就能给 aiohttp 限制速度了。</p>
+<p class="content-text">这里我们声明 CONCURRENCY (代表爬取的最大并发量)为5,同时声明爬取的目标 URL 为百度。接着,借助 Semaphore 创建了一个信号量对象,将其赋值为semaphore,这样就可以用它来控制最大并发量了。</p>
+<p class="content-text">怎么使用呢?这里我们把 semaphore 直接放置在了对应的爬取方法里,使用 async with 语句将 semaphore 作为上下文对象即可。这样一来,信号量便可以控制进入爬取的最大协程数量,即我们声明的 CONCURRENCY 的值。</p>
+<p class="content-text">在 main 方法里,我们声明了10000 个 task,将其传递给gather 方法运行。倘若不加以限制,那这10000 个 task 会被同时执行,并发数量相当大。但有了信号量的控制之后,同时运行的 task 数量最大会被控制在5 个,这样就能给 aiohttp 限制速度了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">9. 总结</h3>
-<p class="content-text">本节我们了解了 aiohttp 的基本使用方法,更详细的内容还是推荐大家查阅官方文档,详见</p>
-<pre class="result-block"><code>https://docs.aiohttp.org/。</code></pre>
+<p class="content-text">本节我们了解了 aiohttp 的基本使用方法,更详细的内容还是推荐大家查阅官方文档,详见 <code class="inline-code">https://docs.aiohttp.org/</code>。</p>
 <p class="content-text">本节代码参见:https://github.com/Python3WebSpider/AsyncTest。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>6.3 aiohttp 异步爬取实战</h2></div>
@@ -742,7 +754,7 @@ CONCURRENCY = 5</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 爬取列表页</h3>
-<p class="content-text">　　第一阶段来爬取列表页,还是和之前一样,先定义一个通用的爬取方法,代码如下:</p>
+<p class="content-text">第一阶段来爬取列表页,还是和之前一样,先定义一个通用的爬取方法,代码如下:</p>
 <pre class="code-block" data-lang="python"><code>semaphore = asyncio.Semaphore(CONCURRENCY)
 session = None
 async def scrape_api(url):
@@ -754,12 +766,12 @@ async def scrape_api(url):
         except aiohttp.ClientError:
             logging.error('error occurred while scraping %s', url, exc_info=True)</code></pre>
 <p class="content-text">这里我们声明了一个信号量,用来控制最大并发数量。接着,定义了 scrape_api 方法,接收一个参数 url。该方法首先使用 async with 语句引入信号量作为上下文,接着调用 session 的get 方法请求这个url,然后返回响应的JSON 格式的结果。另外,这里还进行了异常处理,捕获了 ClientError,如果出现错误,就会输出异常信息。</p>
-<p class="content-text">　　然后,爬取列表页,实现代码如下:</p>
+<p class="content-text">然后,爬取列表页,实现代码如下:</p>
 <pre class="code-block" data-lang="python"><code>async def scrape_index(page):
     url = INDEX_URL.format(offset=PAGE_SIZE * (page - 1))
     return await scrape_api(url)</code></pre>
 <p class="content-text">这里定义了 scrape_index 方法用于爬取列表页,它接收一个参数 page。随后构造了一个列表页的URL,将其传给 scrape_api 方法即可。这里注意,方法同样需要用 async 修饰,调用的scrape_api方法前面需要加 await,因为scrape_api 调用之后本身会返回一个协程对象。另外,由于scrape_api的返回结果就是 JSON 格式,因此这个结果已经是我们想要爬取的信息,不需要再额外解析了。</p>
-<p class="content-text">　　接下来我们定义main 方法,将上面的方法串联起来调用,实现如下:</p>
+<p class="content-text">接下来我们定义main 方法,将上面的方法串联起来调用,实现如下:</p>
 <pre class="code-block" data-lang="python"><code>import json
 
 async def main():
@@ -780,19 +792,19 @@ if __name__ == '__main__':
 2020-04-03 03:45:54,708 - INFO: scraping https://spa5.scrape.center/api/book/?limit=18&amp;offset=72
 2020-04-03 03:45:56,431 - INFO: scraping https://spa5.scrape.center/api/book/?limit=18&amp;offset=90
 2020-04-03 03:45:56,435 - INFO: scraping https://spa5.scrape.center/api/book/?limit=18&amp;offset=108</code></pre>
-<p class="content-text">　　可以看到,这里就开始异步爬取了,并发量是由我们控制的,目前为5。当然,也可以进一步调高这个数字,在网站能承受的情况下,爬取速度会进一步加快。最后,results 就是爬取所有列表页得到的结果,接着就可以用它进行第二阶段的爬取了。</p>
+<p class="content-text">可以看到,这里就开始异步爬取了,并发量是由我们控制的,目前为5。当然,也可以进一步调高这个数字,在网站能承受的情况下,爬取速度会进一步加快。最后,results 就是爬取所有列表页得到的结果,接着就可以用它进行第二阶段的爬取了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 爬取详情页</h3>
-<p class="content-text">　　第二阶段是爬取详情页并保存数据。由于每个详情页分别对应一本书,每本书都需要一个ID 作为唯一标识,而这个ID 又正好存在 results 里面,所以下面我们需要将所有详情页的ID 获取出来。</p>
-<p class="content-text">　　在 main 方法里增加 results 的解析代码,实现如下:</p>
+<p class="content-text">第二阶段是爬取详情页并保存数据。由于每个详情页分别对应一本书,每本书都需要一个ID 作为唯一标识,而这个ID 又正好存在 results 里面,所以下面我们需要将所有详情页的ID 获取出来。</p>
+<p class="content-text">在 main 方法里增加 results 的解析代码,实现如下:</p>
 <pre class="code-block" data-lang="python"><code>ids = []
 for index_data in results:
     if not index_data: continue
     for item in index_data.get('results'):
         ids.append(item.get('id'))</code></pre>
 <p class="content-text">这样 ids 就是所有书的id 了,然后我们用所有的id 构造所有详情页对应的task,进行异步爬取即可。</p>
-<p class="content-text">　　这里再定义两个方法,用于爬取详情页和保存数据,实现如下:</p>
+<p class="content-text">这里再定义两个方法,用于爬取详情页和保存数据,实现如下:</p>
 <pre class="code-block" data-lang="python"><code>from motor.motor_asyncio import AsyncIOMotorClient
 
 MONGO_CONNECTION_STRING = 'mongodb://localhost:27017'
@@ -817,7 +829,7 @@ async def scrape_detail(id):
     data = await scrape_api(url)
     await save_data(data)</code></pre>
 <p class="content-text">这里定义了 scrape_detail 方法用于爬取详情页数据,并调用save_data 方法保存数据。save_data方法可以将数据保存到 MongoDB 里面。这里我们用到了支持异步的 MongoDB 存储库 motor。motor的连接声明和 pymongo 是类似的,保存数据的调用方法也基本一致,不过整个都换成了异步方法。</p>
-<p class="content-text">　　接着在 main 方法里面增加对 scrape_detail 方法的调用即可爬取详情页,实现如下:</p>
+<p class="content-text">接着在 main 方法里面增加对 scrape_detail 方法的调用即可爬取详情页,实现如下:</p>
 <pre class="code-block" data-lang="python"><code>scrape_detail_tasks = [asyncio.ensure_future(scrape_detail(id)) for id in ids]
 await asyncio.wait(scrape_detail_tasks)
 await session.close()</code></pre>

@@ -23,14 +23,14 @@
 <main class="main-content">
 <h1 class="chapter-title">第4章 数据的存储</h1>
 <article class="ocr-content">
-<p class="content-text">　　用解析器解析出数据后，接下来就是存储数据了。数据的存储形式多种多样，其中最简单的一种是将数据直接保存为文本文件，如 TXT、JSON、CSV 等。还可以将数据保存到数据库中，如关系型数据库 MySQL，非关系型数据库 MongoDB、Redis 等。除了这两种，也可以直接把数据存储到一些搜索引擎（如 Elasticsearch）中，以便检索和查看。</p>
-<p class="content-text">　　本章我们就来了解一些基本的数据存储的操作。</p>
+<p class="content-text">用解析器解析出数据后，接下来就是存储数据了。数据的存储形式多种多样，其中最简单的一种是将数据直接保存为文本文件，如 TXT、JSON、CSV 等。还可以将数据保存到数据库中，如关系型数据库 MySQL，非关系型数据库 MongoDB、Redis 等。除了这两种，也可以直接把数据存储到一些搜索引擎（如 Elasticsearch）中，以便检索和查看。</p>
+<p class="content-text">本章我们就来了解一些基本的数据存储的操作。</p>
 <div class="section-heading" id="section-0"><h2>4.1 TXT 文本文件存储</h2></div>
-<p class="content-text">　　将数据保存为 TXT 文本的操作非常简单，而且 TXT 文本几乎兼容任何平台，但是这也有个缺点，就是不利于检索。所以如果对检索和数据结构的要求不高，追求方便第一的话，就可以采用 TXT 文本存储。</p>
-<p class="content-text">　　我们接下来看一下利用 Python 保存 TXT 文本文件的方法。</p>
+<p class="content-text">将数据保存为 TXT 文本的操作非常简单，而且 TXT 文本几乎兼容任何平台，但是这也有个缺点，就是不利于检索。所以如果对检索和数据结构的要求不高，追求方便第一的话，就可以采用 TXT 文本存储。</p>
+<p class="content-text">我们接下来看一下利用 Python 保存 TXT 文本文件的方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 本节目标</h3>
-<p class="content-text">　　我们以电影实例网站 https://ssr1.scrape.center/ 为例，爬取首页 10 部电影的数据，然后将相关信息存储为 TXT 文本格式。</p>
+<p class="content-text">我们以电影实例网站 https://ssr1.scrape.center/ 为例，爬取首页 10 部电影的数据，然后将相关信息存储为 TXT 文本格式。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 基本实例</h3>
@@ -57,23 +57,23 @@ for item in items:
     published_at = re.search('(\d{4}-\d{2}-\d{2})', published_at).group(1) \
         if published_at and re.search('\d{4}-\d{2}-\d{2}', published_at) else None
     file.write(f'上映时间: {published_at}\n')
-    # 评分</code></pre>
-<pre class="code-block"><code>    score = item.find('p.score').text()
+    # 评分
+    score = item.find('p.score').text()
     file.write(f'评分: {score}\n')
     file.write(f'{"=" * 50}\n')
 file.close()</code></pre>
-<p class="content-text">　　这里的目的主要是演示文件的存储方式，因此省去了 requests 异常处理部分。首先，用 requests 库提取网站首页的 HTML 代码，然后利用 pyquery 解析库将电影的名称、类别、上映时间、评分信息提取出来。</p>
-<p class="content-text">　　利用 Python 提供的 open 方法打开一个文本文件，获取一个文件操作对象，这里赋值为 file，每提取一部分信息，就利用 file 对象的 write 方法将这部分信息写入文件。</p>
-<p class="content-text">　　全部提取完毕之后，调用 close 方法将 file 对象关闭，这样抓取的网站首页的内容就成功写入文本中了。</p>
-<p class="content-text">　　运行程序，可以发现在本地生成了一个 movies.txt 文件，其内容如图 4-1 所示。</p>
+<p class="content-text">这里的目的主要是演示文件的存储方式，因此省去了 requests 异常处理部分。首先，用 requests 库提取网站首页的 HTML 代码，然后利用 pyquery 解析库将电影的名称、类别、上映时间、评分信息提取出来。</p>
+<p class="content-text">利用 Python 提供的 open 方法打开一个文本文件，获取一个文件操作对象，这里赋值为 file，每提取一部分信息，就利用 file 对象的 write 方法将这部分信息写入文件。</p>
+<p class="content-text">全部提取完毕之后，调用 close 方法将 file 对象关闭，这样抓取的网站首页的内容就成功写入文本中了。</p>
+<p class="content-text">运行程序，可以发现在本地生成了一个 movies.txt 文件，其内容如图 4-1 所示。</p>
 <figure class="inline-figure"><img alt="图4-1 movies.txt 文件中的内容" loading="lazy" src="figures/ch04/fig-4_1.jpg"/><figcaption>图4-1 movies.txt 文件中的内容</figcaption></figure>
-<p class="content-text">　　可以看出，电影信息的内容已经被保存成了文本形式。</p>
-<p class="content-text">　　回过头来看下本节重点需要了解的内容，即文本写入操作，其实就是 open、write、close 这三个方法的用法。</p>
-<p class="content-text">　　open 方法的第一个参数是要保存的目标文件名称；第二个参数代表数据以何种方式写入文本，此处为 w，表示以覆盖的方式写入；第三个参数指定了文件的编码为 utf-8。最后，写入完成后，还需要调用 close 方法来关闭文件对象。</p>
+<p class="content-text">可以看出，电影信息的内容已经被保存成了文本形式。</p>
+<p class="content-text">回过头来看下本节重点需要了解的内容，即文本写入操作，其实就是 open、write、close 这三个方法的用法。</p>
+<p class="content-text">open 方法的第一个参数是要保存的目标文件名称；第二个参数代表数据以何种方式写入文本，此处为 w，表示以覆盖的方式写入；第三个参数指定了文件的编码为 utf-8。最后，写入完成后，还需要调用 close 方法来关闭文件对象。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 打开方式</h3>
-<p class="content-text">　　在刚才的实例中，open 方法的第二个参数设置成了 w，这样在每次写入文本时都会清空源文件，然后将新的内容写入文件。w 只是文件打开方式的一种，下面简要介绍一下其他几种。</p>
+<p class="content-text">在刚才的实例中，open 方法的第二个参数设置成了 w，这样在每次写入文本时都会清空源文件，然后将新的内容写入文件。w 只是文件打开方式的一种，下面简要介绍一下其他几种。</p>
 <p class="content-text list-like"><strong class="term-label">r:</strong>以只读方式打开一个文件，意思是只能读取文件内容，而不能写入。这也是默认模式。</p>
 <p class="content-text list-like"><strong class="term-label">rb:</strong>以二进制只读方式打开一个文件，通常用于打开二进制文件，例如音频、图片、视频等。</p>
 <p class="content-text list-like"><strong class="term-label">r+:</strong>以读写方式打开一个文件，既可以读文件又可以写文件。</p>
@@ -89,27 +89,26 @@ file.close()</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 简化写法</h3>
-<p class="content-text">　　文件写入还有一种简写方法，就是使用 with as 语法。当 with 控制块结束时，文件会自动关闭，意味着不需要再调用 close 方法。</p>
-<p class="content-text">　　这种保存方式可以简写如下:</p>
+<p class="content-text">文件写入还有一种简写方法，就是使用 with as 语法。当 with 控制块结束时，文件会自动关闭，意味着不需要再调用 close 方法。</p>
+<p class="content-text">这种保存方式可以简写如下:</p>
 <pre class="code-block" data-lang="python"><code>with open('movies.txt', 'w', encoding='utf-8') as file:
     file.write(f'名称: {name}\n')
     file.write(f'类别: {categories}\n')
     file.write(f'上映时间: {published_at}\n')
     file.write(f'评分: {score}\n')</code></pre>
-<p class="content-text">　　以上便是利用 Python 将结果保存为 TXT 文件的方法，这种方法简单易用、操作高效，是一种最基本的数据存储方法。</p>
+<p class="content-text">以上便是利用 Python 将结果保存为 TXT 文件的方法，这种方法简单易用、操作高效，是一种最基本的数据存储方法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 总结</h3>
-<p class="content-text">　　本节我们了解了基本 TXT 文件存储的实现方式，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
+<p class="content-text">本节我们了解了基本 TXT 文件存储的实现方式，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-1"><h2>4.2 JSON 文件存储</h2></div>
-<p class="content-text">　　JSON，全称为 JavaScript Object Notation，也就是 JavaScript 对象标记，通过对象和数组的组合来表示数据，虽构造简洁但是结构化程度非常高，是一种轻量级的数据交换格式。</p>
-<p class="content-text">　　本节我们就来了解如何利用 Python 将数据存储为 JSON 文件。</p>
+<p class="content-text">JSON，全称为 JavaScript Object Notation，也就是 JavaScript 对象标记，通过对象和数组的组合来表示数据，虽构造简洁但是结构化程度非常高，是一种轻量级的数据交换格式。</p>
+<p class="content-text">本节我们就来了解如何利用 Python 将数据存储为 JSON 文件。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 对象和数组</h3>
-<p class="content-text">　　在 JavaScript 语言中，一切皆为对象，因此任何支持的数据类型都可以通过 JSON 表示，例如字符串、数字、对象、数组等。其中对象和数组是比较特殊且常用的两种类型，下面简要介绍一下这两者。</p>
-<p class="content-text">　　对象在 JavaScript 中是指用花括号 {} 包围起来的内容，数据结构是 {key1: value1, key2:value2, ...} 这种键值对结构。在面向对象的语言中，key 表示对象的属性、value 表示属性对应的值，</p>
-<p class="content-text">前者可以使用整数和字符串表示,后者可以是任意类型。数组在 JavaScript 中是指用方括号[]包围起来的内容,数据结构是["java", "javascript","vb",...]这种索引结构。在JavaScript中,数组是一种比较特殊的数据类型,因为它也可以像对象那样使用键值对结构,但还是索引结构用得更多。同样,它的值可以是任意类型。所以,一个JSON对象可以写为如下形式:</p>
+<p class="content-text">在 JavaScript 语言中，一切皆为对象，因此任何支持的数据类型都可以通过 JSON 表示，例如字符串、数字、对象、数组等。其中对象和数组是比较特殊且常用的两种类型，下面简要介绍一下这两者。</p>
+<p class="content-text">对象在 JavaScript 中是指用花括号 {} 包围起来的内容，数据结构是 {key1: value1, key2:value2, ...} 这种键值对结构。在面向对象的语言中，key 表示对象的属性、value 表示属性对应的值，前者可以使用整数和字符串表示,后者可以是任意类型。数组在 JavaScript 中是指用方括号[]包围起来的内容,数据结构是["java", "javascript","vb",...]这种索引结构。在JavaScript中,数组是一种比较特殊的数据类型,因为它也可以像对象那样使用键值对结构,但还是索引结构用得更多。同样,它的值可以是任意类型。所以,一个JSON对象可以写为如下形式:</p>
 <pre class="result-block" data-lang="json"><code>[{
     "name": "Bob",
     "gender": "male",
@@ -150,14 +149,14 @@ print(type(data))</code></pre>
 data[0].get('name')</code></pre>
 <p class="content-text">得到的结果都是:</p>
 <pre class="code-block" data-lang="text"><code>Bob</code></pre>
-<p class="content-text">　　以中括号加 0 作为索引，可以得到第一个字典元素，再调用其键名即可得到相应的键值。获取键值的方式有两种，一种是中括号加键名，另一种是利用 get 方法传入键名。这里推荐使用 get 方法，这样即使键名不存在，也不会报错，而是会返回 None。另外，get 方法还可以传入第二个参数（即默认值），实例如下:</p>
+<p class="content-text">以中括号加 0 作为索引，可以得到第一个字典元素，再调用其键名即可得到相应的键值。获取键值的方式有两种，一种是中括号加键名，另一种是利用 get 方法传入键名。这里推荐使用 get 方法，这样即使键名不存在，也不会报错，而是会返回 None。另外，get 方法还可以传入第二个参数（即默认值），实例如下:</p>
 <pre class="code-block" data-lang="python"><code>data[0].get('age')
 data[0].get('age', 25)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>None
 25</code></pre>
-<p class="content-text">　　这里我们尝试获取年龄 age，原字典中并不存在该键名，因此会默认返回 None。此时如果传入了第二个参数，就会返回传入的这个值。</p>
-<p class="content-text">　　值得注意的是，JSON 的数据需要用双引号包围起来，而不能使用单引号。例如使用如下形式，就会出现错误:</p>
+<p class="content-text">这里我们尝试获取年龄 age，原字典中并不存在该键名，因此会默认返回 None。此时如果传入了第二个参数，就会返回传入的这个值。</p>
+<p class="content-text">值得注意的是，JSON 的数据需要用双引号包围起来，而不能使用单引号。例如使用如下形式，就会出现错误:</p>
 <pre class="code-block" data-lang="python"><code>import json
 
 str = '''
@@ -170,8 +169,8 @@ str = '''
 data = json.loads(str)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 3 column 5 (char 8)</code></pre>
-<p class="content-text">　　这里出现了 JSON 解析错误的提示，其原因就是数据由单引号包围着。再次强调，请千万注意JSON 字符串的表示需要用双引号，否则 loads 方法会解析失败。</p>
-<p class="content-text">　　下面实现从 JSON 文本中读取内容，例如有一个 data.json 文本文件，其内容是刚才定义的 JSON 字符串，我们可以先将文本文件中的内容读出，再利用 loads 方法将之转化为 JSON 对象:</p>
+<p class="content-text">这里出现了 JSON 解析错误的提示，其原因就是数据由单引号包围着。再次强调，请千万注意JSON 字符串的表示需要用双引号，否则 loads 方法会解析失败。</p>
+<p class="content-text">下面实现从 JSON 文本中读取内容，例如有一个 data.json 文本文件，其内容是刚才定义的 JSON 字符串，我们可以先将文本文件中的内容读出，再利用 loads 方法将之转化为 JSON 对象:</p>
 <pre class="code-block" data-lang="python"><code>import json
 
 with open('data.json', encoding='utf-8') as file:
@@ -180,17 +179,17 @@ with open('data.json', encoding='utf-8') as file:
     print(data)</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>[{'name': 'Bob', 'gender': 'male', 'birthday': '1992-10-18'}, {'name': 'Selina', 'gender': 'female', 'birthday': '1995-10-18'}]</code></pre>
-<p class="content-text">　　这里我们使用 open 方法读取文本文件，使用的是默认的读模式，编码指定为 utf-8，并将文件操作对象赋值为 file。然后我们调用 file 对象的 read 方法读取了文本中的所有内容，赋值为 str。接着再调用 loads 方法解析 JSON 字符串，将其转化为 JSON 对象。</p>
-<p class="content-text">　　其实上述实例有更简便的写法，可以直接使用 load 方法传入文件操作对象，同样也可以将文本转化为 JSON 对象，写法如下:</p>
+<p class="content-text">这里我们使用 open 方法读取文本文件，使用的是默认的读模式，编码指定为 utf-8，并将文件操作对象赋值为 file。然后我们调用 file 对象的 read 方法读取了文本中的所有内容，赋值为 str。接着再调用 loads 方法解析 JSON 字符串，将其转化为 JSON 对象。</p>
+<p class="content-text">其实上述实例有更简便的写法，可以直接使用 load 方法传入文件操作对象，同样也可以将文本转化为 JSON 对象，写法如下:</p>
 <pre class="code-block" data-lang="python"><code>import json
 data = json.load(open('data.json', encoding='utf-8'))
 print(data)</code></pre>
-<p class="content-text">　　注意这里使用的是 load 方法，而不是 loads 方法。前者的参数是一个文件操作对象，后者的参数是一个 JSON 字符串。</p>
-<p class="content-text">　　这两种写法的运行结果是完全一样的。只不过 load 方法是将整个文件中的内容转化为 JSON 对象，而 loads 方法可以更灵活地控制要转化哪些内容。两种方法可以在适当的场景下选择使用。</p>
+<p class="content-text">注意这里使用的是 load 方法，而不是 loads 方法。前者的参数是一个文件操作对象，后者的参数是一个 JSON 字符串。</p>
+<p class="content-text">这两种写法的运行结果是完全一样的。只不过 load 方法是将整个文件中的内容转化为 JSON 对象，而 loads 方法可以更灵活地控制要转化哪些内容。两种方法可以在适当的场景下选择使用。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 输出 JSON</h3>
-<p class="content-text">　　可以调用 dumps 方法将 JSON 对象转化为字符串。例如，将上面例子的运行结果中的列表重新写入文本:</p>
+<p class="content-text">可以调用 dumps 方法将 JSON 对象转化为字符串。例如，将上面例子的运行结果中的列表重新写入文本:</p>
 <pre class="code-block" data-lang="python"><code>import json
 data = [{
     'name': 'Bob',
@@ -199,15 +198,15 @@ data = [{
 }]
 with open('data.json', 'w', encoding='utf-8') as file:
     file.write(json.dumps(data))</code></pre>
-<p class="content-text">　　这里利用 dumps 方法，将 JSON 对象转为了字符串，然后调用文件的 write 方法将字符串写入文本，结果如图 4-2 所示。</p>
+<p class="content-text">这里利用 dumps 方法，将 JSON 对象转为了字符串，然后调用文件的 write 方法将字符串写入文本，结果如图 4-2 所示。</p>
 <figure class="inline-figure"><img alt="图4-2 将列表写入文本" loading="lazy" src="figures/ch04/fig-4_2.jpg"/><figcaption>图4-2 将列表写入文本</figcaption></figure>
-<p class="content-text">　　另外，如果想保存 JSON 对象的缩进格式，可以再往 dumps 方法中添加一个参数 indent，代表缩进字符的个数。实例如下:</p>
+<p class="content-text">另外，如果想保存 JSON 对象的缩进格式，可以再往 dumps 方法中添加一个参数 indent，代表缩进字符的个数。实例如下:</p>
 <pre class="code-block" data-lang="python"><code>with open('data.json', 'w') as file:
     file.write(json.dumps(data, indent=2))</code></pre>
-<p class="content-text">　　此时写入结果如图 4-3 所示。</p>
+<p class="content-text">此时写入结果如图 4-3 所示。</p>
 <figure class="inline-figure"><img alt="图4-3 将列表写入文本并保存缩进" loading="lazy" src="figures/ch04/fig-4_3.jpg"/><figcaption>图4-3 将列表写入文本并保存缩进</figcaption></figure>
-<p class="content-text">　　能够看出，得到的内容自带缩进，格式更加清晰。</p>
-<p class="content-text">　　另外，如果 JSON 对象中包含中文字符，会怎么样呢？现在将之前 JSON 对象中的部分值改为中文，并且依然用之前的方法将之写入文本:</p>
+<p class="content-text">能够看出，得到的内容自带缩进，格式更加清晰。</p>
+<p class="content-text">另外，如果 JSON 对象中包含中文字符，会怎么样呢？现在将之前 JSON 对象中的部分值改为中文，并且依然用之前的方法将之写入文本:</p>
 <pre class="code-block" data-lang="python"><code>import json
 data = [{
     'name': '王伟',
@@ -218,26 +217,27 @@ with open('data.json', 'w', encoding='utf-8') as file:
     file.write(json.dumps(data, indent=2))</code></pre>
 <p class="content-text">写入结果如图 4-4 所示。</p>
 <figure class="inline-figure"><img alt="图4-4 包含中文字符的错误写入结果" loading="lazy" src="figures/ch04/fig-4_4.jpg"/><figcaption>图4-4 包含中文字符的错误写入结果</figcaption></figure>
-<p class="content-text">　　可以看到，文本中的中文字符都变成了 Unicode 字符，这显然不是我们想要的结果。</p>
-<p class="content-text">　　要想输出中文，还需要指定参数 ensure_ascii 为 False，以及规定文件输出的编码:</p>
+<p class="content-text">可以看到，文本中的中文字符都变成了 Unicode 字符，这显然不是我们想要的结果。</p>
+<p class="content-text">要想输出中文，还需要指定参数 ensure_ascii 为 False，以及规定文件输出的编码:</p>
 <pre class="code-block" data-lang="python"><code>with open('data.json', 'w', encoding='utf-8') as file:
     file.write(json.dumps(data, indent=2, ensure_ascii=False))</code></pre>
-<p class="content-text">　　此时的写入结果如图 4-5 所示。</p>
+<p class="content-text">此时的写入结果如图 4-5 所示。</p>
 <figure class="inline-figure"><img alt="图4-5 包含中文字符的正确写入结果" loading="lazy" src="figures/ch04/fig-4_5.jpg"/><figcaption>图4-5 包含中文字符的正确写入结果</figcaption></figure>
-<p class="content-text">　　能够发现，现在可以将 JSON 对象输出为中文了。</p>
-<p class="content-text">　　类比 loads 与 load 方法，dumps 同样也有对应的 dump 方法，它可以直接将 JSON 对象全部写入文件中，因此上述写法也可以写为如下形式:</p>
+<p class="content-text">能够发现，现在可以将 JSON 对象输出为中文了。</p>
+<p class="content-text">类比 loads 与 load 方法，dumps 同样也有对应的 dump 方法，它可以直接将 JSON 对象全部写入文件中，因此上述写法也可以写为如下形式:</p>
 <pre class="code-block" data-lang="python"><code>json.dump(data, open('data.json', 'w', encoding='utf-8'), indent=2, ensure_ascii=False)</code></pre>
-<p class="content-text">　　这里第一个参数是 JSON 对象，第二个参数可以传入文件操作对象，其他的 indent、ensure_ascii参数还是保持不变，运行结果是一样的。</p>
+<p class="content-text">这里第一个参数是 JSON 对象，第二个参数可以传入文件操作对象，其他的 indent、ensure_ascii参数还是保持不变，运行结果是一样的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 总结</h3>
-<p class="content-text">　　本节我们了解了用 Python 读写 JSON 文件的方法，这在后面进行数据解析时经常会用到，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
+<p class="content-text">本节我们了解了用 Python 读写 JSON 文件的方法，这在后面进行数据解析时经常会用到，建议熟练掌握。　　本节代码参见: https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>4.3 CSV 文件存储</h2></div>
-<p class="content-text">　　CSV，全称为 Comma-Separated Values，中文叫作逗号分隔值或字符分隔值，其文件以纯文本形式存储表格数据。CSV 文件是一个字符序列，可以由任意数目的记录组成，各条记录以某种换行符分隔开。每条记录都由若干字段组成，字段间的分隔符是其他字符或字符串，最常见的是逗号或制表符。不过所有记录都有完全相同的字段序列，相当于一个结构化表的纯文本形式。它比 Excel 文件更加简洁，XLS 文件是电子表格，包含文本、数值、公式和格式等内容，CSV 中则不包含这些，就是以特定字符作为分隔符的纯文本，结构简单清晰。所以，有时候使用 CSV 来存储数据是比较方便的。本节我们就来讲解 Python 读取数据和将数据写入 CSV 文件的过程。</p>
+<p class="content-text">CSV，全称为 Comma-Separated Values，中文叫作逗号分隔值或字符分隔值，其文件以纯文本形式存储表格数据。CSV 文件是一个字符序列，可以由任意数目的记录组成，各条记录以某种换行符分隔开。每条记录都由若干字段组成，字段间的分隔符是其他字符或字符串，最常见的是逗号或制表符。不过所有记录都有完全相同的字段序列，相当于一个结构化表的纯文本形式。</p>
+<p class="content-text">它比 Excel 文件更加简洁，XLS 文件是电子表格，包含文本、数值、公式和格式等内容，CSV 中则不包含这些，就是以特定字符作为分隔符的纯文本，结构简单清晰。所以，有时候使用 CSV 来存储数据是比较方便的。本节我们就来讲解 Python 读取数据和将数据写入 CSV 文件的过程。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 写入</h3>
-<p class="content-text">　　这里先看一个最简单的例子：</p>
+<p class="content-text">这里先看一个最简单的例子：</p>
 <pre class="code-block" data-lang="python"><code>import csv
 with open('data.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)
@@ -245,15 +245,15 @@ with open('data.csv', 'w') as csvfile:
     writer.writerow(['10001', 'Mike', 20])
     writer.writerow(['10002', 'Bob', 22])
     writer.writerow(['10003', 'Jordan', 21])</code></pre>
-<p class="content-text">　　这里首先打开 data.csv 文件，然后指定打开的模式为 w（即写入），获得文件句柄，随后调用 csv 库的 writer 方法初始化写入对象，传入该句柄，然后调用 writerow 方法传入每行的数据，这样便完成了写入。</p>
-<p class="content-text">　　运行结束后，会生成一个名为 data.csv 的文件，此时数据就成功写入了。直接以文本形式打开，会显示如下内容：</p>
+<p class="content-text">这里首先打开 data.csv 文件，然后指定打开的模式为 w（即写入），获得文件句柄，随后调用 csv 库的 writer 方法初始化写入对象，传入该句柄，然后调用 writerow 方法传入每行的数据，这样便完成了写入。</p>
+<p class="content-text">运行结束后，会生成一个名为 data.csv 的文件，此时数据就成功写入了。直接以文本形式打开，会显示如下内容：</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21</code></pre>
-<p class="content-text">　　可以看到，写入 CSV 文件的文本默认以逗号分隔每条记录，每调用一次 writerow 方法即可写入一行数据。用 Excel 打开 data.csv 文件的结果如图 4-6所示。</p>
+<p class="content-text">可以看到，写入 CSV 文件的文本默认以逗号分隔每条记录，每调用一次 writerow 方法即可写入一行数据。用 Excel 打开 data.csv 文件的结果如图 4-6所示。</p>
 <figure class="inline-figure"><img alt="图 4-6 用 Excel 打开 data.csv 文件" loading="lazy" src="figures/ch04/fig-4_6.jpg"/><figcaption>图 4-6 用 Excel 打开 data.csv 文件</figcaption></figure>
-<p class="content-text">　　如果想修改列与列之间的分隔符，可以传入delimiter 参数，其代码如下：</p>
+<p class="content-text">如果想修改列与列之间的分隔符，可以传入delimiter 参数，其代码如下：</p>
 <pre class="code-block" data-lang="python"><code>import csv
 with open('data.csv', 'w') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
@@ -261,23 +261,23 @@ with open('data.csv', 'w') as csvfile:
     writer.writerow(['10001', 'Mike', 20])
     writer.writerow(['10002', 'Bob', 22])
     writer.writerow(['10003', 'Jordan', 21])</code></pre>
-<p class="content-text">　　这里在初始化写入对象时，将空格传入了 delimiter 参数，此时输出结果中的列与列之间就是以空格分隔了，内容如下：</p>
+<p class="content-text">这里在初始化写入对象时，将空格传入了 delimiter 参数，此时输出结果中的列与列之间就是以空格分隔了，内容如下：</p>
 <pre class="code-block" data-lang="text"><code>id name age
 10001 Mike 20
 10002 Bob 22
 10003 Jordan 21</code></pre>
-<p class="content-text">　　另外，我们也可以调用 writerows 方法同时写入多行，此时参数需要传入二维列表，例如：</p>
+<p class="content-text">另外，我们也可以调用 writerows 方法同时写入多行，此时参数需要传入二维列表，例如：</p>
 <pre class="code-block" data-lang="python"><code>import csv
 with open('data.csv', 'w') as csvfile:
-    writer = csv.writer(csvfile)</code></pre>
-<pre class="code-block"><code>    writer.writerow(['id', 'name', 'age'])
+    writer = csv.writer(csvfile)
+    writer.writerow(['id', 'name', 'age'])
     writer.writerows([['10001', 'Mike', 20], ['10002', 'Bob', 22], ['10003', 'Jordan', 21]])</code></pre>
-<p class="content-text">　　输出结果是相同的，内容如下:</p>
+<p class="content-text">输出结果是相同的，内容如下:</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21</code></pre>
-<p class="content-text">　　但是一般情况下，爬虫爬取的都是结构化数据，我们一般会用字典表示这种数据。csv 库也提供了字典的写入方式，实例如下:</p>
+<p class="content-text">但是一般情况下，爬虫爬取的都是结构化数据，我们一般会用字典表示这种数据。csv 库也提供了字典的写入方式，实例如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
 with open('data.csv', 'w') as csvfile:
     fieldnames = ['id', 'name', 'age']
@@ -286,33 +286,33 @@ with open('data.csv', 'w') as csvfile:
     writer.writerow({'id': '10001', 'name': 'Mike', 'age': 20})
     writer.writerow({'id': '10002', 'name': 'Bob', 'age': 22})
     writer.writerow({'id': '10003', 'name': 'Jordan', 'age': 21})</code></pre>
-<p class="content-text">　　这里先定义了 3 个字段，用 fieldnames 表示，然后将其传给 DictWriter 方法以初始化一个字典写入对象，并将对象赋给 writer 变量。接着调用写入了对象的 writeheader 方法先写入头信息，再调用 writerow 方法传入了相应字典。最终写入的结果和之前是完全相同的，内容如下:</p>
+<p class="content-text">这里先定义了 3 个字段，用 fieldnames 表示，然后将其传给 DictWriter 方法以初始化一个字典写入对象，并将对象赋给 writer 变量。接着调用写入了对象的 writeheader 方法先写入头信息，再调用 writerow 方法传入了相应字典。最终写入的结果和之前是完全相同的，内容如下:</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21</code></pre>
-<p class="content-text">　　这样就把字典写入了 CSV 文件中。</p>
-<p class="content-text">　　另外，如果想追加写入，可以修改文件的打开模式，即把 open 函数的第二个参数改成 a，代码如下:</p>
+<p class="content-text">这样就把字典写入了 CSV 文件中。</p>
+<p class="content-text">另外，如果想追加写入，可以修改文件的打开模式，即把 open 函数的第二个参数改成 a，代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
 with open('data.csv', 'a') as csvfile:
     fieldnames = ['id', 'name', 'age']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writerow({'id': '10004', 'name': 'Durant', 'age': 22})</code></pre>
-<p class="content-text">　　这样再次执行这段代码，文件内容便会变成:</p>
+<p class="content-text">这样再次执行这段代码，文件内容便会变成:</p>
 <pre class="code-block" data-lang="text"><code>id,name,age
 10001,Mike,20
 10002,Bob,22
 10003,Jordan,21
 10004,Durant,22</code></pre>
-<p class="content-text">　　由结果可见，数据被追加写入到了文件中。</p>
-<p class="content-text">　　如果要写入中文内容，我们知道可能会遇到字符编码的问题，此时需要给 open 参数指定编码格式。例如，这里再写入一行包含中文的数据，代码改写如下:</p>
+<p class="content-text">由结果可见，数据被追加写入到了文件中。</p>
+<p class="content-text">如果要写入中文内容，我们知道可能会遇到字符编码的问题，此时需要给 open 参数指定编码格式。例如，这里再写入一行包含中文的数据，代码改写如下:</p>
 <pre class="code-block" data-lang="python"><code>import csv
 with open('data.csv', 'a', encoding='utf-8') as csvfile:
     fieldnames = ['id', 'name', 'age']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writerow({'id': '10004', 'name': '王伟', 'age': 22})</code></pre>
-<p class="content-text">　　这里要是没有给 open 函数指定编码，可能会发生编码错误。</p>
-<p class="content-text">　　另外，如果接触过 pandas 等库，可以调用 DataFrame 对象的 to_csv 方法将数据写入 CSV 文件中。</p>
+<p class="content-text">这里要是没有给 open 函数指定编码，可能会发生编码错误。</p>
+<p class="content-text">另外，如果接触过 pandas 等库，可以调用 DataFrame 对象的 to_csv 方法将数据写入 CSV 文件中。</p>
 <p class="content-text">这种方法需要安装pandas库,安装命令为:</p>
 <pre class="code-block" data-lang="text"><code>pip3 install pandas</code></pre>
 <p class="content-text">安装完成之后,我们便可以使用 pandas 库将数据保存为CSV文件,实例代码如下:</p>
@@ -372,11 +372,12 @@ for index, row in df.iterrows():
 <p class="content-text">本节中,我们了解了 CSV 文件的写入和读取方式。这也是一种常用的数据存储方式,需要熟练掌握。本节代码参见:https://github.com/Python3WebSpider/FileStorageTest。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>4.4 MySQL 存储</h2></div>
-<p class="content-text">关系型数据库是基于关系模型的数据库,而关系模型是通过二维表来保存的,所以关系型数据库中数据的存储方式就是行列组成的表,每一列代表一个字段、每一行代表一条记录。表可以看作某个实体的集合,实体之间存在的联系需要通过表与表之间的关联关系体现,例如主键和外键的关联关系。由多个表组成的数据库,就是关系型数据库。　　关系型数据库有多种，例如 SQLite、MySQL、Oracle、SQL Server、DB2 等，本节我们主要来了解一下 MySQL 数据库的存储操作。在Python2中,连接MySQL的库大多是MySQLdb,但是此库的官方并不支持Python3,所以这里推荐使用的库是PyMySQL。下面,我们就来讲解使用PyMySQL 操作 MySQL数据库的方法。</p>
+<p class="content-text">关系型数据库是基于关系模型的数据库,而关系模型是通过二维表来保存的,所以关系型数据库中数据的存储方式就是行列组成的表,每一列代表一个字段、每一行代表一条记录。表可以看作某个实体的集合,实体之间存在的联系需要通过表与表之间的关联关系体现,例如主键和外键的关联关系。由多个表组成的数据库,就是关系型数据库。</p>
+<p class="content-text">关系型数据库有多种，例如 SQLite、MySQL、Oracle、SQL Server、DB2 等，本节我们主要来了解一下 MySQL 数据库的存储操作。</p>
+<p class="content-text">在Python2中,连接MySQL的库大多是MySQLdb,但是此库的官方并不支持Python3,所以这里推荐使用的库是PyMySQL。下面,我们就来讲解使用PyMySQL 操作 MySQL数据库的方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">在开始之前,请确保已经安装好了 MySQL 数据库并保证它能正常运行,安装方式可以参考:</p>
-<pre class="result-block"><code>https://setup.scrape.center/mysql。</code></pre>
+<p class="content-text">在开始之前,请确保已经安装好了 MySQL 数据库并保证它能正常运行,安装方式可以参考 <code class="inline-code">https://setup.scrape.center/mysql</code>。</p>
 <p class="content-text">除了安装好 MySQL数据库外,还需要安装好PyMySQL库,如尚未安装PyMySQL,可以使用pip3来安装:</p>
 <pre class="code-block" data-lang="text"><code>pip3 install pymysql</code></pre>
 <p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/pymysql。二者都安装好了之后,我们就可以开始本节的学习了。</p>
@@ -394,8 +395,8 @@ cursor.execute("CREATE DATABASE spiders DEFAULT CHARACTER SET utf8mb4")
 db.close()</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>Database version: ('8.0.19',)</code></pre>
-<p class="content-text">　　这里通过 PyMySQL 的 connect 方法声明了一个 MySQL 连接对象 db，此时需要传入的第一个参数是 MySQL 运行的 host（即 IP），由于 MySQL 运行在本地，所以传入的是 localhost，如果 MySQL在远程运行，则传入其公网 IP 地址。后续参数分别是 user（用户名）、password（密码）和 port（端口，默认为 3306）。</p>
-<p class="content-text">　　连接成功后，调用 cursor 方法获得了 MySQL 的操作游标，利用游标可以执行 SQL 语句。这里我们执行了两个 SQL 语句，直接调用 execute 方法即可执行。第一个 SQL 语句用于获得 MySQL 的当前版本，然后调用 fetchone 方法就得到了第一条数据，即版本号。第二个 SQL 语句用于创建数据库 spiders，默认编码为 UTF-8，由于该语句不是查询语句，所以执行后就成功创建了数据库 spiders，可以利用这个数据库完成后续的操作。</p>
+<p class="content-text">这里通过 PyMySQL 的 connect 方法声明了一个 MySQL 连接对象 db，此时需要传入的第一个参数是 MySQL 运行的 host（即 IP），由于 MySQL 运行在本地，所以传入的是 localhost，如果 MySQL在远程运行，则传入其公网 IP 地址。后续参数分别是 user（用户名）、password（密码）和 port（端口，默认为 3306）。</p>
+<p class="content-text">连接成功后，调用 cursor 方法获得了 MySQL 的操作游标，利用游标可以执行 SQL 语句。这里我们执行了两个 SQL 语句，直接调用 execute 方法即可执行。第一个 SQL 语句用于获得 MySQL 的当前版本，然后调用 fetchone 方法就得到了第一条数据，即版本号。第二个 SQL 语句用于创建数据库 spiders，默认编码为 UTF-8，由于该语句不是查询语句，所以执行后就成功创建了数据库 spiders，可以利用这个数据库完成后续的操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 创建表</h3>
@@ -416,8 +417,7 @@ db.close()</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 插入数据</h3>
-<p class="content-text">下一步就是往数据库中插入数据了。例如，这里爬取到一个学生信息，学号为 20120001、名字为</p>
-<p class="content-text">Bob、年龄为20,如何将这条数据插入数据库呢?实例代码如下:</p>
+<p class="content-text">下一步就是往数据库中插入数据了。例如，这里爬取到一个学生信息，学号为 20120001、名字为 Bob、年龄为20,如何将这条数据插入数据库呢?实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>import pymysql
 id = '20120001'
 user = 'Bob'
@@ -431,35 +431,35 @@ try:
 except:
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里首先构造了一个 SQL 语句，其值没有用如下字符串拼接的方式构造:</p>
+<p class="content-text">这里首先构造了一个 SQL 语句，其值没有用如下字符串拼接的方式构造:</p>
 <pre class="code-block" data-lang="python"><code>sql = 'INSERT INTO students (id, name, age) values(' + id + ', ' + name + ', ' + age + ')'</code></pre>
-<p class="content-text">　　这样的写法烦琐且不直观，所以我们直接用格式化符 %s 来构造，有几个 value 就写几个 %s。我们只需要在 execute 方法的第一个参数传入该 SQL 语句，value 值用统一的元组传过来就好了。这样的写法既可以避免字符串拼接的麻烦，又可以避免引号冲突问题。</p>
-<p class="content-text">　　之后值得注意的是，需要执行 db 对象的 commit 方法才可以实现数据插入，这个方法才是真正将语句提交到数据库执行的方法。对于数据插入、更新、删除操作，都需要调用该方法才能生效。</p>
-<p class="content-text">　　接下来，我们加了一层异常处理。如果执行失败，则调用 rollback 执行数据回滚，相当于什么都没有发生过。</p>
-<p class="content-text">　　这里涉及事务的问题。事务机制能够确保数据的一致性，也就是一件事要么发生完整了，要么完全没有发生。例如插入一条数据，不会存在插入一半的情况——要么全部插入、要么都不插入，这就是事务的原子性。事务还有其他 3 个属性——一致性、隔离性和持久性。这 4 个属性通常称为 ACID 特性，具体如表 4-2 所示。</p>
+<p class="content-text">这样的写法烦琐且不直观，所以我们直接用格式化符 %s 来构造，有几个 value 就写几个 %s。我们只需要在 execute 方法的第一个参数传入该 SQL 语句，value 值用统一的元组传过来就好了。这样的写法既可以避免字符串拼接的麻烦，又可以避免引号冲突问题。</p>
+<p class="content-text">之后值得注意的是，需要执行 db 对象的 commit 方法才可以实现数据插入，这个方法才是真正将语句提交到数据库执行的方法。对于数据插入、更新、删除操作，都需要调用该方法才能生效。</p>
+<p class="content-text">接下来，我们加了一层异常处理。如果执行失败，则调用 rollback 执行数据回滚，相当于什么都没有发生过。</p>
+<p class="content-text">这里涉及事务的问题。事务机制能够确保数据的一致性，也就是一件事要么发生完整了，要么完全没有发生。例如插入一条数据，不会存在插入一半的情况——要么全部插入、要么都不插入，这就是事务的原子性。事务还有其他 3 个属性——一致性、隔离性和持久性。这 4 个属性通常称为 ACID 特性，具体如表 4-2 所示。</p>
 <p class="table-caption">表4-2 事务的4个属性</p>
 <table class="content-table"><thead><tr><th>属性</th><th>解释</th></tr></thead><tbody><tr><td>原子性(atomicity)</td><td>事务是一个不可分割的工作单位,事务中包括的诸操作要么都做、要么都不做</td></tr>
 <tr><td>一致性(consistency)</td><td>事务必须使数据库从一个一致性状态变到另一个一致性状态。一致性与原子性是密切相关的</td></tr>
 <tr><td>隔离性(isolation)</td><td>一个事务的执行不能被其他事务干扰,即一个事务内部的操作及使用的数据对并发的其他事务是隔离的,并发执行的各个事务之间不能互相干扰</td></tr>
 <tr><td>持久性(durability)</td><td>持续性也称永久性(permanence),指一个事务一旦提交,它对数据库中数据做的改变就应该是永久性的。接下来的其他操作或故障不应该对数据有任何影响</td></tr></tbody></table>
-<p class="content-text">　　插入、更新和删除操作都是对数据库进行更改的操作，而更改操作都必须是一个事务，所以这些操作的标准写法是:</p>
+<p class="content-text">插入、更新和删除操作都是对数据库进行更改的操作，而更改操作都必须是一个事务，所以这些操作的标准写法是:</p>
 <pre class="code-block" data-lang="python"><code>try:
     cursor.execute(sql)
     db.commit()
 except:
     db.rollback()</code></pre>
-<p class="content-text">　　这样便可以保证数据的一致性。这里的 commit 和 rollback 方法就为事务的实现提供了支持。</p>
-<p class="content-text">　　上面数据插入的操作是通过构造 SQL 语句实现的，但是很明显，这里有一个极其不方便的地方，例如突然增加了性别字段 gender，此时 SQL 语句就需要改成:</p>
+<p class="content-text">这样便可以保证数据的一致性。这里的 commit 和 rollback 方法就为事务的实现提供了支持。</p>
+<p class="content-text">上面数据插入的操作是通过构造 SQL 语句实现的，但是很明显，这里有一个极其不方便的地方，例如突然增加了性别字段 gender，此时 SQL 语句就需要改成:</p>
 <pre class="code-block" data-lang="sql"><code>INSERT INTO students (id, name, age, gender) values (%s, %s, %s, %s)</code></pre>
 <p class="content-text">相应的元组参数需要改成:</p>
 <pre class="code-block" data-lang="python"><code>(id, name, age, gender)</code></pre>
-<p class="content-text">　　这显然不是我们想要的。在很多情况下，我们要达到的效果是插入方法无须做改动，其作为通用方法，只需要传入一个动态变化的字典就好了。例如，构造这样一个字典:</p>
+<p class="content-text">这显然不是我们想要的。在很多情况下，我们要达到的效果是插入方法无须做改动，其作为通用方法，只需要传入一个动态变化的字典就好了。例如，构造这样一个字典:</p>
 <pre class="code-block" data-lang="python"><code>{
     'id': '20120001',
     'name': 'Bob',
     'age': 20
 }</code></pre>
-<p class="content-text">　　然后，SQL 语句会根据这个字典动态构造出来，元组也是，这样才是实现了通用的插入方法。于是我们改写一下插入方法:</p>
+<p class="content-text">然后，SQL 语句会根据这个字典动态构造出来，元组也是，这样才是实现了通用的插入方法。于是我们改写一下插入方法:</p>
 <pre class="code-block" data-lang="python"><code>data = {
     'id': '20120001',
     'name': 'Bob',
@@ -477,15 +477,15 @@ except:
     print('Failed')
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里我们传入的数据是字典，将其定义为了 data 变量，将 students 表定义为了变量 table。接下来，构造一个动态的 SQL 语句。</p>
-<p class="content-text">　　首先，需要构造插入的字段: id、name 和 age。这里只要将 data 的键名拿过来，并用逗号分隔即可。所以 ', '.join(data.keys()) 的结果就是 id, name, age，然后，需要构造多个 %s 当作占位符，有几个字段就构造几个。例如，这里有三个字段，就需要构造 %s, %s, %s。这里先是定义了一个长度为 1 的数组 ['%s']，然后用乘法将其扩充为 ['%s', '%s', '%s']，再调用 join 方法，就变成了 %s, %s, %s。最后，利用字符串的 format 方法将表名、字段名和占位符构造出来。于是 SQL 语句就动态构造出来了:</p>
+<p class="content-text">这里我们传入的数据是字典，将其定义为了 data 变量，将 students 表定义为了变量 table。接下来，构造一个动态的 SQL 语句。</p>
+<p class="content-text">首先，需要构造插入的字段: id、name 和 age。这里只要将 data 的键名拿过来，并用逗号分隔即可。所以 ', '.join(data.keys()) 的结果就是 id, name, age，然后，需要构造多个 %s 当作占位符，有几个字段就构造几个。例如，这里有三个字段，就需要构造 %s, %s, %s。这里先是定义了一个长度为 1 的数组 ['%s']，然后用乘法将其扩充为 ['%s', '%s', '%s']，再调用 join 方法，就变成了 %s, %s, %s。最后，利用字符串的 format 方法将表名、字段名和占位符构造出来。于是 SQL 语句就动态构造出来了:</p>
 <pre class="code-block" data-lang="sql"><code>INSERT INTO students(id, name, age) VALUES (%s, %s, %s)</code></pre>
-<p class="content-text">　　最后，为 execute 方法的第一个参数传入 sql 变量，第二个参数传入由 data 的键值构造的元组，就可以成功插入数据了。</p>
-<p class="content-text">　　如此一来，我们便实现了通过传入一个字典来插入数据的方法，不需要再去修改 SQL 语句和插入操作。</p>
+<p class="content-text">最后，为 execute 方法的第一个参数传入 sql 变量，第二个参数传入由 data 的键值构造的元组，就可以成功插入数据了。</p>
+<p class="content-text">如此一来，我们便实现了通过传入一个字典来插入数据的方法，不需要再去修改 SQL 语句和插入操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 更新数据</h3>
-<p class="content-text">　　数据更新操作实际上也是执行 SQL 语句，最简单的方式就是先构造一个 SQL 语句，然后执行:</p>
+<p class="content-text">数据更新操作实际上也是执行 SQL 语句，最简单的方式就是先构造一个 SQL 语句，然后执行:</p>
 <pre class="code-block" data-lang="python"><code>sql = 'UPDATE students SET age = %s WHERE name = %s'
 try:
     cursor.execute(sql, (25, 'Bob'))
@@ -493,8 +493,8 @@ try:
 except:
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里同样用占位符的方式构造 SQL，然后执行 execute 方法，传入元组形式的参数，同样执行commit 方法执行操作。如果做的是简单的数据更新，完全可以使用此方法。</p>
-<p class="content-text">　　但是在实际的数据抓取过程中，大部分情况下需要插入数据，我们关心的是会不会出现重复数据，如果出现了，我们希望更新数据而不是重复保存一次。另外，就像前面所说的动态构造 SQL 的问题，所以这里可以再实现一种去重的方法: 如果数据存在，就更新数据；如果数据不存在，则插入数据。另外，这种做法支持灵活的字典传值。实例代码如下:</p>
+<p class="content-text">这里同样用占位符的方式构造 SQL，然后执行 execute 方法，传入元组形式的参数，同样执行commit 方法执行操作。如果做的是简单的数据更新，完全可以使用此方法。</p>
+<p class="content-text">但是在实际的数据抓取过程中，大部分情况下需要插入数据，我们关心的是会不会出现重复数据，如果出现了，我们希望更新数据而不是重复保存一次。另外，就像前面所说的动态构造 SQL 的问题，所以这里可以再实现一种去重的方法: 如果数据存在，就更新数据；如果数据不存在，则插入数据。另外，这种做法支持灵活的字典传值。实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>data = {
     'id': '20120001',
     'name': 'Bob',
@@ -515,14 +515,14 @@ except:
     print('Failed')
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　这里构造的 SQL 语句其实是插入语句，但是我们在后面加了 ON DUPLICATE KEY UPDATE。这行代码的意思是如果主键已经存在，就执行更新操作。例如，我们传入的数据 id 仍然是 20120001，但是年龄有所变化，由 20 变成了 21，此时不会插入这条数据，而是直接更新 id 为 20120001 的数据。构造出来的完整 SQL 语句是这样的:</p>
+<p class="content-text">这里构造的 SQL 语句其实是插入语句，但是我们在后面加了 ON DUPLICATE KEY UPDATE。这行代码的意思是如果主键已经存在，就执行更新操作。例如，我们传入的数据 id 仍然是 20120001，但是年龄有所变化，由 20 变成了 21，此时不会插入这条数据，而是直接更新 id 为 20120001 的数据。构造出来的完整 SQL 语句是这样的:</p>
 <pre class="code-block" data-lang="sql"><code>INSERT INTO students (id, name, age) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE id = %s, name = %s, age = %s</code></pre>
-<p class="content-text">　　这里变成了 6 个 %s。所以后面 execute 方法的第二个参数元组就需要乘以 2，使长度变成原来的2 倍。</p>
-<p class="content-text">　　如此一来，我们就可以实现主键不存在便插入数据，主键存在则更新数据的功能。</p>
+<p class="content-text">这里变成了 6 个 %s。所以后面 execute 方法的第二个参数元组就需要乘以 2，使长度变成原来的2 倍。</p>
+<p class="content-text">如此一来，我们就可以实现主键不存在便插入数据，主键存在则更新数据的功能。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 删除数据</h3>
-<p class="content-text">　　删除操作相对简单，直接使用 DELETE 语句即可，只是需要指定要删除的目标表名和删除条件，而且仍然需要使用 db 的 commit 方法才能生效。实例代码如下:</p>
+<p class="content-text">删除操作相对简单，直接使用 DELETE 语句即可，只是需要指定要删除的目标表名和删除条件，而且仍然需要使用 db 的 commit 方法才能生效。实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>table = 'students'
 condition = 'age &gt; 20'
 sql = 'DELETE FROM {table} WHERE {condition}'.format(table=table, condition=condition)
@@ -532,11 +532,11 @@ try:
 except:
     db.rollback()
 db.close()</code></pre>
-<p class="content-text">　　因为删除条件多种多样，运算符有大于、小于、等于、LIKE 等，条件连接符有 AND、OR 等，所以不再继续构造复杂的判断条件。这里直接将条件当作字符串来传递，以实现删除操作。</p>
+<p class="content-text">因为删除条件多种多样，运算符有大于、小于、等于、LIKE 等，条件连接符有 AND、OR 等，所以不再继续构造复杂的判断条件。这里直接将条件当作字符串来传递，以实现删除操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 查询数据</h3>
-<p class="content-text">　　说完插入、修改和删除等操作，还剩下一个非常重要的操作，就是查询。查询会用到 SELECT 语句，实例代码如下:</p>
+<p class="content-text">说完插入、修改和删除等操作，还剩下一个非常重要的操作，就是查询。查询会用到 SELECT 语句，实例代码如下:</p>
 <pre class="code-block" data-lang="python"><code>sql = 'SELECT * FROM students WHERE age &gt;= 20'
 try:
     cursor.execute(sql)
@@ -558,10 +558,10 @@ Results Type: &lt;class 'tuple'&gt;
 ('20120011', 'Mary', 21)
 ('20120012', 'Mike', 20)
 ('20120013', 'James', 22)</code></pre>
-<p class="content-text">　　这里我们构造了一个 SQL 语句，查询年龄为 20 及以上的学生，然后将其传给 execute 方法。注意，这里不再需要 db 的 commit 方法。接着，调用 cursor 的 rowcount 属性获取查询结果的条数，当前实例中是 4 条。</p>
-<p class="content-text">　　然后我们调用了 fetchone 方法，这个方法可以获取结果的第一条数据，返回结果以元组形式呈现，元组中元素的顺序跟字段一一对应，即第一个元素就是第一个字段 id、第二个元素就是第二个字段name，以此类推。随后，我们又调用了 fetchall 方法，可以得到结果的所有数据。之后将其结果和类型打印出来，是一个二重元组，其中每个元素都是一条记录，我们遍历这些元素并输出。</p>
-<p class="content-text">　　但是需要注意一个问题，这里结果显示的是 3 条数据而不是 4 条，fetchall 方法不是获取所有数据吗？这是因为它的内部实现有一个偏移指针，用来指向查询结果，偏移指针最开始指向第一条数据，取一次数据之后，指针偏移到下一条数据，于是再取就会取到下一条数据。我们最初调用了一次fetchone 方法，这样结果的偏移指针就指向下一条数据，fetchall 方法返回的是从偏移指针指向的数据一直到结束的所有数据，所以它获取的结果就只剩 3 个了。</p>
-<p class="content-text">　　此外，我们还可以用 while 循环加 fetchone 方法的组合来获取所有数据，而不是用 fetchall 全部获取出来。fetchall 会将结果以元组形式全部返回，如果数据量很大，那么占用的开销也会非常高。因此，推荐使用如下方法逐条获取数据:</p>
+<p class="content-text">这里我们构造了一个 SQL 语句，查询年龄为 20 及以上的学生，然后将其传给 execute 方法。注意，这里不再需要 db 的 commit 方法。接着，调用 cursor 的 rowcount 属性获取查询结果的条数，当前实例中是 4 条。</p>
+<p class="content-text">然后我们调用了 fetchone 方法，这个方法可以获取结果的第一条数据，返回结果以元组形式呈现，元组中元素的顺序跟字段一一对应，即第一个元素就是第一个字段 id、第二个元素就是第二个字段name，以此类推。随后，我们又调用了 fetchall 方法，可以得到结果的所有数据。之后将其结果和类型打印出来，是一个二重元组，其中每个元素都是一条记录，我们遍历这些元素并输出。</p>
+<p class="content-text">但是需要注意一个问题，这里结果显示的是 3 条数据而不是 4 条，fetchall 方法不是获取所有数据吗？这是因为它的内部实现有一个偏移指针，用来指向查询结果，偏移指针最开始指向第一条数据，取一次数据之后，指针偏移到下一条数据，于是再取就会取到下一条数据。我们最初调用了一次fetchone 方法，这样结果的偏移指针就指向下一条数据，fetchall 方法返回的是从偏移指针指向的数据一直到结束的所有数据，所以它获取的结果就只剩 3 个了。</p>
+<p class="content-text">此外，我们还可以用 while 循环加 fetchone 方法的组合来获取所有数据，而不是用 fetchall 全部获取出来。fetchall 会将结果以元组形式全部返回，如果数据量很大，那么占用的开销也会非常高。因此，推荐使用如下方法逐条获取数据:</p>
 <pre class="code-block" data-lang="python"><code>sql = 'SELECT * FROM students WHERE age &gt;= 20'
 try:
     cursor.execute(sql)
@@ -572,7 +572,7 @@ try:
         row = cursor.fetchone()
 except:
     print('Error')</code></pre>
-<p class="content-text">　　这样每循环一次，指针就会偏移一条数据，随用随取，简单高效。</p>
+<p class="content-text">这样每循环一次，指针就会偏移一条数据，随用随取，简单高效。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 总结</h3>
@@ -586,7 +586,7 @@ except:
 <p class="content-text list-like">图形数据库:代表有 Neo4J、InfoGrid 和 Infinite Graph等。对于爬虫的数据存储来说,一条数据可能存在因某些字段提取失败而缺失的情况,而且数据可能随时调整。另外,数据之间还存在嵌套关系。如果使用关系型数据库存储这些数据,一是需要提前建表,二是如果数据存在嵌套关系,还需要进行序列化操作才可以存储,这非常不方便。如果使用非关系型数据库,就可以避免这些麻烦,更简单、高效。本节中,我们主要介绍 MongoDB 存储操作。MongoDB 是由C++语言编写的非关系型数据库,是一个基于分布式文件存储的开源数据库系统,其内容的存储形式类似 JSON对象。它的字段值可以包含其他文档、数组及文档数组,非常灵活。本节我们就来看看 Python 3下MongoDB的存储操作。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">　　在开始之前，请确保已经安装好了 MongoDB 并启动了其服务，安装方式可以参考: https://setup.scrape.center/mongodb。除了安装好 MongoDB 数据库,我们还需要安装好 Python 的PyMongo库,如尚未安装,可以使用pip3 来安装:</p>
+<p class="content-text">在开始之前，请确保已经安装好了 MongoDB 并启动了其服务，安装方式可以参考: https://setup.scrape.center/mongodb。除了安装好 MongoDB 数据库,我们还需要安装好 Python 的PyMongo库,如尚未安装,可以使用pip3 来安装:</p>
 <pre class="code-block"><code>pip3 install pymongo</code></pre>
 <p class="content-text">更详细的安装说明可以参考:https://setup.scrape.center/pymongo。安装好 MongoDB 数据库和 PyMongo库之后,我们便可以开始本节的学习了。</p>
 </section>
@@ -595,8 +595,7 @@ except:
 <p class="content-text">连接 MongoDB时,需要使用PyMongo 库里面的 MongoClient 方法,一般而言,传入MongoDB的IP 及端口即可。MongoClient 方法的第一个参数为地址host,第二个参数为端口 port(如果不传入此参数,默认取值为27017):</p>
 <pre class="code-block"><code>import pymongo
 client = pymongo.MongoClient(host='localhost', port=27017)</code></pre>
-<p class="content-text">这样就可以创建 MongoDB的连接对象了。另外,还可以直接给 MongoClient 的第一个参数 host传入 MongoDB 的连接字符串,它以 mongodb</p>
-<p class="content-text">开头,例如:</p>
+<p class="content-text">这样就可以创建 MongoDB的连接对象了。另外,还可以直接给 MongoClient 的第一个参数 host传入 MongoDB 的连接字符串,它以 mongodb 开头,例如:</p>
 <pre class="code-block"><code>client = MongoClient('mongodb://localhost:27017/')</code></pre>
 <p class="content-text">这可以达到同样的连接效果。</p>
 </section>
@@ -611,9 +610,9 @@ client = pymongo.MongoClient(host='localhost', port=27017)</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 指定集合</h3>
 <p class="content-text">MongoDB 的每个数据库又都包含许多集合(collection),这些集合类似于关系型数据库中的表。下一步需要指定要操作哪些集合,这里指定一个集合,名称为 students。与指定数据库类似,指定集合也有两种方式:</p>
-<pre class="code-block"><code>collection = db.students</code></pre>
-<p class="content-text">或</p>
-<pre class="code-block"><code>collection = db['students']</code></pre>
+<pre class="code-block"><code>collection = db.students
+# 或
+collection = db['students']</code></pre>
 <p class="content-text">这样我们便声明了一个集合对象。</p>
 </section>
 <section class="numbered-section">
@@ -791,8 +790,7 @@ print(result.matched_count, result.modified_count)</code></pre>
 result = collection.update_one(condition, {'$inc': {'age': 1}})
 print(result)
 print(result.matched_count, result.modified_count)</code></pre>
-<p class="content-text">这里指定查询条件为age 大于20,然后更新条件是{'$inc': {'age': 1}},也就是对 age加1,</p>
-<p class="content-text">因此执行 update_one 方法之后,会对第一条符合查询条件的学生数据的age 加1。运行结果如下:</p>
+<p class="content-text">这里指定查询条件为age 大于20,然后更新条件是{'$inc': {'age': 1}},也就是对 age加1,因此执行 update_one 方法之后,会对第一条符合查询条件的学生数据的age 加1。运行结果如下:</p>
 <pre class="result-block"><code>&lt;pymongo.results. UpdateResult object at 0x10b8874c8&gt;
 1 1</code></pre>
 <p class="content-text">可以看到匹配条数为1条,影响条数也为1条。但如果调用 update_many方法,则会更新所有符合条件的数据,实例代码如下:</p>
@@ -833,45 +831,45 @@ print(result.deleted_count)</code></pre>
 <p class="content-text">本节讲解了使用PyMongo 操作 MongoDB 进行数据增删改查的方法,后面我们会在实战案例中应用这些操作完成数据存储。本节代码参见:https://github.com/Python3WebSpider/MongoDBTest。</p>
 </section>
 <div class="section-heading" id="section-5"><h2>4.6 Redis 缓存存储</h2></div>
-<p class="content-text">　　Redis 是一个基于内存的、高效的键值型非关系型数据库，存取效率极高，而且支持多种数据存储结构，使用起来也非常简单。本节我们就来介绍一下 Python 的 Redis 操作，主要介绍 redis-py 这个库的用法。</p>
+<p class="content-text">Redis 是一个基于内存的、高效的键值型非关系型数据库，存取效率极高，而且支持多种数据存储结构，使用起来也非常简单。本节我们就来介绍一下 Python 的 Redis 操作，主要介绍 redis-py 这个库的用法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备工作</h3>
-<p class="content-text">　　在开始之前，请确保已经安装好了 Redis 并能正常运行，安装方式可以参考: https://setup.scrape.center/redis。</p>
-<p class="content-text">　　除了安装好 Redis 数据库外，我们还需要安装好 redis-py 库，即用来操作 Redis 的 Python 包，可以使用 pip3 来安装:</p>
+<p class="content-text">在开始之前，请确保已经安装好了 Redis 并能正常运行，安装方式可以参考: https://setup.scrape.center/redis。</p>
+<p class="content-text">除了安装好 Redis 数据库外，我们还需要安装好 redis-py 库，即用来操作 Redis 的 Python 包，可以使用 pip3 来安装:</p>
 <pre class="code-block"><code>pip3 install redis</code></pre>
-<p class="content-text">　　更详细的安装说明可以参考: https://setup.scrape.center/redis-py。　　安装好 Redis 数据库和 redis-py 库之后，我们便可以开始本节的学习了。</p>
+<p class="content-text">更详细的安装说明可以参考: https://setup.scrape.center/redis-py。　　安装好 Redis 数据库和 redis-py 库之后，我们便可以开始本节的学习了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Redis 和 StrictRedis</h3>
-<p class="content-text">　　redis-py 库提供 Redis 和 StrictRedis 两个类，用来实现 Redis 命令对应的操作。</p>
-<p class="content-text">　　StrictRedis 类实现了绝大部分官方的 Redis 命令，参数也一一对应，例如 set 方法就对应 Redis 命令的 set 方法。而 Redis 类是 StrictRedis 类的子类，其主要功能是向后兼容旧版本库里的几个方法。为了实现兼容，Redis 类对方法做了改写，例如将 lrem 方法中 value 和 num 参数的位置互换，这和 Redis命令行的命令参数是不一致的。</p>
-<p class="content-text">　　官方推荐使用 StrictRedis 类，所以本节我们也用 StrictRedis 类的相关方法作为演示。</p>
+<p class="content-text">redis-py 库提供 Redis 和 StrictRedis 两个类，用来实现 Redis 命令对应的操作。</p>
+<p class="content-text">StrictRedis 类实现了绝大部分官方的 Redis 命令，参数也一一对应，例如 set 方法就对应 Redis 命令的 set 方法。而 Redis 类是 StrictRedis 类的子类，其主要功能是向后兼容旧版本库里的几个方法。为了实现兼容，Redis 类对方法做了改写，例如将 lrem 方法中 value 和 num 参数的位置互换，这和 Redis命令行的命令参数是不一致的。</p>
+<p class="content-text">官方推荐使用 StrictRedis 类，所以本节我们也用 StrictRedis 类的相关方法作为演示。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 连接 Redis</h3>
-<p class="content-text">　　我们先在本地安装好 Redis，并运行在 6379 端口，将密码设置为 foobared。可以用如下实例连接Redis 并测试:</p>
+<p class="content-text">我们先在本地安装好 Redis，并运行在 6379 端口，将密码设置为 foobared。可以用如下实例连接Redis 并测试:</p>
 <pre class="code-block"><code>from redis import StrictRedis
 redis = StrictRedis(host='localhost', port=6379, db=0, password='foobared')
 redis.set('name', 'Bob')
 print(redis.get('name'))</code></pre>
-<p class="content-text">　　这里我们传入了 Redis 的地址、运行端口、使用的数据库和密码信息。在默认不传数据的情况下，这 4 个参数分别为 localhost、6379、0 和 None。然后声明了一个 StrictRedis 对象，并调用对象的 set()方法，设置了一个键值对。最后调用 get 方法获取了设置的键值并打印出来。</p>
+<p class="content-text">这里我们传入了 Redis 的地址、运行端口、使用的数据库和密码信息。在默认不传数据的情况下，这 4 个参数分别为 localhost、6379、0 和 None。然后声明了一个 StrictRedis 对象，并调用对象的 set()方法，设置了一个键值对。最后调用 get 方法获取了设置的键值并打印出来。</p>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block"><code>b'Bob'</code></pre>
-<p class="content-text">　　这说明我们成功连接了 Redis，并且可以执行 set 和 get 操作了。</p>
-<p class="content-text">　　当然，还可以使用 ConnectionPool 来连接 Redis，实例代码如下:</p>
+<p class="content-text">这说明我们成功连接了 Redis，并且可以执行 set 和 get 操作了。</p>
+<p class="content-text">当然，还可以使用 ConnectionPool 来连接 Redis，实例代码如下:</p>
 <pre class="code-block"><code>from redis import StrictRedis, ConnectionPool
 pool = ConnectionPool(host='localhost', port=6379, db=0, password='foobared')
 redis = StrictRedis(connection_pool=pool)</code></pre>
-<p class="content-text">　　这样的连接效果是一样的。观察源码可以发现，StrictRedis 内其实就是用 host 和 port 等参数又构造了一个 ConnectionPool，所以直接将 ConnectionPool 当作参数传给 StrictRedis 也一样。</p>
-<p class="content-text">　　另外，ConnectionPool 还支持通过 URL 来构建连接。URL 支持的格式有如下 3 种:</p>
+<p class="content-text">这样的连接效果是一样的。观察源码可以发现，StrictRedis 内其实就是用 host 和 port 等参数又构造了一个 ConnectionPool，所以直接将 ConnectionPool 当作参数传给 StrictRedis 也一样。</p>
+<p class="content-text">另外，ConnectionPool 还支持通过 URL 来构建连接。URL 支持的格式有如下 3 种:</p>
 <pre class="code-block"><code>redis://[:password]@host:port/db
 rediss://[:password]@host:port/db
 unix://[:password]@/path/to/socket.sock?db=db</code></pre>
-<p class="content-text">　　这 3 种 URL 分别表示创建 Redis TCP 连接、Redis TCP+SSL 连接、Redis UNIX socket 连接。我们只需要构造其中任意一种即可，其中 password 部分如果有则可以写上，如果没有也可以省略。下面再用 URL 连接演示一下:</p>
+<p class="content-text">这 3 种 URL 分别表示创建 Redis TCP 连接、Redis TCP+SSL 连接、Redis UNIX socket 连接。我们只需要构造其中任意一种即可，其中 password 部分如果有则可以写上，如果没有也可以省略。下面再用 URL 连接演示一下:</p>
 <pre class="code-block"><code>url = 'redis://:foobared@localhost:6379/0'
 pool = ConnectionPool.from_url(url)
 redis = StrictRedis(connection_pool=pool)</code></pre>
-<p class="content-text">　　这里我们使用的是第一种格式。首先，声明一个 Redis 连接字符串，然后调用 from_url 方法创建ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使用 URL 的连接方式还是比较方便的。</p>
+<p class="content-text">这里我们使用的是第一种格式。首先，声明一个 Redis 连接字符串，然后调用 from_url 方法创建ConnectionPool，接着将其传给 StrictRedis 即可完成连接，所以使用 URL 的连接方式还是比较方便的。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 键操作</h3>
@@ -892,7 +890,7 @@ redis = StrictRedis(connection_pool=pool)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 字符串操作</h3>
-<p class="content-text">　　Redis 支持最基本的键值对存储，相关方法的总结如表 4-6 所示。</p>
+<p class="content-text">Redis 支持最基本的键值对存储，相关方法的总结如表 4-6 所示。</p>
 <p class="table-caption">表4-6 键值对存储的相关方法</p>
 <table class="content-table"><thead><tr><th>方法</th><th>作用</th><th>参数说明</th><th>实例</th><th>实例说明</th><th>实例结果</th></tr></thead><tbody><tr><td>set(name, value)</td><td>将数据库中指定键名对应的键值赋值为字符串 value</td><td>name: 键名&lt;br&gt;value: 值</td><td>`redis.set('name', 'Bob')`</td><td>将 name 这个键对应的键值赋值为 Bob</td><td>True</td></tr>
 <tr><td>get(name)</td><td>返回数据库中指定键名对应的键值</td><td>name: 键名</td><td>`redis.get('name')`</td><td>返回 name 这个键对应的键值</td><td>b'Bob'</td></tr>
@@ -986,13 +984,16 @@ redis = StrictRedis(connection_pool=pool)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 总结</h3>
-<p class="content-text">　　鉴于 Redis 的便捷性和高效性，后面我们会利用 Redis 实现很多架构，例如维护代理池、账号池、ADSL 拨号代理池、Scrapy-Redis 分布式架构等，所以需要好好掌握针对 Redis 的操作。</p>
+<p class="content-text">鉴于 Redis 的便捷性和高效性，后面我们会利用 Redis 实现很多架构，例如维护代理池、账号池、ADSL 拨号代理池、Scrapy-Redis 分布式架构等，所以需要好好掌握针对 Redis 的操作。</p>
 </section>
 <div class="section-heading" id="section-6"><h2>4.7 Elasticsearch 搜索引擎存储</h2></div>
-<p class="content-text">　　想查数据，就免不了搜索，而搜索离不开搜索引擎。百度、谷歌都是非常庞大、复杂的搜索引擎，它们几乎能够索引互联网上开放的所有网页和数据。然而对于我们自己的业务数据来说，没必要使用这么复杂的技术。如果为了便于存储和检索,想要实现自己的搜索引擎,那么Elasticsearch 就是不二之选。这是一个全文搜索引擎,可以快速存储、搜索和分析海量数据。所以,如果我们将爬取到的数据存储到 Elasticsearch里面,检索时会非常方便。</p>
+<p class="content-text">想查数据，就免不了搜索，而搜索离不开搜索引擎。百度、谷歌都是非常庞大、复杂的搜索引擎，它们几乎能够索引互联网上开放的所有网页和数据。然而对于我们自己的业务数据来说，没必要使用这么复杂的技术。如果为了便于存储和检索,想要实现自己的搜索引擎,那么Elasticsearch 就是不二之选。这是一个全文搜索引擎,可以快速存储、搜索和分析海量数据。所以,如果我们将爬取到的数据存储到 Elasticsearch里面,检索时会非常方便。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Elasticsearch 介绍</h3>
-<p class="content-text">Elasticsearch 是一个开源的搜索引擎,建立在一个全文搜索引擎库 Apache LuceneTM 的基础之上。那 Lucene 又是什么呢?Lucene 可能是目前存在的(不论开源还是私有)拥有最先进、高性能和全功能搜索引擎功能的库,但也仅仅只是一个库。要想用 Lucene,我们需要编写 Java并引用 Lucene 包才可以,而且需要我们对信息检索有一定程度的理解。为了解决这个问题,Elasticsearch诞生了。Elasticsearch 也是使用Java编写的,其内部使用 Lucene实现索引与搜索,但是它的目标是使全文检索变得简单,相当于 Lucene的一层封装,它提供了一套简单一致的 RESTful API 来帮助我们实现存储和检索。所以 Elasticsearch 仅仅就是一个简易版的 Lucene 封装吗?如果这么认为,那就大错特错了,Elasticsearch 不仅是Lucene,并且也不只是一个全文搜索引擎。它可以这样准确形容:一个分布式的实时文档存储库,每个字段都可以被索引与搜索;一个分布式的实时分析搜索引擎;能胜任上百个服务节点的扩展,并支持PB级别的结构化或者非结构化数据。总之,Elasticsearch 是一个非常强大的搜索引擎,维基百科、Stack Overflow、GitHub 都纷纷采用它来实现搜索。Elasticsearch不仅提供强大的检索能力,也提供强大的存储能力。</p>
+<p class="content-text">Elasticsearch 是一个开源的搜索引擎,建立在一个全文搜索引擎库 Apache LuceneTM 的基础之上。那 Lucene 又是什么呢?Lucene 可能是目前存在的(不论开源还是私有)拥有最先进、高性能和全功能搜索引擎功能的库,但也仅仅只是一个库。</p>
+<p class="content-text">要想用 Lucene,我们需要编写 Java并引用 Lucene 包才可以,而且需要我们对信息检索有一定程度的理解。为了解决这个问题,Elasticsearch诞生了。Elasticsearch 也是使用Java编写的,其内部使用 Lucene实现索引与搜索,但是它的目标是使全文检索变得简单,相当于 Lucene的一层封装,它提供了一套简单一致的 RESTful API 来帮助我们实现存储和检索。</p>
+<p class="content-text">所以 Elasticsearch 仅仅就是一个简易版的 Lucene 封装吗?如果这么认为,那就大错特错了,Elasticsearch 不仅是Lucene,并且也不只是一个全文搜索引擎。它可以这样准确形容:一个分布式的实时文档存储库,每个字段都可以被索引与搜索;一个分布式的实时分析搜索引擎;能胜任上百个服务节点的扩展,并支持PB级别的结构化或者非结构化数据。</p>
+<p class="content-text">总之,Elasticsearch 是一个非常强大的搜索引擎,维基百科、Stack Overflow、GitHub 都纷纷采用它来实现搜索。Elasticsearch不仅提供强大的检索能力,也提供强大的存储能力。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Elasticsearch 相关概念</h3>
@@ -1021,8 +1022,7 @@ redis = StrictRedis(connection_pool=pool)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text">在开始本节实际操作之前,请确保已经正确安装好了 Elasticsearch,安装方式可以参考:</p>
-<pre class="result-block"><code>https://setup.scrape.center/elasticsearch,安装完成之后确保它可以在本地9200端口上正常运行即可。</code></pre>
+<p class="content-text">在开始本节实际操作之前,请确保已经正确安装好了 Elasticsearch,安装方式可以参考 <code class="inline-code">https://setup.scrape.center/elasticsearch</code>,安装完成之后确保它可以在本地9200端口上正常运行即可。</p>
 <p class="content-text">Elasticsearch 实际上提供了一系列Restful API来进行存取和查询操作,我们可以使用curl等命令或者直接调用API来进行数据存储和修改操作,但总归来说不是很方便。所以这里我们直接介绍一个专门用来对接 Elasticsearch 操作的Python库,名称也叫作 Elasticsearch,使用pip3安装即可:</p>
 <pre class="code-block"><code>pip3 install elasticsearch</code></pre>
 <p class="content-text">更详细的安装方式可以参考:https://setup.scrape.center/elasticsearch-py。安装好了之后我们就可以开始本节的学习了。</p>
@@ -1039,8 +1039,7 @@ print(result)</code></pre>
 ['https://[username: password@]hostname:port'],
 verify_certs=True,#是否验证 SSL证书
 )</code></pre>
-<p class="content-text">第一个参数我们可以构造特定格式的链接字符串并传入,hostname 和port 即 Elasticsearch 运行的地址和端口,username 和 password 是可选的,代表连接 Elasticsearch 需要的用户名和密码,另外而且还有其他的参数设置,比如 verify_certs 代表是否验证证书有效性。更多参数的设置可以参考</p>
-<pre class="result-block"><code>https://elasticsearch-py.readthedocs.io/en/latest/api.html#elasticsearch。</code></pre>
+<p class="content-text">第一个参数我们可以构造特定格式的链接字符串并传入,hostname 和port 即 Elasticsearch 运行的地址和端口,username 和 password 是可选的,代表连接 Elasticsearch 需要的用户名和密码,另外而且还有其他的参数设置,比如 verify_certs 代表是否验证证书有效性。更多参数的设置可以参考 <code class="inline-code">https://elasticsearch-py.readthedocs.io/en/latest/api.html#elasticsearch</code>。</p>
 <p class="content-text">声明 Elasticsearch 对象之后,我们调用了es的indices 对象的 create 方法传入了 index 的名称,如果创建成功,会返回如下结果:</p>
 <pre class="code-block"><code>{'acknowledged': True, 'shards_acknowledged': True, 'index': 'news'}</code></pre>
 <p class="content-text">可以看到,返回结果是JSON 格式,其中 acknowledged 字段表示创建操作执行成功。但这时如果我们再把代码执行一次,则会返回如下结果:</p>
@@ -1086,17 +1085,17 @@ data = {
 }
 result = es.create(index='news', id=1, body=data)
 print(result)</code></pre>
-<p class="content-text">　　这里我们首先声明了一条新闻数据，包括标题和链接，然后通过调用 create 方法插入了这条数据。在调用 create 方法时，我们传入了 4 个参数，其中 index 代表索引名称、id 是数据的唯一标识、body 则代表文档的具体内容。运行结果如下:</p>
+<p class="content-text">这里我们首先声明了一条新闻数据，包括标题和链接，然后通过调用 create 方法插入了这条数据。在调用 create 方法时，我们传入了 4 个参数，其中 index 代表索引名称、id 是数据的唯一标识、body 则代表文档的具体内容。运行结果如下:</p>
 <pre class="result-block"><code>{'_index': 'news', '_type': '_doc', '_id': '1', '_version': 1, 'result': 'created', '_shards': {'total': 2,
 'successful': 1, 'failed' : 0}, '_seq_no': 0, '_primary_term': 1}</code></pre>
-<p class="content-text">　　结果中的 result 字段为 created，代表数据插入成功。</p>
-<p class="content-text">　　另外，其实我们也可以使用 index 方法来插入数据。与 create 不同的是，create 方法需要我们指定 id 字段来唯一标识一条数据，index 方法则不需要，如果不指定 id，那么它会自动生成一个。调用index 方法的写法如下:</p>
+<p class="content-text">结果中的 result 字段为 created，代表数据插入成功。</p>
+<p class="content-text">另外，其实我们也可以使用 index 方法来插入数据。与 create 不同的是，create 方法需要我们指定 id 字段来唯一标识一条数据，index 方法则不需要，如果不指定 id，那么它会自动生成一个。调用index 方法的写法如下:</p>
 <pre class="code-block"><code>es.index(index='news', body=data)</code></pre>
-<p class="content-text">　　create 方法内部其实也是调用了 index 方法，是对 index 方法的封装。</p>
+<p class="content-text">create 方法内部其实也是调用了 index 方法，是对 index 方法的封装。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 更新数据</h3>
-<p class="content-text">　　更新数据也非常简单，我们同样需要指定数据的 id 和内容，调用 update 方法即可，代码如下:</p>
+<p class="content-text">更新数据也非常简单，我们同样需要指定数据的 id 和内容，调用 update 方法即可，代码如下:</p>
 <pre class="code-block"><code>from elasticsearch import Elasticsearch
 es = Elasticsearch()
 data = {
@@ -1106,13 +1105,13 @@ data = {
 }
 result = es.update(index='news', body=data, id=1)
 print(result)</code></pre>
-<p class="content-text">　　这里我们为数据增加了一个日期字段，然后调用了 update 方法，结果如下:</p>
+<p class="content-text">这里我们为数据增加了一个日期字段，然后调用了 update 方法，结果如下:</p>
 <pre class="result-block"><code>{'_index': 'news', '_type': 'doc', '_id': '1', '_version': 2, 'result': 'updated', '_shards': {'total': 2,
 'successful': 1, 'failed': 0}, '_seq_no': 1, '_primary_term': 1}</code></pre>
-<p class="content-text">　　可以看到，返回结果中的 result 字段为 updated，表示更新成功。另外，我们还注意到一个字段_version，这代表更新后的版本号，其后数字 2 代表这是第二个版本。因为之前已经插入过一次数据，所以第一次插入的数据是版本 1，可以参见上例的运行结果，这次更新之后版本号就变成了 2，以后每更新一次，版本号都会加 1。</p>
-<p class="content-text">　　另外，利用 index 方法同样可以完成更新操作，其写法如下:</p>
+<p class="content-text">可以看到，返回结果中的 result 字段为 updated，表示更新成功。另外，我们还注意到一个字段_version，这代表更新后的版本号，其后数字 2 代表这是第二个版本。因为之前已经插入过一次数据，所以第一次插入的数据是版本 1，可以参见上例的运行结果，这次更新之后版本号就变成了 2，以后每更新一次，版本号都会加 1。</p>
+<p class="content-text">另外，利用 index 方法同样可以完成更新操作，其写法如下:</p>
 <pre class="code-block"><code>es.index(index='news', doc_type='politics', body=data, id=1)</code></pre>
-<p class="content-text">　　可以看到，index 方法能够代替我们完成插入数据和更新数据两个操作。如果数据不存在，就执行插入操作，如果已经存在，则执行更新操作，非常方便。</p>
+<p class="content-text">可以看到，index 方法能够代替我们完成插入数据和更新数据两个操作。如果数据不存在，就执行插入操作，如果已经存在，则执行更新操作，非常方便。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">8. 删除数据</h3>
@@ -1204,7 +1203,8 @@ print(result)</code></pre>
 考','url': 'http://view.inews.qq.com/a/EDU2021041600732200'}}, {'_index': 'news', '_type': '_doc', '_id':
 'jebpkHsBm-BAny-7hOYp', '_score': 0.81085134, '_source': {'title':'高考结局大不同','url':
 'https://k.sina.com.cn/article_7571064628_1c3454734001011lz9.html'}}}}}</code></pre>
-<p class="content-text">从结果可以看到,匹配的结果有两条,第一条的分数为1.7796917,第二条的分数为0.81085134,这是因为第一条匹配的数据中含有“高考”和“圆梦”两个词,第二条匹配的数据中不包含“圆梦”,但是包含“高考”这个词,所以也被检索出来了,只是分数比较低。因此可以看出,检索时会对对应的字段进行全文检索,结果还会按照检索关键词的相关性进行排序,这就是一个基本的搜索引擎雏形。另外,Elasticsearch 还支持非常多的查询方式。这里就不再一一展开描述了,总之其功能非常强大,详情可以参考官方文档: https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl.html。</p>
+<p class="content-text">从结果可以看到,匹配的结果有两条,第一条的分数为1.7796917,第二条的分数为0.81085134,这是因为第一条匹配的数据中含有“高考”和“圆梦”两个词,第二条匹配的数据中不包含“圆梦”,但是包含“高考”这个词,所以也被检索出来了,只是分数比较低。因此可以看出,检索时会对对应的字段进行全文检索,结果还会按照检索关键词的相关性进行排序,这就是一个基本的搜索引擎雏形。</p>
+<p class="content-text">另外,Elasticsearch 还支持非常多的查询方式。这里就不再一一展开描述了,总之其功能非常强大,详情可以参考官方文档: https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl.html。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">10. 总结</h3>
@@ -1253,39 +1253,39 @@ channel.queue_declare(queue=QUEUE_NAME)</code></pre>
 <pre class="code-block"><code>channel.basic_publish(exchange='',
                       routing_key=QUEUE_NAME,
                       body='Hello World!')</code></pre>
-<p class="content-text">　　这里我们调用 channel 的 basic_publish 方法往队列放入了消息，其中 routing_key 是队列的名称，body 是放入的真实消息。</p>
-<p class="content-text">　　将以上代码写入一个名为 producer.py 的文件，即生产者。</p>
-<p class="content-text">　　现在，前两点——声明队列和生产内容其实已经完成了，接下来就是消费内容了。</p>
-<p class="content-text">　　其实也很简单。消费者用同样的方式连接到 RabbitMQ 服务，代码如下:</p>
+<p class="content-text">这里我们调用 channel 的 basic_publish 方法往队列放入了消息，其中 routing_key 是队列的名称，body 是放入的真实消息。</p>
+<p class="content-text">将以上代码写入一个名为 producer.py 的文件，即生产者。</p>
+<p class="content-text">现在，前两点——声明队列和生产内容其实已经完成了，接下来就是消费内容了。</p>
+<p class="content-text">其实也很简单。消费者用同样的方式连接到 RabbitMQ 服务，代码如下:</p>
 <pre class="code-block"><code>import pika
 QUEUE_NAME = 'scrape'
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)</code></pre>
-<p class="content-text">　　然后从队列中获取数据，代码如下:</p>
+<p class="content-text">然后从队列中获取数据，代码如下:</p>
 <pre class="code-block"><code>def callback(ch, method, properties, body):
     print(f"Get {body}")
 channel.basic_consume(queue='scrape',
                       auto_ack=True,
                       on_message_callback=callback)
 channel.start_consuming()</code></pre>
-<p class="content-text">　　这里我们调用 channel 的 basic_consume 方法从队列中取出消息，实现了消费，同时指定回调方法 on_message_callback 的名称为 callback。另外，还将 auto_ack 设置为了 True，代表消费者获取消息之后会自动通知消息队列当前消息已经被处理，可以移除这个消息。</p>
-<p class="content-text">　　最后，将以上述代码保存为 consumer.py 文件（消费者）并运行，它会监听 scrape 队列的变动，如果有消息进入，就获取并消费，回调 callback 方法，打印输出结果。</p>
-<p class="content-text">　　现在运行 producer.py 文件，运行之后会连接刚才的队列，同时往该队列中放入一条消息，消息内容为 Hello World!。</p>
-<p class="content-text">　　这时再返回 consumer.py 文件，可以发现输出结果如下:</p>
+<p class="content-text">这里我们调用 channel 的 basic_consume 方法从队列中取出消息，实现了消费，同时指定回调方法 on_message_callback 的名称为 callback。另外，还将 auto_ack 设置为了 True，代表消费者获取消息之后会自动通知消息队列当前消息已经被处理，可以移除这个消息。</p>
+<p class="content-text">最后，将以上述代码保存为 consumer.py 文件（消费者）并运行，它会监听 scrape 队列的变动，如果有消息进入，就获取并消费，回调 callback 方法，打印输出结果。</p>
+<p class="content-text">现在运行 producer.py 文件，运行之后会连接刚才的队列，同时往该队列中放入一条消息，消息内容为 Hello World!。</p>
+<p class="content-text">这时再返回 consumer.py 文件，可以发现输出结果如下:</p>
 <pre class="result-block"><code>Get Hello World!</code></pre>
-<p class="content-text">　　这说明生产者成功把消息放入了消息队列，然后消费者收到并输出了这条消息。</p>
-<p class="content-text">　　可以继续运行 producer.py，每运行一次，生产者都会向队列中放入一个消息，消费者会收到该消息并输出。</p>
-<p class="content-text">　　以上便是最基本的 RabbitMQ 的用法。</p>
+<p class="content-text">这说明生产者成功把消息放入了消息队列，然后消费者收到并输出了这条消息。</p>
+<p class="content-text">可以继续运行 producer.py，每运行一次，生产者都会向队列中放入一个消息，消费者会收到该消息并输出。</p>
+<p class="content-text">以上便是最基本的 RabbitMQ 的用法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 随用随取</h3>
-<p class="content-text">　　上面的案例是基于 RabbitMQ 实现的最简单的生产者和消费者之间的通信，但如果把这种实现用在爬虫上是不太现实的，因为我们把消费者实现为了“订阅”模式，也就是说，消费者会一直监听队列的变化，一旦监听到队列中添加了消息，便要立马处理，它无法主动控制取用消息的时机。应用到爬虫中，消费者其实就是执行爬取请求的进程，生产者往队列中放置请求对象，消费者从中获取请求对象，然后执行这个请求（向服务器发起 HTTP 请求以获取响应）。但问题是，消费者是无法控制从发起请求到获取响应所消耗的时间的，因为什么时候获取到响应内容取决于服务器响应时间的长短。</p>
-<p class="content-text">　　所以这意味着消费者不一定能很快地将消息处理完。如果生产者往队列中放置过多的请求，消费者处理不过来，那就会出现问题。因此消费者也应该有权控制取用消息的频率，这就是随用随取。</p>
-<p class="content-text">　　我们可以对前面的代码稍做改写，使生产者可以自行控制向队列放入请求对象的频率，消费者可以根据自己的处理能力控制从队列中取出请求对象的频率。如果生产者的放置速度比消费者的获取速度更快，那么队列中就缓存一些请求对象，反之队列有时候会处于闲置状态。</p>
-<p class="content-text">　　总的来说，消息队列起到了缓冲的作用，使生产者和消费者可以按照自己的节奏工作。</p>
-<p class="content-text">　　好，下面先实现下刚才所述的随用随取机制，队列中的消息可以暂且先用字符串表示，后面再将其更换为请求对象。</p>
-<p class="content-text">　　可以将生产者实现如下:</p>
+<p class="content-text">上面的案例是基于 RabbitMQ 实现的最简单的生产者和消费者之间的通信，但如果把这种实现用在爬虫上是不太现实的，因为我们把消费者实现为了“订阅”模式，也就是说，消费者会一直监听队列的变化，一旦监听到队列中添加了消息，便要立马处理，它无法主动控制取用消息的时机。应用到爬虫中，消费者其实就是执行爬取请求的进程，生产者往队列中放置请求对象，消费者从中获取请求对象，然后执行这个请求（向服务器发起 HTTP 请求以获取响应）。但问题是，消费者是无法控制从发起请求到获取响应所消耗的时间的，因为什么时候获取到响应内容取决于服务器响应时间的长短。</p>
+<p class="content-text">所以这意味着消费者不一定能很快地将消息处理完。如果生产者往队列中放置过多的请求，消费者处理不过来，那就会出现问题。因此消费者也应该有权控制取用消息的频率，这就是随用随取。</p>
+<p class="content-text">我们可以对前面的代码稍做改写，使生产者可以自行控制向队列放入请求对象的频率，消费者可以根据自己的处理能力控制从队列中取出请求对象的频率。如果生产者的放置速度比消费者的获取速度更快，那么队列中就缓存一些请求对象，反之队列有时候会处于闲置状态。</p>
+<p class="content-text">总的来说，消息队列起到了缓冲的作用，使生产者和消费者可以按照自己的节奏工作。</p>
+<p class="content-text">好，下面先实现下刚才所述的随用随取机制，队列中的消息可以暂且先用字符串表示，后面再将其更换为请求对象。</p>
+<p class="content-text">可以将生产者实现如下:</p>
 <pre class="code-block"><code>import pika
 
 QUEUE_NAME = 'scrape'
@@ -1299,16 +1299,16 @@ while True:
                           routing_key=QUEUE_NAME,
                           body=data)
     print(f'Put {data}')</code></pre>
-<p class="content-text">　　这里我们还是使用 input 方法来获取生产者的数据，输入的内容就是字符串，输入之后该内容会直接被放置到队列中，然后打印到控制台。</p>
-<p class="content-text">　　先运行一下生产者代码，然后回车输入几项内容:</p>
+<p class="content-text">这里我们还是使用 input 方法来获取生产者的数据，输入的内容就是字符串，输入之后该内容会直接被放置到队列中，然后打印到控制台。</p>
+<p class="content-text">先运行一下生产者代码，然后回车输入几项内容:</p>
 <pre class="code-block"><code>foo
 Put foo
 bar
 Put bar
 baz
 Put baz</code></pre>
-<p class="content-text">　　这里我们输入了 foo、bar、baz 三项内容，每次输入后控制台都会输出对应的结果。</p>
-<p class="content-text">　　然后将消费者实现如下:</p>
+<p class="content-text">这里我们输入了 foo、bar、baz 三项内容，每次输入后控制台都会输出对应的结果。</p>
+<p class="content-text">然后将消费者实现如下:</p>
 <pre class="code-block"><code>import pika
 
 QUEUE_NAME = 'scrape'
@@ -1321,23 +1321,23 @@ while True:
         queue=QUEUE_NAME, auto_ack=True)
     if body:
         print(f'Get {body}')</code></pre>
-<p class="content-text">　　我们这里也是通过 input 方法控制消费者何时获取下一个数据，获取方法是 basic_get，这个方法会返回一个元组，其中的 body 就是真正的数据。</p>
-<p class="content-text">　　运行消费者代码，然后按几下回车，每次按回车后都可以看到控制台输出一个从消息队列中获取的新数据:</p>
+<p class="content-text">我们这里也是通过 input 方法控制消费者何时获取下一个数据，获取方法是 basic_get，这个方法会返回一个元组，其中的 body 就是真正的数据。</p>
+<p class="content-text">运行消费者代码，然后按几下回车，每次按回车后都可以看到控制台输出一个从消息队列中获取的新数据:</p>
 <pre class="code-block" data-lang="text"><code>Get b'foo'
 Get b'bar'
 Get b'baz'</code></pre>
-<p class="content-text">　　这样就实现了消费者的随用随取。</p>
+<p class="content-text">这样就实现了消费者的随用随取。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 优先级队列</h3>
-<p class="content-text">　　刚才我们仅仅是了解了最基本的队列用法，RabbitMQ 还有一些高级功能。例如，生产者发送的消息具有优先级，队列会优先接收优先级高的消息，这要怎么实现呢？</p>
-<p class="content-text">　　其实很简单，只需要在声明队列的时候增加一个属性即可:</p>
+<p class="content-text">刚才我们仅仅是了解了最基本的队列用法，RabbitMQ 还有一些高级功能。例如，生产者发送的消息具有优先级，队列会优先接收优先级高的消息，这要怎么实现呢？</p>
+<p class="content-text">其实很简单，只需要在声明队列的时候增加一个属性即可:</p>
 <pre class="code-block" data-lang="python"><code>MAX_PRIORITY = 100
 channel.queue_declare(queue=QUEUE_NAME, arguments={
     'x-max-priority': MAX_PRIORITY
 })</code></pre>
-<p class="content-text">　　这里在声明队列的时候，增加了一个名为 x-max-priority 的参数，用来指定最大优先级，这样整个队列就能支持优先级了。</p>
-<p class="content-text">　　下面改写一下生产者代码，在其向队列发送消息的时候指定 properties 参数为 BasicProperties 对象，在 BasicProperties 对象里通过 priority 参数指定对应消息的优先级，实现如下:</p>
+<p class="content-text">这里在声明队列的时候，增加了一个名为 x-max-priority 的参数，用来指定最大优先级，这样整个队列就能支持优先级了。</p>
+<p class="content-text">下面改写一下生产者代码，在其向队列发送消息的时候指定 properties 参数为 BasicProperties 对象，在 BasicProperties 对象里通过 priority 参数指定对应消息的优先级，实现如下:</p>
 <pre class="code-block" data-lang="python"><code>import pika
 
 MAX_PRIORITY = 100
@@ -1359,15 +1359,15 @@ while True:
                           ),
                           body=data)
     print(f'Put {data}')</code></pre>
-<p class="content-text">　　这里的优先级我们也可以手动输入，需要将输入的内容分为两部分，这两部分用空格隔开，运行结果如下:</p>
+<p class="content-text">这里的优先级我们也可以手动输入，需要将输入的内容分为两部分，这两部分用空格隔开，运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>foo 40
 Put foo
 bar 20
 Put bar
 baz 50
 Put baz</code></pre>
-<p class="content-text">　　这里我们输入了三次内容，第一次输入的是 foo 40，代表 foo 这个消息的优先级是 40；第二次输入 bar 20，代表 bar 这个消息的优先级是 20；第三次输入 baz 50，代表 baz 这个消息的优先级是 50。</p>
-<p class="content-text">　　然后重新运行消费者代码，并按几次回车，可以看到如下输出结果:</p>
+<p class="content-text">这里我们输入了三次内容，第一次输入的是 foo 40，代表 foo 这个消息的优先级是 40；第二次输入 bar 20，代表 bar 这个消息的优先级是 20；第三次输入 baz 50，代表 baz 这个消息的优先级是 50。</p>
+<p class="content-text">然后重新运行消费者代码，并按几次回车，可以看到如下输出结果:</p>
 <pre class="code-block"><code>Get b'baz'
 Get b'foo'
 Get b'bar'</code></pre>

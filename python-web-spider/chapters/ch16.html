@@ -76,7 +76,9 @@ def request_seen(self, request):
     if fp in self.fingerprints:
         return True
     self.fingerprints.add(fp)</code></pre>
-<p class="content-text">在去重的类 RFPDupeFilter中,有一个 request_seen 方法,该方法有一个参数 request,它的作用就是检测 Request 对象是否重复。这个方法调用request_fingerprint 获取该 Request 的指纹,检测这个指纹是否存在于 fingerprints 变量中,而 fingerprints 是一个集合,集合的元素都是不重复的。如果指纹存在,就返回 True,说明该 Request 是重复的,否则就将这个指纹加入集合。如果下次还有相同的 Request 传递过来,指纹也是相同的,指纹就已经存在于集合中了,那么Request 对象就会直接判定为重复。这样,去重的目的就实现了。Scrapy 的去重过程就是,利用集合元素的不重复特性来实现 Request 的去重。对于分布式爬虫来说,我们肯定不能再用每个爬虫各自的集合来去重了。因为这样还是每个主机单独维护自己的集合,不能做到共享。多台主机如果生成了相同的Request,只能各自去重,各个主机之间就无法做到去重了。那么要实现去重,这个指纹集合也需要是共享的。Redis正好有集合的存储数据结构,我们可以利用Redis 的集合作为指纹集合,那么这样去重集合也是利用Redis共享的。每台主机新生成 Request后,把该 Request 的指纹与集合比对,如果指纹已经存在,说明该 Request 是重复的,否则将 Request的指纹加入这个集合。利用同样的原理,我们在不同的存储结构中实现了分布式 Request的去重。</p>
+<p class="content-text">在去重的类 RFPDupeFilter中,有一个 request_seen 方法,该方法有一个参数 request,它的作用就是检测 Request 对象是否重复。这个方法调用request_fingerprint 获取该 Request 的指纹,检测这个指纹是否存在于 fingerprints 变量中,而 fingerprints 是一个集合,集合的元素都是不重复的。如果指纹存在,就返回 True,说明该 Request 是重复的,否则就将这个指纹加入集合。如果下次还有相同的 Request 传递过来,指纹也是相同的,指纹就已经存在于集合中了,那么Request 对象就会直接判定为重复。这样,去重的目的就实现了。Scrapy 的去重过程就是,利用集合元素的不重复特性来实现 Request 的去重。</p>
+<p class="content-text">对于分布式爬虫来说,我们肯定不能再用每个爬虫各自的集合来去重了。因为这样还是每个主机单独维护自己的集合,不能做到共享。多台主机如果生成了相同的Request,只能各自去重,各个主机之间就无法做到去重了。那么要实现去重,这个指纹集合也需要是共享的。</p>
+<p class="content-text">Redis正好有集合的存储数据结构,我们可以利用Redis 的集合作为指纹集合,那么这样去重集合也是利用Redis共享的。每台主机新生成 Request后,把该 Request 的指纹与集合比对,如果指纹已经存在,说明该 Request 是重复的,否则将 Request的指纹加入这个集合。利用同样的原理,我们在不同的存储结构中实现了分布式 Request的去重。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 防止中断</h3>
@@ -200,15 +202,15 @@ def __init__(self, server, key, debug=False):
 self.server = server
 self.key = key
 self.debug = debug
-self.logdupes = True</code></pre>
-<p class="content-text">@classmethod</p>
-<pre class="code-block"><code>def from_settings(cls, settings):
+self.logdupes = True
+@classmethod
+def from_settings(cls, settings):
 server = get_redis_from_settings(settings)
 key = defaults.DUPEFILTER_KEY % {'timestamp': int(time.time())}
 debug = settings.getbool("DUPEFILTER_DEBUG")
-return cls(server, key=key, debug=debug)</code></pre>
-<p class="content-text">@classmethod</p>
-<pre class="code-block"><code>def from_crawler (cls, crawler):
+return cls(server, key=key, debug=debug)
+@classmethod
+def from_crawler (cls, crawler):
 return cls.from_settings(crawler.settings)
 def request_seen(self, request):
 fp = self.request_fingerprint(request)
@@ -225,9 +227,10 @@ if self.debug:
 msg = "Filtered duplicate request: %(request)s"
 self.logger.debug(msg, {'request': request}, extra={'spider': spider})
 elif self.logdupes:
-msg = ("Filtered duplicate request %(request)s"</code></pre>
-<p class="content-text"> "- no more duplicates will be shown""(see DUPEFILTER_DEBUG to show all duplicates)")</p>
-<pre class="code-block"><code>self.logger.debug(msg, {'request': request}, extra={'spider': spider})
+msg = ("Filtered duplicate request %(request)s"
+"- no more duplicates will be shown"
+"(see DUPEFILTER_DEBUG to show all duplicates)")
+self.logger.debug(msg, {'request': request}, extra={'spider': spider})
 self.logdupes = False</code></pre>
 <p class="content-text">这里同样实现了一个 request_seen 方法,与 Scrapy 中的 request_seen 方法实现极其类似。不过这里集合使用的是 server 对象的 sadd 操作,也就是集合不再是一个简单数据结构了,而是直接换成了数据库的存储方式。</p>
 <p class="content-text">鉴别重复的方式还是使用指纹,指纹同样是依靠 request_fingerprint 方法来获取的。获取指纹之后直接向集合添加指纹,如果添加成功,说明这个指纹原本不存在于集合中,返回值为 1。代码最后的返回结果是判定添加结果是否为 0,如果刚才的返回值为 1,那么这个判定结果就是 False,也就是不重复,否则判定为重复。</p>
@@ -270,27 +273,27 @@ REDIS_PASSWORD = None</code></pre>
 <p class="content-text">这段代码分开配置了 Redis 的地址、端口和密码,密码为空。注意,如果配置了 REDIS_URL,那么 Scrapy-Redis 将优先使用 REDIS_URL 连接,会覆盖上面的3项配置。如果想要分项单独配置,请不要配置 REDIS_URL。在本项目中,我们选择的是配置 REDIS_URL。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">配置调度队列</h4>
-<p class="content-text"> 此项配置是可选的,默认使用 PriorityQueue。如果想要更改配置,可以配置 SCHEDULER_QUEUE_CLASS变量,如下所示:</p>
+<p class="content-text">此项配置是可选的,默认使用 PriorityQueue。如果想要更改配置,可以配置 SCHEDULER_QUEUE_CLASS变量,如下所示:</p>
 <pre class="code-block"><code>SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.PriorityQueue'
 SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
 SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'</code></pre>
-<p class="content-text"> 以上3行任选其一配置,即可切换爬取队列的存储方式。在本项目中不进行任何配置,我们使用默认配置,即 PriorityQueue。</p>
+<p class="content-text">以上3行任选其一配置,即可切换爬取队列的存储方式。在本项目中不进行任何配置,我们使用默认配置,即 PriorityQueue。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">配置持久化</h4>
-<p class="content-text"> 此配置是可选的,默认是 False。Scrapy-Redis 默认会在爬取全部完成后清空爬取队列和去重指纹集合。如果不想自动清空爬取队列和去重指纹集合,可以增加如下配置:</p>
+<p class="content-text">此配置是可选的,默认是 False。Scrapy-Redis 默认会在爬取全部完成后清空爬取队列和去重指纹集合。如果不想自动清空爬取队列和去重指纹集合,可以增加如下配置:</p>
 <pre class="code-block"><code>SCHEDULER_PERSIST = True</code></pre>
-<p class="content-text"> 将 SCHEDULER_PERSIST 设置为 True 之后,爬取队列和去重指纹集合不会在爬取完成后自动清空,如果不配置,默认是 False,即自动清空。值得注意的是,如果强制中断爬虫的运行,爬取队列和去重指纹集合是不会自动清空的。在本项目中不进行任何配置,我们使用默认配置。</p>
+<p class="content-text">将 SCHEDULER_PERSIST 设置为 True 之后,爬取队列和去重指纹集合不会在爬取完成后自动清空,如果不配置,默认是 False,即自动清空。值得注意的是,如果强制中断爬虫的运行,爬取队列和去重指纹集合是不会自动清空的。在本项目中不进行任何配置,我们使用默认配置。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">配置重爬</h4>
-<p class="content-text"> 此配置是可选的,默认是 False。如果配置了持久化或者强制中断了爬虫,那么爬取队列和指纹集合不会被清空,爬虫重新启动之后就会接着上次爬取。如果想重新爬取,我们可以配置重爬的选项:</p>
+<p class="content-text">此配置是可选的,默认是 False。如果配置了持久化或者强制中断了爬虫,那么爬取队列和指纹集合不会被清空,爬虫重新启动之后就会接着上次爬取。如果想重新爬取,我们可以配置重爬的选项:</p>
 <pre class="code-block"><code>SCHEDULER_FLUSH_ON_START = True</code></pre>
-<p class="content-text"> 这样将 SCHEDULER_FLUSH_ON_START 设置为 True 之后,爬虫每次启动时,爬取队列和指纹集合都会清空。所以要做分布式爬取,我们必须保证只能清空一次,否则每个爬虫任务在启动时都清空一次,就会把之前的爬取队列清空,势必会影响分布式爬取。注意,此配置在单机爬取的时候比较方便,分布式爬取不常用此配置。在本项目中不进行任何配置,我们使用默认配置。</p>
+<p class="content-text">这样将 SCHEDULER_FLUSH_ON_START 设置为 True 之后,爬虫每次启动时,爬取队列和指纹集合都会清空。所以要做分布式爬取,我们必须保证只能清空一次,否则每个爬虫任务在启动时都清空一次,就会把之前的爬取队列清空,势必会影响分布式爬取。注意,此配置在单机爬取的时候比较方便,分布式爬取不常用此配置。在本项目中不进行任何配置,我们使用默认配置。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Pipeline 配置</h4>
-<p class="content-text">  此配置是可选的,默认不启动 Pipeline。Scrapy-Redis 实现了一个存储到 Redis 的 Item Pipeline,</p>
+<p class="content-text">此配置是可选的,默认不启动 Pipeline。Scrapy-Redis 实现了一个存储到 Redis 的 Item Pipeline,</p>
 <p class="content-text">如果启用了这个 Pipeline,爬虫会把生成的 Item 存储到 Redis 数据库中。在数据量比较大的情况下,我们一般不会这么做。因为Redis 是基于内存的,我们利用的是它处理速度快的特性,用它来做存储未免太浪费了,配置如下:</p>
 <pre class="code-block"><code>ITEM_PIPELINES = {'scrapy_redis.pipelines.RedisPipeline': 300}</code></pre>
 <p class="content-text">本项目不进行任何配置,即不启动 Pipeline。到此为止,Scrapy-Redis 的配置就完成了。有的选项我们没有配置,但是这些配置在其他 Scrapy 项目中可能会用到,要根据具体情况而定。</p>
@@ -308,9 +311,9 @@ SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'</code></pre>
 <p class="content-text">以上修改需要同时在A、B、C三台主机上执行,三台主机上的代码是完全一样的。修改完毕后,我们便完成了分布式爬虫的配置了,这样三台主机就共享了同一个 Redis 爬取队列,同时共享了一个代理池和账号池,共同完成协同爬取。接下来我们就可以运行一下实现分布式爬取了,在每台主机上都执行如下命令:</p>
 <pre class="code-block"><code>scrapy crawl book</code></pre>
 <p class="content-text">主机的运行顺序不分先后,每台主机启动了此命令后,就会从配置的A主机的Redis 数据库中调度 Request 并利用 Request 的指纹集合进行去重过滤。同时每台主机占用各自的带宽和处理器,不会互相影响,爬取效率成倍提高。每台主机运行过程中的输出结果类似这样:</p>
-<pre class="result-block"><code>2021-01-03 02:57:56 [middlewares.authorization] DEBUG: set authorization jwt</code></pre>
-<p class="content-text list-like"><strong class="term-label">eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo4NywidXNlcm5hbWUiOiJhZG1pbjc0IiwiZXhwIjoxNjA5NzE0NjMw：</strong>LCJ1bWFpbCI6IiIsIm9yaWdfaWFOIjoxNjA5NjcxNDMwfQ.d4UaiT1TBPBXd4coFSdaIuweztzCc1f7fV79XBI05KM</p>
-<pre class="result-block"><code>2021-01-03 02:57:56 [middlewares.proxy] DEBUG: set proxy 149.28.218.108:3128
+<pre class="result-block"><code>2021-01-03 02:57:56 [middlewares.authorization] DEBUG: set authorization jwt
+eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo4NywidXNlcm5hbWUiOiJhZG1pbjc0IiwiZXhwIjoxNjA5NzE0NjMwLCJ1bWFpbCI6IiIsIm9yaWdfaWFOIjoxNjA5NjcxNDMwfQ.d4UaiT1TBPBXd4coFSdaIuweztzCc1f7fV79XBI05KM
+2021-01-03 02:57:56 [middlewares.proxy] DEBUG: set proxy 149.28.218.108:3128
 2021-01-03 02:57:56 [scrapy.core.scraper] DEBUG: Scraped from &lt;200
 https://antispider7.scrape.center/api/book/1001885/&gt;</code></pre>
 <p class="content-text">值得注意的是,第一个启动的Spider 会检测到爬取队列为空,这时候就会调用 start_requests 方法生成初始 Request,后续启动的Spider 如果检测到爬取队列不为空,就会直接从当前爬取队列中获取 Request 进行爬取。这样,只有第一个Spider的 start_requests方法会被调用,其他Spider 在队列不为空的情况下是不会调用 start_requests方法的,于是保证了多个Spider的协同爬取。</p>
@@ -320,11 +323,33 @@ https://antispider7.scrape.center/api/book/1001885/&gt;</code></pre>
 <p class="content-text">一段时间后,我们可以用RedisDesktop 观察 Redis 数据库的信息。这里会出现两个Key:一个叫作 book: dupefilter,用来储存指纹;另一个叫作book: requests,即爬取队列,如图16-5 和图 16-6所示。</p>
 </section>
 <div class="section-heading" id="section-3"><h2>16.4 基于 Bloom Filter 进行大规模去重</h2></div>
-<pre class="code-block"><code>SET: book:dupefilter         Size: 17 TTL: -1</code></pre>
-<p class="content-text">row value 1 0744ab5ad3e29211ef963d3ecab755d721b5276e 2 e0ff570cb9896b54a677eb2ae45f998c8791406d 3 40d022b4257a826fef823418d3fd4b9d8531cdb7 4 b541d16f3f4b8c39a71147b231140d899ad25b52 5 90cbf9d8dbcfb83a60e43d80ffb1bf227202f78c 6 81811a9ee5f54c7e3ed90973e2a65659bc299072 7 615005365e3cf885e69b9a2b2af680587ed72370 8 077a12f83dbe80c99acfe4abd29a2c773cea009b 9 321b3fe773303661ec4783eecade1d49463a74cf 10 3282e94a7865e80ac19175369d6e22817ef55e72 11 b56cf951bb9671d87c244837c8be12752b9de851 12 dbbf71ab679e80c365dbc612c591ec916e8c058d 13 a7cef9d3124eba3de7e408ab7ad2603e1446fb4 14 e6103e662076d88086917f6f81b775e8ba8e4750 15 9fd2cd5bca0a6d45f210c5629dc518490b60de96 16 3c8e8f76263f1dc58dcbcf90ad9450c227387a8e 17 710e7601af0d82c1b7bdfd6b999ec0a589169a68</p>
+<pre class="result-block"><code>SET: book:dupefilter         Size: 17 TTL: -1
+row value
+1 0744ab5ad3e29211ef963d3ecab755d721b5276e
+2 e0ff570cb9896b54a677eb2ae45f998c8791406d
+3 40d022b4257a826fef823418d3fd4b9d8531cdb7
+4 b541d16f3f4b8c39a71147b231140d899ad25b52
+5 90cbf9d8dbcfb83a60e43d80ffb1bf227202f78c
+6 81811a9ee5f54c7e3ed90973e2a65659bc299072
+7 615005365e3cf885e69b9a2b2af680587ed72370
+8 077a12f83dbe80c99acfe4abd29a2c773cea009b
+9 321b3fe773303661ec4783eecade1d49463a74cf
+10 3282e94a7865e80ac19175369d6e22817ef55e72
+11 b56cf951bb9671d87c244837c8be12752b9de851
+12 dbbf71ab679e80c365dbc612c591ec916e8c058d
+13 a7cef9d3124eba3de7e408ab7ad2603e1446fb4
+14 e6103e662076d88086917f6f81b775e8ba8e4750
+15 9fd2cd5bca0a6d45f210c5629dc518490b60de96
+16 3c8e8f76263f1dc58dcbcf90ad9450c227387a8e
+17 710e7601af0d82c1b7bdfd6b999ec0a589169a68</code></pre>
 <figure class="inline-figure"><img alt="图16-5 去重指纹" loading="lazy" src="figures/ch16/fig-16_5.jpg"/><figcaption>图16-5 去重指纹</figcaption></figure>
-<pre class="code-block"><code>ZSET: book:requests            Size: 5 TTL: -1</code></pre>
-<p class="content-text">row value score 1 \x80\x05\x95\x13\x00\x00\x00\x... 1 2 \x80\x05\x95\x13\x00\x00\x00\x... 1 3 \x80\x05\x9 \x95\x14\x00\x00\x00\x... 1 4 \x80\x05\x9 \x95\x16\x00\x00\x00\x... 1 5 \x80\x05\x9 \x951\x00\x00\x00\x00\... 10</p>
+<pre class="result-block"><code>ZSET: book:requests            Size: 5 TTL: -1
+row value score
+1 \x80\x05\x95\x13\x00\x00\x00\x... 1
+2 \x80\x05\x95\x13\x00\x00\x00\x... 1
+3 \x80\x05\x9 \x95\x14\x00\x00\x00\x... 1
+4 \x80\x05\x9 \x95\x16\x00\x00\x00\x... 1
+5 \x80\x05\x9 \x951\x00\x00\x00\x00\... 10</code></pre>
 <figure class="inline-figure"><img alt="图16-6 爬取队列" loading="lazy" src="figures/ch16/fig-16_6.jpg"/><figcaption>图16-6 爬取队列</figcaption></figure>
 <p class="content-text">随着时间的推移,指纹集合会不断增长,爬取队列会动态变化。另外值得注意的是,在爬取的过程中,去重指纹集合是不断增长的,如果中途想要中断所有的Spider 重新进行爬取,需要先停止所有Spider,然后手动从 Redis 中删除指纹集合和爬取队列,再重新运行。至此,Scrapy 分布式的配置已全部完成,通过简单的配置,我们就完成了多主机多 Spider 的协同爬取。</p>
 <section class="numbered-section">
@@ -334,17 +359,17 @@ https://antispider7.scrape.center/api/book/1001885/&gt;</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 了解 Bloom Filter</h3>
-<p class="content-text"> Bloom Filter，中文名称是布隆过滤器，它在 1970 年由 Bloom 提出，可以被用来检测一个元素是否在一个集合中。Bloom Filter 的空间利用率很高，使用它可以大大节省存储空间。Bloom Filter 使用位数组表示一个待检测集合，并可以快速通过概率算法判断一个元素是否在这个集合中。利用这个算法我们可以实现去重效果。本节我们来了解 Bloom Filter 的基本算法，以及 Scrapy-Redis 中对接 Bloom Filter 的方法。</p>
+<p class="content-text">Bloom Filter，中文名称是布隆过滤器，它在 1970 年由 Bloom 提出，可以被用来检测一个元素是否在一个集合中。Bloom Filter 的空间利用率很高，使用它可以大大节省存储空间。Bloom Filter 使用位数组表示一个待检测集合，并可以快速通过概率算法判断一个元素是否在这个集合中。利用这个算法我们可以实现去重效果。本节我们来了解 Bloom Filter 的基本算法，以及 Scrapy-Redis 中对接 Bloom Filter 的方法。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Bloom Filter 的算法</h3>
-<p class="content-text"> 在 Bloom Filter 中使用位数组来辅助实现检测判断。在初始状态下，我们声明一个包含 m 位的位数组，它的所有位都是 0，如图 16-7 所示。</p>
+<p class="content-text">在 Bloom Filter 中使用位数组来辅助实现检测判断。在初始状态下，我们声明一个包含 m 位的位数组，它的所有位都是 0，如图 16-7 所示。</p>
 <figure class="inline-figure"><img alt="图16-7 初始位数组" loading="lazy" src="figures/ch16/fig-16_7.jpg"/><figcaption>图16-7 初始位数组</figcaption></figure>
-<p class="content-text"> 现在我们有了一个待检测集合，表示为 S={x₁, x₂,…, xₙ}，接下来需要做的就是检测一个 x 是否已经存在于集合 S 中。在 Bloom Filter 算法中，首先使用 k 个相互独立的、随机的散列函数来将这个集合S 中的每个元素映射到长度为 m 的位数组上，散列函数得到的结果记作位置索引，然后将位数组该位置的索引设置为 1。例如这里我们取 k 为 3，即有 3 个散列函数，x₁ 经过 3 个散列函数映射得到的结果分别为 1、4、8，x₂ 经过 3 个散列函数映射得到的结果分别为 4、6、10，那么就会将位数组的 1、4、6、8、10 这 5 个位置设置为 1，如图 16-8 所示。</p>
+<p class="content-text">现在我们有了一个待检测集合，表示为 S={x₁, x₂,…, xₙ}，接下来需要做的就是检测一个 x 是否已经存在于集合 S 中。在 Bloom Filter 算法中，首先使用 k 个相互独立的、随机的散列函数来将这个集合S 中的每个元素映射到长度为 m 的位数组上，散列函数得到的结果记作位置索引，然后将位数组该位置的索引设置为 1。例如这里我们取 k 为 3，即有 3 个散列函数，x₁ 经过 3 个散列函数映射得到的结果分别为 1、4、8，x₂ 经过 3 个散列函数映射得到的结果分别为 4、6、10，那么就会将位数组的 1、4、6、8、10 这 5 个位置设置为 1，如图 16-8 所示。</p>
 <figure class="inline-figure"><img alt="图16-8 映射后的位数组" loading="lazy" src="figures/ch16/fig-16_8.jpg"/><figcaption>图16-8 映射后的位数组</figcaption></figure>
-<p class="content-text"> 这时如果再有一个新的元素 x，我们要判断它是否属于 S 集合，便会将仍然用 k 个散列函数对 x 求映射结果，如果所有结果对应的位数组位置均为 1，那么就认为 x 属于 S 集合，否则 x 不属于 S 集合。例如一个新元素 x 经过 3 个散列函数映射的结果为 4、6、8，对应的位置均为 1，则判断 x 属于 S集合。如果结果为 4、6、7，其中 7 对应的位置为 0，则判定 x 不属于 S 集合。注意这里 m、n、k 的关系满足 m&gt;kn，也就是说位数组的长度 m 要比集合元素个数 n 和散列函数k 的乘积还要大。这样的判定方法很高x效，但是也是有代价的，它可能把不属于这个集合的元素误认为属于这个集合，我们来估计一下它的错误率。当集合 S={x₁, x₂,…, xₙ} 的所有元素都被 k 个散列函数映射到 m 位的位数组中时，这个位数组中某一位还是 0 的概率是：</p>
-<p class="content-text">  (1-(1-1/m)^k)^n</p>
-<p class="content-text"> 因为散列函数是随机的，所以任意一个散列函数选中这一位的概率为 1/m，那么 1-1/m 就代表散列函数一次没有选中这一位的概率，要把 S 完全映射到 m 位的位数组中，需要做 kn 次散列运算，所以最后的概率就是 1-1/m 的 kn 次方。一个不属于 S 的元素 x 如果要被误判定为在 S 中，那么这个概率就是 k 次散列运算得到的结果对应的位数组位置都为 1，所以误判概率为:</p>
+<p class="content-text">这时如果再有一个新的元素 x，我们要判断它是否属于 S 集合，便会将仍然用 k 个散列函数对 x 求映射结果，如果所有结果对应的位数组位置均为 1，那么就认为 x 属于 S 集合，否则 x 不属于 S 集合。例如一个新元素 x 经过 3 个散列函数映射的结果为 4、6、8，对应的位置均为 1，则判断 x 属于 S集合。如果结果为 4、6、7，其中 7 对应的位置为 0，则判定 x 不属于 S 集合。注意这里 m、n、k 的关系满足 m&gt;kn，也就是说位数组的长度 m 要比集合元素个数 n 和散列函数k 的乘积还要大。这样的判定方法很高效，但是也是有代价的，它可能把不属于这个集合的元素误认为属于这个集合，我们来估计一下它的错误率。当集合 S={x₁, x₂,…, xₙ} 的所有元素都被 k 个散列函数映射到 m 位的位数组中时，这个位数组中某一位还是 0 的概率是：</p>
+<div class="formula-block">(1-(1-1/m)^k)^n</div>
+<p class="content-text">因为散列函数是随机的，所以任意一个散列函数选中这一位的概率为 1/m，那么 1-1/m 就代表散列函数一次没有选中这一位的概率，要把 S 完全映射到 m 位的位数组中，需要做 kn 次散列运算，所以最后的概率就是 1-1/m 的 kn 次方。一个不属于 S 的元素 x 如果要被误判定为在 S 中，那么这个概率就是 k 次散列运算得到的结果对应的位数组位置都为 1，所以误判概率为:</p>
 <div class="formula-block">lim x→∞ (1 - 1/x)^(-x) = e</div>
 <p class="content-text">根据:</p>
 <div class="formula-block">(1 - (1 - 1/m)^(kn))^k ≈ (1 - e^(-kn/m))^k</div>
@@ -475,8 +500,7 @@ BLOOMFILTER_BIT = 30</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 使用</h3>
-<p class="content-text">为了方便使用，本节的代码我已经打包成了一个 Python 包并发布到了 PyPi，链接为 https://pypi.python.org/pypi/scrapy-redis-bloomfilter。大家以后如果想基于 Scrapy-Redis 对接 Bloom Filter，直接使用 scrapy-redis-bloomfilter 包就好了，</p>
-<p class="content-text">不需要再自己实现一遍。可以直接使用 pip3 来安装，命令如下:</p>
+<p class="content-text">为了方便使用，本节的代码我已经打包成了一个 Python 包并发布到了 PyPi，链接为 https://pypi.python.org/pypi/scrapy-redis-bloomfilter。大家以后如果想基于 Scrapy-Redis 对接 Bloom Filter，直接使用 scrapy-redis-bloomfilter 包就好了，不需要再自己实现一遍。可以直接使用 pip3 来安装，命令如下:</p>
 <pre class="code-block" data-lang="bash"><code>pip3 install scrapy-redis-bloomfilter</code></pre>
 <p class="content-text">使用的方法和 Scrapy-Redis 基本相似，在 Scrapy-Redis 的基础上，接入 Bloom Filter 需要修改如下几个配置:</p>
 <pre class="code-block" data-lang="python"><code># 去重类，要使用 BloomFilter 请替换 DUPEFILTER_CLASS
@@ -587,9 +611,9 @@ self.queue_operator = self.server.queue_declare(queue=self.key, arguments={
 logger.debug('Queue operator %s', self.queue_operator)
 self.inited = True
 except ChannelClosedByBroker as e:
-logger.error("You have changed queue configuration, you "</code></pre>
-<p class="content-text">                         "must delete queue manually or set <code class="inline-code">SCHEDULER_QUEUE_FORCE_FLUSH</code> "</p>
-<pre class="code-block"><code>"to True, error detail %s" % str(e.args), exc_info=True)
+logger.error("You have changed queue configuration, you "
+             "must delete queue manually or set SCHEDULER_QUEUE_FORCE_FLUSH "
+             "to True, error detail %s" % str(e.args), exc_info=True)
 self.inited = False
 self.priority_offset = priority_offset</code></pre>
 <pre class="code-block"><code>def __len__(self):

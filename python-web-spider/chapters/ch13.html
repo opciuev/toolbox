@@ -35,8 +35,7 @@
 <p class="content-text list-like">Android Native 层 so文件的模拟调用和常见的数据爬取方法。</p>
 <div class="section-heading" id="section-0"><h2>13.1 jadx 的使用</h2></div>
 <p class="content-text">我们知道,每个 Android App 都有对应的安装包,是以 apk为名字后缀的文件,App 的实现逻辑都包含在这个文件中。apk文件往往包含资源文件(如图标、字体等),由Java代码编译而成的 dex 文件(可通过反编译 dex文件得到 Java代码),和一些相关的配置文件(如AndroidManifest.xml 文件)。关于其中的细节,这里就不再展开介绍了,如果想了解更多内容可以学习 Android开发相关的基本知识。</p>
-<p class="content-text">逆向中关键的一步就是反编译apk文件,将其还原成可读性高的Java代码,在多数情况下,我们通过观察并分析这个Java代码就能找到想要的核心逻辑。工欲善其事,必先利其器。用来反编译 apk</p>
-<p class="content-text">文件的工具有很多,例如 jadx、JEB、Apktool等,不同工具的用法和定位也有所不同。本节我们先来了解一下jadx的使用方法。</p>
+<p class="content-text">逆向中关键的一步就是反编译apk文件,将其还原成可读性高的Java代码,在多数情况下,我们通过观察并分析这个Java代码就能找到想要的核心逻辑。工欲善其事,必先利其器。用来反编译 apk 文件的工具有很多,例如 jadx、JEB、Apktool等,不同工具的用法和定位也有所不同。本节我们先来了解一下jadx的使用方法。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. jadx 的简介</h3>
 <p class="content-text">jadx 是一款使用广泛的反编译工具,可以一键把apk文件还原成Java代码,使用起来简单,功能强大,还具有一些附加功能可以辅助代码追查。其GitHub 地址为 https://github.com/skylot/jadx。主要具有如下几个功能。</p>
@@ -51,11 +50,28 @@
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. jadx 的命令</h3>
 <p class="content-text">使用jadx的命令执行文件的反编译操作,主要是指定一些输入参数和输出参数,这些参数的设置细节直接参考参数说明即可。运行jadx-h命令,查看jadx 命令的用法:</p>
-<pre class="code-block"><code>jadx[-gui] [options] &lt;input files&gt; (.apk, .dex, .jar, .class, smali, .zip, .aar, .arsc, .aab)</code></pre>
-<p class="content-text">options:-d, --output-dir-ds, --output-dir-src-dr, --output-dir-res-r, --no-res-f, --fallback--log-level</p>
-<pre class="code-block"><code>default: PROGRESS</code></pre>
-<p class="content-text">-v, --verbose-q, --quiet--version-h, --help output directory output directory for sources output directory for resources do not decode resources make simple dump (using goto instead of 'if', 'for', etc) set log level, values: QUIET, PROGRESS, ERROR, WARN, INFO, DEBUG,verbose output (set --log-level to DEBUG) turn off output (set --log-level to QUIET)</p>
-<pre class="code-block"><code>print jadx version
+<pre class="code-block"><code>jadx[-gui] [options] &lt;input files&gt; (.apk, .dex, .jar, .class, smali, .zip, .aar, .arsc, .aab)
+options:
+-d, --output-dir
+-ds, --output-dir-src
+-dr, --output-dir-res
+-r, --no-res
+-f, --fallback
+--log-level
+default: PROGRESS
+-v, --verbose
+-q, --quiet
+--version
+-h, --help
+output directory
+output directory for sources
+output directory for resources
+do not decode resources
+make simple dump (using goto instead of 'if', 'for', etc)
+set log level, values: QUIET, PROGRESS, ERROR, WARN, INFO, DEBUG
+verbose output (set --log-level to DEBUG)
+turn off output (set --log-level to QUIET)
+print jadx version
 print this help</code></pre>
 <p class="content-text">可以看到,参数 &lt;input files&gt;就是输入文件的路径,其他参数如-d可以指定反编译后输出文件的路径,-r可以指定不解析资源文件(能够提升整体反编译的速度)。于是我们可以使用下面的命令对已经下载好的scrape-app5.apk 文件进行反编译:</p>
 <pre class="code-block"><code>jadx scrape-app5.apk -d scrape-app5</code></pre>
@@ -193,11 +209,11 @@ at jadx.core.dex.visitors.Depth Traversal.lambda$visit$1(DepthTraversal.java:14)
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
-<p class="content-text"> 本节我们要使用JEB(JEB Android 或JEB Pro)来反编译和动态调试一个 Android App,关于JEB的下载地址和安装方式可以参考https://setup.scrape.center/jeb。安装好 JEB 之后,需要下载示例apk文件,地址为 https://app5.scrape.center/,下载好后保存为scrape-app5.apk 文件即可。然后准备好一部Android手机,真机和模拟器都可以,在手机上安装好刚下载的apk文件并启动App。另外还需要确保在电脑能使用adb命令正常连接到手机。</p>
+<p class="content-text">本节我们要使用JEB(JEB Android 或JEB Pro)来反编译和动态调试一个 Android App,关于JEB的下载地址和安装方式可以参考https://setup.scrape.center/jeb。安装好 JEB 之后,需要下载示例apk文件,地址为 https://app5.scrape.center/,下载好后保存为scrape-app5.apk 文件即可。然后准备好一部Android手机,真机和模拟器都可以,在手机上安装好刚下载的apk文件并启动App。另外还需要确保在电脑能使用adb命令正常连接到手机。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 实战</h3>
-<p class="content-text"> 打开 JEB,把示例apk文件直接拖到窗口里,经过一段时间的处理,JEB就完成了反编译,如图13-23所示。</p>
+<p class="content-text">打开 JEB,把示例apk文件直接拖到窗口里,经过一段时间的处理,JEB就完成了反编译,如图13-23所示。</p>
 <figure class="inline-figure"><img alt="图13-23 JEB 的界面" loading="lazy" src="figures/ch13/fig-13_23.jpg"/><figcaption>图13-23 JEB 的界面</figcaption></figure>
 <p class="content-text">从左侧的 Bytecode/Hierarchy 部分可以看到,反编译后的代码以一个个包的形式组织在一起,右侧显示的则是 Smali代码(Dalvik 的反汇编程序实现,类似x86平台下的汇编语言),通过这个代码,我们大体能够看出一些执行逻辑和数据操作的过程。</p>
 <p class="content-text">虽然我们得到了Smali 代码,但这似乎不是用Java语言编写的,我们从哪个地方入手呢?由于我们要找的是 URL 中加密参数 token的位置,因此最简单的方式当然是借助API的一些标志字符串查找了。我们知道示例 App 在启动的时候会开始请求数据,请求 URL里包含关键字/api/movie,以及offset、token 等参数,具体的抓包过程这里就不再赘述了,可以参考12.3节的内容。因为 API 的路径通常是用字符串定义的,而且一般写死在App 代码里,所以我们可以尝试使用/api/movie 来搜索,看看是否能搜索到相关的逻辑。点击菜单中的“Edit”→“Find”,打开 JEB 的查找功能,输入“/api/movie”,如图13-24所示。点击“Find”按钮,可以看到JEB帮我们找到了对应的Smali 代码,如图13-25所示。</p>
@@ -208,23 +224,44 @@ at jadx.core.dex.visitors.Depth Traversal.lambda$visit$1(DepthTraversal.java:14)
 <p class="content-text">之后就成功定位到了Java代码的声明处,如图13-27所示。</p>
 <figure class="inline-figure"><img alt="图13-27 声明 indexPath 字符串的源码" loading="lazy" src="figures/ch13/fig-13_27.jpg"/><figcaption>图13-27 声明 indexPath 字符串的源码</figcaption></figure>
 <p class="content-text">这里就是 indexPath 的原始声明,同时还能看到 index方法的声明,它包含3个参数:offset、limit 和 token。由此可以发现,这里的参数和声明恰好跟请求 URL的格式是相同的。我们可以在Java代码处再次选择“Decompile”,即可回到对应的Smali代码处,如图13-28所示。</p>
-<pre class="code-block"><code>.method public abstract index(I, I, String)Observable</code></pre>
-<p class="content-text">.annotation system Signature</p>
-<pre class="code-block"><code>value = {</code></pre>
-<p class="content-text">"(11","Ljava/lang/String;",")",</p>
-<pre class="code-block"><code>"Lio/reactivex/Observable&lt;",
-"Lcom/goldze/mvvmhabit/data/source/HttpResponse&lt;",</code></pre>
-<p class="content-text">"Lcom/goldze/mvvmhabit/entity/MovieEntity;",</p>
-<pre class="code-block"><code>"&gt;;&gt;;"</code></pre>
-<p class="content-text">.end annotation.annotation runtime GET</p>
-<pre class="code-block"><code>value="/api/movie"</code></pre>
-<p class="content-text">.end annotation.param p1.annotation runtime Query value "offset".end annotation.end param.param p2.annotation runtime Query value "limit".end annotation.end param.param p3.annotation runtime Query value "token".end annotation.end param.end method</p>
+<pre class="code-block"><code>.method public abstract index(I, I, String)Observable
+.annotation system Signature
+value = {
+"(11","Ljava/lang/String;",")",
+"Lio/reactivex/Observable&lt;",
+"Lcom/goldze/mvvmhabit/data/source/HttpResponse&lt;",
+"Lcom/goldze/mvvmhabit/entity/MovieEntity;",
+"&gt;;&gt;;"
+.end annotation
+.annotation runtime GET
+value="/api/movie"
+.end annotation
+.param p1
+.annotation runtime Query
+value "offset"
+.end annotation
+.end param
+.param p2
+.annotation runtime Query
+value "limit"
+.end annotation
+.end param
+.param p3
+.annotation runtime Query
+value "token"
+.end annotation
+.end param
+.end method</code></pre>
 <figure class="inline-figure"><img alt="图13-28 回到 Smali 代码" loading="lazy" src="figures/ch13/fig-13_28.jpg"/><figcaption>图13-28 回到 Smali 代码</figcaption></figure>
 <p class="content-text">可以看到 Smali 代码的定义和Java代码的定义一一对应。但这里似乎仅仅定义了API,并没有真正的实现,因此我们可以接着搜索引用/api/movie的位置,如图13-29所示。</p>
 <figure class="inline-figure"><img alt="图13-29 引用/api/movie 的位置" loading="lazy" src="figures/ch13/fig-13_29.jpg"/><figcaption>图13-29 引用/api/movie 的位置</figcaption></figure>
 <p class="content-text">同样在查找结果处右击,在打开的菜单中选择“Decompile”,就跳转到了对应的Java 代码处,如图13-30所示。</p>
 <figure class="inline-figure"><img alt="图13-30 引用 /api/movie 的 Java 代码" loading="lazy" src="figures/ch13/fig-13_30.jpg"/><figcaption>图13-30 引用 /api/movie 的 Java 代码</figcaption></figure>
-<p class="content-text">很明显,这里就是逻辑实现相关的代码了。稍微读一下这里的Java代码,大致是调用了一个apiService 对象的index方法,并传入了几个参数,第一个参数是 arg6 和arg7 计算后的结果,第二个参数是 arg7,第三个参数是 encrypt方法返回的结果(这个方法的参数还是一个包含/api/movie字符串的 ArrayList 对象)。这里看起来似乎是请求API的一个操作,但是我们也不确定是不是真的是这个位置。为了更好地确定这里是不是我们想要的数据加载入口,下面尝试使用JEB 的动态调试功能验证一下,例如在刚才的代码位置添加一个断点,然后滑动App 加载数据,看在运行到断点的位置时是否停止了运行,如果停止了,就证明我们找的这个位置是正确的,否则继续寻找。那怎么动态调试呢?其实操作很简单,首先确保本节的示例 App已经安装在了手机上,并且能在电脑上通过 adb命令与手机连接。然后运行adb命令:adb shell am start -D -n com.goldze.mvvmhabit/.ui.MainActivity这条命令的功能就是让 App 以调试模式启动,-D指定了App 以调式模式启动,-n指定了启动入口,这里设置为示例 App的包名和MainActivity。运行这条命令后,可以看到手机上显示如图13-31 所示的字样。</p>
+<p class="content-text">很明显,这里就是逻辑实现相关的代码了。稍微读一下这里的Java代码,大致是调用了一个apiService 对象的index方法,并传入了几个参数,第一个参数是 arg6 和arg7 计算后的结果,第二个参数是 arg7,第三个参数是 encrypt方法返回的结果(这个方法的参数还是一个包含/api/movie字符串的 ArrayList 对象)。这里看起来似乎是请求API的一个操作,但是我们也不确定是不是真的是这个位置。</p>
+<p class="content-text">为了更好地确定这里是不是我们想要的数据加载入口,下面尝试使用JEB 的动态调试功能验证一下,例如在刚才的代码位置添加一个断点,然后滑动App 加载数据,看在运行到断点的位置时是否停止了运行,如果停止了,就证明我们找的这个位置是正确的,否则继续寻找。</p>
+<p class="content-text">那怎么动态调试呢?其实操作很简单,首先确保本节的示例 App已经安装在了手机上,并且能在电脑上通过 adb命令与手机连接。然后运行adb命令:</p>
+<pre class="code-block"><code>adb shell am start -D -n com.goldze.mvvmhabit/.ui.MainActivity</code></pre>
+<p class="content-text">这条命令的功能就是让 App 以调试模式启动,-D指定了App 以调式模式启动,-n指定了启动入口,这里设置为示例 App的包名和MainActivity。运行这条命令后,可以看到手机上显示如图13-31 所示的字样。</p>
 <figure class="inline-figure"><img alt="图13-31 App 正在等待 Debugger 的连接" loading="lazy" src="figures/ch13/fig-13_31.jpg"/><figcaption>图13-31 App 正在等待 Debugger 的连接</figcaption></figure>
 <p class="content-text">这时回到 JEB 的界面,点击工具栏里的“Debug”按钮,如图13-32所示。</p>
 <figure class="inline-figure"><img alt="图13-32 点击 “Debug” 按钮" loading="lazy" src="figures/ch13/fig-13_32.jpg"/><figcaption>图13-32 点击 “Debug” 按钮</figcaption></figure>
@@ -298,14 +335,15 @@ print('response', response.json())</code></pre>
 <p class="content-text list-like">将列表内容用逗号拼接起来;</p>
 <p class="content-text list-like">对拼接结果进行SHA1编码;</p>
 <p class="content-text list-like">将编码结果和时间戳再次拼接;</p>
-<p class="content-text list-like">对拼接后的结果进行 Base64编码。最后的运行结果如下:</p>
-<pre class="result-block"><code>response {'count': 100, 'results': [{'id': 1, 'name':'霸王别姬', 'alias': 'Farewell My Concubine', 'cover':</code></pre>
-<p class="content-text">'https://po.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c', 'categories': ['剧情','爱情'],'published_at': '1993-07-26', 'minute': 171, 'score': 9.5, 'regions': ['中国大陆','中国香港'], 'drama':</p>
-<pre class="code-block"><code>{'id': 10, 'name':'狮子王','alias': 'The Lion King', 'cover': 'https://po.meituan.net/movie/</code></pre>
-<p class="content-text">27b76fe6cf3903f3d74963f70786001e143406.jpg@464w_644h_1e_1c', 'categories': ['动画','歌舞','冒险'],</p>
-<pre class="code-block"><code>'published_at': '1995-07-15', 'minute': 89, 'score': 9.0, 'regions': ['美国'],'drama':'辛巴是荣耀国的小</code></pre>
-<p class="content-text">王子,他的父亲木法沙是一个威严的国王。然而叔叔刀疤却对木法沙的王位觊觎已久。要想坐上王位宝座,</p>
-<pre class="code-block"><code>...</code></pre>
+<p class="content-text list-like">对拼接后的结果进行 Base64编码。</p>
+<p class="content-text">最后的运行结果如下:</p>
+<pre class="result-block"><code>response {'count': 100, 'results': [{'id': 1, 'name':'霸王别姬', 'alias': 'Farewell My Concubine', 'cover':
+'https://po.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c', 'categories': ['剧情','爱情'],'published_at': '1993-07-26', 'minute': 171, 'score': 9.5, 'regions': ['中国大陆','中国香港'], 'drama':
+{'id': 10, 'name':'狮子王','alias': 'The Lion King', 'cover': 'https://po.meituan.net/movie/
+27b76fe6cf3903f3d74963f70786001e143406.jpg@464w_644h_1e_1c', 'categories': ['动画','歌舞','冒险'],
+'published_at': '1995-07-15', 'minute': 89, 'score': 9.0, 'regions': ['美国'],'drama':'辛巴是荣耀国的小
+王子,他的父亲木法沙是一个威严的国王。然而叔叔刀疤却对木法沙的王位觊觎已久。要想坐上王位宝座,
+...</code></pre>
 <p class="content-text">这样我们就成功爬取到示例 App 的数据了。</p>
 </section>
 <section class="numbered-section">
@@ -335,8 +373,12 @@ print('response', response.json())</code></pre>
 <h3 class="subsection-heading numbered-heading">3. Xposed 模块</h3>
 <p class="content-text">Xposed 框架现在的生态系统非常庞大,基于它开发的模块非常多,点击下载菜单就可以看到已发布的Xposed 模块，如图13-44所示。</p>
 <figure class="inline-figure"><img alt="图13-44 已发布的 Xposed 模块" loading="lazy" src="figures/ch13/fig-13_44.jpg"/><figcaption>图13-44 已发布的 Xposed 模块</figcaption></figure>
-<p class="content-text">可以看到,这里有各种各样的模块,当然我们也可以自己编写模块来实现想要的功能。这时大家可能会问,这些模块究竟是干嘛的?到底是什么东西?其实从本质</p>
-<p class="content-text">上讲，Xposed 模块就是一个 Android App，开发一个 Xposed 模块和开发一个 Android App 的流程是差不多的，只不过前者多了下面 4 个步骤。(1) 需要添加一些标识符，表明这个 App 是一个 Xposed 模块，以便在 Android 设备上安装后，Xposed 框架可以被识别出来。(2) 需要引入 XposedBridge.jar 包，从而实现 Hook 操作。(3) 需要定义一些 Hook 操作，对本 App 或其他 App 的逻辑进行修改。(4) 定义完 Hook 操作的逻辑后，需要告诉 Xposed 框架哪些是我们自己定义的 Hook 操作逻辑，以便 Xposed 执行这些逻辑。下面我们就一步步实现以上 4 步。</p>
+<p class="content-text">可以看到,这里有各种各样的模块,当然我们也可以自己编写模块来实现想要的功能。这时大家可能会问,这些模块究竟是干嘛的?到底是什么东西?其实从本质上讲，Xposed 模块就是一个 Android App，开发一个 Xposed 模块和开发一个 Android App 的流程是差不多的，只不过前者多了下面 4 个步骤。</p>
+<p class="content-text list-like">(1) 需要添加一些标识符，表明这个 App 是一个 Xposed 模块，以便在 Android 设备上安装后，Xposed 框架可以被识别出来。</p>
+<p class="content-text list-like">(2) 需要引入 XposedBridge.jar 包，从而实现 Hook 操作。</p>
+<p class="content-text list-like">(3) 需要定义一些 Hook 操作，对本 App 或其他 App 的逻辑进行修改。</p>
+<p class="content-text list-like">(4) 定义完 Hook 操作的逻辑后，需要告诉 Xposed 框架哪些是我们自己定义的 Hook 操作逻辑，以便 Xposed 执行这些逻辑。</p>
+<p class="content-text">下面我们就一步步实现以上 4 步。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 开发一个 Xposed 模块</h3>
@@ -347,15 +389,15 @@ print('response', response.json())</code></pre>
 <p class="content-text">点击 FINISH 按钮,XposedTest 项目就创建好了,生成的界面如图13-47所示。</p>
 <figure class="inline-figure"><img alt="图13-47 XposedTest 项目" loading="lazy" src="figures/ch13/fig-13_47.jpg"/><figcaption>图13-47 XposedTest 项目</figcaption></figure>
 <p class="content-text">之后我们实现之前说的第1步,添加一些标识符,表明这是一个Xposed 模块。打开AndroidManifest.xml 文件,找到 application 标签,在与 activity 标签并列的位置添加如下内容:</p>
-<pre class="code-block"><code>&lt;meta-data</code></pre>
-<p class="content-text">        android:name="xposedmodule"</p>
-<pre class="code-block"><code>android:value="true" /&gt;
-&lt;meta-data</code></pre>
-<p class="content-text">        android:name="xposeddescription"</p>
-<pre class="code-block"><code>android:value="Xposed Test" /&gt;
-&lt;meta-data</code></pre>
-<p class="content-text">        android:name="xposedminversion"</p>
-<pre class="code-block"><code>android:value="53" /&gt;</code></pre>
+<pre class="code-block"><code>&lt;meta-data
+        android:name="xposedmodule"
+        android:value="true" /&gt;
+&lt;meta-data
+        android:name="xposeddescription"
+        android:value="Xposed Test" /&gt;
+&lt;meta-data
+        android:name="xposedminversion"
+        android:value="53" /&gt;</code></pre>
 <p class="content-text">最终 AndroidManifest.xml 文件的内容如图13-48所示。</p>
 <figure class="inline-figure"><img alt="图13-48 AndroidManifest.xml 文件的内容" loading="lazy" src="figures/ch13/fig-13_48.jpg"/><figcaption>图13-48 AndroidManifest.xml 文件的内容</figcaption></figure>
 <p class="content-text">这段内容指定了3个meta-data。xposedmodule:这里设置为true,代表这是一个Xposed 模块。xposeddescription:模块的描述,此处填写模块名称就好,就是一个字符串。xposedminversion:模块运行所要求的 Xposed 最低版本号,这里是53。定义好这3个内容后,把这个App安装到准备好的Android设备上,Xposed框架就能识别出这个App 是一个 Xposed 模块了。点击运行按钮,在设备上运行这个App,可以看到设备上显示如下界面,如图13-49所示。</p>
@@ -490,13 +532,11 @@ param.setResult("Hooked");
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 反编译</h3>
 <pre class="code-block"><code>pip3 install flask loguru</code></pre>
-<p class="content-text">既然要用Xposed 模块爬取数据,就免不了要借助 Xposed 提供的一些Hook方法,那具体 Hook 什</p>
-<p class="content-text">么内容呢?选择其实有很多,例如我们可以 Hook 与构造 HTTP 请求参数相关的方法,之后可以得到一些 token 字符串;又如可以Hook 用来获取HTTP 响应结果的方法,这样相当于直接拿到了数据。可以看出,目标方法是关键。既然我们要爬取数据,那么干脆一步到位好了,直接通过Hook的方式拦截 HTTP响应结果,然后用某种方式保存下来,数据爬取就完成了。那用来获取 HTTP响应结果的方法究竟是什么呢?目前我们无从知道,所以有必要对 apk文件做一些反编译操作,反编译之后尝试分析一下代码逻辑,应该就能知道哪个方法是我们想要 Hook 的方法了。和13.1节介绍的一样,打开jadx-gui工具,然后直接打开apk文件,就可以看到反编译的结果了,如图13-58所示。</p>
+<p class="content-text">既然要用Xposed 模块爬取数据,就免不了要借助 Xposed 提供的一些Hook方法,那具体 Hook 什么内容呢?选择其实有很多,例如我们可以 Hook 与构造 HTTP 请求参数相关的方法,之后可以得到一些 token 字符串;又如可以Hook 用来获取HTTP 响应结果的方法,这样相当于直接拿到了数据。可以看出,目标方法是关键。既然我们要爬取数据,那么干脆一步到位好了,直接通过Hook的方式拦截 HTTP响应结果,然后用某种方式保存下来,数据爬取就完成了。那用来获取 HTTP响应结果的方法究竟是什么呢?目前我们无从知道,所以有必要对 apk文件做一些反编译操作,反编译之后尝试分析一下代码逻辑,应该就能知道哪个方法是我们想要 Hook 的方法了。和13.1节介绍的一样,打开jadx-gui工具,然后直接打开apk文件,就可以看到反编译的结果了,如图13-58所示。</p>
 <figure class="inline-figure"><img alt="图13-58 反编译的结果" loading="lazy" src="figures/ch13/fig-13_58.jpg"/><figcaption>图13-58 反编译的结果</figcaption></figure>
 <p class="content-text">我们还是以/api/movie 为突破口进行搜索,同时打开jadx-gui 的反混淆开关,就可以找到与请求定义相关的逻辑,如图13-59所示。</p>
 <figure class="inline-figure"><img alt="图13-59 搜索得到的结果" loading="lazy" src="figures/ch13/fig-13_59.jpg"/><figcaption>图13-59 搜索得到的结果</figcaption></figure>
-<p class="content-text">很明显可以看到,这里定义了一个index方法,接收参数 offset、limit 和token,这和示例 App</p>
-<p class="content-text">加载列表数据时发出的请求完全一致:</p>
+<p class="content-text">很明显可以看到,这里定义了一个index方法,接收参数 offset、limit 和token,这和示例 App 加载列表数据时发出的请求完全一致:</p>
 <pre class="code-block"><code>public interface MovieApiService {
 @GET("/api/movie")
 Observable&lt;HttpResponse&lt;MovieEntity&gt;&gt; index(@Query("offset") int i, @Query("limit") int i2,
@@ -506,8 +546,7 @@ Observable&lt;HttpResponse&lt;MovieEntity&gt;&gt; index(@Query("offset") int i, 
 <figure class="inline-figure"><img alt="图13-60 与HttpResponse 相关的引用" loading="lazy" src="figures/ch13/fig-13_60.jpg"/><figcaption>图13-60 与HttpResponse 相关的引用</figcaption></figure>
 <p class="content-text">一共返回了7个结果,这里我们分析一下第一个,其外层是 requestNetwork 方法,该方法的定义如图13-61所示。</p>
 <figure class="inline-figure"><img alt="图13-61 requestNetwork 方法的定义" loading="lazy" src="figures/ch13/fig-13_61.jpg"/><figcaption>图13-61 requestNetwork 方法的定义</figcaption></figure>
-<p class="content-text">通过名字,我们初步推测这个方法是用来发起网络请求的。另外,可以看到这里调用了图13-59中</p>
-<p class="content-text">定义的 index 方法,还定义了一个 subscribe 方法来接收一些处理回调逻辑。再仔细观察,可以看到比较关键的 accept方法,其参数为jVar,是一个HttpResponse&lt;MovieEntity&gt;对象,方法内部调用jVar变量的 getResults 方法得到响应结果,然后用一个 for 循环遍历这些结果,并把结果添加到IndexViewModel里。到这里我们可以推测,这很可能就是 App 获取了首页的电影列表数据后,处理响应结果的过程,不然也不会有 for 循环相关的逻辑。既然数据是通过jVar变量的getResults 方法获取的,那 getResults 方法返回的一定是一个MovieEntity 列表,我们可以进一步追踪,看看 getResutls 方法是怎样定义的,于是我们跳转到定义 HttpResponse 类的位置,如图13-62所示。</p>
+<p class="content-text">通过名字,我们初步推测这个方法是用来发起网络请求的。另外,可以看到这里调用了图13-59中定义的 index 方法,还定义了一个 subscribe 方法来接收一些处理回调逻辑。再仔细观察,可以看到比较关键的 accept方法,其参数为jVar,是一个HttpResponse&lt;MovieEntity&gt;对象,方法内部调用jVar变量的 getResults 方法得到响应结果,然后用一个 for 循环遍历这些结果,并把结果添加到IndexViewModel里。到这里我们可以推测,这很可能就是 App 获取了首页的电影列表数据后,处理响应结果的过程,不然也不会有 for 循环相关的逻辑。既然数据是通过jVar变量的getResults 方法获取的,那 getResults 方法返回的一定是一个MovieEntity 列表,我们可以进一步追踪,看看 getResutls 方法是怎样定义的,于是我们跳转到定义 HttpResponse 类的位置,如图13-62所示。</p>
 <figure class="inline-figure"><img alt="图13-62 HttpResponse 类的定义" loading="lazy" src="figures/ch13/fig-13_62.jpg"/><figcaption>图13-62 HttpResponse 类的定义</figcaption></figure>
 <p class="content-text">可以看到 HttpResponse 类使用了泛型,有一个占位符T,这是什么意思呢?例如给 HttpResponse&lt;T&gt; 中的传入MovieEntity类,这里就会变成HttpResponse&lt;MovieEntity&gt;,代表 HttpResponse 绑定的是 MovieEntity类,包含的数据也和 MovieEntity 类相关,而刚才往 accept 方法传入的参数正是 HttpResponse&lt;MovieEntity&gt;对象,所以我们可以认为这里的T就是 MovieEntity。还可以看到,getResults 方法的返回值类型是 List&lt;T&gt;,所以获取的响应结果是 List&lt;MovieEntity&gt;类型的,是MovieEntity 类返回的列表。所以,如果我们可以 Hook getResults 方法,其实就能拿到响应结果中包含的 MovieEntity 列表数据了。</p>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">并不能保证目前的推测100%正确,只不过正确的概率很大。</div></div>
@@ -622,12 +661,12 @@ return jsonify(status='success')
 if __name__ == '__main__':
 app.run(debug=True, host='0.0.0.0')</code></pre>
 <p class="content-text">这个实现过程非常简单,就是从请求体的表单数据中提取出 data 字段,然后将其打印出来。运行此 Python 脚本,Flask 会默认在5000端口上提供服务,运行结果如下:</p>
-<p class="content-text list-like">Serving Flask app "server" (lazy loading)</p>
-<p class="content-text list-like"><strong class="term-label">Environment:</strong>production</p>
-<pre class="result-block"><code>WARNING: This is a development server. Do not use it in a production deployment.</code></pre>
-<p class="content-text">Use a production WSGI server instead.</p>
-<p class="content-text list-like"><strong class="term-label">Debug mode:</strong>on</p>
-<p class="content-text list-like"><strong class="term-label">Running on http:</strong>//0.0.0.0:5000/ (Press CTRL+C to quit)</p>
+<pre class="result-block"><code>Serving Flask app "server" (lazy loading)
+Environment: production
+WARNING: This is a development server. Do not use it in a production deployment.
+Use a production WSGI server instead.
+Debug mode: on
+Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Restarting with stat</h4>
@@ -681,12 +720,13 @@ app.run(debug=True, host='0.0.0.0')</code></pre>
     }
 }</code></pre>
 <p class="content-text">重新运行 Xposed 模块和 XposedTest App,这时 Flask 服务器的输出结果如下:</p>
-<pre class="result-block"><code>2021-07-18 21:11:52.316 | DEBUG | __main__:receive:10 - received MovieEntity{id=20, name=迁徙的鸟,alias=The</code></pre>
-<p class="content-text">Travelling Birds, publishedAt=2001-12-12, cover=https://p1.meituan.net/movie/a1634f4e49c8517ae0a3e4adcac 6b0dc43994.jpg@464w_644h_1e_1c,drama=当鸟儿用羽翼去实现梦想,翱翔在我们永远无法凭借自身企及的天空,人类又该赋予他们怎样的赞叹呢?“鸟的迁徙是一个关于承诺的故事,一种对于回归的承诺。”雅克·贝汉以这样一句话带我们踏上了鸟与梦飞行之旅。,categories=[纪录片], regions=[法国,德国,意大利,西班牙,瑞士],score=9.1, minute=98} 127.0.0.1 - - [18/Jul/2021 21:11:52] "POST /data HTTP/1.1" 200 -</p>
-<pre class="result-block"><code>2021-07-18 21:11:52.317 | DEBUG | __main__:</code></pre>
-<p class="content-text">receive:10 - received MovieEntity{id=18, name=海上钢琴师,alias=La leggenda del pianista sull'oceano,</p>
-<pre class="code-block"><code>publishedAt=2019-11-15, cover=https://po.meituan.net/movie/609e45bd40346eb8b927381be8fb27a6160914.jpg@</code></pre>
-<p class="content-text">464w_644h_1e_1c,drama=1900年的第一天,往返于欧美两地的邮轮Virginian号上,负责邮轮上添加煤炭的工人丹尼·博德曼(比尔·努恩饰)在头等舱上欲捡拾有钱人残留下来的事物时,</p>
+<pre class="result-block"><code>2021-07-18 21:11:52.316 | DEBUG | __main__:receive:10 - received MovieEntity{id=20, name=迁徙的鸟,alias=The
+Travelling Birds, publishedAt=2001-12-12, cover=https://p1.meituan.net/movie/a1634f4e49c8517ae0a3e4adcac 6b0dc43994.jpg@464w_644h_1e_1c,drama=当鸟儿用羽翼去实现梦想,翱翔在我们永远无法凭借自身企及的天空,人类又该赋予他们怎样的赞叹呢?“鸟的迁徙是一个关于承诺的故事,一种对于回归的承诺。”雅克·贝汉以这样一句话带我们踏上了鸟与梦飞行之旅。,categories=[纪录片], regions=[法国,德国,意大利,西班牙,瑞士],score=9.1, minute=98}
+127.0.0.1 - - [18/Jul/2021 21:11:52] "POST /data HTTP/1.1" 200 -
+2021-07-18 21:11:52.317 | DEBUG | __main__:
+receive:10 - received MovieEntity{id=18, name=海上钢琴师,alias=La leggenda del pianista sull'oceano,
+publishedAt=2019-11-15, cover=https://po.meituan.net/movie/609e45bd40346eb8b927381be8fb27a6160914.jpg@
+464w_644h_1e_1c,drama=1900年的第一天,往返于欧美两地的邮轮Virginian号上,负责邮轮上添加煤炭的工人丹尼·博德曼(比尔·努恩饰)在头等舱上欲捡拾有钱人残留下来的事物时,</code></pre>
 <p class="content-text">可以看出,在手机端获取的数据已经成功转发到 Flask 服务器上了!后面我们只需要完善一下Flask 服务器的相关逻辑,对数据进行处理并保存即可,具体流程这里不再展开讲解。</p>
 </section>
 </section>
@@ -696,11 +736,11 @@ app.run(debug=True, host='0.0.0.0')</code></pre>
 <p class="content-text">有了 Xposed,我们几乎可以 Hook 所有方法来截获想要的内容,App 尽在我们掌握之中,“为所欲为”不再是奢望,爬虫自然也不在话下。本节代码见 https://github.com/Python3WebSpider/XposedTest。</p>
 </section>
 <div class="section-heading" id="section-4"><h2>13.5 Frida 的使用</h2></div>
-<p class="content-text"> 在 13.4 节和 13.5 节,我们了解了 Xposed 的基本用法,可以说只要找到位置,就能通过 Hook 拿到数据。然而 Xposed 是具有局限性的,例如它只能 Hook Java 层的逻辑,不能 Hook Native 层的。另外,整个 Xposed 模块的逻辑需要使用 Java 语言实现,如果我们对 Java 不熟悉,那么实现起来会有一定难度。什么是 Native 层的逻辑呢?简单理解这就是使用 C/C++编写的一些逻辑。假设某个 App 中的某些算法是用 C/C++实现的,它们最终会被编译到一个 so 格式的文件中,Java 层可以直接调用该 so 文件执行对应的加密算法,而无须知道文件内部的具体逻辑。Xposed 是用 Java 实现的,可以 Hook Java层的逻辑,但对于 Hook Native 层的逻辑,就无能为力了。</p>
-<p class="content-text"> 本节我们就介绍另外一个简单好用的 Hook 神器——Frida!如果要用几个词描述 Frida,那就是强大、方便、灵活。</p>
+<p class="content-text">在 13.4 节和 13.5 节,我们了解了 Xposed 的基本用法,可以说只要找到位置,就能通过 Hook 拿到数据。然而 Xposed 是具有局限性的,例如它只能 Hook Java 层的逻辑,不能 Hook Native 层的。另外,整个 Xposed 模块的逻辑需要使用 Java 语言实现,如果我们对 Java 不熟悉,那么实现起来会有一定难度。什么是 Native 层的逻辑呢?简单理解这就是使用 C/C++编写的一些逻辑。假设某个 App 中的某些算法是用 C/C++实现的,它们最终会被编译到一个 so 格式的文件中,Java 层可以直接调用该 so 文件执行对应的加密算法,而无须知道文件内部的具体逻辑。Xposed 是用 Java 实现的,可以 Hook Java层的逻辑,但对于 Hook Native 层的逻辑,就无能为力了。</p>
+<p class="content-text">本节我们就介绍另外一个简单好用的 Hook 神器——Frida!如果要用几个词描述 Frida,那就是强大、方便、灵活。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Frida 的简介</h3>
-<p class="content-text"> Frida 是一个基于 Python 和 JavaScript 的 Hook 与调试框架,是一款易用的跨平台 Hook 工具,无论 Java 层的逻辑,还是 Native 层的逻辑,它都可以 Hook。Frida 可以把代码插入原生 App 的内存空间,然后动态地监视和修改其行为,支持 Windows、Mac、Linux、Android、iOS 全平台。</p>
+<p class="content-text">Frida 是一个基于 Python 和 JavaScript 的 Hook 与调试框架,是一款易用的跨平台 Hook 工具,无论 Java 层的逻辑,还是 Native 层的逻辑,它都可以 Hook。Frida 可以把代码插入原生 App 的内存空间,然后动态地监视和修改其行为,支持 Windows、Mac、Linux、Android、iOS 全平台。</p>
 <p class="content-text">Frida 是使用 Python 注入 JavaScript脚本实现的,可以通过JavaScript脚本操作手机上的Java代码,Python 脚本和 JavaScript脚本的编写跟执行是在电脑上进行的,而且无须在手机上额外安装App和插件,所以整体实现起来更加灵活和轻量级,调试起来也更加方便。而Xposed 需要使用Java实现一个模块,然后编译并安装到手机上,灵活性相对差一些,但如果要做持久化的Hook,还是推荐使用Xposed。下面简单列一下Xposed 和Frida的优缺点。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">Xposed 的优缺点</h4>
@@ -746,7 +786,11 @@ script = process.create_script(CODE)
 script.on('message', on_message)
 script.load()
 sys.stdin.read()</code></pre>
-<p class="content-text">这里我们首先读出刚编写的JavaScript代码,并赋值为CODE 变量,即把代码转成了Python 字符串,然后声明了一个包名,并赋值为 PROCESS_NAME 变量。接着我们使用 frida包中的get_usb_device 方法获取了当前连接的设备,并调用设备的 attach 方法挂载了对应的进程,该进程被赋值为 process 变量。之后我们调用process变量的 create_script 方法往进程中注入了 Hook脚本(就是传入 CODE 变量),并将返回结果赋值为 script 变量。对于 script 变量,我们可以设置事件监听和回调方法,例如这里监听 message事件,回调方法设置为 on_message,这样一来,JavaScript 代码中任何通过 send 方法发送的数据,on_message 方法都会接收到对应的内容,这就实现了JavaScript 到 Python 的消息通信。最后,调用script 变量的load 方法注入脚本。接下来我们先启动AppBasic1,再启动编写的Python脚本:python3 hook_java.py此时点击 TEST按钮,页面如图13-69所示。</p>
+<p class="content-text">这里我们首先读出刚编写的JavaScript代码,并赋值为CODE 变量,即把代码转成了Python 字符串,然后声明了一个包名,并赋值为 PROCESS_NAME 变量。接着我们使用 frida包中的get_usb_device 方法获取了当前连接的设备,并调用设备的 attach 方法挂载了对应的进程,该进程被赋值为 process 变量。之后我们调用process变量的 create_script 方法往进程中注入了 Hook脚本(就是传入 CODE 变量),并将返回结果赋值为 script 变量。</p>
+<p class="content-text">对于 script 变量,我们可以设置事件监听和回调方法,例如这里监听 message事件,回调方法设置为 on_message,这样一来,JavaScript 代码中任何通过 send 方法发送的数据,on_message 方法都会接收到对应的内容,这就实现了JavaScript 到 Python 的消息通信。最后,调用script 变量的load 方法注入脚本。</p>
+<p class="content-text">接下来我们先启动AppBasic1,再启动编写的Python脚本:</p>
+<pre class="code-block"><code>python3 hook_java.py</code></pre>
+<p class="content-text">此时点击 TEST按钮,页面如图13-69所示。</p>
 <figure class="inline-figure"><img alt="图13-69 Hook 操作后的AppBasic1 启动页面" loading="lazy" src="figures/ch13/fig-13_69.jpg"/><figcaption>图13-69 Hook 操作后的AppBasic1 启动页面</figcaption></figure>
 <p class="content-text">可以看到这里显示的Toast 信息是6,正是我们在JavaScript 代码中定义的返回值,证明 Hook 成功了!同时观察一下电脑上的控制台,显示的内容如图13-70所示。</p>
 <p class="content-text">从这里可以看到,每点击一次按钮,控制台就会输出一行代码,代码内容为:</p>
@@ -834,15 +878,17 @@ sys.stdin.read()</code></pre>
 <p class="content-text">接下来,我们将电脑的全局代理设置为 Charles,一般在 Charles 的菜单中可以设置,打开Proxy→macOS Proxy/Windows Proxy,将此选项勾选上即可。注意在设置全局代理之前,请先在电脑上设置信任 Charles Proxy CA 这个根证书颁发机构(这也是一种证书),具体的设置方法可以参考 https://setup.scrape.center/charles。现在刷新一下百度首页,再次查看证书详情,如图 13-81 所示。</p>
 <figure class="inline-figure"><img alt="图13-80 百度首页的证书详情" loading="lazy" src="figures/ch13/fig-13_80.jpg"/><figcaption>图13-80 百度首页的证书详情</figcaption></figure>
 <figure class="inline-figure"><img alt="图13-81 设置 Charles 代理后的证书详情" loading="lazy" src="figures/ch13/fig-13_81.jpg"/><figcaption>图13-81 设置 Charles 代理后的证书详情</figcaption></figure>
-<p class="content-text">可以看到,当前的证书签发者变成了 Charles Proxy CA。那此时的电脑要不要信任 Charles Proxy CA颁发的证书呢?答案是要,因为我们已经设置了信任 Charles Proxy CA,如果没设置,那现在访问百度页面就会出现 SSL 安全提示。于是我们可以初步得出一个结论:在电脑上设置了信任 Charles Proxy CA 证书后,如果 PC 使用Charles 的代理来访问 HTTPS 网站,所使用的证书就会变成 Charles Proxy CA 颁发的。电脑上是这样,手机上自然也是。在抓包之前,我们先在手机上设置信任 Charles 的证书(也就是信任 Charles Proxy CA ),之后在手机上使用 Charles 代理访问 HTTPS 网站的时候,所有的网站证书就会是 Charles Proxy CA 颁发的,因为手机信任 Charles Proxy CA,所以自然就能正常访问对应的HTTPS 网站了。那么关键点来了。我们在开头提到客户端(这里就是指 App)在获取证书信息之后,是可以对证书做校验的,如果不做校验,那么不会有任何问题,但一旦校验,并发现指纹不匹配,就会直接中断连接,请求自然就失败了?那这个校验过程怎么实现呢?校验证书的指纹即可。因为使用代理和不使用代理的证书颁发机构不是一个,所以两个证书的指纹也不一样,只要证书的指纹跟指定的指纹不一样,就算校验失败。例如当前证书的指纹,见图 13-82 中框出来的内容。</p>
+<p class="content-text">可以看到,当前的证书签发者变成了 Charles Proxy CA。那此时的电脑要不要信任 Charles Proxy CA颁发的证书呢?答案是要,因为我们已经设置了信任 Charles Proxy CA,如果没设置,那现在访问百度页面就会出现 SSL 安全提示。于是我们可以初步得出一个结论:在电脑上设置了信任 Charles Proxy CA 证书后,如果 PC 使用Charles 的代理来访问 HTTPS 网站,所使用的证书就会变成 Charles Proxy CA 颁发的。</p>
+<p class="content-text">电脑上是这样,手机上自然也是。在抓包之前,我们先在手机上设置信任 Charles 的证书(也就是信任 Charles Proxy CA ),之后在手机上使用 Charles 代理访问 HTTPS 网站的时候,所有的网站证书就会是 Charles Proxy CA 颁发的,因为手机信任 Charles Proxy CA,所以自然就能正常访问对应的HTTPS 网站了。</p>
+<p class="content-text">那么关键点来了。我们在开头提到客户端(这里就是指 App)在获取证书信息之后,是可以对证书做校验的,如果不做校验,那么不会有任何问题,但一旦校验,并发现指纹不匹配,就会直接中断连接,请求自然就失败了?那这个校验过程怎么实现呢?校验证书的指纹即可。因为使用代理和不使用代理的证书颁发机构不是一个,所以两个证书的指纹也不一样,只要证书的指纹跟指定的指纹不一样,就算校验失败。例如当前证书的指纹,见图 13-82 中框出来的内容。</p>
 <p class="content-text">在开发阶段,如果知道服务器返回的证书指纹,是可以提前把指纹写死在客户端这边的。客户端获取证书后,对比证书的指纹跟写死的指纹是否一致,如果一致就通过校验,否则不通过,中断后续的数据传输。</p>
 <p class="content-text">这个过程具体怎么实现呢?通常有两种方式。</p>
 <p class="content-text list-like">对于7.0及以上版本的Android 系统,SDK提供了原生的支持。在App开发阶段,会直接将指纹写死在一个xml文件里,然后在AndroidManifest.xml 文件中添加一个android:networkSecurityConfig 配置,具体的配置可以参考 Android 官方文档</p>
-<pre class="result-block"><code>https://developer.android.com/training/articles/</code></pre>
-<p class="content-text"> security-config。不过要注意 Android 系统的版本。</p>
+<pre class="result-block"><code>https://developer.android.com/training/articles/security-config。</code></pre>
+<p class="content-text">不过要注意 Android 系统的版本。</p>
 <p class="content-text list-like">直接将指纹和校验流程写在 Android 代码里,现在 现在 Android 的很多HTTP请求库是</p>
 <figure class="inline-figure"><img alt="图13-82 当前证书的指纹" loading="lazy" src="figures/ch13/fig-13_82.jpg"/><figcaption>图13-82 当前证书的指纹</figcaption></figure>
-<p class="content-text"> 基于 OkHttp 库开发的,OkHttp 的SDK 就提供了对SSL Pinning 的支持,一般可以在初始化OkHttpClient 对象的时候添加 certificatePinner 这个选项,将信任的证书指纹写死。当然除了OkHttp,其他库也提供类似的支持。第二种方式的适用性更广,不局限于特定的Android 版本,本节也将基于第二种方式实现。</p>
+<p class="content-text">基于 OkHttp 库开发的,OkHttp 的SDK 就提供了对SSL Pinning 的支持,一般可以在初始化OkHttpClient 对象的时候添加 certificatePinner 这个选项,将信任的证书指纹写死。当然除了OkHttp,其他库也提供类似的支持。第二种方式的适用性更广,不局限于特定的Android 版本,本节也将基于第二种方式实现。</p>
 <p class="content-text">至此,SSL Pinning 技术的原理就解释清楚了。简单点讲,就是客户端和服务端在握手过程中,客户端对服务端返回的证书进行校验,如果证书不是自己信任的,就拒绝后续的数据传输过程,这样抓包工具自然抓不到有效的信息。</p>
 </section>
 <section class="numbered-section">
@@ -853,7 +899,7 @@ sys.stdin.read()</code></pre>
 <p class="content-text list-like">通过反编译的方式还原 App代码,修改 AndroidManifest.xml 文件或者代码中用于校验证书的逻辑,修改完后重新打包签名。不过由于App代码不好完全还原,该方法的可行度并不高。其中第二个的可行度最高,所以下面介绍三种基于第二个思路的解决方案。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">Xposed + JustTrustMe</h4>
-<p class="content-text"> Just TrustMe 是一个Xposed 模块(https://github.com/Fuzion24/JustTrustMe),其基本原理就是通过Hook 证书校验相关的API,绕过证书校验的过程。</p>
+<p class="content-text">Just TrustMe 是一个Xposed 模块(https://github.com/Fuzion24/JustTrustMe),其基本原理就是通过Hook 证书校验相关的API,绕过证书校验的过程。</p>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">请先确保手机已经ROOT并安装好了Xposed模块,具体配置流程可以参考https://setup.scrape.center/xposed。</div></div>
 <p class="content-text">首先下载 apk 文件(https://github.com/Fuzion24/JustTrustMe/releases/),并把 JustTrustMe App 安装到手机上,然后在 Xposed 的模块设置里开启JustTrustMe,如图13-83所示。之后重启手机,使刚才的操作生效。此时重新打开示例 App,会发现数据成功加载出来了,如图13-84所示。</p>
 <figure class="inline-figure"><img alt="图13-83 开启 JustTrustMe" loading="lazy" src="figures/ch13/fig-13_83.jpg"/><figcaption>图13-83 开启 JustTrustMe</figcaption></figure>
@@ -975,7 +1021,11 @@ pip3 install frida-dexdump</code></pre>
 <p class="content-text list-like">博客园网站上的“VMP壳基础原理”文章。</p>
 </section>
 <div class="section-heading" id="section-7"><h2>13.8 利用 IDA Pro 静态分析和动态调试 so 文件</h2></div>
-<p class="content-text">我们已经初步了解了一些逆向相关的知识,通过jadx-gui 和JEB等工具,我们可以成功把 apk 文件中的Java代码反编译出来,在此基础上就可以查看实现逻辑了。但这个反编译过程仅仅停留在Java层面,这是什么意思呢?本节我们来详细解释一下。在Java中有一个叫作JNI的东西,它的全称是 Java Native Interface,即Java本地接口,这是 Java调用Native 语言的一种特性(这里说的Native 语言通常指 C/C++)。有了JNI,Java就可以调用由 C/C++编写的代码了。JNI是Java语言里本身就存在的,由于Android 代码是基于Java编写的,因此Android 自然也能使用JNI 调用C/C++编写的代码。使用JNI有什么好处呢?对一些Android App来说,其中一个很大的好处便是可以提升防护等级,因为使用C/C++编写好某个代码逻辑后,这部分代码会被编译到一个以so为名字后缀的文件(例如libnative.so文件)中,然后Java层需要直接加载该so文件并调用so文件暴露出来的方法来得到某个结果。重要的是,如果仅通过jadx-gui反编译,是无法把这个 so文件还原成原来的C/C++代码的,因为jadx-gui只能处理到Java层,对Native层则无能为力。换言之,如果某个加密算法是在 Native 层实现的,那么仅依靠反编译是无法知晓其中的真正逻辑的,这就进一步提高了逆向的难度。那要想还原 so文件中原本的C/C++代码,有办法吗?有,但不能是反编译了,需要用反汇编。其实,还原完整的C/C++代码几乎是不可能实现的,但我们可以通过一些反汇编工具得到底层的汇编代码,我们可以通过这些代码的执行逻辑大致还原出对应的C/C++代码。那有什么工具可以做到这一点呢?目前比较流行的就是IDA Pro工具。本节我们会以一个实现了 Native 层参数加密的App为例,初步分析其基本情况,然后试着用 IDA Pro逆向它并还原so文件中的逻辑。在这个过程中,我们需要用IDA Pro工具对so文件进行静态分析和动态调试,以便更好地理解 so文件中隐含的逻辑。</p>
+<p class="content-text">我们已经初步了解了一些逆向相关的知识,通过jadx-gui 和JEB等工具,我们可以成功把 apk 文件中的Java代码反编译出来,在此基础上就可以查看实现逻辑了。但这个反编译过程仅仅停留在Java层面,这是什么意思呢?本节我们来详细解释一下。</p>
+<p class="content-text">在Java中有一个叫作JNI的东西,它的全称是 Java Native Interface,即Java本地接口,这是 Java调用Native 语言的一种特性(这里说的Native 语言通常指 C/C++)。有了JNI,Java就可以调用由 C/C++编写的代码了。JNI是Java语言里本身就存在的,由于Android 代码是基于Java编写的,因此Android 自然也能使用JNI 调用C/C++编写的代码。</p>
+<p class="content-text">使用JNI有什么好处呢?对一些Android App来说,其中一个很大的好处便是可以提升防护等级,因为使用C/C++编写好某个代码逻辑后,这部分代码会被编译到一个以so为名字后缀的文件(例如libnative.so文件)中,然后Java层需要直接加载该so文件并调用so文件暴露出来的方法来得到某个结果。重要的是,如果仅通过jadx-gui反编译,是无法把这个 so文件还原成原来的C/C++代码的,因为jadx-gui只能处理到Java层,对Native层则无能为力。换言之,如果某个加密算法是在 Native 层实现的,那么仅依靠反编译是无法知晓其中的真正逻辑的,这就进一步提高了逆向的难度。</p>
+<p class="content-text">那要想还原 so文件中原本的C/C++代码,有办法吗?有,但不能是反编译了,需要用反汇编。其实,还原完整的C/C++代码几乎是不可能实现的,但我们可以通过一些反汇编工具得到底层的汇编代码,我们可以通过这些代码的执行逻辑大致还原出对应的C/C++代码。目前比较流行的工具就是IDA Pro。</p>
+<p class="content-text">本节我们会以一个实现了 Native 层参数加密的App为例,初步分析其基本情况,然后试着用 IDA Pro逆向它并还原so文件中的逻辑。在这个过程中,我们需要用IDA Pro工具对so文件进行静态分析和动态调试,以便更好地理解 so文件中隐含的逻辑。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. IDA Pro 的简介</h3>
 <p class="content-text">IDA Pro 的英文全称是 Interactive Disassembler Professional,即交互式反汇编器专业版,大家也称之为IDA。它由一家总部位于比利时的Hex-Rayd公司开发,功能十分强大,是目前流行的反汇编软件之一,也是安全分析人士必备的一款软件。IDA Pro 最重要的功能便是可以将二进制文件中的机器代码(如010101)转化成汇编代码,甚至可以进一步根据汇编代码的执行逻辑还原出高级语言(如C/C++)编写的代码,从而大大提高代码的可读性。IDA Pro不仅仅局限于分析 Android中的so文件,它可以处理和分析几乎所有的二进制文件,Windows、DOS、Unix、Linux、Mac、Java、.NET等平台的二进制文件都不在话下。另外,IDA Pro提供了图形界面和强大的调试功能,利用它我们可以直观地实时调试和分析二进制文件。除了这些,IDA Pro 还提供开放式的插件架构,我们可以编写自定义的插件轻松扩展其功能。总之,IDA Pro 是一款极其强大的反汇编软件,已经成为业界安全分析必不可少的一个工具,更多介绍可以查看IDA Pro的官网。</p>
@@ -1027,12 +1077,17 @@ System.loadLibrary("native");
 <p class="content-text">之后原来的汇编代码就被还原成了C语言代码,如图13-108所示。</p>
 <figure class="inline-figure"><img alt="图13-108 还原成的C语言代码" loading="lazy" src="figures/ch13/fig-13_108.jpg"/><figcaption>图13-108 还原成的C语言代码</figcaption></figure>
 <p class="content-text">整体代码其实并不多,我们可以分析一下,首先是一个很长的方法调用,而且这个调用连续出现了很多次,类似下面这样:</p>
-<pre class="code-block"><code>std::_ndk1::basic_string&lt;char, std:: _ndk1::char_traits&lt;char&gt;, std:: _ndk1::allocator&lt;char&gt;&gt;::~basic_string</code></pre>
-<p class="content-text">(&amp;v20);这里其实就是调用了 ndk 中的basic_string方法,功能是把v20变量转换成一个字符串。另外,代码中还有几个看不出具体逻辑的方法,例如sub_F804、sub_F850等,我们可以逐个点进去看看,这里点开 sub_F804方法:</p>
+<pre class="code-block"><code>std::_ndk1::basic_string&lt;char, std:: _ndk1::char_traits&lt;char&gt;, std:: _ndk1::allocator&lt;char&gt;&gt;::~basic_string
+(&amp;v20);</code></pre>
+<p class="content-text">这里其实就是调用了 ndk 中的basic_string方法,功能是把v20变量转换成一个字符串。另外,代码中还有几个看不出具体逻辑的方法,例如sub_F804、sub_F850等,我们可以逐个点进去看看,这里点开 sub_F804方法:</p>
 <pre class="code-block"><code>int _fastcall sub_F804(int a1, int a2)
-{</code></pre>
-<p class="content-text"> unsigned int v2; // ST08_4 int v3; // ro int result; // 10 int v5; // ro int v6; // [sp+Ch] [bp-14h]</p>
-<pre class="code-block"><code>v6 = a1;
+{
+unsigned int v2; // ST08_4
+int v3; // ro
+int result; // 10
+int v5; // ro
+int v6; // [sp+Ch] [bp-14h]
+v6 = a1;
 v2 = *(_DWORD *)(a1 + 4);
 if (v2 &gt;= *(_DWORD *)sub_109FE())
 {
@@ -1042,9 +1097,9 @@ result = std::_ndk1::vector&lt;std:: _ndk1::basic_string&lt;char, std:: _ndk1::c
 std:: : _ndk1:: allocator&lt;char&gt;&gt;, std:: _ndk1:: allocator&lt;std:: _ndk1::basic_string&lt;char,
 std::_ndk1::char_traits&lt;char&gt;, std:: _ndk1:: allocator&lt;char&gt;&gt;&gt;&gt;::_push_back_slow_path&lt;
 std::_ndk1::basic_string&lt;char, std:: _ndk1::char_traits&lt;char&gt;,
-std:: ndk1::allocator&lt;char&gt;&gt;&gt;(v6,v5);</code></pre>
-<p class="content-text">    else</p>
-<pre class="code-block"><code>{
+std:: ndk1::allocator&lt;char&gt;&gt;&gt;(v6,v5);
+else
+{
 sub_10AA0();
 result = std:: _ndk1::vector&lt;std:: _ndk1::basic_string&lt;char, std:: _ndk1::char_traits&lt;char&gt;,
 std::_ndk1::allocator&lt;char&gt;&gt;, std:: _ndk1::allocator&lt;std:: _ndk1::basic_string&lt;char,
@@ -1056,11 +1111,23 @@ return result;
 }</code></pre>
 <p class="content-text">因为生成的是伪代码,所以有些语句并不完全符合代码的编写规范,经分析,sub 10AA0 是一个空实现,if 分支和 else 分支分别调用_push_back_slow_path 方法和_construct_one_at_end 方法得到了返回结果 result。查阅相关文档(如LLVM的文档)后,发现sub_F804方法就是列表的 push_back方法,功能是把a2指向的变量添加到a1指向的列表变量里。对其他方法,可以按照类似的逻辑分析,例如这个调用:</p>
 <pre class="code-block"><code>std::_ndk1::basic_string&lt;char, std:: _ndk1::char_traits&lt;char&gt;, std::_ndk1:: allocator&lt;char&gt;&gt;::basic_string
-&lt;decltype(nullptr)&gt;(</code></pre>
-<p class="content-text"> &amp;v19,"9fdLnciVh4FxQbri");</p>
-<pre class="code-block"><code>sub_F804((int)&amp;v21, (int)&amp;v19);</code></pre>
-<p class="content-text">可以看到,这里先通过 basic_string 把一个常量字符串 9fdLnciVh4FxQbri 赋值给 v19变量,接着调用sub_F804 方法把v19代表的字符串插入v21指向的列表尾部。再往后,还可以观察到对 time、join、sha1、b64encode 方法的调用,虽然我们不能完全确定这些方法的实现细节,但大致可以推测出一些相关的逻辑是怎样实现的。现在我们大概总结一下 encrypt 方法的实现流程。(1)初始化一个空列表 v21。</p>
-<p class="content-text">(2) 把 a3 赋值给 v5,然后转化为字符串赋值给v20,再将其插入 v21 列表的尾部。(3)把字符串 9fdLnciVh4FxQbri 赋值给v19,然后插入v21列表的尾部。(4) 把 a4 赋值给v6,然后转化为字符串赋值给v18,再将其插入v21列表的尾部。(5) 获取当前时间戳v7,然后转化为字符串赋值给v17,再将其插入v21 列表的尾部。(6) 调用 join 方法将v21列表中的元素拼接在一起,拼接字符对应的ASCII码是44,即拼接字符是一个逗号,把拼接结果赋值给 v15。(7) 调用 v15 的sha1方法,把结果赋值为v16。(8) 接着按同样的逻辑,初始化一个空列表 v14,然后把v16和时间戳v17插入这个列表的尾部。(9) 再次调用 join 方法将v14 中的元素拼接在一起,拼接字符依然是一个逗号,把拼接结果赋值给v13。(10)把 v13 转换为字符串,然后赋值给 v11。(11)对 v11 进行 Base64编码。(12)再进行一些字符串的赋值转换后,返回。以上是我们观察还原后的C/C++代码,并加以一些推敲后总结出的大致流程,但内部的具体细节我们还是不知道,例如进行的Base64编码是否标准,以及一些细节是否真的和我们推测的一样,这些都是待验证的。所以,我们接下来借助IDA Pro 的动态调试功能真正运行一下 encrypt 方法,看看整个过程是不是和我们想的一样。</p>
+&lt;decltype(nullptr)&gt;(
+&amp;v19,"9fdLnciVh4FxQbri");
+sub_F804((int)&amp;v21, (int)&amp;v19);</code></pre>
+<p class="content-text">可以看到,这里先通过 basic_string 把一个常量字符串 9fdLnciVh4FxQbri 赋值给 v19变量,接着调用sub_F804 方法把v19代表的字符串插入v21指向的列表尾部。再往后,还可以观察到对 time、join、sha1、b64encode 方法的调用,虽然我们不能完全确定这些方法的实现细节,但大致可以推测出一些相关的逻辑是怎样实现的。现在我们大概总结一下 encrypt 方法的实现流程。</p>
+<p class="content-text list-like">(1) 初始化一个空列表 v21。</p>
+<p class="content-text list-like">(2) 把 a3 赋值给 v5,然后转化为字符串赋值给v20,再将其插入 v21 列表的尾部。</p>
+<p class="content-text list-like">(3) 把字符串 9fdLnciVh4FxQbri 赋值给v19,然后插入v21列表的尾部。</p>
+<p class="content-text list-like">(4) 把 a4 赋值给v6,然后转化为字符串赋值给v18,再将其插入v21列表的尾部。</p>
+<p class="content-text list-like">(5) 获取当前时间戳v7,然后转化为字符串赋值给v17,再将其插入v21 列表的尾部。</p>
+<p class="content-text list-like">(6) 调用 join 方法将v21列表中的元素拼接在一起,拼接字符对应的ASCII码是44,即拼接字符是一个逗号,把拼接结果赋值给 v15。</p>
+<p class="content-text list-like">(7) 调用 v15 的sha1方法,把结果赋值为v16。</p>
+<p class="content-text list-like">(8) 接着按同样的逻辑,初始化一个空列表 v14,然后把v16和时间戳v17插入这个列表的尾部。</p>
+<p class="content-text list-like">(9) 再次调用 join 方法将v14 中的元素拼接在一起,拼接字符依然是一个逗号,把拼接结果赋值给v13。</p>
+<p class="content-text list-like">(10) 把 v13 转换为字符串,然后赋值给 v11。</p>
+<p class="content-text list-like">(11) 对 v11 进行 Base64编码。</p>
+<p class="content-text list-like">(12) 再进行一些字符串的赋值转换后,返回。</p>
+<p class="content-text">以上是我们观察还原后的C/C++代码,并加以一些推敲后总结出的大致流程,但内部的具体细节我们还是不知道,例如进行的Base64编码是否标准,以及一些细节是否真的和我们推测的一样,这些都是待验证的。所以,我们接下来借助IDA Pro 的动态调试功能真正运行一下 encrypt 方法,看看整个过程是不是和我们想的一样。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 动态调试</h3>
@@ -1151,8 +1218,7 @@ print('response', response.json())</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text">本节我们介绍了使用IDA Pro 工具对 so文件进行逆向分析的过程,直接还原出了so文件中的算</p>
-<p class="content-text">法并实现了数据爬取,整个难度其实不小。当然,本节主要介绍的是利用IDA Pro逆向分析 Android App的基本流程,其功能远不止这个,更多强大的功能等待着你的探索。本节代码见 https://github.com/Python3WebSpider/ScrapeApp8。</p>
+<p class="content-text">本节我们介绍了使用IDA Pro 工具对 so文件进行逆向分析的过程,直接还原出了so文件中的算法并实现了数据爬取,整个难度其实不小。当然,本节主要介绍的是利用IDA Pro逆向分析 Android App的基本流程,其功能远不止这个,更多强大的功能等待着你的探索。本节代码见 https://github.com/Python3WebSpider/ScrapeApp8。</p>
 </section>
 <div class="section-heading" id="section-8"><h2>13.9 基于 Frida-RPC 模拟执行 so 文件</h2></div>
 <p class="content-text">在13.8节中,我们使用IDA Pro对 so文件进行了逆向处理,还原了其中的一些逻辑,把汇编代码转化为了可读性更好的C/C++代码,再加以适当的动态调试,便找出了so文件中隐含的加密算法。但so文件本身也可以设置一定的保护措施。我们已经在11.1节了解了JavaScript 的混淆机制,混淆之后的JavaScript代码可读性变得非常差,会给我们分析带来很大的难度。同理,如果在so文件中添加了一些混淆机制,那么so文件内部的代码逻辑也会进一步变得不可读,即使把其内容转化为C/C++代码,也难以阅读和分析,这就是Native层的混淆。在Native 层实现混淆,常用的技术是OLLVM,即针对LLVM的代码混淆工具。</p>
@@ -1249,21 +1315,23 @@ for i in range(MAX_PAGE):
 <p class="content-text">本节介绍利用 AndServer-RPC模拟执行so文件的过程。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. AndServer 的简介</h3>
-<p class="content-text"> 平时我们编写服务器脚本,代码都是运行在电脑上的。例如写一个简单的Flask 服务器脚本,就需要在电脑上运行该脚本来启动对应的服务。那服务器能不能直接运行在手机上呢?答案是肯定的。AndServer 是可以运行Android 手机上的一个HTTP服务器,其实就是一个Android 的第三方包,我们可以开发一个 Android App 后将其引入,再将其提供的服务器功能设置为随之启用,并指定运行的端口,这样在App启动的时候就可以在Android手机上启动一个HTTP 服务了。AndServer 包是基于Java编写的,在Java 生态中有一个非常流行的服务器框架叫作 SpringMVC,不过它是运行在电脑端的。AndServer 借鉴了 SpringMVC的一些设计思路,具有和其相似的功能,例如利用注解(Annotations)来定义一些路由规则和处理规则,使用起来非常方便。那 AndServer 和我们本节要讲的内容有什么关系呢?接下来我们详细看一下。</p>
+<p class="content-text">平时我们编写服务器脚本,代码都是运行在电脑上的。例如写一个简单的Flask 服务器脚本,就需要在电脑上运行该脚本来启动对应的服务。那服务器能不能直接运行在手机上呢?答案是肯定的。AndServer 是可以运行Android 手机上的一个HTTP服务器,其实就是一个Android 的第三方包,我们可以开发一个 Android App 后将其引入,再将其提供的服务器功能设置为随之启用,并指定运行的端口,这样在App启动的时候就可以在Android手机上启动一个HTTP 服务了。AndServer 包是基于Java编写的,在Java 生态中有一个非常流行的服务器框架叫作 SpringMVC,不过它是运行在电脑端的。AndServer 借鉴了 SpringMVC的一些设计思路,具有和其相似的功能,例如利用注解(Annotations)来定义一些路由规则和处理规则,使用起来非常方便。那 AndServer 和我们本节要讲的内容有什么关系呢?接下来我们详细看一下。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 基本思路</h3>
-<p class="content-text"> 由于 so文件有其特定的指令架构,因此我们不能直接在电脑上调用和执行它,而so文件又隐含了我们想要的 token结果,那么在Android 端模拟执行so文件后,怎么能把结果方便地暴露出来呢?在13.9节,我们通过Frida 成功在电脑上拿到了so文件的执行结果,那这里的AndServer,其实就是换了一个暴露结果的思路,即通过HTTP接口把结果暴露出来。通过以上介绍我们可以发现,AndServer 相当于在手机上启动了一个HTTP 服务器,这个服务器内部可以直接调用App中的方法得到结果并返回。参数怎么传递呢?很简单,通过HTTP请求的参数传递即可,例如我们已经了解到 encrypt 方法接收 string 和 offset 参数,那我们就可以把这两个参数映射为 HTTP中URL的参数或者请求体。执行结果怎么返回呢?很自然地,通过响应结果返回就好了。我们现在相当于借助AndServer 把 Android App 中的方法包装了一下,提供了HTTP服务。有了HTTP 服务后,我们就可以通过requests 等库传入对应的参数来获取 token 结果了,而这个 token 本质上是App 调用so文件产生的,算是一个模拟执行的过程,我们可以将这整个过程称为AndServer-RPC。</p>
+<p class="content-text">由于 so文件有其特定的指令架构,因此我们不能直接在电脑上调用和执行它,而so文件又隐含了我们想要的 token结果,那么在Android 端模拟执行so文件后,怎么能把结果方便地暴露出来呢?在13.9节,我们通过Frida 成功在电脑上拿到了so文件的执行结果,那这里的AndServer,其实就是换了一个暴露结果的思路,即通过HTTP接口把结果暴露出来。</p>
+<p class="content-text">通过以上介绍我们可以发现,AndServer 相当于在手机上启动了一个HTTP 服务器,这个服务器内部可以直接调用App中的方法得到结果并返回。参数可以通过HTTP请求传递,例如把 encrypt 方法接收的 string 和 offset 映射为 URL 参数或者请求体;执行结果则通过响应返回。</p>
+<p class="content-text">我们现在相当于借助AndServer 把 Android App 中的方法包装了一下,提供了HTTP服务。有了HTTP 服务后,我们就可以通过requests 等库传入对应的参数来获取 token 结果了,而这个 token 本质上是App 调用so文件产生的,算是一个模拟执行的过程,我们可以将这整个过程称为AndServer-RPC。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 准备工作</h3>
-<p class="content-text"> 本节的示例 App 和13.9节的一样。我们使用jadx-gui 反编译其scrape-app9.apk apk文件,之后可以看到对应的so文件,如图13-135所示。将反编译后的项目导出,保存其中的lib目录,以备下面使用。然后准备一台Android 手机,模拟器和真机均可,将其和电脑连接,并确保能在电脑上使用adb 命令访问到该 Android 手机。</p>
+<p class="content-text">本节的示例 App 和13.9节的一样。我们使用jadx-gui 反编译其scrape-app9.apk apk文件,之后可以看到对应的so文件,如图13-135所示。将反编译后的项目导出,保存其中的lib目录,以备下面使用。然后准备一台Android 手机,模拟器和真机均可,将其和电脑连接,并确保能在电脑上使用adb 命令访问到该 Android 手机。</p>
 <figure class="inline-figure"><img alt="图13-135 App9反编译结果" loading="lazy" src="figures/ch13/fig-13_135.jpg"/><figcaption>图13-135 App9反编译结果</figcaption></figure>
-<p class="content-text"> 本节会开发一个 Android App,所以请确保正确配置好了 An Android开发环境,具体的配置方式可以参考https://setup.scrape.center/android。</p>
+<p class="content-text">本节会开发一个 Android App,所以请确保正确配置好了 An Android开发环境,具体的配置方式可以参考https://setup.scrape.center/android。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. App 的初始化</h3>
-<p class="content-text"> 我们首先创建一个Android App。打开 Android Studio,新建一个空白项目,包名可以随意取,这里我把App名称取为AndServerTest,包名取为 com.germey.andservertest,如图13-136所示。</p>
+<p class="content-text">我们首先创建一个Android App。打开 Android Studio,新建一个空白项目,包名可以随意取,这里我把App名称取为AndServerTest,包名取为 com.germey.andservertest,如图13-136所示。</p>
 <figure class="inline-figure"><img alt="图13-136 创建一个 Android App" loading="lazy" src="figures/ch13/fig-13_136.jpg"/><figcaption>图13-136 创建一个 Android App</figcaption></figure>
 <p class="content-text">做一些项目的初始化工作。接着就需要将刚才准备好的 so文件放到本项目中了,这里我把整个 lib 目录放置在 app 目录下,代码结构如图 13-137 所示。另外我们需要修改一下 build.gradle 文件,在 android 声明的部分添加对这个 lib 目录的引用,定义一个 sourceSets 的声明,代码如下:</p>
 <pre class="code-block"><code>android {
@@ -1277,7 +1345,9 @@ for i in range(MAX_PAGE):
 <figure class="inline-figure"><img alt="图13-137 所创建 App 的代码结构" loading="lazy" src="figures/ch13/fig-13_137.jpg"/><figcaption>图13-137 所创建 App 的代码结构</figcaption></figure>
 <p class="content-text">so 文件已经准备就绪,那应该怎么调用它呢?具体的调用参数和方法名又怎么写呢?一个比较好的方法是从原来的 App 里找出对应的调用逻辑,然后把调用相关的定义复制到当前的 App 项目中。使用 jadx-gui 反编译原来的 apk 文件,我们可以从结果中搜索关键字轻松找到对 libnative.so 文件的调用声明,如图 13-138 所示。</p>
 <figure class="inline-figure"><img alt="图13-138 源码中调用so文件的地方" loading="lazy" src="figures/ch13/fig-13_138.jpg"/><figcaption>图13-138 源码中调用so文件的地方</figcaption></figure>
-<p class="content-text">在图13-138中,有一个NativeUtils类,这个类在com.goldze.mvvmhabit.utils 包中。NativeUtils类里定义了一个 encrypt方法,接收参数 str 和i。这个encrypt方法前面有一个 native 关键字,证明真正的方法定义在Native层,逻辑定义其实就在so文件中。我们使用IDA Pro对 so文件进行逆向,可以找到 so文件中定义的入口方法 Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt,其方法命名是有一定规律的,就是把Java代码中的包名、类名、方法名都用下划线连接起来,对应的其实是刚才所说的 encrypt方法的真实定义。在Java层调用encrypt方法,就相当于调用了so文件中对应的Native 层的 Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt 方法,后者的参数和前者的参数一一对应,后者的执行结果会被回传给前者,最后前者返回的结果就是后者的执行结果。所以,如果我们想在刚才创建的App里完全模拟对 so文件的调用,就需要遵循其调用规范,即包名、类名、方法名要和so文件中的Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt 方法对应起来。于是我们创建一个com.goldze.mvvmhabit.utils包,然后定义一个 NativeUtils类,再在NativeUtils 类中定义一个 encrypt方法,其实就是把原来App中的定义原封不动地复制到新的App项目中。最终新的App项目变成了如图13-139所示的这样。</p>
+<p class="content-text">在图13-138中,有一个NativeUtils类,这个类在com.goldze.mvvmhabit.utils 包中。NativeUtils类里定义了一个 encrypt方法,接收参数 str 和i。这个encrypt方法前面有一个 native 关键字,证明真正的方法定义在Native层,逻辑定义其实就在so文件中。</p>
+<p class="content-text">我们使用IDA Pro对 so文件进行逆向,可以找到 so文件中定义的入口方法 Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt,其方法命名是有一定规律的,就是把Java代码中的包名、类名、方法名都用下划线连接起来,对应的其实是刚才所说的 encrypt方法的真实定义。在Java层调用encrypt方法,就相当于调用了so文件中对应的Native 层的 Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt 方法,后者的参数和前者的参数一一对应,后者的执行结果会被回传给前者,最后前者返回的结果就是后者的执行结果。</p>
+<p class="content-text">所以,如果我们想在刚才创建的App里完全模拟对 so文件的调用,就需要遵循其调用规范,即包名、类名、方法名要和so文件中的Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt 方法对应起来。于是我们创建一个com.goldze.mvvmhabit.utils包,然后定义一个 NativeUtils类,再在NativeUtils 类中定义一个 encrypt方法,其实就是把原来App中的定义原封不动地复制到新的App项目中。最终新的App项目变成了如图13-139所示的这样。</p>
 <figure class="inline-figure"><img alt="图13-139 所创建App的最终内容" loading="lazy" src="figures/ch13/fig-13_139.jpg"/><figcaption>图13-139 所创建App的最终内容</figcaption></figure>
 <p class="content-text">至此,我们已经成功引入了 so文件,调用方法也声明好了。下面我们就引入 AndServer 来调用 so文件,并将结果通过 HTTP 服务器暴露出来。</p>
 </section>
@@ -1405,7 +1475,9 @@ public class AppController {
         return new JSONObject(map);
     }
 }</code></pre>
-<p class="content-text">这里我们引入了@RestController、@QueryParam 和@GetMapping 三个注解,其用法类似 Python 中的装饰器,我们将 @RestController 注解作用在AppController类上,同时声明一个login方法,并将@GetMapping 注解作用在login方法上,绑定对应的路由。login 方法接收两个参数,一个是string,另一个是offset,方法中会直接调用我们刚才声明的NativeUtils 类中的encrypt方法,得到sign的内容,最后以JSONObject 形式返回sign 的值。经过这样的定义,我们就利用AndServer 创建可以接收 GET请求的服务,URL 路径也是encrypt,查询字符串参数是 string 和 offset,返回结果是一个JSON 字符串。整个AndServer 就实现完毕了,我们在手机上运行一下整个App,打开的页面如图13-140所示。可以看到页面中间有一个“START SERVER”按钮,同时下方显示“The server is stopped”的字样。我们点击“START SERVER”按钮,即可看到页面变成图13-141所示的这样。</p>
+<p class="content-text">这里我们引入了@RestController、@QueryParam 和@GetMapping 三个注解,其用法类似 Python 中的装饰器。我们将 @RestController 注解作用在AppController类上,同时声明一个login方法,并将@GetMapping 注解作用在login方法上,绑定对应的路由。</p>
+<p class="content-text">login 方法接收两个参数,一个是string,另一个是offset,方法中会直接调用我们刚才声明的NativeUtils 类中的encrypt方法,得到sign的内容,最后以JSONObject 形式返回sign 的值。经过这样的定义,我们就利用AndServer 创建可以接收 GET请求的服务,URL 路径也是encrypt,查询字符串参数是 string 和 offset,返回结果是一个JSON 字符串。</p>
+<p class="content-text">整个AndServer 就实现完毕了,我们在手机上运行一下整个App,打开的页面如图13-140所示。可以看到页面中间有一个“START SERVER”按钮,同时下方显示“The server is stopped”的字样。我们点击“START SERVER”按钮,即可看到页面变成图13-141所示的这样。</p>
 <figure class="inline-figure"><img alt="图13-140 AndServerTest App 的运行页面" loading="lazy" src="figures/ch13/fig-13_140.jpg"/><figcaption>图13-140 AndServerTest App 的运行页面</figcaption></figure>
 <figure class="inline-figure"><img alt="图13-141 点击 “START SERVER” 按钮的结果" loading="lazy" src="figures/ch13/fig-13_141.jpg"/><figcaption>图13-141 点击 “START SERVER” 按钮的结果</figcaption></figure>
 <p class="content-text">可以看到按钮下方的文字变成了“The server is started”,这就证明 AndServer 启动成功了。接下来打开手机上的浏览器,试着访问一下 8080 端口的服务,输入http://localhost:8080/encrypt?string=test&amp;offset=0,显示的页面如图13-142所示。</p>
@@ -1433,10 +1505,14 @@ for i in range(MAX_PAGE):
     index_url = INDEX_URL.format(limit=LIMIT, offset=offset, token=token)
     response = requests.get(index_url)
     print('response', response.json())</code></pre>
-<p class="content-text">这里我们定义了一个 get_token 方法,接收string 和 offset 两个参数,内部逻辑就是构造刚才AndServer 提供的请求URL,然后使用 requests 库请求这个URL,并将响应结果转为JSON字符串,最后提取出 sign值,即token。利用 get_token 方法得到 token 之后,我们就可以构造用来请求列表页的URL,继而爬取列表页的数据了。现在试着运行一下 spider.py 脚本,运行结果如下:requests.exceptions.ConnectionError: HTTPConnectionPool (host='localhost', port=8080): Max retries exceeded</p>
-<pre class="result-block"><code>with url: /encrypt?string=/api/movie&amp;offset=0 (Caused by
-NewConnectionError('&lt;urllib.connection.HTTPConnection object at 0x7fd7f0104450&gt;: Failed to establish a new</code></pre>
-<p class="content-text">connection: [Errno 61] Connection refused'))可以发现发生了错误,请求被拒绝了,这是因为AndServer 是运行在 Android 手机上的,只有在手机上才能访问到 localhost:8080,而脚本是在电脑上运行的。解决办法其实很简单,我们只需要使用adb 命令配置一下端口转发就好了:adb forward tcp:8080 tcp:8080执行这个命令之后,电脑上8080端口收到的请求,就会被转发到手机上的8080端口,这样在电脑上访问8080端口就相当于访问手机上的8080端口了。重新运行spider.py脚本,运行结果如下:</p>
+<p class="content-text">这里我们定义了一个 get_token 方法,接收string 和 offset 两个参数,内部逻辑就是构造刚才AndServer 提供的请求URL,然后使用 requests 库请求这个URL,并将响应结果转为JSON字符串,最后提取出 sign值,即token。利用 get_token 方法得到 token 之后,我们就可以构造用来请求列表页的URL,继而爬取列表页的数据了。现在试着运行一下 spider.py 脚本,运行结果如下:</p>
+<pre class="result-block"><code>requests.exceptions.ConnectionError: HTTPConnectionPool (host='localhost', port=8080): Max retries exceeded
+with url: /encrypt?string=/api/movie&amp;offset=0 (Caused by
+NewConnectionError('&lt;urllib.connection.HTTPConnection object at 0x7fd7f0104450&gt;: Failed to establish a new
+connection: [Errno 61] Connection refused'))</code></pre>
+<p class="content-text">可以发现发生了错误,请求被拒绝了,这是因为AndServer 是运行在 Android 手机上的,只有在手机上才能访问到 localhost:8080,而脚本是在电脑上运行的。解决办法其实很简单,我们只需要使用adb 命令配置一下端口转发就好了:</p>
+<pre class="code-block"><code>adb forward tcp:8080 tcp:8080</code></pre>
+<p class="content-text">执行这个命令之后,电脑上8080端口收到的请求,就会被转发到手机上的8080端口,这样在电脑上访问8080端口就相当于访问手机上的8080端口了。重新运行spider.py脚本,运行结果如下:</p>
 <pre class="result-block"><code>response {'count': 100, 'results': [{'id': 1, 'name':'霸王别姬', 'alias': 'Farewell My Concubine', 'cover':
 'https://po.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c', 'categories': ['剧情','爱情'], 'published_at': '1993-07-26', 'minute': 171, 'score': 9.5, 'regions': ['中国大陆','中国香港'], 'drama':
 {'id': 10, 'name':'狮子王','alias': 'The Lion King', 'cover': 'https://po.meituan.net/movie/
@@ -1499,18 +1575,28 @@ public class NativeUtils {
     }
 }</code></pre>
 <p class="content-text">这里的写法可能看起来比较陌生,不用着急,我会一点点讲其中的原理。首先可以看到,在NativeUtils 类中调用了一些 unidbg 提供的类,有AndroidEmulator、DvmClass、VM、DalvikModule、Memory等。</p>
-<p class="content-text">❑ AndroidEmulator:顾名思义,这代表 Android 进程模拟器,emulator 就是一个 Android 进程模拟器对象。</p>
+<p class="content-text list-like"><strong class="term-label">AndroidEmulator:</strong>顾名思义,这代表 Android 进程模拟器,emulator 就是一个 Android 进程模拟器对象。</p>
 <p class="content-text list-like">Memory:代表内存,利用它我们可以定义一个模拟器的内存操作接口,例如调用它的 malloc方法可以分配内存空间,调用getStackSize 方法可以获取内存栈的大小。</p>
 <p class="content-text list-like">VM:代表虚拟机(Virtual Machine),我们可以调用AndroidEmulator 对象的 createDalvikVM方法创建一个 Dalvik 虚拟机对象,有了这个虚拟机后,我们就可以模拟加载so文件了。</p>
 <p class="content-text list-like">DalvikModule:代表 Dalvik 模块,VM对象可以调用loadLibrary 方法把 so文件加载到虚拟内存中,其返回结果就是一个Dalvik 模块对象,我们可以模拟调用该对象的JNI_OnLoad 方法执行一些 so文件的加载和初始化工作。</p>
-<p class="content-text list-like">DvmClass:可以把它视为Java 层的Class 对象。调用VM对象的 resolveClass方法并传入我们定义好的Java类的路径,该方法便会返回一个Java类的操作对象,即DvmClass 对象。通过DvmClass 对象的一些方法(如callStaticJniMethodObject),我们就可以调用Native方法了。直接看上述内容,可能比较难理解。如果想深入了解,可以多看 unidbg、unicorn 的源码,或者学习 Android 虚拟机的一些基础知识。所以,NativeUtils 类的构造方法的实现流程基本分如下几步。(1)利用 AndroidEmulatorBuilder 类创建一个模拟器对象 emulator,这里使用 setProcessName 方法指定了App9的包名。(2)声明一个 Memory对象,这里使用 setLibraryResolver 指定了其适配哪个版本的 Android SDK,这里指定的版本是23。unidbg目前提供对19和23这两个 Android SDK 的支持,这里使用23,对应Android 6.0。(3)调用 emulator 变量的 createDalvikVM 方法创建一个 Dalvik 虚拟机对象,赋值为vm。(4)利用vm变量的loadLibrary 方法加载so文件,这里我们直接指定了一个File 对象,并指定了 so文件的路径,createDalvikVM 方法的返回结果是一个 DalvikModule 对象,将其赋值为dm变量。(5) 调用dm变量的JNI_OnLoad 方法执行一些so文件的加载和初始化工作。(6) 调用vm变量的 resolveClass 方法返回一个Java类的操作对象,即DvmClass对象,赋值为cls变量。以上流程完成后,我们就可以利用cls 变量调用so文件中的方法了。我们再在NativeUtils 类中增加一个调用方法,代码如下:</p>
+<p class="content-text list-like"><strong class="term-label">DvmClass:</strong>可以把它视为Java 层的Class 对象。调用VM对象的 resolveClass方法并传入我们定义好的Java类的路径,该方法便会返回一个Java类的操作对象,即DvmClass 对象。通过DvmClass 对象的一些方法(如callStaticJniMethodObject),我们就可以调用Native方法了。</p>
+<p class="content-text">直接看上述内容,可能比较难理解。如果想深入了解,可以多看 unidbg、unicorn 的源码,或者学习 Android 虚拟机的一些基础知识。所以,NativeUtils 类的构造方法的实现流程基本分如下几步。</p>
+<p class="content-text list-like">(1) 利用 AndroidEmulatorBuilder 类创建一个模拟器对象 emulator,这里使用 setProcessName 方法指定了App9的包名。</p>
+<p class="content-text list-like">(2) 声明一个 Memory对象,这里使用 setLibraryResolver 指定了其适配哪个版本的 Android SDK,这里指定的版本是23。unidbg目前提供对19和23这两个 Android SDK 的支持,这里使用23,对应Android 6.0。</p>
+<p class="content-text list-like">(3) 调用 emulator 变量的 createDalvikVM 方法创建一个 Dalvik 虚拟机对象,赋值为vm。</p>
+<p class="content-text list-like">(4) 利用vm变量的loadLibrary 方法加载so文件,这里我们直接指定了一个File 对象,并指定了 so文件的路径,createDalvikVM 方法的返回结果是一个 DalvikModule 对象,将其赋值为dm变量。</p>
+<p class="content-text list-like">(5) 调用dm变量的JNI_OnLoad 方法执行一些so文件的加载和初始化工作。</p>
+<p class="content-text list-like">(6) 调用vm变量的 resolveClass 方法返回一个Java类的操作对象,即DvmClass对象,赋值为cls变量。</p>
+<p class="content-text">以上流程完成后,我们就可以利用cls 变量调用so文件中的方法了。我们再在NativeUtils 类中增加一个调用方法,代码如下:</p>
 <pre class="code-block"><code>public String encrypt(String string, int offset) {
 DvmObject&lt;?&gt; result = cls.callStaticJniMethodObject(emulator,
 "encrypt(Ljava/lang/String;) Ljava/lang/String",
 vm.addLocalObject(new StringObject(vm, string)), offset);
 return (String) result.getValue();
 }</code></pre>
-<p class="content-text">这里我们定义了一个 encrypt 方法,接收 string 和 offset 参数,因为其在 so 文件中对应的Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt方法就是接收 string 和 offset参数。方法中我们调用cls 的 callStaticJniMethodObject 方法实现了对 Native 方法的调用,第一个参数是模拟器对象,第二个参数是要调用的Native 方法的名称,即encrypt,之后的参数就是这个 encrypt方法的参数。对于String类型的参数,这里我们使用vm变量的 addLocalObject方法创建了一个代表字符串类型的参数。对于 int 类型的参数,则可以直接传入。callStaticJniMethodObject方法返回的是一个DvmObject 对象,通过调用这个对象的getValue方法我们就能得到 Native 方法 encrypt 最终的返回结果了,这里我们加了一个强制类型转换,把返回结果转换成了字符串类型。最后我们来测试一下,在NativeUtils 类中添加一个main方法:</p>
+<p class="content-text">这里我们定义了一个 encrypt 方法,接收 string 和 offset 参数,因为其在 so 文件中对应的Java_com_goldze_mvvmhabit_utils_NativeUtils_encrypt方法就是接收 string 和 offset参数。</p>
+<p class="content-text">方法中我们调用cls 的 callStaticJniMethodObject 方法实现了对 Native 方法的调用,第一个参数是模拟器对象,第二个参数是要调用的Native 方法的名称,即encrypt,之后的参数就是这个 encrypt方法的参数。对于String类型的参数,这里我们使用vm变量的 addLocalObject方法创建了一个代表字符串类型的参数。对于 int 类型的参数,则可以直接传入。</p>
+<p class="content-text">callStaticJniMethodObject方法返回的是一个DvmObject 对象,通过调用这个对象的getValue方法我们就能得到 Native 方法 encrypt 最终的返回结果了,这里我们加了一个强制类型转换,把返回结果转换成了字符串类型。最后我们来测试一下,在NativeUtils 类中添加一个main方法:</p>
 <pre class="code-block"><code>public static void main(String[] args) {
 NativeUtils utils = new NativeUtils();
 String token = utils.encrypt("/api/movie", 2);
@@ -1518,8 +1604,10 @@ System.out.println("token:" + token );
 }</code></pre>
 <p class="content-text">运行 NativeUtils 类,操作过程如图 13-147所示。</p>
 <figure class="inline-figure"><img alt="图13-147 运行 NativeUtils 类" loading="lazy" src="figures/ch13/fig-13_147.jpg"/><figcaption>图13-147 运行 NativeUtils 类</figcaption></figure>
-<p class="content-text">最终的运行结果如下:02:36:49.191 [main] DEBUG com.github.unidbg.AbstractEmulator emulate RX@0x4000f4e1[libnative.so]0xf4e1 finished sp=unidbg@0xbffff788, offset=20ms 02:36:49.192 [main] DEBUG com.github.unidbg.spi.AbstractLoader munmap aligned=0x1000, start=0x40192000,</p>
-<pre class="result-block"><code>base=0x40192000, size=4096
+<p class="content-text">最终的运行结果如下:</p>
+<pre class="result-block"><code>02:36:49.191 [main] DEBUG com.github.unidbg.AbstractEmulator emulate RX@0x4000f4e1[libnative.so]0xf4e1 finished sp=unidbg@0xbffff788, offset=20ms
+02:36:49.192 [main] DEBUG com.github.unidbg.spi.AbstractLoader munmap aligned=0x1000, start=0x40192000,
+base=0x40192000, size=4096
 token:ZWRmZDkxZjRmMjE2YWEONDU3OGI1YzU1ZThmMzdiODEzZTAxNDczZSwxNjI4MzYxNDA5</code></pre>
 <p class="content-text">可以看到结果中输出了最终的token值,我们成功模拟执行了 so文件。</p>
 </section>
@@ -1605,7 +1693,7 @@ for i in range(MAX_PAGE):
     response = requests.get(index_url)
     print('response', response.json())</code></pre>
 <p class="content-text">爬取结果和13.10节是一样的,这里不再赘述。</p>
-<p class="content-text">总结</p>
+<h3 class="subsection-heading numbered-heading">6. 总结</h3>
 <p class="content-text">本节中我们学习了利用 unidbg 模拟执行 so文件的方法,同时为了实现数据爬取,我们通过SpringBoot 暴露了模拟执行的结果,最后顺利通过 Python 脚本对接接口的方式爬取了数据。</p>
 <p class="content-text">本节内容其实仅用到了unidbg所有功能的冰山一角,要想深入了解更多内容,可以研究unidbg 的源码。</p>
 <p class="content-text">本节代码见 https://github.com/Python3WebSpider/UnidbgServer。</p>

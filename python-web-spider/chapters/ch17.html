@@ -34,8 +34,10 @@
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
 <p class="content-text">请确保本机或服务器已经正确安装好了 Scrapyd,安装命令如下:</p>
 <pre class="code-block"><code>pip3 install scrapyd</code></pre>
-<p class="content-text">更详细的安装流程可以参考:https://setup.scrape.center/scrapyd。安装并完成 Scrapyd 相应的配置之后,我们直接输入 scrapyd 即可启动对应的服务,命令如下:scrapyd运行之后,会有类似如下的输出:</p>
-<pre class="code-block"><code>[Launcher] Scrapyd 1.2.1 started: max_proc=8, runner='scrapyd.runner'</code></pre>
+<p class="content-text">更详细的安装流程可以参考:https://setup.scrape.center/scrapyd。安装并完成 Scrapyd 相应的配置之后,我们直接输入 scrapyd 即可启动对应的服务,命令如下:</p>
+<pre class="code-block"><code>scrapyd</code></pre>
+<p class="content-text">运行之后,会有类似如下的输出:</p>
+<pre class="result-block"><code>[Launcher] Scrapyd 1.2.1 started: max_proc=8, runner='scrapyd.runner'</code></pre>
 <p class="content-text">这就代表 Scrapyd已经启动成功了。</p>
 </section>
 <section class="numbered-section">
@@ -55,8 +57,10 @@ http_port = 6800</code></pre>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">此处使用 curl 命令来模拟 HTTP 的各种请求,你也可以使用其他工具 (如 Postman、Python等) 来进行请求,效果都是一样的。另外,这里使用的 IP 是 A 主机的 IP,请自行替换为你的Scrapyd 服务所在主机的 IP。</div></div>
 <section class="minor-section">
 <h4 class="subsection-heading">daemonstatus.json</h4>
-<p class="content-text">这个接口负责查看 Scrapyd 当前的服务和任务状态,我们可以用 curl 命令来请求这个接口,具体如下:curl http://192.168.2.3:6800/daemonstatus.json这样我们就会得到如下结果:</p>
-<pre class="code-block"><code>{"status": "ok", "finished": 90, "running": 9, "node_name": "vm1", "pending": 0}</code></pre>
+<p class="content-text">这个接口负责查看 Scrapyd 当前的服务和任务状态,我们可以用 curl 命令来请求这个接口,具体如下:</p>
+<pre class="code-block"><code>curl http://192.168.2.3:6800/daemonstatus.json</code></pre>
+<p class="content-text">这样我们就会得到如下结果:</p>
+<pre class="result-block"><code>{"status": "ok", "finished": 90, "running": 9, "node_name": "vm1", "pending": 0}</code></pre>
 <p class="content-text">返回结果是 JSON字符串,其中 status 是当前运行状态,finished 代表当前已经完成的 Scrapy 任务,running 代表正在运行的 Scrapy 任务,pending 代表等待被调度的 Scrapyd 任务,node_name 就是主机的名称。</p>
 </section>
 <section class="minor-section">
@@ -65,7 +69,7 @@ http_port = 6800</code></pre>
 <pre class="code-block"><code>curl http://192.168.2.3:6800/addversion.json -F project=&lt;project_name&gt; -F version=v1 -F
 egg=&lt;project_name&gt;.egg</code></pre>
 <p class="content-text">这里 -F 即代表添加一个参数,同时我们还需要将项目打包成 egg 文件放到本地。另外,还需要将&lt;project_name&gt;替换成真实的项目名称。这样发出请求之后,我们可以得到类似如下结果:</p>
-<pre class="code-block"><code>{"status": "ok", "spiders": 3}</code></pre>
+<pre class="result-block"><code>{"status": "ok", "spiders": 3}</code></pre>
 <p class="content-text">这个结果表明部署成功,并且其中包含的Spider的数量为3。注意 Spider 的数量视具体的项目为准,不同的项目包含的Spider 数量可能不同,此处样侈使用此方法部署可能比较烦琐,后文会介绍更方便的工具来实现项目的部署。</p>
 </section>
 <section class="minor-section">
@@ -73,7 +77,7 @@ egg=&lt;project_name&gt;.egg</code></pre>
 <p class="content-text">部署完成之后,项目其实就存在于 Scrapyd之上了,那么怎么来运行这个Scrapy项目呢?此时可以借助 schedule.json 这个接口,它负责调度已部署好的Scrapy 项目。我们可以用如下方式实现任务调度:</p>
 <pre class="code-block"><code>curl http://192.168.2.3:6800/schedule.json -d project=&lt;project_name&gt; -d spider=&lt;spider_name&gt;</code></pre>
 <p class="content-text">这里需要传入两个参数:project 即 Scrapy 项目名称,spider 即 Spider 名称。返回结果类似如下:</p>
-<pre class="code-block"><code>{"status": "ok", "jobid": "6487ec79947edab326d6db28a2d86511e8247444"}</code></pre>
+<pre class="result-block"><code>{"status": "ok", "jobid": "6487ec79947edab326d6db28a2d86511e8247444"}</code></pre>
 <p class="content-text">其中 status 代表 Scrapy 项目启动情况,jobid 代表当前正在运行的爬取任务代号。类似于执行了如下命令:</p>
 <pre class="code-block"><code>scrapy crawl &lt;spider_name&gt;</code></pre>
 <p class="content-text">这就相当于用 Scrapyd启动了对应项目的一个Spider。Spider 是由Scrapyd运行的,运行之后就相当于运行了一个任务,其任务标识代号就是jobid,我们可以根据这个 jobid 来查看或操作该 Spider的运行状态。</p>
@@ -89,8 +93,10 @@ job=6487ec79947edab326d6db28a2d86511e8247444</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">listprojects.json</h4>
-<p class="content-text">这个接口用来列出部署到 Scrapyd 服务上的所有项目的描述信息。我们可以用下面的命令来获取 Scrapyd 服务器上的所有项目描述:curl http://192.168.2.3:6800/listprojects.json这里不需要传入任何参数。返回结果类似如下:</p>
-<pre class="code-block"><code>{"status": "ok", "projects": ["project1", "project2"]}</code></pre>
+<p class="content-text">这个接口用来列出部署到 Scrapyd 服务上的所有项目的描述信息。我们可以用下面的命令来获取 Scrapyd 服务器上的所有项目描述:</p>
+<pre class="code-block"><code>curl http://192.168.2.3:6800/listprojects.json</code></pre>
+<p class="content-text">这里不需要传入任何参数。返回结果类似如下:</p>
+<pre class="result-block"><code>{"status": "ok", "projects": ["project1", "project2"]}</code></pre>
 <p class="content-text">其中 status 代表请求执行情况, projects 是项目名称列表。</p>
 </section>
 <section class="minor-section">
@@ -106,12 +112,14 @@ job=6487ec79947edab326d6db28a2d86511e8247444</code></pre>
 <p class="content-text">这个接口用来获取某个项目最新的一个版本的所有 Spider 名称。我们可以用如下命令来获取项目的 Spider 名称:</p>
 <pre class="code-block"><code>curl http://192.168.2.3:6800/listspiders.json?project=&lt;project_name&gt;</code></pre>
 <p class="content-text">这里需要用到参数 project, 就是项目的名称。返回结果类似如下:</p>
-<pre class="code-block"><code>{"status": "ok", "spiders": ["spider1"]}</code></pre>
+<pre class="result-block"><code>{"status": "ok", "spiders": ["spider1"]}</code></pre>
 <p class="content-text">其中 status 代表请求执行情况, spiders 是 Spider 名称列表。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">listjobs.json</h4>
-<p class="content-text">这个接口用来获取某个项目当前运行的所有任务详情。我们可以用如下命令来获取所有任务详情:curl http://192.168.2.3:6800/listjobs.json?project=project这里需要用到参数 project, 就是项目的名称。</p>
+<p class="content-text">这个接口用来获取某个项目当前运行的所有任务详情。我们可以用如下命令来获取所有任务详情:</p>
+<pre class="code-block"><code>curl http://192.168.2.3:6800/listjobs.json?project=project</code></pre>
+<p class="content-text">这里需要用到参数 project, 就是项目的名称。</p>
 <p class="content-text">返回结果如下:</p>
 <pre class="result-block"><code>{"status": "ok",
 "pending": [{"id": "78391cc0fcaf11e1b0090800272a6d06", "spider": "spider1"}],
@@ -153,7 +161,7 @@ scrapyd.add_version('project', 'v1', egg)</code></pre>
 <p class="content-text">这样我们就可以将项目打包为 egg 文件,然后把本地打包的egg项目部署到远程 Scrapyd了。另外,ScrapydAPI 还实现了所有Scrapyd 提供的API接口,名称都是相同的,参数也是相同的。例如,我们调用list_projects 方法即可列出 Scrapyd 中所有已部署的项目:</p>
 <pre class="code-block"><code>scrapyd.list_projects()
 ['project1', 'project2']</code></pre>
-<p class="content-text">另外,其他方法在此不再——列举了,名称和参数都是相同的,更加详细的操作可以参考其官方文档:http://python-scrapyd-api.readthedocs.io/。</p>
+<p class="content-text">另外,其他方法在此不再一一列举了,名称和参数都是相同的,更加详细的操作可以参考其官方文档:http://python-scrapyd-api.readthedocs.io/。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 总结</h3>
 <p class="content-text">本节介绍了 Scrapyd及ScrapydAPI的相关用法,我们可以通过它来部署项目,并通过HTTP接口来控制爬虫任务的运行,不过这里有一个不方便的地方,那就是部署过程。首先它需要打包egg文件,然后上传,这还是比较烦琐的。在下一节中,我们介绍一个更加方便的工具来完成部署过程。</p>
@@ -184,13 +192,15 @@ project = scrapycompositedemo</code></pre>
 <pre class="code-block"><code>url = http://192.168.2.3:6800/
 project = scrapycompositedemo</code></pre>
 <p class="content-text">这样我们再在 scrapy.cfg 文件所在路径下执行如下命令:</p>
-<p class="content-text">scrapyd-deploy</p>
+<pre class="code-block"><code>scrapyd-deploy</code></pre>
 <p class="content-text">运行结果如下:</p>
-<p class="content-text">Packing version 1501682277 Deploying to project "scrapycompositedemo" in http://192.168.2.3:6800/addversion.json Server response (200):</p>
-<pre class="code-block"><code>{"status": "ok", "spiders": 1, "node_name": "vm1", "project": "scrapycompositedemo", "version": "1501682277"}</code></pre>
+<pre class="result-block"><code>Packing version 1501682277
+Deploying to project "scrapycompositedemo" in http://192.168.2.3:6800/addversion.json
+Server response (200):
+{"status": "ok", "spiders": 1, "node_name": "vm1", "project": "scrapycompositedemo", "version": "1501682277"}</code></pre>
 <p class="content-text">返回这样的结果就代表部署成功了。</p>
 <p class="content-text">我们也可以指定项目版本(如果不指定的话,默认为当前时间戳),此时可以通过 version 参数传递,例如:</p>
-<p class="content-text">scrapyd-deploy --version 201707131455</p>
+<pre class="code-block"><code>scrapyd-deploy --version 201707131455</code></pre>
 <p class="content-text">值得注意的是,在 Python 3 的 Scrapyd 1.2.0 版本中,我们不要指定版本号为带字母的字符串,要为纯数字,否则可能会报错。</p>
 <p class="content-text">另外,如果有多台主机,我们可以配置各台主机的别名,例如可以修改配置文件为:</p>
 <pre class="code-block"><code>[deploy:vm1]
@@ -203,7 +213,7 @@ project = scrapycompositedemo</code></pre>
 url = http://192.168.2.5:6800/
 project = scrapycompositedemo</code></pre>
 <p class="content-text">有多台主机的话,就在此统一配置,一台主机对应一组配置,在 deploy 后面加上主机的别名即可。这样如果我们想将项目部署到 IP 为 192.168.2.5 的 vm3 主机上,只需要执行如下命令:</p>
-<p class="content-text">scrapyd-deploy vm3</p>
+<pre class="code-block"><code>scrapyd-deploy vm3</code></pre>
 <p class="content-text">如此一来,如果有多台主机,我们只需要在 scrapy.cfg 文件中配置好各台主机的 Scrapyd 地址,然后调用 scrapyd-deploy 命令加主机名称即可实现部署,非常方便。</p>
 <p class="content-text">默认情况下, Scrapyd 是没有登录验证的,比如 Basic Auth 的功能是不具备的,如果想要开启,可以使用 Nginx 服务器实现。比如此处利用 Nginx 实现了 Scrapyd 的登录验证,Nginx 的监听端口修改为了 6801,用户名和密码都是 admin,那么 scrapy.cfg 可以这样配置:</p>
 <pre class="code-block"><code>[deploy:vm1]
@@ -229,8 +239,17 @@ password = admin</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 使用说明</h3>
-<p class="content-text">安装完 Gerapy 之后,我们就可以使用 gerapy 命令了。首先,可以利用 gerapy 命令新建一个工作目录,如下:gerapy init这样会在当前目录下生成一个 gerapy 文件夹,然后进入该文件夹,会发现一个空的 projects 文件夹,这在后文会提及。这时先对数据库进行初始化:gerapy migrate这样即会生成一个 SQLite 数据库,该数据库中会保存各个主机配置信息、部署版本等。接下来,我们可以生成一个管理账号:gerapy initadmin这时候可以生成一个用户名和密码都为 admin 的管理员账号,用于后续系统的登录。当然,如果不想使用默认的 admin 账号,也可以利用如下命令来创建单独的账号:gerapy createsuperuser输入用户名和密码之后,就可以创建一个管理员账号了。接下来,启动 Gerapy 服务,命令如下:gerapy runserver这样即可在默认 8000 端口上开启 Gerapy 服务,用浏览器打开 http://localhost:8000 即可进入</p>
-<p class="content-text">Gerapy 的管理页面。这时候会提示输入用户名和密码,如图 17-2 所示。</p>
+<p class="content-text">安装完 Gerapy 之后,我们就可以使用 gerapy 命令了。首先,可以利用 gerapy 命令新建一个工作目录:</p>
+<pre class="code-block"><code>gerapy init</code></pre>
+<p class="content-text">这样会在当前目录下生成一个 gerapy 文件夹,然后进入该文件夹,会发现一个空的 projects 文件夹,这在后文会提及。这时先对数据库进行初始化:</p>
+<pre class="code-block"><code>gerapy migrate</code></pre>
+<p class="content-text">这样即会生成一个 SQLite 数据库,该数据库中会保存各个主机配置信息、部署版本等。接下来,我们可以生成一个管理账号:</p>
+<pre class="code-block"><code>gerapy initadmin</code></pre>
+<p class="content-text">这时候可以生成一个用户名和密码都为 admin 的管理员账号,用于后续系统的登录。当然,如果不想使用默认的 admin 账号,也可以利用如下命令来创建单独的账号:</p>
+<pre class="code-block"><code>gerapy createsuperuser</code></pre>
+<p class="content-text">输入用户名和密码之后,就可以创建一个管理员账号了。接下来,启动 Gerapy 服务,命令如下:</p>
+<pre class="code-block"><code>gerapy runserver</code></pre>
+<p class="content-text">这样即可在默认 8000 端口上开启 Gerapy 服务,用浏览器打开 http://localhost:8000 即可进入 Gerapy 的管理页面。这时候会提示输入用户名和密码,如图 17-2 所示。</p>
 <figure class="inline-figure"><img alt="图17-2 登录界面" loading="lazy" src="figures/ch17/fig-17_2.jpg"/><figcaption>图17-2 登录界面</figcaption></figure>
 <p class="content-text">输入用户名和密码,即可登录系统了。可以看到,左侧菜单栏有主机管理、项目管理、任务管理三大模块。在主机管理中,我们可以添加各台主机的 Scrapyd 运行地址和端口,并加上名称标记。比如,要添加主机A(192.168.2.3),就可以按照图17-3 这样填写。</p>
 <figure class="inline-figure"><img alt="图17-3 创建主机" loading="lazy" src="figures/ch17/fig-17_3.jpg"/><figcaption>图17-3 创建主机</figcaption></figure>
@@ -270,10 +289,27 @@ password = admin</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 创建 Dockerfile</h3>
-<p class="content-text">首先,在项目的根目录下新建一个 requirements.txt 文件,将整个项目依赖的Python 环境包都列出来,如下所示:scrapy aiohttp scrapy-redis environs如果库需要特定的版本,我们还可以指定版本号,如下所示:</p>
+<p class="content-text">首先,在项目的根目录下新建一个 requirements.txt 文件,将整个项目依赖的Python 环境包都列出来,如下所示:</p>
+<pre class="code-block"><code>scrapy
+aiohttp
+scrapy-redis
+environs</code></pre>
+<p class="content-text">如果库需要特定的版本,我们还可以指定版本号,如下所示:</p>
 <pre class="code-block"><code>scrapy&gt;=2.0.0
 pymongo&gt;=3.7.3</code></pre>
-<p class="content-text">在项目根目录下新建一个 Dockerfile文件,文件不加任何后缀名,将其内容改为:FROM python:3.7 WORKDIR /app COPY requirements.txt .RUN pip install -r requirements.txt COPY . .CMD ["scrapy", "crawl", "book"]第一行的 FROM 代表使用的Docker 基础镜像,这里我们直接使用python:3.7的镜像,在此基础上运行 Scrapy项目。第二行的 WORKDIR 是运行路径,这里我们将其设置为/app,这样在Docker中,最终运行程序所在的路径就是/app。第三行的 COPY 是将本地的 requirements.txt 复制到Docker 的工作路径下,即复制到/app下。第四行的 RUN 指定了一个pip的命令,用来读取上一步复制到Docker 工作路径下的 requirements.txt文件,并安装该文件里面列出的所有依赖库。第五行的 COPY 是将当前文件夹下所有的文件全部复制到 Docker的/app路径下。这时候大家可能有疑惑,为什么第三行不直接复制而需要再复制一次呢?这是因为这样可以单独将较为耗费构建时间的安装依赖步骤独立为 Docker 镜像单独的层级。这样的话,只要 requirements.txt 不变,以后再次构建 Docker 镜像的时候,就会直接利用已经构建的层级,不会再耗费构建时间。所以在适当的情况下,我们可以试着将一些较为耗时的初始化操作单独放到相对靠前的层级来实现。第六行的CMD 是容器启动命令。在容器运行时,此命令会被执行。这里我们直接用 scrapy crawl book 来启动爬虫。</p>
+<p class="content-text">在项目根目录下新建一个 Dockerfile文件,文件不加任何后缀名,将其内容改为:</p>
+<pre class="code-block" data-lang="dockerfile"><code>FROM python:3.7
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["scrapy", "crawl", "book"]</code></pre>
+<p class="content-text list-like"><strong class="term-label">第一行：</strong>FROM 代表使用的Docker 基础镜像,这里我们直接使用python:3.7的镜像,在此基础上运行 Scrapy项目。</p>
+<p class="content-text list-like"><strong class="term-label">第二行：</strong>WORKDIR 是运行路径,这里我们将其设置为/app,这样在Docker中,最终运行程序所在的路径就是/app。</p>
+<p class="content-text list-like"><strong class="term-label">第三行：</strong>COPY 是将本地的 requirements.txt 复制到Docker 的工作路径下,即复制到/app下。</p>
+<p class="content-text list-like"><strong class="term-label">第四行：</strong>RUN 指定了一个pip的命令,用来读取上一步复制到Docker 工作路径下的 requirements.txt文件,并安装该文件里面列出的所有依赖库。</p>
+<p class="content-text list-like"><strong class="term-label">第五行：</strong>COPY 是将当前文件夹下所有的文件全部复制到 Docker的/app路径下。这时候大家可能有疑惑,为什么第三行不直接复制而需要再复制一次呢?这是因为这样可以单独将较为耗费构建时间的安装依赖步骤独立为 Docker 镜像单独的层级。这样的话,只要 requirements.txt 不变,以后再次构建 Docker 镜像的时候,就会直接利用已经构建的层级,不会再耗费构建时间。所以在适当的情况下,我们可以试着将一些较为耗时的初始化操作单独放到相对靠前的层级来实现。</p>
+<p class="content-text list-like"><strong class="term-label">第六行：</strong>CMD 是容器启动命令。在容器运行时,此命令会被执行。这里我们直接用 scrapy crawl book 来启动爬虫。</p>
 <div class="note-box"><span class="note-icon">注</span><div class="note-text">如果你对Dockerfile的编写还不够熟悉,可以额外学习一下Docker 相关的基础知识和 Dockerfile的编写教程。</div></div>
 </section>
 <section class="numbered-section">
@@ -288,53 +324,72 @@ proxypool_url = os.getenv('PROXYPOOL_URL')</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 构建镜像</h3>
-<p class="content-text">接下来,我们便可以构建镜像了,相关命令如下:docker build -t scrapycompositedemo .注意这条命令最后有一个.点号,代表当前运行目录。输出结果类似如下:Sending build context to Docker daemon 257.5kB Step 1/6: FROM python:3.7</p>
-<pre class="code-block"><code>---&gt; 22eb61a2cb94</code></pre>
-<p class="content-text">    Step 2/6: WORKDIR /app</p>
-<pre class="code-block"><code>---&gt; Using cache
----&gt; 5a965b3af33a</code></pre>
-<p class="content-text">    Step 3/6: COPY requirements.txt .</p>
-<pre class="code-block"><code>---&gt; 8d949288babe</code></pre>
-<p class="content-text">    Step 4/6: RUN pip install -r requirements.txt</p>
-<pre class="code-block"><code>---&gt; Running in d4bbd8b879cc</code></pre>
-<p class="content-text"> Collecting scrapy Downloading Scrapy-2.4.1-py2.py3-none-any.whl (239 kB) Collecting aiohttp Downloading aiohttp-3.7.3-cp37-cp37m-manylinux2014_x86_64.whl (1.3 MB) Successfully installed Automat-20.2.0 PyDispatcher-2.0.5 PyHamcrest-2.0.2 Twisted-20.3.0 aiohttp-3.7.3 async-timeout-3.0.1 attrs-20.3.0 cffi-1.14.4 chardet-3.0.4 constantly-15.1.0 cryptography-3.3.1 cssselect-1.1.0 hyperlink-21.0.0 idna-3.1 incremental-17.5.0 itemadapter-0.2.0 itemloaders-1.0.4 jmespath-0.10.0 lxml-4.6.2 multidict-5.1.0 parsel-1.6.0 protego-0.1.16 pyOpenSSL-20.0.1 pyasn1-0.4.8 pyasn1-modules-0.2.8 pycparser-2.20 queuelib-1.5.0 redis-3.5.3 scrapy-2.4.1 scrapy-redis-0.6.8 service-identity-18.1.0 six-1.15.0 typing-extensions-3.7.4.3 w3lib-1.22.0 yarl-1.6.3 zope.interface-5.2.0 Removing intermediate container d4bbd8b879cc</p>
-<pre class="code-block"><code>---&gt; 7b5052599607</code></pre>
-<p class="content-text">    Step 5/6: COPY .</p>
-<pre class="code-block"><code>---&gt; 1d693eedb484</code></pre>
-<p class="content-text">    Step 6/6: CMD ["scrapy", "crawl", "book"]</p>
-<pre class="code-block"><code>---&gt; Running in 19d954c9137b</code></pre>
-<p class="content-text">    Removing intermediate container 19d954c9137b</p>
-<pre class="code-block"><code>---&gt; a46de4b66276</code></pre>
-<p class="content-text"> Successfully built a46de4b66276 Successfully tagged scrapycompositedemo:latest</p>
-<p class="content-text">这就证明镜像构建成功了,这时执行如下命令,可以查看构建的镜像:docker images返回结果中有一行就是:scrapycompositedemo latest a46de4b66276 2 minutes ago 968MB这就是我们新构建的镜像。</p>
+<p class="content-text">接下来,我们便可以构建镜像了,相关命令如下:</p>
+<pre class="code-block"><code>docker build -t scrapycompositedemo .</code></pre>
+<p class="content-text">注意这条命令最后有一个.点号,代表当前运行目录。输出结果类似如下:</p>
+<pre class="result-block"><code>Sending build context to Docker daemon 257.5kB
+Step 1/6: FROM python:3.7
+---&gt; 22eb61a2cb94
+Step 2/6: WORKDIR /app
+---&gt; Using cache
+---&gt; 5a965b3af33a
+Step 3/6: COPY requirements.txt .
+---&gt; 8d949288babe
+Step 4/6: RUN pip install -r requirements.txt
+---&gt; Running in d4bbd8b879cc
+Collecting scrapy
+Downloading Scrapy-2.4.1-py2.py3-none-any.whl (239 kB)
+Collecting aiohttp
+Downloading aiohttp-3.7.3-cp37-cp37m-manylinux2014_x86_64.whl (1.3 MB)
+Successfully installed Automat-20.2.0 PyDispatcher-2.0.5 PyHamcrest-2.0.2 Twisted-20.3.0 aiohttp-3.7.3 async-timeout-3.0.1 attrs-20.3.0 cffi-1.14.4 chardet-3.0.4 constantly-15.1.0 cryptography-3.3.1 cssselect-1.1.0 hyperlink-21.0.0 idna-3.1 incremental-17.5.0 itemadapter-0.2.0 itemloaders-1.0.4 jmespath-0.10.0 lxml-4.6.2 multidict-5.1.0 parsel-1.6.0 protego-0.1.16 pyOpenSSL-20.0.1 pyasn1-0.4.8 pyasn1-modules-0.2.8 pycparser-2.20 queuelib-1.5.0 redis-3.5.3 scrapy-2.4.1 scrapy-redis-0.6.8 service-identity-18.1.0 six-1.15.0 typing-extensions-3.7.4.3 w3lib-1.22.0 yarl-1.6.3 zope.interface-5.2.0
+Removing intermediate container d4bbd8b879cc
+---&gt; 7b5052599607
+Step 5/6: COPY . .
+---&gt; 1d693eedb484
+Step 6/6: CMD ["scrapy", "crawl", "book"]
+---&gt; Running in 19d954c9137b
+Removing intermediate container 19d954c9137b
+---&gt; a46de4b66276
+Successfully built a46de4b66276
+Successfully tagged scrapycompositedemo:latest</code></pre>
+<p class="content-text">这就证明镜像构建成功了,这时执行如下命令,可以查看构建的镜像:</p>
+<pre class="code-block"><code>docker images</code></pre>
+<p class="content-text">返回结果中有一行就是:</p>
+<pre class="result-block"><code>scrapycompositedemo latest a46de4b66276 2 minutes ago 968MB</code></pre>
+<p class="content-text">这就是我们新构建的镜像。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 运行</h3>
 <p class="content-text">运行的时候,我们需要先指定环境变量。可以新建一个.env文件,其内容如下:</p>
-<pre class="code-block"><code>ACCOUNTPOOL_URL=http://host.docker.internal: 6777/antispider7/random
-PROXYPOOL_URL=http://host.docker.internal:5555/random</code></pre>
-<p class="content-text">REDIS_URL-redis://host.docker.internal:6379这里定义了三个环境变量,分别是账号池、代理池、Redis数据库的连接地址,其中每个变量的 host地址都是 host.docker.internal,这代表 Docker 所在宿主机的IP地址,通过host.docker.internal,在Docker 内部便可以访问宿主机的相关资源。同时,这里需要确保账号池运行在本机的6777 端口,代理池运行在5555端口,Redis 数据库运行在6379端口。我们可以先在本地测试运行,此时可以执行如下命令:docker run --env-file .env scrapycompositedemo这样我们就成功运行了刚才构建的Docker 镜像,运行结果类似如下:</p>
+<pre class="code-block"><code>ACCOUNTPOOL_URL=http://host.docker.internal:6777/antispider7/random
+PROXYPOOL_URL=http://host.docker.internal:5555/random
+REDIS_URL=redis://host.docker.internal:6379</code></pre>
+<p class="content-text">这里定义了三个环境变量,分别是账号池、代理池、Redis数据库的连接地址,其中每个变量的 host地址都是 host.docker.internal,这代表 Docker 所在宿主机的IP地址,通过host.docker.internal,在Docker 内部便可以访问宿主机的相关资源。同时,这里需要确保账号池运行在本机的6777 端口,代理池运行在5555端口,Redis 数据库运行在6379端口。</p>
+<p class="content-text">我们可以先在本地测试运行,此时可以执行如下命令:</p>
+<pre class="code-block"><code>docker run --env-file .env scrapycompositedemo</code></pre>
+<p class="content-text">这样我们就成功运行了刚才构建的Docker 镜像,运行结果类似如下:</p>
 <pre class="result-block"><code>2021-02-04 18:30:49 [scrapy.utils.log] INFO: Scrapy 2.4.1 started (bot: scrapycompositedemo)
-2021-02-04 18:30:49 [scrapy.utils.log] INFO: Versions: 1xml 4.6.2.0, libxml2 2.9.10, cssselect 1.1.0, parsel</code></pre>
-<p class="content-text">1.6.0, w3lib 1.22.0, Twisted 20.3.0, Python 3.7.9 (default, Jan 12 2021, 17:26:22) [GCC 8.3.0], pyOpenSSL 20.0.1 (OpenSSL 1.1.11 8 Dec 2020), cryptography 3.3.1, Platform Linux-4.19.76-linuxkit-x86 64-with-debian-10.7</p>
-<pre class="result-block"><code>2021-02-04 18:30:49 [scrapy.utils.log] DEBUG: Using reactor:</code></pre>
-<p class="content-text">twisted.internet.asyncioreactor. AsyncioSelectorReactor</p>
-<pre class="result-block"><code>2021-02-04 18:30:49 [scrapy.utils.log] DEBUG: Using asyncio event loop:</code></pre>
-<p class="content-text">asyncio.unix_events. UnixSelectorEventLoop</p>
-<pre class="result-block"><code>2021-02-04 18:30:49 [scrapy.crawler] INFO: Overridden settings:
+2021-02-04 18:30:49 [scrapy.utils.log] INFO: Versions: lxml 4.6.2.0, libxml2 2.9.10, cssselect 1.1.0, parsel 1.6.0, w3lib 1.22.0, Twisted 20.3.0, Python 3.7.9 (default, Jan 12 2021, 17:26:22) [GCC 8.3.0], pyOpenSSL 20.0.1 (OpenSSL 1.1.11 8 Dec 2020), cryptography 3.3.1, Platform Linux-4.19.76-linuxkit-x86_64-with-debian-10.7
+2021-02-04 18:30:49 [scrapy.utils.log] DEBUG: Using reactor:
+twisted.internet.asyncioreactor.AsyncioSelectorReactor
+2021-02-04 18:30:49 [scrapy.utils.log] DEBUG: Using asyncio event loop:
+asyncio.unix_events.UnixSelectorEventLoop
+2021-02-04 18:30:49 [scrapy.crawler] INFO: Overridden settings:
 2021-02-04 18:30:49 [scrapy.middleware] INFO: Enabled spider middlewares:
-['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',</code></pre>
-<p class="content-text">'scrapy.spidermiddlewares.offsite. OffsiteMiddleware','scrapy.spidermiddlewares.referer. RefererMiddleware','scrapy.spidermiddlewares.urllength.UrlLengthMiddleware','scrapy.spidermiddlewares.depth.DepthMiddleware']</p>
-<pre class="result-block"><code>2021-02-04 18:30:49 [scrapy.middleware] INFO: Enabled item pipelines:
+['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
+'scrapy.spidermiddlewares.referer.RefererMiddleware',
+'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2021-02-04 18:30:49 [scrapy.middleware] INFO: Enabled item pipelines:
 []
 2021-02-04 18:30:49 [scrapy.core.engine] INFO: Spider opened
 2021-02-04 18:30:49 [book] DEBUG: Resuming crawl (40 requests scheduled)
-2021-02-04 18:30:49 [scrapy.extensions.logstats] INFO: Crawled o pages (at 0 pages/min), scraped 0 items (at</code></pre>
-<p class="content-text">0 items/min)</p>
-<pre class="result-block"><code>2021-02-04 18:30:49 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
-2021-02-04 18:30:49 [middlewares.authorization] DEBUG: set authorization jwt</code></pre>
-<p class="content-text list-like"><strong class="term-label">eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo20SwidXNlcm5hbWUiOiJhZG1pbjU2IiwiZXhwIjoxNjEyNTAxOTI1：</strong>LCJ1bWFpbCI6IiIsIm9yaWdfaWFOIjoxNjEyNDU4NzI1fQ.11x8MQf3WA528P3qG7XIG7sSrOhSsK_4RzMz8VvsbOk</p>
-<pre class="result-block"><code>2021-02-04 18:30:49 [middlewares.proxy] DEBUG: set proxy 183.88.169.162:8080
+2021-02-04 18:30:49 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2021-02-04 18:30:49 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
+2021-02-04 18:30:49 [middlewares.authorization] DEBUG: set authorization jwt
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo20SwidXNlcm5hbWUiOiJhZG1pbjU2IiwiZXhwIjoxNjEyNTAxOTI1LCJ1bWFpbCI6IiIsIm9yaWdfaWFOIjoxNjEyNDU4NzI1fQ.11x8MQf3WA528P3qG7XIG7sSrOhSsK_4RzMz8VvsbOk
+2021-02-04 18:30:49 [middlewares.proxy] DEBUG: set proxy 183.88.169.162:8080
 2021-02-04 18:30:51 [scrapy.core.engine] DEBUG: Crawled (200) &lt;GET
 https://antispider7.scrape.center/api/book/2237621/&gt; (referer:
 https://antispider7.scrape.center/api/book/?limit=18&amp;offset=72)</code></pre>
@@ -342,54 +397,78 @@ https://antispider7.scrape.center/api/book/?limit=18&amp;offset=72)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 推送至 Docker Hub</h3>
-<p class="content-text">构建完成之后,我们可以将镜像推送到 Docker 镜像托管平台,如 Docker Hub 或者私有的Docker Registry 等,这样我们就可以从远程服务器下拉镜像并运行了。以Docker Hub 为例,如果项目包含一些私有的连接信息(如数据库),我们最好将 Repository 设为私有或者直接放到私有的 Docker Registry。首先在 https://hub.docker.com 上注册一个账号,然后新建一个 Repository,名为scrapycompositedemo。比如,我的用户名为germey,新建的Repository名为scrapycompositedemo,那么此 Repository 的地址就可以用 germey/scrapycompositedemo来表示,这里需要修改为你的用户名。另外,我们还需要使用如下命令来登录 Docker Hub:docker login输入 Docker Hub的用户名和密码之后,就可以完成登录了。接下来,我们就可以往 Docker Hub 推送自己构建的Docker镜像了。为新建的镜像打一个标签,命令如下所示:docker tag scrapycompositedemo:latest germey/scrapycompositedemo:latest推送镜像到 Docker Hub即可,命令如下所示:docker push germey/scrapycompositedemo此时 Docker Hub便会出现新推送的Docker镜像了,如图17-11所示。</p>
+<p class="content-text">构建完成之后,我们可以将镜像推送到 Docker 镜像托管平台,如 Docker Hub 或者私有的Docker Registry 等,这样我们就可以从远程服务器下拉镜像并运行了。以Docker Hub 为例,如果项目包含一些私有的连接信息(如数据库),我们最好将 Repository 设为私有或者直接放到私有的 Docker Registry。</p>
+<p class="content-text">首先在 https://hub.docker.com 上注册一个账号,然后新建一个 Repository,名为scrapycompositedemo。比如,我的用户名为germey,新建的Repository名为scrapycompositedemo,那么此 Repository 的地址就可以用 germey/scrapycompositedemo来表示,这里需要修改为你的用户名。另外,我们还需要使用如下命令来登录 Docker Hub:</p>
+<pre class="code-block"><code>docker login</code></pre>
+<p class="content-text">输入 Docker Hub的用户名和密码之后,就可以完成登录了。接下来,我们就可以往 Docker Hub 推送自己构建的Docker镜像了。为新建的镜像打一个标签,命令如下所示:</p>
+<pre class="code-block"><code>docker tag scrapycompositedemo:latest germey/scrapycompositedemo:latest</code></pre>
+<p class="content-text">推送镜像到 Docker Hub即可,命令如下所示:</p>
+<pre class="code-block"><code>docker push germey/scrapycompositedemo</code></pre>
+<p class="content-text">此时 Docker Hub便会出现新推送的Docker镜像了,如图17-11所示。</p>
 <figure class="inline-figure"><img alt="图17-11 在 Docker Hub 上出现新推送的 Docker 镜像" loading="lazy" src="figures/ch17/fig-17_11.jpg"/><figcaption>图17-11 在 Docker Hub 上出现新推送的 Docker 镜像</figcaption></figure>
-<p class="content-text">这个镜像可以供后面使用,如果我们想在其他主机上运行这个镜像,在主机上装好 Docker,运行代理池、账号池、Redis 数据库后,按照同样的方式新建.env文件,可以直接执行如下命令:docker run --env-file .env germey/scrapycompositedemo这样就会自动下载刚才我们所推送的镜像,然后读取环境变量并运行了,运行效果和刚才一模一样。</p>
+<p class="content-text">这个镜像可以供后面使用,如果我们想在其他主机上运行这个镜像,在主机上装好 Docker,运行代理池、账号池、Redis 数据库后,按照同样的方式新建.env文件,可以直接执行如下命令:</p>
+<pre class="code-block"><code>docker run --env-file .env germey/scrapycompositedemo</code></pre>
+<p class="content-text">这样就会自动下载刚才我们所推送的镜像,然后读取环境变量并运行了,运行效果和刚才一模一样。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
 <p class="content-text">我们讲解了将 Scrapy 项目制作成 Docker 镜像并推送到 Docker Hub 的过程,接下来我们会介绍Docker Compose 和 Kubernetes 的用法,来尝试部署和运行 Scrapy 项目。</p>
 </section>
 <div class="section-heading" id="section-4"><h2>17.5 Docker Compose 的使用</h2></div>
-<p class="content-text">在上一节中,我们了解了将 Scrapy 项目打包为 Docker 镜像的方式,不过其中有一些不太方便的地方。- 构建镜像的命令比较烦琐而且难以记忆,比如需要额外添加一些配置选项。- 如果需要同时启动多个 Docker 容器协同运行,仅使用 docker run 命令是难以实现的。下面我们再来介绍一个工具 Docker Compose,使用它,我们可以方便地实现镜像的打包、容器的协同管理。</p>
+<p class="content-text">在上一节中,我们了解了将 Scrapy 项目打包为 Docker 镜像的方式,不过其中有一些不太方便的地方。</p>
+<p class="content-text list-like">构建镜像的命令比较烦琐而且难以记忆,比如需要额外添加一些配置选项。</p>
+<p class="content-text list-like">如果需要同时启动多个 Docker 容器协同运行,仅使用 docker run 命令是难以实现的。</p>
+<p class="content-text">下面我们再来介绍一个工具 Docker Compose,使用它,我们可以方便地实现镜像的打包、容器的协同管理。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. Docker Compose</h3>
 <p class="content-text">Docker Compose 是用于定义和运行多容器 Docker 应用程序的工具。通过它,我们可以使用 YAML格式的文件来配置程序需要的所有服务,比如 YAML 文件里面定义了构建的目标镜像名称、容器启动的端口、环境变量设置等,把这些固定的内容配置到 YAML 文件之后,我们只需要使用简单的docker-compose 命令就可以实现镜像的构建和容器的启动了,非常方便。接下来,我们尝试利用 Docker Compose 来构建上一节介绍的镜像吧。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
-<p class="content-text">首先,我们需要准备好上一节学习的所有内容,包括 ScrapyCompositeDemo 的代码以及对应的Dockerfile,能正常构建 Docker 镜像。另外,我们还需要准备好账号池、代理池并能成功运行。除了如上内容外,我们还需要安装好 Docker Compose,安装方法可以参考:https://setup.scrape.enter/docker-compose。安装好之后,我们就可以使用 docker-compose 命令了。</p>
+<p class="content-text">首先,我们需要准备好上一节学习的所有内容,包括 ScrapyCompositeDemo 的代码以及对应的Dockerfile,能正常构建 Docker 镜像。另外,我们还需要准备好账号池、代理池并能成功运行。除了如上内容外,我们还需要安装好 Docker Compose,安装方法可以参考:https://setup.scrape.center/docker-compose。安装好之后,我们就可以使用 docker-compose 命令了。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 创建 YAML 文件</h3>
 <p class="content-text">首先,我们需要确保代理池在本级的 5555 端口上正常运行,账号池在本级的 6777 端口上正常运行,具体的内容可以参考 15.13 节。接下来,我们在 ScrapyCompositeDemo 根目录下创建一个 docker-compose.yaml 文件,内容如下:</p>
-<p class="content-text">version: "3"services:redis:</p>
-<pre class="code-block"><code>image: redis:alpine</code></pre>
-<p class="content-text"> container_name: redis ports:</p>
-<section class="minor-section">
-<h4 class="subsection-heading">"6379"</h4>
-<p class="content-text"> scrapycompositedemo:build: "."image: "germey/scrapycompositedemo"environment:ACCOUNTPOOL_URL: "http://host.docker.internal:6777/antispider7/random"PROXYPOOL_URL: "http://host.docker.internal:5555/random"REDIS_HOST: "redis://redis:6379"depends_on:</p>
-</section>
-<section class="minor-section">
-<h4 class="subsection-heading">redis</h4>
+<pre class="code-block" data-lang="yaml"><code>version: "3"
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379"
+  scrapycompositedemo:
+    build: "."
+    image: "germey/scrapycompositedemo"
+    environment:
+      ACCOUNTPOOL_URL: "http://host.docker.internal:6777/antispider7/random"
+      PROXYPOOL_URL: "http://host.docker.internal:5555/random"
+      REDIS_HOST: "redis://redis:6379"
+    depends_on:
+      - redis</code></pre>
 <p class="content-text">首先,第一行我们指定了 version,其值为 3,即 Docker Compose 的版本信息。目前,绝大多数情况下都将其指定为 3。</p>
-<p class="content-text">然后我们指定 services的配置,一个是redis,一个是 scrapycompositedemo,即启动的两个服务一个是 Redis 数据库,一个是我们的Scrapy 爬虫项目 ScrapyCompositeDemo。对于 Redis 来说,我们直接使用了已有的镜像来构建,所以直接指定了 image 字段,内容为redis:alpine,这是一个公开镜像,直接下载并运行即可启动一个Redis服务。接下来,我们指定了container_name,即redis:alpine 这个镜像启动之后的容器名称,我们就直接赋值为redis即可。当然,也可以换其他的名称,然后就是运行端口,这里我们直接指定了运行端口是6379。对于 Scrapy 爬虫项目来说,由于代码在本地,所以构建位置就直接指定为.,代表当前目录。接着,我们指定了构建的目标镜像名称,这里就直接指定为我的Docker Hub 为该项目配置的镜像地址germey/scrapycompositedemo,其中germey 是我的Docker Hub用户名,这里请自行替换成你的用户名。接下来,我们利用 environment 来指定环境变量,还是上一节所述的内容。另外,我们还指定了depends_on 配置,内容为redis,即该容器的启动需要依赖于刚才声明的redis服务,这样只有等 redis对应的容器正常启动之后,该容器才会启动。注意如果你想了解更多 Docker Compose 的配置选项,可以参考 Docker Compose 的官方文档:</p>
+<p class="content-text">然后我们指定 services的配置,一个是redis,一个是 scrapycompositedemo,即启动的两个服务一个是 Redis 数据库,一个是我们的Scrapy 爬虫项目 ScrapyCompositeDemo。对于 Redis 来说,我们直接使用了已有的镜像来构建,所以直接指定了 image 字段,内容为redis:alpine,这是一个公开镜像,直接下载并运行即可启动一个Redis服务。接下来,我们指定了container_name,即redis:alpine 这个镜像启动之后的容器名称,我们就直接赋值为redis即可。当然,也可以换其他的名称,然后就是运行端口,这里我们直接指定了运行端口是6379。</p>
+<p class="content-text">对于 Scrapy 爬虫项目来说,由于代码在本地,所以构建位置就直接指定为.,代表当前目录。接着,我们指定了构建的目标镜像名称,这里就直接指定为我的Docker Hub 为该项目配置的镜像地址germey/scrapycompositedemo,其中germey 是我的Docker Hub用户名,这里请自行替换成你的用户名。</p>
+<p class="content-text">接下来,我们利用 environment 来指定环境变量,还是上一节所述的内容。另外,我们还指定了depends_on 配置,内容为redis,即该容器的启动需要依赖于刚才声明的redis服务,这样只有等 redis对应的容器正常启动之后,该容器才会启动。</p>
+<p class="content-text">注意如果你想了解更多 Docker Compose 的配置选项,可以参考 Docker Compose 的官方文档:</p>
 <pre class="result-block"><code>https://docs.docker.com/compose/。</code></pre>
-</section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 构建镜像</h3>
-<p class="content-text">接下来,我们就可以利用docker-compose 命令来构建 Docker镜像了。在docker-compose.yaml 目录下运行该命令即可:docker-compose build运行结果类似如下:redis uses an image, skipping Building scrapycompositedemo</p>
-<pre class="code-block"><code>[+] Building 2.75 (11/11) FINISHED
+<p class="content-text">接下来,我们就可以利用docker-compose 命令来构建 Docker镜像了。在docker-compose.yaml 目录下运行该命令即可:</p>
+<pre class="code-block"><code>docker-compose build</code></pre>
+<p class="content-text">运行结果类似如下:</p>
+<pre class="result-block"><code>redis uses an image, skipping
+Building scrapycompositedemo
+[+] Building 2.75 (11/11) FINISHED
 =&gt; [internal] load build definition from Dockerfile
 =&gt; =&gt; transferring dockerfile: 37B
 =&gt; [internal] load.dockerignore
 =&gt; =&gt; transferring context: 2B
 =&gt; [internal] load metadata for docker.io/library/python:3.7
 =&gt; [auth] library/python: pull token for registry-1.docker.io
-=&gt; [1/5] FROM</code></pre>
-<p class="content-text">docker.io/library/python:3.7@sha256:0ba96071fe70b9cf6dd2247f7901e35961cba04459933c4301ad6a5930f9c2b9</p>
-<pre class="code-block"><code>=&gt; [internal] load build context
+=&gt; [1/5] FROM docker.io/library/python:3.7@sha256:0ba96071fe70b9cf6dd2247f7901e35961cba04459933c4301ad6a5930f9c2b9
+=&gt; [internal] load build context
 =&gt; =&gt; transferring context: 37.08kB
 =&gt; CACHED [2/5] WORKDIR /app
 =&gt; CACHED [3/5] COPY requirements.txt
@@ -403,7 +482,8 @@ https://antispider7.scrape.center/api/book/?limit=18&amp;offset=72)</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 运行镜像</h3>
-<p class="content-text">运行镜像也是十分简单的,我们也无须再指定环境变量、容器名称、容器运行端口等内容,只需要一条命令就可以一下子启动 redis 和 scrapycompositedemo 这两个服务:docker-compose up</p>
+<p class="content-text">运行镜像也是十分简单的,我们也无须再指定环境变量、容器名称、容器运行端口等内容,只需要一条命令就可以一下子启动 redis 和 scrapycompositedemo 这两个服务:</p>
+<pre class="code-block"><code>docker-compose up</code></pre>
 <p class="content-text">运行结果如下:</p>
 <pre class="result-block" data-lang="text"><code>Starting redis ... done
 Recreating scrapycompositedemo_scrapycompositedemo_1 ... done
@@ -426,7 +506,17 @@ scrapycompositedemo_1       | 2021-07-31 18:29:13 [scrapy.utils.log] INFO: Versi
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 推送镜像</h3>
-<p class="content-text">如果我们在本地测试镜像没有任何问题了,那接下来就可以把镜像推送到 Docker Hub 或其他的Docker Registry 服务上了,这里依然使用docker-compose 所提供的命令即可:docker-compose push是的,也是非常简洁明了的命令,运行结果如下:Pushing scrapycompositedemo (germey/scrapycompositedemo:latest)...The push refers to repository [docker.io/germey/scrapycompositedemo] 836160d4c5c0: Pushed f1408cfc4c45: Pushed 053b8bb0c2c1: Pushed 5ff6fa8a1637: Pushed 62499da5fab9: Mounted from library/python afa3e488a0ee: Mounted from library/python</p>
+<p class="content-text">如果我们在本地测试镜像没有任何问题了,那接下来就可以把镜像推送到 Docker Hub 或其他的Docker Registry 服务上了,这里依然使用docker-compose 所提供的命令即可:</p>
+<pre class="code-block"><code>docker-compose push</code></pre>
+<p class="content-text">是的,也是非常简洁明了的命令,运行结果如下:</p>
+<pre class="result-block"><code>Pushing scrapycompositedemo (germey/scrapycompositedemo:latest)...
+The push refers to repository [docker.io/germey/scrapycompositedemo]
+836160d4c5c0: Pushed
+f1408cfc4c45: Pushed
+053b8bb0c2c1: Pushed
+5ff6fa8a1637: Pushed
+62499da5fab9: Mounted from library/python
+afa3e488a0ee: Mounted from library/python</code></pre>
 <pre class="result-block"><code>latest: digest: sha256:8d13cb16cb77cafa50a9c96653b1593f6997cc6a5c9bb95abd1d8458454393d2 size: 3052</code></pre>
 <p class="content-text">执行完毕之后,我们指定的镜像就可以被推送到 Docker Hub 供其他主机下载运行了。</p>
 </section>
@@ -447,7 +537,9 @@ scrapycompositedemo_1       | 2021-07-31 18:29:13 [scrapy.utils.log] INFO: Versi
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. Kubernetes 简介</h3>
-<p class="content-text">Kubernetes,简称K8s(K和s中间含有8个字母),它是用于编排容器化应用程序的云原生系统。Kubernetes 诞生自Google,现在已经由CNCF(云原生计算基金会)维护更新。Kubernetes 是目前最受欢迎的集群管理方案之一,可以非常容易地实现容器的管理和编排。刚刚我们提到,Kubernetes 是一个容器编排系统。对于“编排”二字,我们可能不太容易理解其中的含义。为了对它有更好的理解,我们先回过头来看看容器的定位以及容器解决了什么问题,不能解决什么问题,然后了解下 Kubernetes 能够弥补容器哪些缺失的内容。好,首先来看容器。最常见的容器技术就是 Docker了,它提供了比传统虚拟化技术更轻量级的机制来创建隔离的应用程序的运行环境。比如对于某个应用程序,我们使用容器运行时,不必担心它与宿主机之间产生资源冲突,不必担心多个容器之间产生资源冲突。同时借助于容器技术,我们还能更好地保证开发环境和生产环境的运行一致性。另外,由于每个容器都是独立的,因此可以将多个容器运行在同一台宿主机上,以提高宿主机的资源利用率,从而进一步降低成本。总之,使用容器带来的好处有很多,可以为我们带来极大的便利。不过单单依靠容器技术并不能解决所有问题,也可以说容器技术也引入了新的问题,比如说:</p>
+<p class="content-text">Kubernetes,简称K8s(K和s中间含有8个字母),它是用于编排容器化应用程序的云原生系统。Kubernetes 诞生自Google,现在已经由CNCF(云原生计算基金会)维护更新。Kubernetes 是目前最受欢迎的集群管理方案之一,可以非常容易地实现容器的管理和编排。刚刚我们提到,Kubernetes 是一个容器编排系统。对于“编排”二字,我们可能不太容易理解其中的含义。为了对它有更好的理解,我们先回过头来看看容器的定位以及容器解决了什么问题,不能解决什么问题,然后了解下 Kubernetes 能够弥补容器哪些缺失的内容。</p>
+<p class="content-text">好,首先来看容器。最常见的容器技术就是 Docker了,它提供了比传统虚拟化技术更轻量级的机制来创建隔离的应用程序的运行环境。比如对于某个应用程序,我们使用容器运行时,不必担心它与宿主机之间产生资源冲突,不必担心多个容器之间产生资源冲突。同时借助于容器技术,我们还能更好地保证开发环境和生产环境的运行一致性。另外,由于每个容器都是独立的,因此可以将多个容器运行在同一台宿主机上,以提高宿主机的资源利用率,从而进一步降低成本。总之,使用容器带来的好处有很多,可以为我们带来极大的便利。</p>
+<p class="content-text">不过单单依靠容器技术并不能解决所有问题,也可以说容器技术也引入了新的问题,比如说:</p>
 <p class="content-text list-like">如果容器突然运行异常了,怎么办?</p>
 <p class="content-text list-like">如果容器所在的宿主机突然运行异常了,怎么办?</p>
 <p class="content-text list-like">如果有多个容器,它们之间怎么有效地传输数据?</p>
@@ -940,7 +1032,6 @@ deployment.apps/dashboard-metrics-scraper created</code></pre>
 <p class="content-text">可以看到,它在正常运行,并将爬取到的数据输出到了控制台。另外,我们还可以增删爬虫的实例数。可以回到Deployments 的管理页面,选择“规模”选项卡,如图17-21 所示。</p>
 <figure class="inline-figure"><img alt="图17-21 “规模”选项卡" loading="lazy" src="figures/ch17/fig-17_21.jpg"/><figcaption>图17-21 “规模”选项卡</figcaption></figure>
 <p class="content-text">比如将目标副本数量调整为5,如图17-22所示。</p>
-<p class="content-text">缩放资源</p>
 <figure class="inline-figure"><img alt="图17-22 调整目标副本数量" loading="lazy" src="figures/ch17/fig-17_22.jpg"/><figcaption>图17-22 调整目标副本数量</figcaption></figure>
 <p class="content-text">此操作相当于运行如下命令:</p>
 <pre class="code-block" data-lang="bash"><code>kubectl scale -n crawler deployment scrapycompositedemo --replicas=5</code></pre>
@@ -949,22 +1040,22 @@ deployment.apps/dashboard-metrics-scraper created</code></pre>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">7. 总结</h3>
-<p class="content-text"> 以上我们就通过一个实战练习实现了分布式爬虫在 Kubernetes 中的部署,并且还可以非常方便地使用 Kubernetes 对 Scrapy 爬虫项目进行管理。相比 Scrapyd 来说,Kubernetes 的功能更加强大,是一个绝佳的管理 Scrapy 爬虫项目的利器。</p>
-<p class="content-text"> 本节涉及的知识点比较多,需要好好消化和练习。本节代码详见 https://github.com/Python3WebSpider/ScrapyCompositeDemo/tree/docker,注意是docker 分支。</p>
+<p class="content-text">以上我们就通过一个实战练习实现了分布式爬虫在 Kubernetes 中的部署,并且还可以非常方便地使用 Kubernetes 对 Scrapy 爬虫项目进行管理。相比 Scrapyd 来说,Kubernetes 的功能更加强大,是一个绝佳的管理 Scrapy 爬虫项目的利器。</p>
+<p class="content-text">本节涉及的知识点比较多,需要好好消化和练习。本节代码详见 https://github.com/Python3WebSpider/ScrapyCompositeDemo/tree/docker,注意是docker 分支。</p>
 </section>
 <div class="section-heading" id="section-7"><h2>17.8 Scrapy 分布式爬虫的数据统计方案</h2></div>
-<p class="content-text"> 在上一节中,我们已经学习了如何利用 Kubernetes 进行 Scrapy 爬虫的部署,并将其对接了分布式的实现,对接了代理池、账号池,以顺利地实现数据抓取。</p>
-<p class="content-text"> 但这时候我们又遇到了一个难题,怎样监控各个 Scrapy 爬虫的爬取情况呢?比如,这时候我部署了10个 Pod 来运行 Scrapy 分布式爬虫,它们基于 Scrapy-Redis 进行协同爬取,但我们并无法知晓它们一分钟爬取了多少条数据,成功、失败、重试了多少次,难道要通过分析日志得出来吗?</p>
-<p class="content-text"> 另外,假如我们已经能成功获取了这些数据,又想进一步把这些数据可视化出来,做一个实时大屏图表,用什么方式实现比较好?需要自己额外写代码实现吗?还是说已经有了非常成熟的解决方案?围绕这两个问题,我们来探索 Scrapy 爬虫监控方案。</p>
+<p class="content-text">在上一节中,我们已经学习了如何利用 Kubernetes 进行 Scrapy 爬虫的部署,并将其对接了分布式的实现,对接了代理池、账号池,以顺利地实现数据抓取。</p>
+<p class="content-text">但这时候我们又遇到了一个难题,怎样监控各个 Scrapy 爬虫的爬取情况呢?比如,这时候我部署了10个 Pod 来运行 Scrapy 分布式爬虫,它们基于 Scrapy-Redis 进行协同爬取,但我们并无法知晓它们一分钟爬取了多少条数据,成功、失败、重试了多少次,难道要通过分析日志得出来吗?</p>
+<p class="content-text">另外,假如我们已经能成功获取了这些数据,又想进一步把这些数据可视化出来,做一个实时大屏图表,用什么方式实现比较好?需要自己额外写代码实现吗?还是说已经有了非常成熟的解决方案?围绕这两个问题,我们来探索 Scrapy 爬虫监控方案。</p>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">1. 准备</h3>
-<p class="content-text">    在本节开始之前,请确保已经完成了上一节的所有内容并能透彻地理解其原理,另外还需要你能较为熟练地完成利用 Kubernetes 部署 Scrapy 爬虫和其他服务的操作。</p>
+<p class="content-text">在本节开始之前,请确保已经完成了上一节的所有内容并能透彻地理解其原理,另外还需要你能较为熟练地完成利用 Kubernetes 部署 Scrapy 爬虫和其他服务的操作。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 数据统计</h3>
 <p class="content-text">我们在 Scrapy 运行结果中会注意到它会时不时输出类似这样的结果:</p>
-<pre class="result-block"><code>2021-03-15 21:52:06 [scrapy.extensions.logstats] INFO: Crawled 33 pages (at 33 pages/min), scraped 172 items</code></pre>
-<p class="content-text">(at 172 items/min)这里显示了 Scrapy爬虫的统计结果,里面包含当前Spider的页面(page)爬取速度和结果(item)的提取速度,本例中一分钟爬取了33个页面,提取了172个结果。然而,当前我们基于Scrapy-Redis 通过前面几节的方案实现了分布式爬虫之后,仔细观察会发现每个爬虫输出的结果都是各自的统计结果,比如其中一个 Spider 机器性能和网络比较好,爬取速度快,那么它的统计结果就更高,表现不太好的Spider的统计结果就差一些。这些Spider 的统计信息都是独立的、互不影响的,数据也各不相同。这是为什么呢?回想一下,之前 Scrapy-Redis实现分布式爬虫时,我们有两项关键配置:</p>
+<pre class="result-block"><code>2021-03-15 21:52:06 [scrapy.extensions.logstats] INFO: Crawled 33 pages (at 33 pages/min), scraped 172 items (at 172 items/min)</code></pre>
+<p class="content-text">这里显示了 Scrapy爬虫的统计结果,里面包含当前Spider的页面(page)爬取速度和结果(item)的提取速度,本例中一分钟爬取了33个页面,提取了172个结果。然而,当前我们基于Scrapy-Redis 通过前面几节的方案实现了分布式爬虫之后,仔细观察会发现每个爬虫输出的结果都是各自的统计结果,比如其中一个 Spider 机器性能和网络比较好,爬取速度快,那么它的统计结果就更高,表现不太好的Spider的统计结果就差一些。这些Spider 的统计信息都是独立的、互不影响的,数据也各不相同。这是为什么呢?回想一下,之前 Scrapy-Redis实现分布式爬虫时,我们有两项关键配置:</p>
 <pre class="code-block"><code>SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"</code></pre>
 <p class="content-text">这里我们分别配置了 Scheduler 和 RFPDupeFilter,其中 Scheduler 可以实现所有请求通过 Redis队列共享,RFPDupeFilter 可以实现去重指纹通过Redis 集合共享。然而统计信息呢?有哪里配置共享吗?并没有,因此每个 Spider 都是各统计各的,数据各不相干。这样就遇到了一个问题,统计信息不同步而且很分散,这么多Scrapy 爬虫究竟爬取了多少数据也无从得知。如果通过日志来进行数据收集和统计,这个难度和工作量也不小,而且不精确。所以,有没有什么简单方法呢?当然有,按照 Scheduler 和 RFPDupeFilter的思路,将统计信息也通过Redis共享不就可以了吗?</p>
@@ -972,14 +1063,13 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 实现原理</h3>
 <p class="content-text">要实现这个功能,我们需要用到 Scrapy的一个组件,叫作 Stats Collection,翻译过来可以叫统计信息收集器,它是一种 Scrapy的Extension,即扩展组件。Scrapy 通过 Stats Collection 来收集键值对类型的统计信息,其中值一般都是计数器,这么多键值对构成了一个统计表,可以理解为Python中的集合。比如上述例子中的爬取了多少页面,提取了多少结果,这两个信息是可以通过Stats Collection 来保存的。如果说得更直观一点,在Scrapy 爬虫运行完成时,想必我们还注意到过类似如下的统计信息:</p>
-<pre class="code-block"><code>{'downloader/request_bytes': 2925,
+<pre class="result-block"><code>{'downloader/request_bytes': 2925,
 'downloader/request_method_count/GET': 11,
 'downloader/request_count': 11,
 'downloader/response_bytes': 23406,
 'downloader/response_count': 11,
-'downloader/response_status_count/200':</code></pre>
-<p class="content-text">10,</p>
-<pre class="code-block"><code>'downloader/response_status_count/404': 1,
+'downloader/response_status_count/200': 10,
+'downloader/response_status_count/404': 1,
 'elapsed_time_seconds': 3.917599,
 'finish_reason': 'finished',
 'finish_time': datetime.datetime(2021, 3, 15, 14, 1, 36, 275427),
@@ -987,8 +1077,8 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"</code></pre>
 'log_count/DEBUG': 111,
 'log_count/INFO': 10,
 'memusage/max': 55242752,
-'memusage/startup': 55242752,</code></pre>
-<pre class="code-block"><code>'request_depth_max': 9,
+'memusage/startup': 55242752,
+'request_depth_max': 9,
 'response_received_count': 11,
 'robotstxt/request_count': 1,
 'robotstxt/response_count': 1,
@@ -1054,7 +1144,9 @@ class MemoryStatsCollector(StatsCollector):
 
     def _persist_stats(self, stats, spider):
         self.spider_stats[spider.name] = stats</code></pre>
-<p class="content-text">这里可以很明显看到MemoryStatsCollector 继承自 StatsCollector这个类,而StatsCollector 里面又提供了一系列数据获取和设置相关的方法,比如 set_value 接收 key和 value参数,将 value 存储到 stats 这个全局变量里面,get_value 接收 key 这个参数,然后将 value 从 stats 这个全局变量里面取出来并返回。这个 stats 变量就相当于一个大的表,爬虫开始运行时将 stats进行初始化,然后整个爬虫在有任何事件发生的时候可以调用一下数据修改的 set_value方法,将数据的修改记录下来就好了。而MemoryStatsCollector 的实现也非常简单,就是将 stats 初始化为一个Python 字典,所以所有的数据统计结果都是在内存中存储的。如果爬虫运行停止了而且这些数据没有保存下来的话,数据就丢失了,而且这个数据也没有任何共享机制,所以每个Scrapy 爬虫的统计信息都是一个独立的Python 字典,自然也就无法做到统计信息的共享了。到了这里,我们就知道如果要实现 Scrapy 分布式爬虫的统计信息的共享,应该怎么做了吧?那就是将 stats 全局变量通过 Redis 共享!仿照 Scrapy-Redis的其他模块的实现,我们可以将其实现,代码类似如下:</p>
+<p class="content-text">这里可以很明显看到MemoryStatsCollector 继承自 StatsCollector这个类,而StatsCollector 里面又提供了一系列数据获取和设置相关的方法,比如 set_value 接收 key和 value参数,将 value 存储到 stats 这个全局变量里面,get_value 接收 key 这个参数,然后将 value 从 stats 这个全局变量里面取出来并返回。这个 stats 变量就相当于一个大的表,爬虫开始运行时将 stats进行初始化,然后整个爬虫在有任何事件发生的时候可以调用一下数据修改的 set_value方法,将数据的修改记录下来就好了。</p>
+<p class="content-text">而MemoryStatsCollector 的实现也非常简单,就是将 stats 初始化为一个Python 字典,所以所有的数据统计结果都是在内存中存储的。如果爬虫运行停止了而且这些数据没有保存下来的话,数据就丢失了,而且这个数据也没有任何共享机制,所以每个Scrapy 爬虫的统计信息都是一个独立的Python 字典,自然也就无法做到统计信息的共享了。</p>
+<p class="content-text">到了这里,我们就知道如果要实现 Scrapy 分布式爬虫的统计信息的共享,应该怎么做了吧?那就是将 stats 全局变量通过 Redis 共享!仿照 Scrapy-Redis的其他模块的实现,我们可以将其实现,代码类似如下:</p>
 <pre class="code-block"><code>from scrapy.statscollectors import StatsCollector
 from .connection import from_settings as redis_from_settings
 from .defaults import STATS_KEY, SCHEDULER_PERSIST
@@ -1268,19 +1360,25 @@ helm repo update</code></pre>
 LAST DEPLOYED: Sun Mar 28 22:27:37 2021
 NAMESPACE: monitor
 STATUS: deployed
-REVISION: 1</code></pre>
-<p class="content-text">NOTES:kube-prometheus-stack has been installed. Check its status by running:</p>
+REVISION: 1
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:</code></pre>
 <pre class="code-block" data-lang="bash"><code>kubectl --namespace monitor get pods -l "release=prometheus-stack"</code></pre>
 <p class="content-text">如果看到如上结果,就证明已经安装成功了。接下来,我们重新进入 Dashboard,查看 Prometheus 套件的运行情况。运行Dashboard 的流程见17.8节。进入 Dashboard 之后,切换到 Monitor 命名空间,你可能看到如图17-29所示的运行结果,一些状态还是红色或者黄色,不用担心,目前还处在初始化的过程中,耐心等待一段时间,等待全部配置完成之后,就好了。</p>
 <figure class="inline-figure"><img alt="图17-29 运行结果" loading="lazy" src="figures/ch17/fig-17_29.jpg"/><figcaption>图17-29 运行结果</figcaption></figure>
-<p class="content-text">另外,每个 Chart 预留了一些配置项,这些配置项在 values.yaml 里面是可以复写、修改的,具体的配置可以查看 https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml 文件。比如,通过修改 Prometheus 的配置项,就能达到修改 scrape_configs 的目的,这项配置叫作 prometheusOperator.prometheusSpec.additionalScrapeConfigs.注意 此项配置的名称可能会随着当前 Helm Chart 的修改而不同,主要是明白其原理,具体的配置需要以官方文档为准。这时候我们可以将此项配置进行修改:prometheusOperator:</p>
-<pre class="code-block"><code>#此处省略其他配置项</code></pre>
-<p class="content-text">prometheusSpec:</p>
-<pre class="code-block"><code>#此处省略其他配置项</code></pre>
-<p class="content-text"> additionalScrapeConfigs:- job_name: scrapycompositedemo static_configs:- labels:</p>
-<pre class="code-block"><code>app: scrapycompositedemo</code></pre>
-<p class="content-text"> targets:- scrapycompositedemo.crawler.svc.cluster.local:9410这里我们添加了刚才的 Scrapy 爬虫的配置项,指定了 labels 和 targets,具体的配置格式可以参考</p>
-<pre class="result-block"><code>https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config.</code></pre>
+<p class="content-text">另外,每个 Chart 预留了一些配置项,这些配置项在 values.yaml 里面是可以复写、修改的,具体的配置可以查看 https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml 文件。比如,通过修改 Prometheus 的配置项,就能达到修改 scrape_configs 的目的,这项配置叫作 prometheusOperator.prometheusSpec.additionalScrapeConfigs。注意,此项配置的名称可能会随着当前 Helm Chart 的修改而不同,主要是明白其原理,具体的配置需要以官方文档为准。这时候我们可以将此项配置进行修改:</p>
+<pre class="code-block" data-lang="yaml"><code>prometheusOperator:
+  # 此处省略其他配置项
+  prometheusSpec:
+    # 此处省略其他配置项
+    additionalScrapeConfigs:
+      - job_name: scrapycompositedemo
+        static_configs:
+          - labels:
+              app: scrapycompositedemo
+            targets:
+              - scrapycompositedemo.crawler.svc.cluster.local:9410</code></pre>
+<p class="content-text">这里我们添加了刚才的 Scrapy 爬虫的配置项,指定了 labels 和 targets,具体的配置格式可以参考 https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config。</p>
 <p class="content-text">其中值得注意的是,我们将 targets 配置为 scrapycompositedemo.crawler.svc.cluster.local:9410,可以通过此 Host 在 Kubernetes 中访问到对应的服务。配置完成之后,可以通过如下命令应用此更新:</p>
 <pre class="code-block" data-lang="bash"><code>helm upgrade -f values.yaml prometheus-stack prometheus-community/kube-prometheus-stack -n monitor</code></pre>
 <p class="content-text">如果出现类似下面的输出结果,就说明升级成功:</p>
@@ -1289,8 +1387,9 @@ NAME: prometheus-stack
 LAST DEPLOYED: Sun Mar 28 23:22:44 2021
 NAMESPACE: monitor
 STATUS: deployed
-REVISION: 2</code></pre>
-<p class="content-text">NOTES:kube-prometheus-stack has been installed. Check its status by running:</p>
+REVISION: 2
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:</code></pre>
 <pre class="code-block" data-lang="bash"><code>kubectl --namespace monitor get pods -l "release=prometheus-stack"</code></pre>
 <pre class="code-block"><code>...</code></pre>
 <p class="content-text">就证明更新生效了。</p>

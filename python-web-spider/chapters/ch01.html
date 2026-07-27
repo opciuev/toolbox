@@ -82,7 +82,7 @@
 <p class="content-text">我们先观察第一个网络请求,即 www.baidu.com,其中各列的含义如下。</p>
 <p class="content-text list-like"><strong class="term-label">第一列 Name:</strong>请求的名称。一般会用 URL 的最后一部分内容作为名称。</p>
 <p class="content-text list-like"><strong class="term-label">第二列 Status:</strong>响应的状态码。这里显示为 200,代表响应是正常的。通过状态码,我们可以判断发送请求之后是否得到了正常的响应。</p>
-<p class="content-text">第三列 Protocol:请求的协议类型。这里http/1.1 代表 HTTP 1.1 版本,h2代表 HTTP 2.0版本。</p>
+<p class="content-text list-like"><strong class="term-label">第三列 Protocol:</strong>请求的协议类型。这里http/1.1 代表 HTTP 1.1 版本,h2代表 HTTP 2.0版本。</p>
 <p class="content-text list-like"><strong class="term-label">第四列 Type:</strong>请求的文档类型。这里为document,代表我们这次请求的是一个HTML 文档,内容是一些HTML代码。</p>
 <p class="content-text list-like"><strong class="term-label">第五列 Initiator:</strong>请求源。用来标记请求是由哪个对象或进程发起的。</p>
 <p class="content-text list-like"><strong class="term-label">第六列 Size:</strong>从服务器下载的文件或请求的资源大小。如果资源是从缓存中取得的,则该列会显示 from cache。</p>
@@ -128,8 +128,7 @@
 <p class="content-text list-like"><strong class="term-label">Accept-Language:</strong>用于指定客户端可接受的语言类型。</p>
 <p class="content-text list-like"><strong class="term-label">Accept-Encoding:</strong>用于指定客户端可接受的内容编码。</p>
 <p class="content-text list-like"><strong class="term-label">Host:</strong>用于指定请求资源的主机IP和端口号,其内容为请求URL的原始服务器或网关的位置。从HTTP 1.1版本开始,请求必须包含此内容。</p>
-<p class="content-text list-like"><strong class="term-label">Cookie:</strong>也常用复数形式 Cookies,这是网站为了辨别用户,进行会话跟踪而存储在用户本地的数据。</p>
-<p class="content-text">它的主要功能是维持当前访问会话。例如,输入用户名和密码成功登录某个网站后,服务器会用会话保存登录状态信息,之后每次刷新或请求该站点的其他页面,都会发现处于登录状态,这就是 Cookie 的功劳。Cookie 里有信息标识了我们所对应的服务器的会话,每次浏览器在请求该站点的页面时,都会在请求头中加上 Cookie 并将其发送给服务器,服务器通过Cookie 识别出是我们自己,并且查出当前状态是登录状态,所以返回结果就是登录之后才能看到的网页内容。</p>
+<p class="content-text list-like"><strong class="term-label">Cookie:</strong>也常用复数形式 Cookies,这是网站为了辨别用户,进行会话跟踪而存储在用户本地的数据。它的主要功能是维持当前访问会话。例如,输入用户名和密码成功登录某个网站后,服务器会用会话保存登录状态信息,之后每次刷新或请求该站点的其他页面,都会发现处于登录状态,这就是 Cookie 的功劳。Cookie 里有信息标识了我们所对应的服务器的会话,每次浏览器在请求该站点的页面时,都会在请求头中加上 Cookie 并将其发送给服务器,服务器通过Cookie 识别出是我们自己,并且查出当前状态是登录状态,所以返回结果就是登录之后才能看到的网页内容。</p>
 <p class="content-text list-like"><strong class="term-label">Referer:</strong>用于标识请求是从哪个页面发过来的,服务器可以拿到这一信息并做相应的处理,如做来源统计、防盗链处理等。</p>
 <p class="content-text list-like"><strong class="term-label">User-Agent:</strong>简称UA,这是一个特殊的字符串头,可以使服务器识别客户端使用的操作系统及版本、浏览器及版本等信息。做爬虫时如果加上此信息,可以伪装为浏览器;如果不加,很可能会被识别出来。</p>
 <p class="content-text list-like"><strong class="term-label">Content-Type:</strong>也叫互联网媒体类型(Internet Media Type)或者MIME类型,在HTTP协议消息头中,它用来表示具体请求中的媒体类型信息。例如,text/html 代表 HTML格式,image/gif代表 GIF图片,application/json代表 JSON 类型。</p>
@@ -257,8 +256,7 @@
 <section class="minor-section">
 <h4 class="subsection-heading">服务端推送</h4>
 <p class="content-text">HTTP 2.0 新增的另一个强大的功能是:服务器可以对一个客户端请求发送多个响应。换句话说,除了对最初请求的响应外,服务器还可以向客户端推送额外资源,而无须客户端明确地请求。</p>
-<p class="content-text">如果某些资源客户端是一定会请求的,这时就可以采取服务端推送的技术,在客户端发起一次请求后,提前给客户端推送必要的资源,这样就可以减少一点延迟时间。如图1-8所示,服务端接收到</p>
-<p class="content-text">HTML 相关的请求时可以主动把JS和CSS文件推送给客户端,而不需要等到客户端解析HTML时发送这些请求。</p>
+<p class="content-text">如果某些资源客户端是一定会请求的,这时就可以采取服务端推送的技术,在客户端发起一次请求后,提前给客户端推送必要的资源,这样就可以减少一点延迟时间。如图1-8所示,服务端接收到 HTML 相关的请求时可以主动把JS和CSS文件推送给客户端,而不需要等到客户端解析HTML时发送这些请求。</p>
 <figure class="inline-figure"><img src="figures/ch01/fig-1_8.jpg" alt="图1-8 服务端推送" loading="lazy"><figcaption>图1-8 服务端推送</figcaption></figure>
 <p class="content-text">服务端可以主动推送,客户端也有权利选择是否接收。如果服务端推送的资源已经被浏览器缓存过,浏览器可以通过发送RST_STREAM 帧来拒收。</p>
 <p class="content-text">另外,主动推送也遵守同源策略,即服务器不能随便将第三方资源推送给客户端,而必须是经过服务器和客户端双方确认才行,这样也能保证一定的安全性。</p>
@@ -420,8 +418,8 @@ height: 181px;
 <h3 class="subsection-heading numbered-heading">5. 总结</h3>
 <p class="content-text">本节介绍了网页的结构和节点间的关系,了解了这些内容,我们才能有更加清晰的思路去解析和提取网页内容。</p>
 <p class="content-text">本节部分内容参考如下资料。</p>
-<p class="content-text">MDN Web Docs 上关于 HTTP、JavaScript 的介绍。</p>
-<p class="content-text">W3School 上关于 HTML DOM 节点、CSS 选择器的介绍。</p>
+<p class="content-text list-like">MDN Web Docs 上关于 HTTP、JavaScript 的介绍。</p>
+<p class="content-text list-like">W3School 上关于 HTML DOM 节点、CSS 选择器的介绍。</p>
 <p class="content-text list-like">维基百科上HTTP相关的介绍。</p>
 </section>
 <div class="section-heading" id="section-2"><h2>1.3 爬虫的基本原理</h2></div>
@@ -552,8 +550,7 @@ height: 181px;
 <h4 class="subsection-heading">会话 Cookie 和持久 Cookie</h4>
 <p class="content-text">从表面意思来看,会话 Cookie 就是把 Cookie 放在浏览器内存里,关闭浏览器之后,Cookie 即失效;持久 Cookie 则会把 Cookie 保存到客户端的硬盘中,下次还可以继续使用,用于长久保持用户的登录状态。</p>
 <p class="content-text">严格来说,其实没有会话 Cookie 和持久 Cookie之分,只是Max-Age 或 Expires 字段决定了 Cookie失效的时间。</p>
-<p class="content-text">因此,一些持久化登录的网站实际上就是把 Cookie 的有效时间和 Session 有效期设置得比较长,</p>
-<p class="content-text">下次客户端再访问页面时仍然携带之前的 Cookie，就可以直接呈现登录状态。</p>
+<p class="content-text">因此,一些持久化登录的网站实际上就是把 Cookie 的有效时间和 Session 有效期设置得比较长,下次客户端再访问页面时仍然携带之前的 Cookie，就可以直接呈现登录状态。</p>
 </section>
 </section>
 <section class="numbered-section">

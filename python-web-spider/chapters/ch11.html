@@ -40,7 +40,9 @@
 <p class="content-text">当今是大数据时代,数据已经变得越来越重要了。网页和App现在是主流的数据载体,如果其数据的API没有设置任何保护措施,那么在爬虫工程师解决了一些基本的反爬(如封IP、验证码)问题之后,数据还是可以被爬取到的。有没有可能在 URL/API层面或 JavaScript 层面也加上一层防护呢?答案是可以。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">URL/API参数加密</h4>
-<p class="content-text">网站运营者首先想到的防护措施可能是对某些数据接口的参数进行加密,比如说给某些 URL的参数加上校验码,给一些ID信息编码,给某些 API 请求加上 token、sign等签名,这样这些请求发送到服务器时,服务器会通过客户端发来的一些请求信息以及双方约定好的密钥等来对当前的请求进行校验,只有校验通过,才返回对应数据结果。比如说客户端和服务端约定一种接口校验逻辑,客户端在每次请求服务端接口的时候都会附带一个sign 参数,这个sign 参数可能是由当前时间信息、请求的URL、请求的数据、设备的ID、双方约定好的密钥经过一些加密算法构造而成的,客户端会实现这个加密算法来构造sign,然后每次请求服务器的时候附带上这个参数。服务端会根据约定好的算法和请求的数据对 sign 进行校验,只有校验通过,才返回对应的数据,否则拒绝响应。当然,登录状态的校验也可以看作此类方案,比如一个API的调用必须传一个token,这个token必须在用户登录之后才能获取,如果请求的时候不带该token,API 就不会返回任何数据。倘若没有这种措施,那么URL 或者 API接口基本上是完全可以公开访问的,这意味着任何人都可以直接调用来获取数据,几乎是零防护的状态,这样是非常危险的,而且数据也可以被轻易地被爬虫爬取。因此,对URL/API参数进行加密和校验是非常有必要的。</p>
+<p class="content-text">网站运营者首先想到的防护措施可能是对某些数据接口的参数进行加密,比如说给某些 URL的参数加上校验码,给一些ID信息编码,给某些 API 请求加上 token、sign等签名,这样这些请求发送到服务器时,服务器会通过客户端发来的一些请求信息以及双方约定好的密钥等来对当前的请求进行校验,只有校验通过,才返回对应数据结果。</p>
+<p class="content-text">比如说客户端和服务端约定一种接口校验逻辑,客户端在每次请求服务端接口的时候都会附带一个sign 参数,这个sign 参数可能是由当前时间信息、请求的URL、请求的数据、设备的ID、双方约定好的密钥经过一些加密算法构造而成的,客户端会实现这个加密算法来构造sign,然后每次请求服务器的时候附带上这个参数。服务端会根据约定好的算法和请求的数据对 sign 进行校验,只有校验通过,才返回对应的数据,否则拒绝响应。</p>
+<p class="content-text">当然,登录状态的校验也可以看作此类方案,比如一个API的调用必须传一个token,这个token必须在用户登录之后才能获取,如果请求的时候不带该token,API 就不会返回任何数据。倘若没有这种措施,那么URL 或者 API接口基本上是完全可以公开访问的,这意味着任何人都可以直接调用来获取数据,几乎是零防护的状态,这样是非常危险的,而且数据也可以被轻易地被爬虫爬取。因此,对URL/API参数进行加密和校验是非常有必要的。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">JavaScript 压缩、混淆和加密</h4>
@@ -56,7 +58,11 @@
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. URL/API 参数加密</h3>
-<p class="content-text">现在绝大多数网站的数据一般都是通过服务器提供的API来获取的,网站或App可以请求某个数据API 获取到对应的数据,然后再把获取的数据展示出来。但有些数据是比较宝贵或私密的,这些数据肯定需要一定层面上的保护。所以不同API的实现也就对应着不同的安全防护级别,我们这里来总结下。为了提升接口的安全性,客户端会和服务端约定一种接口校验方式,一般来说会用到各种加密和编码算法,如Base64、Hex编码,MD5、AES、DES、RSA等对称或非对称加密。举个例子,比如说客户端和服务器双方约定一个 sign 用作接口的签名校验,其生成逻辑是客户端将 URL 路径进行MD5加密,然后拼接上URL的某个参数再进行Base64编码,最后得到一个字符串sign,这个sign 会通过 Request URL 的某个参数或 Request Headers 发送给服务器。服务器接收到请求后,对URL 路径同样进行MD5加密,然后拼接上URL的某个参数,进行 Base64编码,也会得到一个sign。接着比对生成的sign 和客户端发来的sign 是否一致,如果一致,就返回正确的结果,否则拒绝响应。这就是一个比较简单的接口参数加密的实现。如果有人想要调用这个接口的话,必须定义好 sign 的生成逻辑,否则是无法正常调用接口的。当然,上面的这个实现思路比较简单,这里还可以增加一些时间戳信息增加时效性判断,或增加一些非对称加密进一步提高加密的复杂程度。但不管怎样,只要客户端和服务器约定好了加密和校验逻辑,任何形式的加密算法都是可以的。这里要实现接口参数加密,就需要用到一些加密算法,客户端和服务器肯定也都有对应的SDK实现这些加密算法,如JavaScript的crypto-js、Python的 hashlib、Crypto,等等。但还是如上文所说,如果是网页的话,客户端实现加密逻辑使用 JavaScript 的话,其源代码对用户是完全可见的,如果没有对JavaScript 做任何保护的话,很容易弄清楚客户端加密的流程。因此,我们需要对 JavaScript 利用压缩、混淆等方式来对客户端的逻辑进行一定程度的保护。</p>
+<p class="content-text">现在绝大多数网站的数据一般都是通过服务器提供的API来获取的,网站或App可以请求某个数据API 获取到对应的数据,然后再把获取的数据展示出来。但有些数据是比较宝贵或私密的,这些数据肯定需要一定层面上的保护。所以不同API的实现也就对应着不同的安全防护级别,我们这里来总结下。</p>
+<p class="content-text">为了提升接口的安全性,客户端会和服务端约定一种接口校验方式,一般来说会用到各种加密和编码算法,如Base64、Hex编码,MD5、AES、DES、RSA等对称或非对称加密。举个例子,比如说客户端和服务器双方约定一个 sign 用作接口的签名校验,其生成逻辑是客户端将 URL 路径进行MD5加密,然后拼接上URL的某个参数再进行Base64编码,最后得到一个字符串sign,这个sign 会通过 Request URL 的某个参数或 Request Headers 发送给服务器。</p>
+<p class="content-text">服务器接收到请求后,对URL 路径同样进行MD5加密,然后拼接上URL的某个参数,进行 Base64编码,也会得到一个sign。接着比对生成的sign 和客户端发来的sign 是否一致,如果一致,就返回正确的结果,否则拒绝响应。这就是一个比较简单的接口参数加密的实现。如果有人想要调用这个接口的话,必须定义好 sign 的生成逻辑,否则是无法正常调用接口的。</p>
+<p class="content-text">当然,上面的这个实现思路比较简单,这里还可以增加一些时间戳信息增加时效性判断,或增加一些非对称加密进一步提高加密的复杂程度。但不管怎样,只要客户端和服务器约定好了加密和校验逻辑,任何形式的加密算法都是可以的。这里要实现接口参数加密,就需要用到一些加密算法,客户端和服务器肯定也都有对应的SDK实现这些加密算法,如JavaScript的crypto-js、Python的 hashlib、Crypto,等等。</p>
+<p class="content-text">但还是如上文所说,如果是网页的话,客户端实现加密逻辑使用 JavaScript 的话,其源代码对用户是完全可见的,如果没有对JavaScript 做任何保护的话,很容易弄清楚客户端加密的流程。因此,我们需要对 JavaScript 利用压缩、混淆等方式来对客户端的逻辑进行一定程度的保护。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. JavaScript 压缩</h3>
@@ -88,13 +94,16 @@
 <p class="content-text list-like">代码自我保护:如果对 JavaScript 代码进行格式化,则无法执行,导致浏览器假死。</p>
 <p class="content-text list-like">特殊编码:将 JavaScript 完全编码为人不可读的代码,如表情符号、特殊表示内容,等等。</p>
 <p class="content-text">总之,以上方案都是JavaScript 混淆的实现方式,可以在不同程度上保护 JavaScript代码。</p>
-<p class="content-text">在前端开发中,现在JavaScript 混淆的主流实现是javascript-obfuscator 和 terser 这两个库。它们都</p>
-<p class="content-text">能提供一些代码混淆功能,也都有对应的webpack 和Rollup 打包工具的插件。利用它们,我们可以非常方便地实现页面的混淆,最终输出压缩和混淆后的JavaScript代码,使得JavaScript代码的可读性大大降低。</p>
+<p class="content-text">在前端开发中,现在JavaScript 混淆的主流实现是javascript-obfuscator 和 terser 这两个库。它们都能提供一些代码混淆功能,也都有对应的webpack 和Rollup 打包工具的插件。利用它们,我们可以非常方便地实现页面的混淆,最终输出压缩和混淆后的JavaScript代码,使得JavaScript代码的可读性大大降低。</p>
 <p class="content-text">下面我们以 javascript-obfuscator 为例来介绍一些代码混淆的实现。了解了实现,那么我们自然就对混淆的机理有了更加深刻的认识。</p>
 <p class="content-text">javascript-obfuscator 的官方介绍内容如下:A free and efficient obfuscator for JavaScript (including ES2017). Make your code harder to copy and prevent people from stealing your work.它是支持 ES8的免费、高效的JavaScript 混淆库,可以使得 JavaScript 代码经过混淆后难以被复制、盗用,混淆后的代码具有和原来的代码一模一样的功能。</p>
 <p class="content-text">怎么使用呢?首先,我们需要安装好 Node.js 12.x及以上版本,确保可以正常使用npm命令,具体的安装方式可以参考:https://setup.scrape.center/nodejs。</p>
-<p class="content-text">接着新建一个文件夹,比如js-obfuscate,然后进入该文件夹,初始化工作空间:npm init这里会提示我们输入一些信息,然后创建 package.json文件,这就完成了项目初始化了。</p>
-<p class="content-text">接下来,我们来安装 javascript-obfuscator 这个库:npm i -D javascript-obfuscator稍等片刻,即可看到本地js-obfuscate 文件夹下生成了一个 node_modules文件夹(如图11-1所示),里面就包含了 javascript-obfuscator 这个库,这就说明安装成功了。</p>
+<p class="content-text">接着新建一个文件夹,比如js-obfuscate,然后进入该文件夹,初始化工作空间:</p>
+<pre class="code-block"><code>npm init</code></pre>
+<p class="content-text">这里会提示我们输入一些信息,然后创建 package.json文件,这就完成了项目初始化了。</p>
+<p class="content-text">接下来,我们来安装 javascript-obfuscator 这个库:</p>
+<pre class="code-block"><code>npm i -D javascript-obfuscator</code></pre>
+<p class="content-text">稍等片刻,即可看到本地js-obfuscate 文件夹下生成了一个 node_modules文件夹(如图11-1所示),里面就包含了 javascript-obfuscator 这个库,这就说明安装成功了。</p>
 <figure class="inline-figure"><img alt="图11-1 js-obfuscate 文件夹" loading="lazy" src="figures/ch11/fig-11_1.jpg"/><figcaption>图11-1 js-obfuscate 文件夹</figcaption></figure>
 <p class="content-text">接下来,我们就可以编写代码来实现一个混淆样例了。比如,新建main.js文件,其内容如下:</p>
 <pre class="code-block"><code>const code =
@@ -240,20 +249,21 @@ if(_0x1741f0===undefined){_0x1f93f0=_0x5191['DuIurT'](_0x1f93f0);_
 compact: false,</code></pre>
 <p class="content-text">unicodeEscape Sequence: true</p>
 <pre class="code-block"><code>}</code></pre>
-<p class="content-text">运行结果如下:var 0x5c0d = ['\x68\x65\x6c\x6C\x6f\x20\x77\x6f\x72\x6c\x64'];</p>
-<pre class="result-block"><code>(function (_0x54cc9c, _0x57a3b2) {
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>var 0x5c0d = ['\x68\x65\x6c\x6C\x6f\x20\x77\x6f\x72\x6c\x64'];
+(function (_0x54cc9c, _0x57a3b2) {
 var _0xf833cf = function (_0x3cd8c6) {
-while (--_0x3cd8c6) {</code></pre>
-<p class="content-text">_0x54cc9c['push'](_0x54cc9c['shift']());</p>
-<pre class="code-block"><code>}
+while (--_0x3cd8c6) {
+_0x54cc9c['push'](_0x54cc9c['shift']());
+}
 };
 _0xf833cf(++_0x57a3b2);
 }(_0x5cod, 0x17d));
 var _0x28e8 = function (_0x3fd645, _0x2cf5e7) {
 };
-_0x3fd645 = 0x3fd645 0x0;</code></pre>
-<p class="content-text">var _0x298a20 = _0x5c0d[_0x3fd645];</p>
-<pre class="code-block"><code>return _0x298a20;
+_0x3fd645 = 0x3fd645 0x0;
+var _0x298a20 = _0x5c0d[_0x3fd645];
+return _0x298a20;
 var a = 0x28e8('0x0');</code></pre>
 <p class="content-text">可以看到,这里字符串被数字化和 Unicode 化,非常难以辨认。在很多 JavaScript 逆向的过程中,一些关键的字符串可能会作为切入点来查找加密入口。用了这种混淆之后,如果有人想通过全局搜索的方式搜索 hello 这样的字符串找加密入口,也没法搜到了。</p>
 </section>
@@ -312,17 +322,19 @@ console.log(b);</code></pre>
 <pre class="code-block" data-lang="javascript"><code>const s = "3|1|2".split("|");
 let x = 0;</code></pre>
 <pre class="code-block"><code>while (true) {
-switch (s[x++]) {</code></pre>
-<p class="content-text">    case "1":</p>
-<pre class="code-block"><code>console.log(a);</code></pre>
-<p class="content-text"> continue;case "2":</p>
-<pre class="code-block"><code>console.log(b);</code></pre>
-<p class="content-text"> continue;case "3":</p>
-<pre class="code-block"><code>console.log(c);</code></pre>
-<p class="content-text">      continue;</p>
-<pre class="code-block"><code>}</code></pre>
-<p class="content-text">  break;</p>
-<pre class="code-block"><code>}</code></pre>
+    switch (s[x++]) {
+        case "1":
+            console.log(a);
+            continue;
+        case "2":
+            console.log(b);
+            continue;
+        case "3":
+            console.log(c);
+            continue;
+    }
+    break;
+}</code></pre>
 <p class="content-text">可以看到,混淆后的代码首先声明了一个变量s,它的结果是一个列表,其实是["3", "1", "2"],然后下面通过 switch语句对s中的元素进行了判断,每个case 都加上了各自的代码逻辑。通过这样的处理,一些连续的执行逻辑就被打破了,代码被修改为一个switch语句,原本我们可以一眼看出的逻辑是控制台先输出c,然后才是a、b,但是现在我们必须结合 switch 的判断条件和对应 case 的内容进行判断,我们很难再一眼看出每条语句的执行顺序了,这大大降低了代码的可读性。在javascript-obfuscator中,我们通过 controlFlowFlattening 变量可以控制是否开启控制流平坦化,示例如下:</p>
 <pre class="code-block"><code>const options = {
 compact: false,
@@ -377,11 +389,11 @@ deadCodeInjection: true
 <h4 class="subsection-heading">对象键名替换</h4>
 <p class="content-text">如果是一个对象,可以使用 transformObjectKeys 来对对象的键值进行替换,示例如下:const code =</p>
 <pre class="code-block"><code>(function(){
-var object = {</code></pre>
-<p class="content-text">        foo: 'test1',</p>
-<pre class="code-block"><code>bar: {</code></pre>
-<p class="content-text">            baz: 'test2'</p>
-<pre class="code-block"><code>}
+var object = {
+        foo: 'test1',
+bar: {
+            baz: 'test2'
+}
 };
 })();
 const options = {
@@ -392,16 +404,16 @@ transformObjectKeys: true
 <p class="content-text">var _0x7a5d = ['bar','test2','test1'];</p>
 <pre class="code-block"><code>(function(_0x59fec5, 0x2e4fac) {
 var _0x231e7a = function (_0x46f33e) {
-while (--_0x46f33e) {</code></pre>
-<p class="content-text">            _0x59fec5['push'](_0x59fec5['shift']());</p>
-<pre class="code-block"><code>}
+while (--_0x46f33e) {
+            _0x59fec5['push'](_0x59fec5['shift']());
+}
 };
 _0x231e7a(++_0x2e4fac);
 }(_0x7a5d, 0x167));
 var _0x3bc4 = function (_0x309ad3, _0x22d5ac) {
-_0x309ad3 = 0x309ad3 - 0x0;</code></pre>
-<p class="content-text">    var _0x3a034e = _0x7a5d[_0x309ad3];</p>
-<pre class="code-block"><code>return _0x3a034e;
+_0x309ad3 = 0x309ad3 - 0x0;
+    var _0x3a034e = _0x7a5d[_0x309ad3];
+return _0x3a034e;
 };
 (function () {
 var _0x9f1fd1 = {};
@@ -445,9 +457,9 @@ _0x5a8d9e[_0x5bff("0x6')]=_0x7ab6e4;_0x5a8d9e[_0x5bff('0x7')]=_0x7ab6e4;_0x5a8d9
 <pre class="code-block"><code>setInterval(() =&gt; {debugger; }, 3000)</code></pre>
 <p class="content-text">如果我们把这段代码粘贴到控制台,它就会反复执行debugger 语句,进入断点调试模式,从而干扰正常的调试流程。在javascript-obfuscator中,我们可以使用 debugProtection 来启用调试保护机制,还可以使用debugProtectionInterval 来启用无限调试(debug),使得代码在调试过程中不断进入断点模式,无法顺畅执行。配置如下:</p>
 <pre class="code-block"><code>const options = {
-debugProtection: true,</code></pre>
-<p class="content-text">    debug ProtectionInterval: true,</p>
-<pre class="code-block"><code>};</code></pre>
+debugProtection: true,
+debugProtectionInterval: true,
+};</code></pre>
 <p class="content-text">混淆后的代码会不断跳到 debugger 代码的位置,使得整个代码无法顺畅执行,对JavaScript 代码的调试形成一定的干扰。</p>
 </section>
 <section class="minor-section">
@@ -455,8 +467,9 @@ debugProtection: true,</code></pre>
 <p class="content-text">我们还可以通过控制 domainLock 来控制 JavaScript代码只能在特定域名下运行,这样就可以降低代码被模拟或盗用的风险。示例如下:const code=</p>
 <pre class="code-block"><code>console.log('hello world')
 const options = {
+    domainLock: ['cuiqingcai.com']
 }</code></pre>
-<p class="content-text"> domainLock: ['cuiqingcai.com']这里我们使用 domainLock 指定了一个域名 cuiqingcai.com,也就是设置了一个域名白名单,混淆后的代码结果如下:</p>
+<p class="content-text">这里我们使用 domainLock 指定了一个域名 cuiqingcai.com,也就是设置了一个域名白名单,混淆后的代码结果如下:</p>
 <pre class="result-block"><code>var _0x3203=['apply', 'return\x20(function()\x20','{}.constructor(\x22return\x20this\x22)(\x20)','item',
 'attribute', 'value', 'replace', 'length', 'charCodeAt', 'log', 'hello\x20world']; (function(_0x2ed22c,_0x3ad370)
 {var _0x49dc54=function(_0x53a786){while(--_0x53a786){_0x2ed22c['push'](_0x2ed22c['shift']());}};_0x49dc54
@@ -517,6 +530,7 @@ $.$_$]+($._$=$.$_{$._$])+($.$$=($.$+"")[$._$])+((!$)+"")[$._$$]+($._=$.$_$$$_])+
 <p class="content-text">可以看到,通过这些工具,原本非常简单的代码被转化为一些几乎完全不可读的代码,但实际上运行效果还是相同的。这些混淆方式比较另类,看起来虽然没有什么头绪,但实际上找到规律是非常好还原的,并没有真正达到强力混淆的效果。</p>
 <p class="content-text">以上便是对 JavaScript 混淆方式的介绍和总结。总的来说,经过混淆的JavaScript 代码的可读性大大降低,同时其防护效果也大大增强。</p>
 </section>
+</section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. WebAssembly</h3>
 <p class="content-text">随着技术的发展,WebAssembly 逐渐流行起来。不同于JavaScript 混淆技术,WebAssembly 的基本思路是将一些核心逻辑使用其他语言(如C/C++语言)来编写,并编译成类似字节码的文件,并通过JavaScript 调用执行,从而起到二进制级别的防护作用。WebAssembly 是一种可以使用非 JavaScript 编程语言编写代码并且能在浏览器上运行的技术方案,比如我们能将C/C++文件利用 Emscripten 编译工具转成 wasm格式的文件,JavaScript可以直接调用该文件执行其中的方法。WebAssembly 是经过编译器编译之后的字节码,可以从C/C++编译而来,得到的字节码具有和JavaScript 相同的功能,运行速度更快,体积更小,而且在语法上完全脱离 JavaScript,同时具有沙盒化的执行环境。比如,这就是一个基本的WebAssembly 示例:</p>
@@ -529,8 +543,11 @@ console.log('2 + 4 =', add(2, 4))
 console.log('3^2=', square(3))
 console.log('(2 + 5)^2 =', square(add(2 + 5)))
 })</code></pre>
-<p class="content-text">这里其实是利用 WebAssembly定义了两个方法,分别是add 和 square,分别用于求和和开平方计算。那这两个方法是在哪里声明的呢?其实它们被隐藏在 Uint8Array里面。仅仅查看明文代码,我们确实无从知晓里面究竟定义了什么逻辑,但确实是可以执行的。我们将这段代码输入到浏览器控制台下,运行结果如下:2 + 4 = 6 3^2 = 9 (2 + 5)^2 = 49由此可见,通过 WebAssembly 我们可以成功将核心逻辑“隐藏”起来,这样某些核心逻辑就不能被轻易找出来了。所以,很多网站越来越多地使用 WebAssembly 技术来保护一些核心逻辑不轻易被人识别或破解,可以起到更好的防护效果。</p>
-</section>
+<p class="content-text">这里其实是利用 WebAssembly定义了两个方法,分别是add 和 square,分别用于求和和开平方计算。那这两个方法是在哪里声明的呢?其实它们被隐藏在 Uint8Array里面。仅仅查看明文代码,我们确实无从知晓里面究竟定义了什么逻辑,但确实是可以执行的。我们将这段代码输入到浏览器控制台下,运行结果如下:</p>
+<pre class="result-block"><code>2 + 4 = 6
+3^2 = 9
+(2 + 5)^2 = 49</code></pre>
+<p class="content-text">由此可见,通过 WebAssembly 我们可以成功将核心逻辑“隐藏”起来,这样某些核心逻辑就不能被轻易找出来了。所以,很多网站越来越多地使用 WebAssembly 技术来保护一些核心逻辑不轻易被人识别或破解,可以起到更好的防护效果。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">6. 总结</h3>
@@ -680,28 +697,53 @@ console.log('(2 + 5)^2 =', square(add(2 + 5)))
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 安装 Tampermonkey</h3>
-<p class="content-text"> 首先,我们需要安装 Tampermonkey,这里我们使用的浏览器是Chrome。直接在Chrome 应用商店或者 Tampermonkey 官网上下载并安装即可。安装完成之后,在Chrome浏览器的右上角会出现 Tampermonkey的图标,这就代表安装成功了,如图11-38所示。</p>
+<p class="content-text">首先,我们需要安装 Tampermonkey,这里我们使用的浏览器是Chrome。直接在Chrome 应用商店或者 Tampermonkey 官网上下载并安装即可。安装完成之后,在Chrome浏览器的右上角会出现 Tampermonkey的图标,这就代表安装成功了,如图11-38所示。</p>
 <figure class="inline-figure"><img alt="图11-38 Tampermonkey 的图标" loading="lazy" src="figures/ch11/fig-11_38.jpg"/><figcaption>图11-38 Tampermonkey 的图标</figcaption></figure>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 获取脚本</h3>
-<p class="content-text"> Tampermonkey 运行的是JavaScript脚本,每个网站都能有对应的脚本运行,不同的脚本能完成不同的功能。我们既可以自定义脚本,也可以用已经写好的很多脚本,毕竟有些轮子有了,我们就不需要再去造了。我们可以在 https://greasyfork.org/zh-CN/scripts 上找到一些非常实用的脚本,如全网视频去广告、百度云全网搜索等,大家可以体验一下。</p>
+<p class="content-text">Tampermonkey 运行的是JavaScript脚本,每个网站都能有对应的脚本运行,不同的脚本能完成不同的功能。我们既可以自定义脚本,也可以用已经写好的很多脚本,毕竟有些轮子有了,我们就不需要再去造了。我们可以在 https://greasyfork.org/zh-CN/scripts 上找到一些非常实用的脚本,如全网视频去广告、百度云全网搜索等,大家可以体验一下。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">5. 脚本编写</h3>
-<p class="content-text"> 除了使用别人已经写好的脚本外,我们也可以自己编写脚本来实现想要的功能。编写脚本难不难呢?其实就是写 JavaScript 代码,只要懂一些 JavaScript 语法就好了。另外,我们需要遵循脚本的一些写作规范,其中就包括一些参数的设置。下面我们就简单实现一个小脚本。首先,点击 Tampermonkey 插件图标,再点击“管理面板”项(如图11-39所示),打开脚本管理页面,如图11-40所示。</p>
+<p class="content-text">除了使用别人已经写好的脚本外,我们也可以自己编写脚本来实现想要的功能。编写脚本难不难呢?其实就是写 JavaScript 代码,只要懂一些 JavaScript 语法就好了。另外,我们需要遵循脚本的一些写作规范,其中就包括一些参数的设置。下面我们就简单实现一个小脚本。首先,点击 Tampermonkey 插件图标,再点击“管理面板”项(如图11-39所示),打开脚本管理页面,如图11-40所示。</p>
 <figure class="inline-figure"><img alt="图11-39 “管理面板”项" loading="lazy" src="figures/ch11/fig-11_39.jpg"/><figcaption>图11-39 “管理面板”项</figcaption></figure>
-<p class="content-text"> 这里显示了已经有的一些Tampermonkey 脚本,既包括我们自行创建的,也包括从第三方网站下载和安装的。另外,这里也提供了编辑、调试、删除等管理功能,方便我们对脚本进行管理。</p>
+<p class="content-text">这里显示了已经有的一些Tampermonkey 脚本,既包括我们自行创建的,也包括从第三方网站下载和安装的。另外,这里也提供了编辑、调试、删除等管理功能,方便我们对脚本进行管理。</p>
 <figure class="inline-figure"><img alt="图11-40 脚本管理页面" loading="lazy" src="figures/ch11/fig-11_40.jpg"/><figcaption>图11-40 脚本管理页面</figcaption></figure>
-<p class="content-text">    接下来,创建一个新脚本。点击左侧的+按钮,会显示如图11-41所示的页面。</p>
+<p class="content-text">接下来,创建一个新脚本。点击左侧的+按钮,会显示如图11-41所示的页面。</p>
 <figure class="inline-figure"><img alt="图11-41 点击+按钮出现的页面" loading="lazy" src="figures/ch11/fig-11_41.jpg"/><figcaption>图11-41 点击+按钮出现的页面</figcaption></figure>
-<p class="content-text">初始化的代码如下:// ==UserScript==// @name New Userscript// @namespace http://tampermonkey.net/// @version 0.1// @description try to take over the world!// @author You// @match https://www.tampermonkey.net/documentation.php?ext=dhdg// @grant none// ==/UserScript==</p>
-<pre class="code-block"><code>(function() {</code></pre>
-<p class="content-text">  'use strict';</p>
-<p class="content-text">  // Your code here...</p>
-<pre class="code-block"><code>})();</code></pre>
-<p class="content-text">在上面这段代码里,最前面是一些注释,它们非常有用,这部分内容叫作 UserScript Header,我们可以在里面配置一些脚本的信息,如名称、版本、描述、生效站点等。下面简单介绍 UserScript Header的一些参数定义。@name:脚本的名称,就是在控制面板中显示的脚本名称。@namespace:脚本的命名空间。@version:脚本的版本,主要是做版本更新时用。@author:作者。@description:脚本描述。@homepage、@homepageURL、@website、@source:作者主页,用于在 Tampermonkey 选项页面上从脚本名称点击跳转。请注意,如果@namespace 标记以http://开头,此处也要一样。@icon、@iconURL、@defaulticon:低分辨率图标。@icon64、@icon64URL: 64×64高分辨率图标。@updateURL:检查更新的网址,需要定义@version。@downloadURL:更新下载脚本的网址,如果定义成none,就不会检查更新。@supportURL:报告问题的网址。@include:生效页面,可以配置多个,但注意这里并不支持 URL Hash。例如:// @include http://www.tampermonkey.net/*// @include http://*</p>
-<p class="content-text">// @include https://*// @include *</p>
+<p class="content-text">初始化的代码如下:</p>
+<pre class="code-block" data-lang="javascript"><code>// ==UserScript==
+// @name New Userscript
+// @namespace http://tampermonkey.net/
+// @version 0.1
+// @description try to take over the world!
+// @author You
+// @match https://www.tampermonkey.net/documentation.php?ext=dhdg
+// @grant none
+// ==/UserScript==
+
+(function() {
+  'use strict';
+  // Your code here...
+})();</code></pre>
+<p class="content-text">在上面这段代码里,最前面是一些注释,它们非常有用,这部分内容叫作 UserScript Header,我们可以在里面配置一些脚本的信息,如名称、版本、描述、生效站点等。下面简单介绍 UserScript Header的一些参数定义。</p>
+<p class="content-text list-like"><strong class="term-label">@name:</strong>脚本的名称,就是在控制面板中显示的脚本名称。</p>
+<p class="content-text list-like"><strong class="term-label">@namespace:</strong>脚本的命名空间。</p>
+<p class="content-text list-like"><strong class="term-label">@version:</strong>脚本的版本,主要是做版本更新时用。</p>
+<p class="content-text list-like"><strong class="term-label">@author:</strong>作者。</p>
+<p class="content-text list-like"><strong class="term-label">@description:</strong>脚本描述。</p>
+<p class="content-text list-like"><strong class="term-label">@homepage、@homepageURL、@website、@source:</strong>作者主页,用于在 Tampermonkey 选项页面上从脚本名称点击跳转。请注意,如果@namespace 标记以http://开头,此处也要一样。</p>
+<p class="content-text list-like"><strong class="term-label">@icon、@iconURL、@defaulticon:</strong>低分辨率图标。</p>
+<p class="content-text list-like"><strong class="term-label">@icon64、@icon64URL:</strong>64×64高分辨率图标。</p>
+<p class="content-text list-like"><strong class="term-label">@updateURL:</strong>检查更新的网址,需要定义@version。</p>
+<p class="content-text list-like"><strong class="term-label">@downloadURL:</strong>更新下载脚本的网址,如果定义成none,就不会检查更新。</p>
+<p class="content-text list-like"><strong class="term-label">@supportURL:</strong>报告问题的网址。</p>
+<p class="content-text list-like"><strong class="term-label">@include:</strong>生效页面,可以配置多个,但注意这里并不支持 URL Hash。例如:</p>
+<pre class="code-block"><code>// @include http://www.tampermonkey.net/*
+// @include http://*
+// @include https://*
+// @include *</code></pre>
 <p class="content-text list-like"><strong class="term-label">@match:</strong>约等于 @include 标签,可以配置多个。</p>
 <p class="content-text list-like"><strong class="term-label">@exclude:</strong>不生效页面,可配置多个,优先级高于 @include 和 @match。</p>
 <p class="content-text list-like">@require: 附加脚本网址,相当于引入外部的脚本,这些脚本会在自定义脚本执行之前执行,比如引入一些必需的库,如 jQuery 等,这里可以支持配置多个 @require 参数。例如:// @require https://code.jquery.com/jquery-2.1.4.min.js// @require https://code.jquery.com/jquery-2.1.3.min.js#sha256=23456...// @require https://code.jquery.com/jquery-2.1.2.min.js#md5=34567...,sha256=6789...</p>
@@ -740,30 +782,42 @@ console.log('(2 + 5)^2 =', square(add(2 + 5)))
 <p class="content-text">这么多混淆代码，总不能一点点扒着看吧？遇到这种情形，怎么去找 token 的生成位置呢？解决方法其实有两种，一种就是前文所讲的 Ajax 断点，另一种就是 Hook。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">Ajax 断点</h4>
-<p class="content-text"> 由于这个请求正好是 Ajax 请求，所以我们可以添加一个 XHR 断点来监听，把 POST 的网址加到断点上面。在 Sources 面板右侧添加一个 XHR 断点，匹配内容就填当前域名，如图 11-45 所示。</p>
+<p class="content-text">由于这个请求正好是 Ajax 请求，所以我们可以添加一个 XHR 断点来监听，把 POST 的网址加到断点上面。在 Sources 面板右侧添加一个 XHR 断点，匹配内容就填当前域名，如图 11-45 所示。</p>
 <figure class="inline-figure"><img alt="图11-45 添加 XHR 断点" loading="lazy" src="figures/ch11/fig-11_45.jpg"/><figcaption>图11-45 添加 XHR 断点</figcaption></figure>
 <p class="content-text">这时候如果我们再次点击“登录”按钮，发起一次 Ajax 请求，就可以进入断点了，然后再看堆栈信息，就可以一步步找到编码的入口了。再次点击“登录”按钮，页面进入断点状态，停下来了，结果如图 11-46 所示。</p>
 <figure class="inline-figure"><img alt="图11-46 页面进入断点状态" loading="lazy" src="figures/ch11/fig-11_46.jpg"/><figcaption>图11-46 页面进入断点状态</figcaption></figure>
-<p class="content-text">一步步找，最后可以找到入口其实在 onSubmit 方法那里。但实际上我们观察到，这里断点的栈顶还包括了一些 Promise 相关的内容，而我们真正想找的是用户名和密码经过处理，再进行 Base64 编码</p>
-<p class="content-text">的地方,这些请求的调用实际上和我们找寻的入口没有很大的关系。另外,如果我们想找的入口位置并不伴随这一次Ajax请求,这个方法就没法用了。下面我们再来看另一个方法——Hook。</p>
+<p class="content-text">一步步找，最后可以找到入口其实在 onSubmit 方法那里。但实际上我们观察到，这里断点的栈顶还包括了一些 Promise 相关的内容，而我们真正想找的是用户名和密码经过处理，再进行 Base64 编码的地方,这些请求的调用实际上和我们找寻的入口没有很大的关系。另外,如果我们想找的入口位置并不伴随这一次Ajax请求,这个方法就没法用了。下面我们再来看另一个方法——Hook。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Hook</h4>
-<p class="content-text">第二种可以快速定位入口的方法,就是使用 Tampermonkey 自定义JavaScript, 实现某个JavaScript方法的Hook。Hook 哪里呢?很明显,Hook Base64编码的位置就好了。这里涉及一个小知识点:JavaScript 里面的Base64编码是怎么实现的?没错,就是 btoa方法,在JavaScript 中该方法用于将字符串编码成Base64字符串,因此我们来Hook btoa 方法就好了。这里我们新建一个 Tampermonkey 脚本,其内容如下:// ==UserScript==// @name HookBase64// @namespace https://login1.scrape.center/// @version 0.1// @description Hook Base64 encode function// @author Germey// @match https://login1.scrape.center/// @grant none// ==/UserScript==</p>
-<pre class="code-block"><code>(function () {</code></pre>
-<p class="content-text">    'use strict'</p>
-<pre class="code-block"><code>function hook (object, attr) {</code></pre>
-<p class="content-text">        var func = object[attr]</p>
-<pre class="code-block"><code>object[attr] = function () {
-console.log('hooked', object, attr)
-var ret = func.apply(object, arguments)</code></pre>
-<p class="content-text">            debugger</p>
-<pre class="code-block"><code>return ret
-}
-}
-hook(window, 'btoa')
+<p class="content-text">第二种可以快速定位入口的方法,就是使用 Tampermonkey 自定义JavaScript, 实现某个JavaScript方法的Hook。Hook 哪里呢?很明显,Hook Base64编码的位置就好了。这里涉及一个小知识点:JavaScript 里面的Base64编码是怎么实现的?没错,就是 btoa方法,在JavaScript 中该方法用于将字符串编码成Base64字符串,因此我们来Hook btoa 方法就好了。这里我们新建一个 Tampermonkey 脚本,其内容如下:</p>
+<pre class="code-block" data-lang="javascript"><code>// ==UserScript==
+// @name HookBase64
+// @namespace https://login1.scrape.center/
+// @version 0.1
+// @description Hook Base64 encode function
+// @author Germey
+// @match https://login1.scrape.center/
+// @grant none
+// ==/UserScript==
+
+(function () {
+    'use strict'
+    function hook (object, attr) {
+        var func = object[attr]
+        object[attr] = function () {
+            console.log('hooked', object, attr)
+            var ret = func.apply(object, arguments)
+            debugger
+            return ret
+        }
+    }
+    hook(window, 'btoa')
 })()</code></pre>
-<p class="content-text">首先,我们定义了一些UserScript Header,包括@name 和@match等。这里比较重要的就是@name,表示脚本名称;另外一个就是@match,它代表脚本生效的网址。接着,我们定义了 hook方法,这里给其传入 object 和 attr参数,意思就是 Hook object 对象的attr参数。例如,如果我们想 Hook alert 方法,那就把 object 设置为 window,把attr 设置为字符串 alert。这里我们想要 Hook Base64 的编码方法,而在JavaScript中,Base64编码是用 btoa 方法实现的,所以这里只需要 Hook window 对象的 btoa 方法就好了。那么,Hook 是怎么实现的呢?我们来看一下,var func = object[attr],相当于我们先把它赋值为一个变量,即我们调用 func 方法就可以实现和原来相同的功能。接着,我们直接改写这个方法的定义,将 object[attr]改写成一个新的方法。在新的方法中,通过func.apply方法又重新调用了原来的方法。这样我们就可以保证前后方法的执行效果不影响,之前这个方法该干啥还干啥。但是和之前不同的是,现在我们自定义方法之后,可以在 func 方法执行前后加入自己的代码,如通过 console.log将信息输出到控制台,通过 debugger 进入断点等。在这个过程中,我们先临时保存下来 func 方法,然后定义一个新的方法,接管程序控制权,在其中自定义我们想要的实现,同时在新的方法里面重新调回 func 方法,保证前后结果不影响。所以,我们达到了在不影响原有方法效果的前提下,实现在方法前后自定义的功能,这就是Hook 的过程。</p>
+<p class="content-text">首先,我们定义了一些UserScript Header,包括@name 和@match等。这里比较重要的就是@name,表示脚本名称;另外一个就是@match,它代表脚本生效的网址。</p>
+<p class="content-text">接着,我们定义了 hook方法,这里给其传入 object 和 attr参数,意思就是 Hook object 对象的attr参数。例如,如果我们想 Hook alert 方法,那就把 object 设置为 window,把attr 设置为字符串 alert。这里我们想要 Hook Base64 的编码方法,而在JavaScript中,Base64编码是用 btoa 方法实现的,所以这里只需要 Hook window 对象的 btoa 方法就好了。</p>
+<p class="content-text">那么,Hook 是怎么实现的呢?我们来看一下,var func = object[attr],相当于我们先把它赋值为一个变量,即我们调用 func 方法就可以实现和原来相同的功能。接着,我们直接改写这个方法的定义,将 object[attr]改写成一个新的方法。在新的方法中,通过func.apply方法又重新调用了原来的方法。这样我们就可以保证前后方法的执行效果不影响,之前这个方法该干啥还干啥。</p>
+<p class="content-text">但是和之前不同的是,现在我们自定义方法之后,可以在 func 方法执行前后加入自己的代码,如通过 console.log将信息输出到控制台,通过 debugger 进入断点等。在这个过程中,我们先临时保存下来 func 方法,然后定义一个新的方法,接管程序控制权,在其中自定义我们想要的实现,同时在新的方法里面重新调回 func 方法,保证前后结果不影响。所以,我们达到了在不影响原有方法效果的前提下,实现在方法前后自定义的功能,这就是Hook 的过程。</p>
 <p class="content-text">最后,我们调用 hook方法,传入 window 对象和btoa 字符串,保存。接下来刷新页面,这时我们可以看到这个脚本在当前页面生效了,Tampermonkey 插件面板提示了已经启用。同时,在Sources 面板下的 Page 选项卡中,可以观察到我们定义的JavaScript 脚本被执行了,如图11-47所示。</p>
 <figure class="inline-figure"><img alt="图11-47 Sources 面板下的Page 选项卡" loading="lazy" src="figures/ch11/fig-11_47.jpg"/><figcaption>图11-47 Sources 面板下的Page 选项卡</figcaption></figure>
 <p class="content-text">输入用户名和密码,然后点击“登录”按钮,成功进入断点模式并停下来了,代码就卡在我们自定义的 debugger 这行代码的位置,如图11-48所示。</p>
@@ -822,15 +876,15 @@ hook(window, 'btoa')
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 禁用断点</h3>
-<p class="content-text"> 因为 debugger 其实就是对应的一个断点,它相当于用代码显式地声明了一个断点,要解除它,我们只需要禁用这个断点就好了。首先,我们可以禁用所有断点。全局禁用开关位于Sources 面板的右上角,叫作Deactivate breakpoints,如图11-61所示。点击它,会发现所有的断点变成了灰色,如图11-62所示。</p>
+<p class="content-text">因为 debugger 其实就是对应的一个断点,它相当于用代码显式地声明了一个断点,要解除它,我们只需要禁用这个断点就好了。首先,我们可以禁用所有断点。全局禁用开关位于Sources 面板的右上角,叫作Deactivate breakpoints,如图11-61所示。点击它,会发现所有的断点变成了灰色,如图11-62所示。</p>
 <figure class="inline-figure"><img alt="图11-61 全局禁用开关" loading="lazy" src="figures/ch11/fig-11_61.jpg"/><figcaption>图11-61 全局禁用开关</figcaption></figure>
 <figure class="inline-figure"><img alt="图11-62 禁用所有的断点" loading="lazy" src="figures/ch11/fig-11_62.jpg"/><figcaption>图11-62 禁用所有的断点</figcaption></figure>
 <p class="content-text">这时候我们再重新点击一下 Resume script execution 按钮,跳过当前断点,页面就不会再进入到无限 debugger 的状态了。但是这种全局禁用其实并不是一个好的方案,因为禁用之后我们也无法在其他位置增加断点进行调试了,所有的断点都失效了。这时候我们可以选择禁用局部断点。取消刚才的 Deactivate breakpoints 模式,页面会重新进入无</p>
 <p class="content-text">限 debugger 模式,我们尝试使用另一种方法来跳过这个无限 debugger。我们可能会想着去掉 Breakpoints 里勾选的断点,心想这样不就禁用了吗?大家尝试取消勾选,如图11-63所示。然而,取消之后再继续点击 Resume script execution按钮,它依然不断地停在有debugger关键字的地方,并没有什么效果。其实,Breakpoints 只代表了我们手动添加的断点。对于 debugger 关键字声明的断点,这里直接取消是没有用的。这种情况下还有什么办法吗?</p>
 <figure class="inline-figure"><img alt="图11-63 取消勾选" loading="lazy" src="figures/ch11/fig-11_63.jpg"/><figcaption>图11-63 取消勾选</figcaption></figure>
-<p class="content-text"> 有的。我们可以先将当前 Breakpoints 里面的断点删除,然后在 debugger 语句所在的行的行号上单击鼠标右键,此时会出现一个快捷菜单,如图11-64所示。</p>
+<p class="content-text">有的。我们可以先将当前 Breakpoints 里面的断点删除,然后在 debugger 语句所在的行的行号上单击鼠标右键,此时会出现一个快捷菜单,如图11-64所示。</p>
 <figure class="inline-figure"><img alt="图11-64 在行号上单击鼠标右键出现的快捷菜单" loading="lazy" src="figures/ch11/fig-11_64.jpg"/><figcaption>图11-64 在行号上单击鼠标右键出现的快捷菜单</figcaption></figure>
-<p class="content-text"> 这里会有一个 Never pause here 选项,意思是从不在此处暂停。选择这个选项,于是页面变成如图11-65所示的样子。</p>
+<p class="content-text">这里会有一个 Never pause here 选项,意思是从不在此处暂停。选择这个选项,于是页面变成如图11-65所示的样子。</p>
 <figure class="inline-figure"><img alt="图11-65 选择 Never pause here 选项后的页面" loading="lazy" src="figures/ch11/fig-11_65.jpg"/><figcaption>图11-65 选择 Never pause here 选项后的页面</figcaption></figure>
 <p class="content-text">当前断点显示为橙色,并且断点前面多了一个?符号,同时 Breakpoints 也出现了刚才添加的断点位置。这时再次点击 Resume script execution 按钮,就可以发现我们不会再进入无限 debugger 模式了。当然,我们也可以选择另外一个选项 Add conditional breakpoint,如图11-66所示。</p>
 <figure class="inline-figure"><img alt="图11-66 Add conditional breakpoint 选项" loading="lazy" src="figures/ch11/fig-11_66.jpg"/><figcaption>图11-66 Add conditional breakpoint 选项</figcaption></figure>
@@ -842,9 +896,9 @@ hook(window, 'btoa')
 <h3 class="subsection-heading numbered-heading">4. 替换文件</h3>
 <p class="content-text">前文我们介绍过 Overrides 面板的用法,利用它我们可以将远程的JavaScript 文件替换成本地的JavaScript 文件,这里我们依然可以使用这个方法来对文件进行替换,替换成什么呢?很简单,我们只需要在新的文件里面把 debugger 这个关键字删除。</p>
 <p class="content-text">我们将当前的 JavaScript 文件复制到文本编辑器中,删除或者直接注释掉 debugger 这个关键字,修改如下:</p>
-<pre class="code-block"><code>setInterval((function() {</code></pre>
-<p class="content-text">    // debugger; //可以直接删除此行或者注释此行</p>
-<pre class="code-block"><code>console.log("debugger")
+<pre class="code-block"><code>setInterval((function() {
+    // debugger; //可以直接删除此行或者注释此行
+console.log("debugger")
 })</code></pre>
 <p class="content-text">打开 Sources 面板下的 Overrides面板,将修改后的完整 JavaScript文件复制进去,修改的内容如图11-68所示。</p>
 <figure class="inline-figure"><img alt="图11-68 改后的JavaScript 文件" loading="lazy" src="figures/ch11/fig-11_68.jpg"/><figcaption>图11-68 改后的JavaScript 文件</figcaption></figure>
@@ -866,13 +920,14 @@ hook(window, 'btoa')
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
-<p class="content-text">本节中，我们需要使用Python 模拟执行JavaScript，这里我们使用的库叫作PyExecJS。我们使用</p>
-<pre class="code-block"><code>pip3 命令安装它，具体如下：
-pip3 install pyexecjs</code></pre>
+<p class="content-text">本节中，我们需要使用Python 模拟执行JavaScript，这里我们使用的库叫作PyExecJS。我们使用 pip3 命令安装它，具体如下：</p>
+<pre class="code-block"><code>pip3 install pyexecjs</code></pre>
 <p class="content-text">PyExecJS 是用于执行JavaScript的，但执行JavaScript 的功能需要依赖 JavaScript 运行环境，所以除了安装好这个库之外，我们还需要安装一个JavaScript 运行环境，个人比较推荐的是Node.js。更加详细的安装和配置过程可以参考：https://setup.scrape.center/pyexecjs。PyExecJS 库在运行时会检测本地 JavaScript 运行环境来实现 JavaScript 执行，做好如上准备工作之后，接着我们运行代码检查一下运行环境：</p>
 <pre class="code-block" data-lang="python"><code>import execjs
 print(execjs.get().name)</code></pre>
-<p class="content-text">运行结果类似如下:Node.js (V8)如果你成功安装好 PyExecJS 库和 Node.js 的话,其结果就是 Node.js (V8)。当然,如果你安装的是其他的 JavaScript 运行环境,结果也会有所不同。</p>
+<p class="content-text">运行结果类似如下:</p>
+<pre class="result-block"><code>Node.js (V8)</code></pre>
+<p class="content-text">如果你成功安装好 PyExecJS 库和 Node.js 的话,其结果就是 Node.js (V8)。当然,如果你安装的是其他的 JavaScript 运行环境,结果也会有所不同。</p>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 分析</h3>
@@ -942,7 +997,11 @@ print(result)</code></pre>
 <p class="content-text">: "function" == typeof define &amp;&amp; define.amd</p>
 <pre class="code-block"><code>? define([), e)
 : (t.CryptoJS = e());</code></pre>
-<p class="content-text">在Node.js中,其实 exports 用来将一些对象的定义导出,这里"object" == typeof exports 的结果其实就是 true,所以就执行了 module.exports = exports = e()这段代码,这相当于把e()作为整体导出,而这个e()其实就对应后面的整个function。function 里面定义了加密相关的各个实现,其实就指代整个加密算法库。但是在浏览器中,其结果就不一样了,浏览器环境中并没有 exports 和 define 这两个对象。所以,上述代码在浏览器中最后执行的就是t.CryptoJS = e()这段代码,其实这里就是把CryptoJS 对象挂载到 this 对象上面,而this 就是浏览器中的全局 window 对象,后面就可以直接用了。如果我们把代码放在浏览器中运行,那没有任何问题。然而,我们使用的PyExecJS 是依赖于一个 Node.js 执行环境的,所以上述代码其实执行的是module.exports = exports = e(),这里面并没有声明 CryptoJS对象,也没有把 CryptoJS 挂载到全局对象里面,所以后面我们再调用CryptoJS 就自然而然出现了未定义的错误了。怎么办呢?其实很简单,直接声明一个 CryptoJS 变量,然后手动声明一下它的初始化不就好了吗?所以我们可以把代码稍作修改,改成如下内容:var CryptoJS;</p>
+<p class="content-text">在Node.js中,其实 exports 用来将一些对象的定义导出,这里"object" == typeof exports 的结果其实就是 true,所以就执行了 module.exports = exports = e()这段代码,这相当于把e()作为整体导出,而这个e()其实就对应后面的整个function。function 里面定义了加密相关的各个实现,其实就指代整个加密算法库。</p>
+<p class="content-text">但是在浏览器中,其结果就不一样了,浏览器环境中并没有 exports 和 define 这两个对象。所以,上述代码在浏览器中最后执行的就是t.CryptoJS = e()这段代码,其实这里就是把CryptoJS 对象挂载到 this 对象上面,而this 就是浏览器中的全局 window 对象,后面就可以直接用了。如果我们把代码放在浏览器中运行,那没有任何问题。</p>
+<p class="content-text">然而,我们使用的PyExecJS 是依赖于一个 Node.js 执行环境的,所以上述代码其实执行的是module.exports = exports = e(),这里面并没有声明 CryptoJS对象,也没有把 CryptoJS 挂载到全局对象里面,所以后面我们再调用CryptoJS 就自然而然出现了未定义的错误了。</p>
+<p class="content-text">怎么办呢?其实很简单,直接声明一个 CryptoJS 变量,然后手动声明一下它的初始化不就好了吗?所以我们可以把代码稍作修改,改成如下内容:</p>
+<pre class="code-block"><code>var CryptoJS;</code></pre>
 <pre class="code-block"><code>!(function (t, e) {
 CryptoJS = e();</code></pre>
 <p class="content-text">"object" == typeof exports</p>
@@ -972,33 +1031,39 @@ function () {</code></pre>
 function getToken(player) {
 let key = CryptoJS.enc.Utf8.parse("fipFfVsZsTda94hJNKJfLoaqyqMZFFimwLt");
 const { name, birthday, height, weight } = player;
-let base64Name = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(name));</code></pre>
-<p class="content-text">    let encrypted = CryptoJS.DES.encrypt(</p>
-<pre class="code-block"><code>`${base64Name}${birthday}${height}${weight}`,</code></pre>
-<p class="content-text">        key,</p>
-<pre class="code-block"><code>{
+let base64Name = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(name));
+    let encrypted = CryptoJS.DES.encrypt(
+`${base64Name}${birthday}${height}${weight}`,
+        key,
+{
 mode: CryptoJS.mode.ECB,
 padding: CryptoJS.pad.Pkcs7,
-}</code></pre>
-<p class="content-text">    );</p>
-<pre class="code-block"><code>return encrypted.toString();
 }
-const player = {</code></pre>
-<p class="content-text"> name:"凯文-杜兰特",image: "durant.png",birthday: "1988-09-29",height: "208cm",weight: "108.9KG"</p>
-<pre class="code-block"><code>}
+    );
+return encrypted.toString();
+}
+const player = {
+ name:"凯文-杜兰特",image: "durant.png",birthday: "1988-09-29",height: "208cm",weight: "108.9KG"
+}
 console.log(getToken(player))</code></pre>
 <p class="content-text">这里我们直接使用Node.js中的 require 方法导入crypto.js这个文件,然后将其赋值为 CryptoJS 对象,这样其实就完成了 CryptoJS 对象的初始化了,后面我们就可以正常使用 CryptoJS 对象了。这时候读者可能会有疑惑:上一节中我们用的PyExecJS的底层也是用Node.js 模拟的呀?在上一节中,我们需要修改代码才能完成 CryptoJS的初始化,那这次为什么什么都不用修改就能完成CryptoJS 的初始化呢?继续回过头来观察 crypto.js中最开头的定义:</p>
-<pre class="code-block"><code>!(function (t, e) {</code></pre>
-<p class="content-text">    "object" == typeof exports</p>
-<pre class="code-block"><code>? (module.exports = exports = e())</code></pre>
-<p class="content-text">        : "function" == typeof define &amp;&amp; define.amd</p>
-<pre class="code-block"><code>? define([], e)
+<pre class="code-block"><code>!(function (t, e) {
+    "object" == typeof exports
+? (module.exports = exports = e())
+        : "function" == typeof define &amp;&amp; define.amd
+? define([], e)
 : (t.CryptoJS = e());
 })(this,
-function () {</code></pre>
-<p class="content-text">    //...</p>
-<pre class="code-block"><code>});</code></pre>
-<p class="content-text">通过上一节的说明我们知道,在Node.js 中定义了 exports 这个对象,它用来将一些对象的定义导出。这里"object" == typeof exports 的结果其实就是true,所以就执行了module.exports = exports= e()这段代码,这样就相当于把e()作为整体导出了,而这个e()其实就对应这后面的整个function。function 里面定义了加密相关的各个实现,其实就指代整个加密算法库。既然在 crypto.js里面声明了这个导出,那么怎么导入呢?require 就是导入的意思,导入之后我们把它赋值为了整个CryptoJS变量,其实它就代表整个CryptoJS加密算法库了。正是因为我们在 Node.js 中有和 exports 配合的 require 的调用并将结果赋值给CryptoJS 变量,我们才完成了CryptoJS的初始化。因此,后面我们就能调用CryptoJS里面的DES、enc等各个对象的方法来进行一些加密和编码操作了。CryptoJS 初始化完成了,接下来 getToken 方法其实就是调用 CryptoJS 里面的各个对象的方法,实现了整个加密流程,整个逻辑和上一节是一样的。最后,传入 player对象,然后输出对应的加密字符串即可。运行 main.js,命令如下:node main.js得到的结果如下:DG1uMMq1M70eHhds71H1SMHOoI2tFpWCB4ApP00cVFqptmlFKjFu9RluHo2w3mUw经过比对,结果和网站上的结果(如图11-74所示)是一致的。这样我们就成功通过 Node.js 完成了整个JavaScript 的模拟过程。</p>
+function () {
+    //...
+});</code></pre>
+<p class="content-text">通过上一节的说明我们知道,在Node.js 中定义了 exports 这个对象,它用来将一些对象的定义导出。这里"object" == typeof exports 的结果其实就是true,所以就执行了module.exports = exports= e()这段代码,这样就相当于把e()作为整体导出了,而这个e()其实就对应这后面的整个function。function 里面定义了加密相关的各个实现,其实就指代整个加密算法库。</p>
+<p class="content-text">既然在 crypto.js里面声明了这个导出,那么怎么导入呢?require 就是导入的意思,导入之后我们把它赋值为了整个CryptoJS变量,其实它就代表整个CryptoJS加密算法库了。正是因为我们在 Node.js 中有和 exports 配合的 require 的调用并将结果赋值给CryptoJS 变量,我们才完成了CryptoJS的初始化。因此,后面我们就能调用CryptoJS里面的DES、enc等各个对象的方法来进行一些加密和编码操作了。</p>
+<p class="content-text">CryptoJS 初始化完成了,接下来 getToken 方法其实就是调用 CryptoJS 里面的各个对象的方法,实现了整个加密流程,整个逻辑和上一节是一样的。最后,传入 player对象,然后输出对应的加密字符串即可。运行 main.js,命令如下:</p>
+<pre class="code-block"><code>node main.js</code></pre>
+<p class="content-text">得到的结果如下:</p>
+<pre class="result-block"><code>DG1uMMq1M70eHhds71H1SMHOoI2tFpWCB4ApP00cVFqptmlFKjFu9RluHo2w3mUw</code></pre>
+<p class="content-text">经过比对,结果和网站上的结果(如图11-74所示)是一致的。这样我们就成功通过 Node.js 完成了整个JavaScript 的模拟过程。</p>
 <figure class="inline-figure"><img alt="图11-74 网站上的结果" loading="lazy" src="figures/ch11/fig-11_74.jpg"/><figcaption>图11-74 网站上的结果</figcaption></figure>
 </section>
 <section class="numbered-section">
@@ -1046,7 +1111,8 @@ data = {
 url = 'http://localhost:3000'
 response = requests.post(url, json=data)
 print(response.text)</code></pre>
-<p class="content-text">运行结果如下:DG1uMMq1M70eHhds71H1SMHO0I2tFpWCB4ApP00cVFqptmlFKjFu9RluHo2w3mUw</p>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>DG1uMMq1M70eHhds71H1SMHO0I2tFpWCB4ApP00cVFqptmlFKjFu9RluHo2w3mUw</code></pre>
 <p class="content-text">这样我们就成功实现了 Node.js 到 Python 调用的转换,这样爬取到数据之后,我们就可以使用Python 进行后续的分析、处理操作了。</p>
 </section>
 <section class="numbered-section">
@@ -1074,8 +1140,8 @@ print(response.text)</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 准备工作</h3>
 <p class="content-text">本节中,我们使用 playwright 来实现浏览器辅助逆向。首先,安装playwright,相关命令如下:</p>
-<pre class="code-block"><code>pip3 install playwright</code></pre>
-<p class="content-text">  playwright install</p>
+<pre class="code-block"><code>pip3 install playwright
+playwright install</code></pre>
 <p class="content-text">运行如上两条命令之后,会安装 playwright库,并安装 Chromium、Firefox、WebKit 三个内核的浏览器供 playwright 直接使用。具体的安装方法可以参考:https://setup.scrape.center/playwright。</p>
 </section>
 <section class="numbered-section">
@@ -1265,30 +1331,30 @@ console.log(ast);</code></pre>
     ...
   },
 ]</code></pre>
-<pre class="code-block"><code>Node {</code></pre>
-<p class="content-text">  type: 'ForStatement',</p>
-<pre class="code-block"><code>init: Node {</code></pre>
-<p class="content-text">    type: 'VariableDeclaration',</p>
-<pre class="code-block"><code>},
-test: Node {</code></pre>
-<p class="content-text">    type: 'BinaryExpression',</p>
-<pre class="code-block"><code>},
-update: Node {</code></pre>
-<p class="content-text">    type: 'UpdateExpression',</p>
-<pre class="code-block"><code>},
-body: Node {</code></pre>
-<p class="content-text">    type: 'BlockStatement',</p>
-<pre class="code-block"><code>}
+<pre class="code-block"><code>Node {
+  type: 'ForStatement',
+init: Node {
+    type: 'VariableDeclaration',
 },
-Node {</code></pre>
-<p class="content-text">  type: 'ExpressionStatement',</p>
-<pre class="code-block"><code>}</code></pre>
+test: Node {
+    type: 'BinaryExpression',
+},
+update: Node {
+    type: 'UpdateExpression',
+},
+body: Node {
+    type: 'BlockStatement',
+}
+},
+Node {
+  type: 'ExpressionStatement',
+}</code></pre>
 <p class="content-text">由于内容过多,这里省略了一些内容。可以看到,我们直接通过ast.program.body 即可将 body 获取到。可以看到,刚才的四个Node的具体结构也被输出出来了。前两个 Node 都是 VariableDeclaration类型,这正好对应了前两行代码:const a = 3;let string = "hello";</p>
 <p class="content-text">这里我们分别声明了一个数字类型和字符串类型的变量,所以每句都被解析为VariableDeclaration类型。每个VariableDeclaration 都包含了一个 declarations 属性,其内部又是一个 Node 列表,其中包含了具体的详情信息。</p>
 <p class="content-text">接着,我们再继续观察下一个 Node。它是ForStatement 类型,代表一个for循环语句,对应的代码如下:</p>
-<pre class="code-block"><code>for (let i = 0; i &lt; a; i++) {</code></pre>
-<p class="content-text">  string += "world";</p>
-<pre class="code-block"><code>}</code></pre>
+<pre class="code-block"><code>for (let i = 0; i &lt; a; i++) {
+  string += "world";
+}</code></pre>
 <pre class="code-block"><code>for 循环通常包括四个部分,for 初始逻辑、判断逻辑、更新逻辑以及for循环区块的主循环执行</code></pre>
 <p class="content-text">逻辑,所以对于一个 ForStatement,它也自然有几个对应的属性表示这些内容,分别为init、test、update 和 body。</p>
 <p class="content-text">对于 init,即循环的初始逻辑,其代码如下:let i = 0;</p>
@@ -1296,9 +1362,9 @@ Node {</code></pre>
 <pre class="code-block"><code>i &lt; a</code></pre>
 <p class="content-text">它是一个逻辑表达式,被解析为BinaryExpression,代表逻辑运算。对于 update,即更新逻辑,其代码如下:i++</p>
 <p class="content-text list-like"><strong class="term-label">AST技术简介：</strong>它就是对i加1,也是一个表达式,被解析为UpdateExpression 类型。对于 body,它被一个大括号包围,其内容为:</p>
-<pre class="code-block"><code>{</code></pre>
-<p class="content-text">  string += "world";</p>
-<pre class="code-block"><code>}</code></pre>
+<pre class="code-block"><code>{
+  string += "world";
+}</code></pre>
 <p class="content-text">整个内容算作一个代码块,所以被解析为 BlockStatement 类型,其body 属性又是一个列表。对于最后一行,代码如下:</p>
 <pre class="code-block"><code>console.log('string', string);</code></pre>
 <p class="content-text">它被解析为 ExpressionStatement 类型,expression 的属性是CallExpression。CallExpression 又包含了 callee 和 arguments 属性,对应的就是console 对象的log方法的调用逻辑。到现在为止,我们应该能弄明白这个基本过程了。parser 会将代码根据逻辑区块进行划分,每个逻辑区块根据其作用都会归类成不同的类型,不同的类型拥有不同的属性表示。同时代码和代码之间有嵌套关系,所以最终整个代码就会被解析成一个层层嵌套的表示结果。另外,个人还推荐使用上文提到的 https://astexplorer.net/网站来进行AST的解析和查看,它比代码更加直观。转化为AST之后,怎样再把AST转回 JavaScript代码呢?要还原,我们可以借助于 generate 方法。</p>
@@ -1334,10 +1400,11 @@ console.log(output);</code></pre>
 retainLines: true,
 });
 console.log(output)</code></pre>
-<p class="content-text">运行结果如下:const a = 3;let string = "hello";</p>
-<pre class="result-block"><code>for (let i = 0; i &lt; a; i++) {</code></pre>
-<p class="content-text">  string += "world";</p>
-<pre class="code-block"><code>}
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>const a = 3;let string = "hello";
+for (let i = 0; i &lt; a; i++) {
+  string += "world";
+}
 console.log("string", string);</code></pre>
 <p class="content-text">这时候我们就可以看到,生成的代码中间没有再出现空行了,和原来的代码保持一致的格式。</p>
 </section>
@@ -1462,14 +1529,14 @@ import fs from "fs";</code></pre>
 let ast = parse(code);
 traverse(ast, {
 NumericLiteral (path) {
-if (path.node.value === 3) {</code></pre>
-<p class="content-text">            path.node.value = 5;</p>
-<pre class="code-block"><code>}
+if (path.node.value === 3) {
+            path.node.value = 5;
+}
 },
 StringLiteral (path) {
-if (path.node.value === "hello") {</code></pre>
-<p class="content-text">            path.node.value = "hi";</p>
-<pre class="code-block"><code>}
+if (path.node.value === "hello") {
+            path.node.value = "hi";
+}
 },
 });</code></pre>
 <p class="content-text">运行结果是完全相同的,单独定义特定类型的解析方法会显得更有条理。另外,我们可以再看下其他的操作方法。比如,删除某个node,这里可以试着删除最后一行代码对应的节点,此时直接调用 remove 方法即可,用法如下:</p>
@@ -1480,11 +1547,11 @@ import fs from "fs";</code></pre>
 <pre class="code-block"><code>const code = fs.readFileSync("codes/code1.js", "utf-8");
 let ast = parse(code);
 traverse(ast, {
-CallExpression(path) {</code></pre>
-<p class="content-text">        let node = path.node;</p>
-<pre class="code-block"><code>if (</code></pre>
-<p class="content-text"> node.callee.object.name === "console" &amp;&amp;node.callee.property.name === "log"</p>
-<pre class="code-block"><code>) {
+CallExpression(path) {
+        let node = path.node;
+if (
+ node.callee.object.name === "console" &amp;&amp; node.callee.property.name === "log"
+) {
 path.remove();
 }
 },
@@ -1493,10 +1560,11 @@ const { code: output } = generate (ast, {
 retainLines: true,
 });
 console.log(output);</code></pre>
-<p class="content-text">这样我们就可以删除所有的 console.log 语句。运行结果如下:const a = 3;let string = "hello";</p>
-<pre class="result-block"><code>for (let i = 0; i &lt; a; i++) {</code></pre>
-<p class="content-text">    string += "world";</p>
-<pre class="code-block"><code>}</code></pre>
+<p class="content-text">这样我们就可以删除所有的 console.log 语句。运行结果如下:</p>
+<pre class="result-block"><code>const a = 3;let string = "hello";
+for (let i = 0; i &lt; a; i++) {
+    string += "world";
+}</code></pre>
 <p class="content-text">上面说了简单的替换和删除,那么如果我们要插入一个节点,该怎么办呢?插入新节点时,需要先声明一个节点,怎么声明呢?这时候就要用到 types了。</p>
 </section>
 <section class="numbered-section">
@@ -1581,8 +1649,9 @@ const { code: output } = generate(ast);
 console.log(output);</code></pre>
 <p class="content-text">这里我们使用 traverse 方法对 AST对象进行遍历,使用"UnaryExpression|BinaryExpression|ConditionalExpression|CallExpression"作为对象的键名,分别用于处理一元表达式、布尔表达式、条件表达式、调用表达式。如果AST 对应的 path 对象符合这几种表达式,就会执行我们定义的回调方法。在回调方法里面,我们调用了 path 的 evaluate 方法,该方法会对 path 对象进行执行,计算所得到的结果。其内部实现会返回一个 confident 和 value 字段表示置信度,如果认定结果是可信的,那么 confident 就是true,我们可以调用path 的replaceWith 方法把执行的结果 value 进行替换,否</p>
 <p class="content-text">则不替换。</p>
-<p class="content-text">运行结果如下:const a = true;const b = false;const c = 10;</p>
-<pre class="result-block"><code>const d = parseInt("50");</code></pre>
+<p class="content-text">运行结果如下:</p>
+<pre class="result-block"><code>const a = true;const b = false;const c = 10;
+const d = parseInt("50");</code></pre>
 <p class="content-text">可以看到,原本看起来不怎么直观的代码现在被还原得非常直观了。所以,利用这个原理,我们可以实现对一些表达式的还原和计算,提高整个代码的可读性。</p>
 </section>
 <section class="numbered-section">
@@ -1599,9 +1668,9 @@ import fs from "fs";</code></pre>
 let ast = parse(code);
 traverse(ast, {
 StringLiteral({ node }) {
-if (node.extra &amp;&amp; /\\[ux]/gi.test(node.extra.raw)) {</code></pre>
-<p class="content-text">        node.extra.raw = node.extra.rawValue;</p>
-<pre class="code-block"><code>}
+if (node.extra &amp;&amp; /\\[ux]/gi.test(node.extra.raw)) {
+        node.extra.raw = node.extra.rawValue;
+}
 },
 });
 const { code: output } = generate(ast);
@@ -1633,7 +1702,10 @@ console.log("nice to meet you");
 };
 _0x16c18d();
 _0x1f7292();</code></pre>
-<p class="content-text">这里首先声明了两个方法,最后分别调用,而且两个方法内部都有一些 if else语句。比如,第一个 if 语句的判定条件是!![[]],乍看起来并不能直观地看出它的真实值到底是多少,其实这里有一个双重否定,后面紧跟一个二维数组[[]]。由于[[]]本身就是一个非空对象,加上双重否定之后结果就是true。第二个if语句的判定条件则是一个字符串的判断,前者"xmv2nOdfy2N".charAt(4)其实就是字符n,String.fromCharCode(110) 就是把110这个ASCII码转换为字符,结果也是n,而判定符又是!==,所以整个表达式的结果就是false。所以说,第一个方法其实执行的是 if 对应的区块,else 对应的区块是不会被执行的。第二个方法其实执行的是 else 对应的区块,if 对应的区块是不会被执行的。不会被执行到的代码其实是冗余的,起到一些干扰作用,加大我们分析代码的难度。对于这种情况,我们也可以使用AST来把一些僵尸代码去除。首先,我们把上述代码贴到 https://astexplorer.net/分析一下。选中第一个方法里面的if语句,如图11-84所示,可以看到它对应的就是一个IfStatement 节点,它有 type、start、end、loc、test、consequent、alternate 这几个属性,其中 test 就是指 if 判定语句,就是!![[]], consequent 就是 if对应的代码区块,alternate 就是 else 对应的代码区块。</p>
+<p class="content-text">这里首先声明了两个方法,最后分别调用,而且两个方法内部都有一些 if else语句。比如,第一个 if 语句的判定条件是!![[]],乍看起来并不能直观地看出它的真实值到底是多少,其实这里有一个双重否定,后面紧跟一个二维数组[[]]。由于[[]]本身就是一个非空对象,加上双重否定之后结果就是true。</p>
+<p class="content-text">第二个if语句的判定条件则是一个字符串的判断,前者"xmv2nOdfy2N".charAt(4)其实就是字符n,String.fromCharCode(110) 就是把110这个ASCII码转换为字符,结果也是n,而判定符又是!==,所以整个表达式的结果就是false。</p>
+<p class="content-text">所以说,第一个方法其实执行的是 if 对应的区块,else 对应的区块是不会被执行的。第二个方法其实执行的是 else 对应的区块,if 对应的区块是不会被执行的。不会被执行到的代码其实是冗余的,起到一些干扰作用,加大我们分析代码的难度。对于这种情况,我们也可以使用AST来把一些僵尸代码去除。</p>
+<p class="content-text">首先,我们把上述代码贴到 https://astexplorer.net/分析一下。选中第一个方法里面的if语句,如图11-84所示,可以看到它对应的就是一个IfStatement 节点,它有 type、start、end、loc、test、consequent、alternate 这几个属性,其中 test 就是指 if 判定语句,就是!![[]], consequent 就是 if对应的代码区块,alternate 就是 else 对应的代码区块。</p>
 <figure class="inline-figure"><img alt="图11-84 选中第一个方法里面的 if 语句" loading="lazy" src="figures/ch11/fig-11_84.jpg"/><figcaption>图11-84 选中第一个方法里面的 if 语句</figcaption></figure>
 <p class="content-text">所以,这里我们可以实现如下还原代码:</p>
 <pre class="code-block" data-lang="javascript"><code>import traverse from "@babel/traverse";
@@ -1696,14 +1768,14 @@ _0x1f7292();</code></pre>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">4. 反控制流平坦化</h3>
 <p class="content-text">另外,在11.1节中,我们还看到一种混淆方式,叫作控制流平坦化,其实就是把原本正常执行的逻辑顺序进行了混淆,通过一些 if else 或者 switch语句进行拆分,这导致我们不能很直观地看到各个代码区块执行的顺序。还是拿之前的样例,代码如下:</p>
-<pre class="code-block"><code>const s = "3|1|2".split("|");</code></pre>
-<p class="content-text">let x = 0;</p>
-<pre class="code-block"><code>while (true) {
-switch (s[x++]) {</code></pre>
-<p class="content-text"> case "1":const a = 1;continue;case "2":const b = 3;continue;case "3":const c = 0;continue;</p>
-<pre class="code-block"><code>}</code></pre>
-<p class="content-text">    break;</p>
-<pre class="code-block"><code>}</code></pre>
+<pre class="code-block"><code>const s = "3|1|2".split("|");
+let x = 0;
+while (true) {
+switch (s[x++]) {
+ case "1":const a = 1;continue;case "2":const b = 3;continue;case "3":const c = 0;continue;
+}
+    break;
+}</code></pre>
 <p class="content-text">可以看到,这里首先定义了一个s变量,其中使用split 方法对字符串进行分割,结果其实就是</p>
 <pre class="code-block"><code>["3","1","2"],然后配合使用while 和 switch 语句,这里判定s[x++]变量,每执行一次循环,它</code></pre>
 <p class="content-text">的结果就会变一次,三次循环分别就是3、1、2,然后每次循环都匹配对应的case语句并执行不同的语句。</p>
@@ -1720,9 +1792,9 @@ switch (s[x++]) {</code></pre>
 <pre class="code-block"><code>traverse(ast, {
 WhileStatement(path) {
 const { node, scope } = path;
-const { test, body } = node;</code></pre>
-<p class="content-text">    let switchNode = body.body[0];</p>
-<pre class="code-block"><code>let { discriminant, cases } = switchNode;
+const { test, body } = node;
+    let switchNode = body.body[0];
+let { discriminant, cases } = switchNode;
 let { object, property } = discriminant;
 },
 });</code></pre>
@@ -1832,7 +1904,9 @@ console.log(output);</code></pre>
 <figure class="inline-figure"><img alt="图11-91 main.js 文件" loading="lazy" src="figures/ch11/fig-11_91.jpg"/><figcaption>图11-91 main.js 文件</figcaption></figure>
 <p class="content-text">这其实就是用了AAEncode混淆。我们尝试点击左下角的格式化按钮,发现格式化也是无效的。那么这种混淆方式有的解吗?看也看不懂,格式化也无效。当然是有的,我们可以试着先观察一下代码的规律。从代码的前后两端入手,可以观察到开头基本上都是'w'/=/' m´)/~/,结尾基本上都是('') ['o']) ('')) ('_');。因为这段 JavaScript代码是可以运行的,那么它一定是符合JavaScript 语法的。但最后是以一个括号结尾的,按照JavaScript的语法,可以判定前面的整体是一个方法声明。就比如类似这样的代码:</p>
 <pre class="code-block"><code>(function(a){console.log('hello', a)})('world');</code></pre>
-<p class="content-text">前面是一个方法的声明,然后整个通过大括号括起来,最后再传入一个参数来调用,运行结果如下:hello world其实AAEncode 的原理也是将前面的内容转化成一个方法声明,最后传入一个参数来调用执行,只不过最后传的参数是一个下划线而已。对于上面的例子,假如我们不知道(function(a){console.log('hello',a)})这个方法声明究竟是怎么写的,可以将其输出到控制台上。下面看下运行效果,如图11-92所示。</p>
+<p class="content-text">前面是一个方法的声明,然后整个通过大括号括起来,最后再传入一个参数来调用,运行结果如下:</p>
+<pre class="result-block"><code>hello world</code></pre>
+<p class="content-text">其实AAEncode 的原理也是将前面的内容转化成一个方法声明,最后传入一个参数来调用执行,只不过最后传的参数是一个下划线而已。对于上面的例子,假如我们不知道(function(a){console.log('hello',a)})这个方法声明究竟是怎么写的,可以将其输出到控制台上。下面看下运行效果,如图11-92所示。</p>
 <figure class="inline-figure"><img alt="图11-92 运行效果" loading="lazy" src="figures/ch11/fig-11_92.jpg"/><figcaption>图11-92 运行效果</figcaption></figure>
 <p class="content-text">可以看到,这个方法的声明就被打印出来了。对于 AAEncode来说,我们也可以试着将最后的参数('_')去掉,将前面的代码输出到控制台,看下运行效果,如图11-93所示。</p>
 <figure class="inline-figure"><img alt="图11-93 运行效果" loading="lazy" src="figures/ch11/fig-11_93.jpg"/><figcaption>图11-93 运行效果</figcaption></figure>
@@ -1841,28 +1915,28 @@ console.log(output);</code></pre>
 <p class="content-text">这时我们发现这个方法的声明被转化为字符串了,内容一目了然。将代码整理后格式化一下,就能得到如下结果:</p>
 <pre class="code-block" data-lang="javascript"><code>function anonymous() {
   const players = [
-    {</code></pre>
-<p class="content-text">name:"凯文-杜兰特”,image: "durant.png",birthday: "1988-09-29",height: "208cm",weight: "108.9KG",</p>
-<pre class="code-block"><code>},
-},</code></pre>
-<p class="content-text">];</p>
-<pre class="code-block"><code>new Vue({</code></pre>
-<p class="content-text">  el: "#app",</p>
-<pre class="code-block"><code>data: function() {
+    {
+name:"凯文-杜兰特”,image: "durant.png",birthday: "1988-09-29",height: "208cm",weight: "108.9KG",
+},
+},
+];
+new Vue({
+  el: "#app",
+data: function() {
 return { players, key: "nCQ7ywzJVEqGTTxncPFJzXv8juDWwPMrZAr" };
 },
 methods: {
 getToken(player) {
 let key = CryptoJS.enc.Utf8.parse(this.key);
-const { name, birthday, height, weight } = player;</code></pre>
-<p class="content-text">      let base64Name = CryptoJS.enc.Base64.stringify(</p>
-<pre class="code-block"><code>CryptoJS.enc.Utf8.parse(name)</code></pre>
-<p class="content-text"> );let encrypted = CryptoJS.DES.encrypt(</p>
-<pre class="code-block"><code>`${base64Name}${birthday}${height}${weight}`,</code></pre>
-<p class="content-text">        key,</p>
-<pre class="code-block"><code>{ mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }</code></pre>
-<p class="content-text">      );</p>
-<pre class="code-block"><code>return encrypted.toString();
+const { name, birthday, height, weight } = player;
+      let base64Name = CryptoJS.enc.Base64.stringify(
+CryptoJS.enc.Utf8.parse(name)
+ );let encrypted = CryptoJS.DES.encrypt(
+`${base64Name}${birthday}${height}${weight}`,
+        key,
+{ mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }
+      );
+return encrypted.toString();
 },
 },
 });</code></pre>
@@ -2015,7 +2089,9 @@ print(runtime)</code></pre>
 runtime = pywasm.load('./Wasm.wasm')
 result = runtime.exec('encrypt', [1, 2])
 print(result)</code></pre>
-<p class="content-text">这里我们调用了 exec方法,第一个参数就是要调用的 wasm 中的方法名,这里我们传入字符串encrypt,第二个参数是一个列表,代表encrypt方法所接收的参数,如果是两个,那么列表长度就是2,参数和列表的元素一一对应即可。运行结果如下:16359调用成功了!成功输出了结果,但是这似乎并不是我们想要的,因为这里传入的参数其实是我们自定义的。要真正模拟网站的Ajax请求,就要用网站里面的真实参数。通过分析逻辑,我们知道传入的参数其实一个是offset,一个是时间戳。其中后者的实现是这样的:</p>
+<p class="content-text">这里我们调用了 exec方法,第一个参数就是要调用的 wasm 中的方法名,这里我们传入字符串encrypt,第二个参数是一个列表,代表encrypt方法所接收的参数,如果是两个,那么列表长度就是2,参数和列表的元素一一对应即可。运行结果如下:</p>
+<pre class="result-block"><code>16359</code></pre>
+<p class="content-text">调用成功了!成功输出了结果,但是这似乎并不是我们想要的,因为这里传入的参数其实是我们自定义的。要真正模拟网站的Ajax请求,就要用网站里面的真实参数。通过分析逻辑,我们知道传入的参数其实一个是offset,一个是时间戳。其中后者的实现是这样的:</p>
 <pre class="result-block"><code>parseInt(Math.round((new Date).getTime() / 1e3).toString())</code></pre>
 <p class="content-text">这是 JavaScript 中的实现,我们将其输出到控制台,可以看到运行结果如图11-118所示</p>
 <figure class="inline-figure"><img alt="图11-118 运行结果" loading="lazy" src="figures/ch11/fig-11_118.jpg"/><figcaption>图11-118 运行结果</figcaption></figure>
@@ -2059,7 +2135,10 @@ module = Module (store, open('Wasm.wasm', 'rb').read())
 instance = Instance(module)
 result = instance.exports.encrypt(1, 2)
 print(result)</code></pre>
-<p class="content-text">这里我们还是调用了 encrypt方法并传入了1和2两个参数,运行结果如下:16359运行结果和刚才是一致的,这说明此时调用成功了。关于更多 API 的法,用可以参考官方文档:https://wasmerio.github.io/wasmer-python/api/wasmer/。根据刚才的逻辑,我们再实现一下完整的爬取逻辑,代码如下:</p>
+<p class="content-text">这里我们还是调用了 encrypt方法并传入了1和2两个参数,运行结果如下:</p>
+<pre class="result-block"><code>16359</code></pre>
+<p class="content-text">运行结果和刚才是一致的,这说明此时调用成功了。关于更多 API 的法,用可以参考官方文档:https://wasmerio.github.io/wasmer-python/api/wasmer/。</p>
+<p class="content-text">根据刚才的逻辑,我们再实现一下完整的爬取逻辑,代码如下:</p>
 <pre class="result-block"><code>import requests
 import time
 import pywasm
@@ -2128,19 +2207,19 @@ print(response.json())</code></pre>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">Hook</h4>
-<p class="content-text"> Hook 也是一个非常常用的查找入口的功能。有时候,一些代码搜索或者断点并不能很有效地找到对应的入口位置,这时候就可以使用 Hook 了。比如说,我们可以对一些常用的加密和编码算法、常用的转换操作都进行一些 Hook,比如说 Base64 编码、Cookie 的赋值、JSON 的序列化等。比较方便的 Hook 方式就是通过 Tampermonkey 这个插件实现,使用它我们不仅可以方便地自定义脚本执行的时间点,也可以引入一些额外的脚本来辅助 Hook 代码的编写,具体的实现流程可以参考 11.3 节的内容,这里不再赘述。</p>
+<p class="content-text">Hook 也是一个非常常用的查找入口的功能。有时候,一些代码搜索或者断点并不能很有效地找到对应的入口位置,这时候就可以使用 Hook 了。比如说,我们可以对一些常用的加密和编码算法、常用的转换操作都进行一些 Hook,比如说 Base64 编码、Cookie 的赋值、JSON 的序列化等。比较方便的 Hook 方式就是通过 Tampermonkey 这个插件实现,使用它我们不仅可以方便地自定义脚本执行的时间点,也可以引入一些额外的脚本来辅助 Hook 代码的编写,具体的实现流程可以参考 11.3 节的内容,这里不再赘述。</p>
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">其他</h4>
-<p class="content-text"> 以上便是一些常见的分析入口的方法,当然还有很多其他方法,比如使用 Pyppeteer、PlayWright 里面内置的 API 实现一些数据拦截和过滤功能,也可以使用一些抓包软件对一些请求进行拦截和分析,还可以使用一些第三方工具或浏览器插件来辅助分析。</p>
+<p class="content-text">以上便是一些常见的分析入口的方法,当然还有很多其他方法,比如使用 Pyppeteer、PlayWright 里面内置的 API 实现一些数据拦截和过滤功能,也可以使用一些抓包软件对一些请求进行拦截和分析,还可以使用一些第三方工具或浏览器插件来辅助分析。</p>
 </section>
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">2. 调试分析</h3>
-<p class="content-text"> 找到对应的入口位置之后,接下来我们就需要进行调试分析了。在这个步骤中,我们通常需要进行一些格式化、断点调试、反混淆等操作来辅助整个流程的分析。</p>
+<p class="content-text">找到对应的入口位置之后,接下来我们就需要进行调试分析了。在这个步骤中,我们通常需要进行一些格式化、断点调试、反混淆等操作来辅助整个流程的分析。</p>
 <section class="minor-section">
 <h4 class="subsection-heading">格式化</h4>
-<p class="content-text"> 格式化这个流程是非常重要的,它可以大大增强代码的可读性,一般来说很多 JavaScript 代码都是经过打包和压缩的。多数情况下,我们可以使用 Sources 面板下 JavaScript 窗口左下角的格式化按钮对代码进行格式化,如图 11-128 所示。</p>
+<p class="content-text">格式化这个流程是非常重要的,它可以大大增强代码的可读性,一般来说很多 JavaScript 代码都是经过打包和压缩的。多数情况下,我们可以使用 Sources 面板下 JavaScript 窗口左下角的格式化按钮对代码进行格式化,如图 11-128 所示。</p>
 <figure class="inline-figure"><img alt="图11-128 格式化按钮" loading="lazy" src="figures/ch11/fig-11_128.jpg"/><figcaption>图11-128 格式化按钮</figcaption></figure>
 <p class="content-text">另外,有一些网站的HTML 和JavaScript 是混杂在一起的,比如https://spa8.scrape.center/,如图 11-129 所示。</p>
 <figure class="inline-figure"><img alt="图11-129 HTML 和 JavaScript 混杂在一起" loading="lazy" src="figures/ch11/fig-11_129.jpg"/><figcaption>图11-129 HTML 和 JavaScript 混杂在一起</figcaption></figure>
@@ -2347,24 +2426,30 @@ print('response', response.json())</code></pre>
 'name':'霸王别姬',
 'alias': 'Farewell My Concubine',
 'cover': 'https://po.meituan.net/movie/ce4da3e03e655b5b88ed31b5cd7896cf62472.jpg@464w_644h_1e_1c',
-'categories': [</code></pre>
-<p class="content-text"> '剧情','爱情'</p>
-<pre class="code-block"><code>],
+'categories': [
+ '剧情','爱情'
+],
 'published_at': '1993-07-26',
 'minute': 171,
 'score': 9.5,
-'regions': [</code></pre>
-<p class="content-text"> '中国大陆','中国香港'</p>
-<pre class="code-block"><code>]
+'regions': [
+ '中国大陆','中国香港'
+]
 }
 ]
 }</code></pre>
-<p class="content-text">这里我们看到有个id是1,另外还有一些其他字段,如电影名称、封面、类别等,这里面一定有某个信息是用来唯一区分某个电影的。但是,当我们点击第一部电影的信息时,可以看到它跳转到了URL为 https://dynamic6.scrape.center/detail/ZWYzNCN0ZXVxMGJ0dWEjKC01N3cxcTVvNS0takA5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx 的页面,可以看到这里的URL里面有一个加密id为ZWYzNCN0ZXVxMGJ0dWEjKC01N3cxcTVvNS0takA 5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx,它和电影的这些信息有什么关系呢?如果你仔细观察,其实可以比较容易地找出规律来,但是这总归是观察出来的,如果遇到一些观察不出规律的,那就很麻烦了。因此,还需要靠技巧去找到它真正的加密位置。这时候该怎么办呢?分析一下,这个加密 id 到底是怎么生成的。点击详情页的时候,我们就可以看到它访问的URL 里面就带上了 ZWYzNCN0ZXVxMGJ0dWEj KC01N3cxcTVvNS0takA5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx 这个加密id了。而且不同详情页的加密id 是不同的,这说明这个加密id的构造依赖于列表页Ajax 的返回结果。因此,可以确定这个加密 id的生成发生在 Ajax请求完成后或者点击详情页的一瞬间。</p>
+<p class="content-text">这里我们看到有个id是1,另外还有一些其他字段,如电影名称、封面、类别等,这里面一定有某个信息是用来唯一区分某个电影的。</p>
+<p class="content-text">但是,当我们点击第一部电影的信息时,可以看到它跳转到了URL为 https://dynamic6.scrape.center/detail/ZWYzNCN0ZXVxMGJ0dWEjKC01N3cxcTVvNS0takA5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx 的页面,可以看到这里的URL里面有一个加密id为ZWYzNCN0ZXVxMGJ0dWEjKC01N3cxcTVvNS0takA 5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx,它和电影的这些信息有什么关系呢?</p>
+<p class="content-text">如果你仔细观察,其实可以比较容易地找出规律来,但是这总归是观察出来的,如果遇到一些观察不出规律的,那就很麻烦了。因此,还需要靠技巧去找到它真正的加密位置。这时候该怎么办呢?分析一下,这个加密 id 到底是怎么生成的。</p>
+<p class="content-text">点击详情页的时候,我们就可以看到它访问的URL 里面就带上了 ZWYzNCN0ZXVxMGJ0dWEj KC01N3cxcTVvNS0takA5OHh5Z2ltbHlmeHMqLSFpLTAtbWIx 这个加密id了。而且不同详情页的加密id 是不同的,这说明这个加密id的构造依赖于列表页Ajax 的返回结果。因此,可以确定这个加密 id的生成发生在 Ajax请求完成后或者点击详情页的一瞬间。</p>
 <p class="content-text">为了进一步确定这发生在何时,我们查看页面源码,可以看到在没有点击之前,详情页链接的href里面就已经带有加密id了,如图11-157所示。</p>
 <figure class="inline-figure"><img alt="图11-157 详情页链接的 href" loading="lazy" src="figures/ch11/fig-11_157.jpg"/><figcaption>图11-157 详情页链接的 href</figcaption></figure>
 <p class="content-text">由此可以确定,这个加密id是在Ajax请求完成之后生成的,而且肯定也是由JavaScript生成的。怎么去找 Ajax 完成之后的事件呢?是否应该去找Ajax 完成之后的事件呢?可以试试。在Sources 面板的右侧,有一个Event Listener Breakpoints,这里有一个XHR的监听,包括发起时、成功后、发生错误时的一些监听,这里我们勾选上 readystatechange 事件,代表Ajax得到响应时的事件,其他断点可以都删除,然后刷新页面看一下,如图11-158所示。</p>
 <figure class="inline-figure"><img alt="图11-158 刷新后效果" loading="lazy" src="figures/ch11/fig-11_158.jpg"/><figcaption>图11-158 刷新后效果</figcaption></figure>
-<p class="content-text">可以看到,此时就停在Ajax 得到响应时的位置了。我们怎么知道这个 id 是如何加密的呢?可以选择通过断点一步步调试下去,但这个过程非常烦琐,因为这里可能会逐渐用到页面 UI 渲染的一些底层实现,甚至可能找着找着都不知道找到哪里去了。怎么办呢?这里我们又可以用上前文介绍的用于快速定位的方法,那就是 Hook,这里就不再展开讲解原理了,具体可参见 11.3 节。那么,这里怎么用 Hook 的方式来找到加密 id 的加密入口呢?想一下,这个加密 id 是一个 Base64 编码的字符串,那么生成过程中想必就调用了 JavaScript 的Base64 编码的方法,这个方法名叫作 btoa。当然,Base64 也有其他的实现方式,比如利用 crypto-js 库实现,但可能底层调用的就不是 btoa 方法了。现在,我们其实并不确定是不是通过调用 btoa 方法实现的 Base64 编码,那就先试试吧。要实现 Hook,关键在于将原来的方法改写,这里我们其实就是 Hook btoa 这个方法了,btoa 这个方法属于 window 对象,这里直接改写 window 对象的 btoa 方法即可。改写的逻辑如下:</p>
+<p class="content-text">可以看到,此时就停在Ajax 得到响应时的位置了。我们怎么知道这个 id 是如何加密的呢?可以选择通过断点一步步调试下去,但这个过程非常烦琐,因为这里可能会逐渐用到页面 UI 渲染的一些底层实现,甚至可能找着找着都不知道找到哪里去了。</p>
+<p class="content-text">怎么办呢?这里我们又可以用上前文介绍的用于快速定位的方法,那就是 Hook,这里就不再展开讲解原理了,具体可参见 11.3 节。那么,这里怎么用 Hook 的方式来找到加密 id 的加密入口呢?</p>
+<p class="content-text">想一下,这个加密 id 是一个 Base64 编码的字符串,那么生成过程中想必就调用了 JavaScript 的Base64 编码的方法,这个方法名叫作 btoa。当然,Base64 也有其他的实现方式,比如利用 crypto-js 库实现,但可能底层调用的就不是 btoa 方法了。现在,我们其实并不确定是不是通过调用 btoa 方法实现的 Base64 编码,那就先试试吧。</p>
+<p class="content-text">要实现 Hook,关键在于将原来的方法改写,这里我们其实就是 Hook btoa 这个方法了,btoa 这个方法属于 window 对象,这里直接改写 window 对象的 btoa 方法即可。改写的逻辑如下:</p>
 <pre class="code-block" data-lang="javascript"><code>(function () {
   'use strict'
   function hook(object, attr) {
@@ -2380,7 +2465,10 @@ print('response', response.json())</code></pre>
 })()
 
 hook(window, 'btoa')</code></pre>
-<p class="content-text">这里我们定义了一个 hook 方法,给其传入 object 和 attr 参数,意思就是 Hook object 对象的 attr参数。例如,如果我们想 Hook alert 方法,那就把 object 设置为 window,把 attr 设置为字符串 alert。这里我们想要 Hook Base64 的编码方法,所以只需要 Hook window 对象的 btoa 方法就好了。hook 方法的第一句 <code class="inline-code">var func = object[attr]</code>,相当于把它赋值为一个变量,我们调用 func 方法就可以实现和原来相同的功能。然后我们改写这个方法的定义,将其改成一个新的方法。在新的方法中,通过 func.apply 方法又重新调用了原来的方法。这样我们可以保证前后方法的执行效果不受影响的前提下,在 func 方法执行的前后加入自己的代码,如使用 console.log 将信息输出到控制台,通过debugger 进入断点等。在这个过程中,我们先临时保存 func 方法,然后定义一个新方法来接管程序控制权,在其中自定义我们想要的实现,同时在新方法里重新调回 func 方法,保证前后的结果不受影响。因此,我们达到了在不影响原有方法效果的前提下,可以实现在方法的前后实现自定义的功能,就是 Hook 的完整实现过程。最后,我们调用 hook 方法,传入 window 对象和 btoa 字符串即可。怎么去注入这个代码呢?这里我们介绍 3 种注入方法。</p>
+<p class="content-text">这里我们定义了一个 hook 方法,给其传入 object 和 attr 参数,意思就是 Hook object 对象的 attr参数。例如,如果我们想 Hook alert 方法,那就把 object 设置为 window,把 attr 设置为字符串 alert。这里我们想要 Hook Base64 的编码方法,所以只需要 Hook window 对象的 btoa 方法就好了。</p>
+<p class="content-text">hook 方法的第一句 <code class="inline-code">var func = object[attr]</code>,相当于把它赋值为一个变量,我们调用 func 方法就可以实现和原来相同的功能。然后我们改写这个方法的定义,将其改成一个新的方法。在新的方法中,通过 func.apply 方法又重新调用了原来的方法。</p>
+<p class="content-text">这样我们可以保证前后方法的执行效果不受影响的前提下,在 func 方法执行的前后加入自己的代码,如使用 console.log 将信息输出到控制台,通过debugger 进入断点等。在这个过程中,我们先临时保存 func 方法,然后定义一个新方法来接管程序控制权,在其中自定义我们想要的实现,同时在新方法里重新调回 func 方法,保证前后的结果不受影响。因此,我们达到了在不影响原有方法效果的前提下,可以实现在方法的前后实现自定义的功能,就是 Hook 的完整实现过程。</p>
+<p class="content-text">最后,我们调用 hook 方法,传入 window 对象和 btoa 字符串即可。怎么去注入这个代码呢?这里我们介绍 3 种注入方法。</p>
 <p class="content-text list-like">控制台注入</p>
 <p class="content-text list-like">重写 JavaScript</p>
 <p class="content-text list-like">Tampermonkey 注入</p>
@@ -2395,7 +2483,12 @@ hook(window, 'btoa')</code></pre>
 <figure class="inline-figure"><img alt="图11-160 进入我们自定义的 debugger 的位置并停下" loading="lazy" src="figures/ch11/fig-11_160.jpg"/><figcaption>图11-160 进入我们自定义的 debugger 的位置并停下</figcaption></figure>
 <p class="content-text">我们把断点向下执行,然后点击 Resume script execution 按钮,就可以看到控制台也输出了一些对应的结果,如被Hook的对象、Hook的属性、调用的参数、调用后的结果等,如图11-161所示。</p>
 <figure class="inline-figure"><img alt="图11-161 控制台输出的结果" loading="lazy" src="figures/ch11/fig-11_161.jpg"/><figcaption>图11-161 控制台输出的结果</figcaption></figure>
-<p class="content-text">我们通过Hook的方式改写了btoa方法,使其每次在调用的时候都能停到一个断点,同时还能输出对应的结果。接下来,怎么用Hook 找到对应的加密id的入口呢?由于此时我们是在控制台直接输入的Hook 代码,所以页面刷新就无效了。但我们这个网站是SPA页面,点击详情页的时候页面是不会整个刷新的,因此这段代码依然生效。如果不是SPA页面,即每次访问都需要刷新页面的网站,那么这种注入方式就不生效了。我们想要 Hook 列表页 Ajax 加载完成后的逻辑,对应的就是加密id的Base64编码过程,怎样在不刷新页面的情况下,再次复现这个操作呢?很简单,点击下一页就好了。这时候点击第2页的按钮,可以看到它确实再次停到了Hook方法的debugger处。由于列表页的Ajax 和加密 id 都带有Base64编码的操作,所以都能 Hook到。接着,观察对应的Arguments 或当前网站的行为,或者观察栈信息,我们就能大体知道现在走到哪个位置了,从而进一步通过栈的调用信息找到调用 Base64编码的位置。根据调用栈的信息,可以观察这些变量是在哪——一层发生变化的。比如对于最后的这一层,我们可以很明显看到它执行了Base64编码,编码前的结果是:ef34#teuq0btua#(-57w1q505--j@98xygimlyfxs*-!i-0-mb1编码后的结果是:ZWYZNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIx如图11-162所示,这很明显。</p>
+<p class="content-text">我们通过Hook的方式改写了btoa方法,使其每次在调用的时候都能停到一个断点,同时还能输出对应的结果。接下来,怎么用Hook 找到对应的加密id的入口呢?由于此时我们是在控制台直接输入的Hook 代码,所以页面刷新就无效了。但我们这个网站是SPA页面,点击详情页的时候页面是不会整个刷新的,因此这段代码依然生效。如果不是SPA页面,即每次访问都需要刷新页面的网站,那么这种注入方式就不生效了。</p>
+<p class="content-text">我们想要 Hook 列表页 Ajax 加载完成后的逻辑,对应的就是加密id的Base64编码过程,怎样在不刷新页面的情况下,再次复现这个操作呢?很简单,点击下一页就好了。这时候点击第2页的按钮,可以看到它确实再次停到了Hook方法的debugger处。由于列表页的Ajax 和加密 id 都带有Base64编码的操作,所以都能 Hook到。</p>
+<p class="content-text">接着,观察对应的Arguments 或当前网站的行为,或者观察栈信息,我们就能大体知道现在走到哪个位置了,从而进一步通过栈的调用信息找到调用 Base64编码的位置。根据调用栈的信息,可以观察这些变量是在哪——一层发生变化的。比如对于最后的这一层,我们可以很明显看到它执行了Base64编码:</p>
+<pre class="result-block"><code>编码前的结果是:ef34#teuq0btua#(-57w1q505--j@98xygimlyfxs*-!i-0-mb1
+编码后的结果是:ZWYZNCNOZXVxMGJ0dWEjKC01N3cxcTVvNS0takA50Hh5Z21tbHlmeHMqLSFpLTAtbWIx</code></pre>
+<p class="content-text">如图11-162所示,这很明显。</p>
 <figure class="inline-figure"><img alt="图11-162 编码后的结果" loading="lazy" src="figures/ch11/fig-11_162.jpg"/><figcaption>图11-162 编码后的结果</figcaption></figure>
 <p class="content-text">核心问题就来了,编码前的结果ef34#teuq0btua#(-57w1q505--j@98xygimlyfxs*-!i-o-mb1 又是怎么来的呢?我们展开栈的调用信息,一层层看这个字符串的变化情况。如果不变,就看下一层;如果变了,就停下来仔细看。最后,我们可以在第5层找到它的变化过程,如图11-163所示。</p>
 <figure class="inline-figure"><img alt="图11-163 看看字符串的变化情况" loading="lazy" src="figures/ch11/fig-11_163.jpg"/><figcaption>图11-163 看看字符串的变化情况</figcaption></figure>
@@ -2420,16 +2513,16 @@ hook(window, 'btoa')</code></pre>
 <p class="content-text">接下来,我们创建一个新的脚本试试。点击左侧的“+”号,此时会显示如图11-168所示的页面。</p>
 <figure class="inline-figure"><img alt="图11-168 新建用户脚本" loading="lazy" src="figures/ch11/fig-11_168.jpg"/><figcaption>图11-168 新建用户脚本</figcaption></figure>
 <p class="content-text">我们可以将脚本改写为如下内容:// ==UserScript==// @name HookBase64// @namespace https://scrape.center/// @version 0.1// @description Hook Base64 encode function// @author Germey// @match https://spa6.scrape.center/// @grant none// @run-at document-start// ==/UserScript==</p>
-<pre class="code-block"><code>(function () {</code></pre>
-<p class="content-text">    'use strict'</p>
-<pre class="code-block"><code>function hook(object, attr) {</code></pre>
-<p class="content-text">        var func = object[attr]</p>
-<pre class="code-block"><code>console.log('func', func)
+<pre class="code-block"><code>(function () {
+    'use strict'
+function hook(object, attr) {
+        var func = object[attr]
+console.log('func', func)
 object[attr] = function () {
 console.log('hooked', object, attr)
-var ret = func.apply(object, arguments)</code></pre>
-<p class="content-text">            debugger</p>
-<pre class="code-block"><code>return ret
+var ret = func.apply(object, arguments)
+            debugger
+return ret
 }
 }
 hook(window, 'btoa')

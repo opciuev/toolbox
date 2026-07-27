@@ -47,7 +47,11 @@
 </section>
 <section class="numbered-section">
 <h3 class="subsection-heading numbered-heading">3. 基于JWT</h3>
-<p class="content-text">Web开发技术一直在发展,近几年前后端分离的开发模式越来越火,传统的基于Session 和 Cookie的校验又存在一定问题,例如服务器需要维护登录用户的 Session信息,而且分布式部署也不方便,不太适合前后端分离的项目,所以JWT技术应运而生。JWT的英文全称为JSON Web Token,是为了在网络应用环境中传递声明而执行的一种基于JSON的开放标准,实际上就是在每次登录时都通过一个Token 字段校验登录状态。JWT的声明一般用来在身份提供者和服务提供者之间传递要认证的用户身份信息,以便从资源服务器获取资源,此外可以增加一些业务逻辑必需的声明信息,总之 Token 可以直接用于认证,也可以传递一些额外信息。有了JWT,一些认证就不需要借助于 Session 和 Cookie了,服务器也无须维护 Session 信息,从而减少了开销,只需要有一个校验JWT的功能就够了,同时还支持分布式部署和跨语言开发。JWT一般是一个经过Base64编码技术加密的字符串,有自己的标准,格式类似下面这样:eyJ0eXAxIjoiMTIzNCIsImFsZzIiOiJhZG1pbiIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2Ino.eyJVc2VySWQiOjEyMywiVXNlck5hb WUiOiJhZG1pbiIsImV4cCI6MTU1MjI4Njc0Ni44NzcOMDE4fQ.pEgdmFAy73walFonEm2zbxg460th3dlTo2HR9iVzXa8其中有两个起分隔作用的“.”,因此可以把JWT 看成一个三段式的加密字符串。这三部分分别是Header、Payload 和 Signature。</p>
+<p class="content-text">Web开发技术一直在发展,近几年前后端分离的开发模式越来越火,传统的基于Session 和 Cookie的校验又存在一定问题,例如服务器需要维护登录用户的 Session信息,而且分布式部署也不方便,不太适合前后端分离的项目,所以JWT技术应运而生。</p>
+<p class="content-text">JWT的英文全称为JSON Web Token,是为了在网络应用环境中传递声明而执行的一种基于JSON的开放标准,实际上就是在每次登录时都通过一个Token 字段校验登录状态。JWT的声明一般用来在身份提供者和服务提供者之间传递要认证的用户身份信息,以便从资源服务器获取资源,此外可以增加一些业务逻辑必需的声明信息,总之 Token 可以直接用于认证,也可以传递一些额外信息。</p>
+<p class="content-text">有了JWT,一些认证就不需要借助于 Session 和 Cookie了,服务器也无须维护 Session 信息,从而减少了开销,只需要有一个校验JWT的功能就够了,同时还支持分布式部署和跨语言开发。JWT一般是一个经过Base64编码技术加密的字符串,有自己的标准,格式类似下面这样:</p>
+<pre class="code-block"><code>eyJ0eXAxIjoiMTIzNCIsImFsZzIiOiJhZG1pbiIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2Ino.eyJVc2VySWQiOjEyMywiVXNlck5hbWUiOiJhZG1pbiIsImV4cCI6MTU1MjI4Njc0Ni44NzcOMDE4fQ.pEgdmFAy73walFonEm2zbxg460th3dlTo2HR9iVzXa8</code></pre>
+<p class="content-text">其中有两个起分隔作用的“.”,因此可以把JWT 看成一个三段式的加密字符串。这三部分分别是Header、Payload 和 Signature。</p>
 <p class="content-text list-like"><strong class="term-label">Header:</strong>声明了JWT的签名算法(如RSA、SHA256等),还可能包含JWT编号或类型等数据。</p>
 <p class="content-text list-like">Payload:通常是一些业务需要但不敏感的信息(如UserID),另外还有很多默认字段,如JWT签发者、JWT接受者、JWT过期时间等。</p>
 <p class="content-text list-like">Signature:这就是一个签名,是利用密钥 secret 对 Header、Payload 的信息进行加密后形成的,这个密钥保存在服务端,不会轻易泄露。如此一来,如果Payload的信息被篡改,服务器就能通过 Signature 判断出这是非法请求,拒绝提供服务。登录认证流程也很简单了,用户通过用户名和密码登录,然后服务器生成 JWT 字符串返回给客户端,之后客户端每次请求都带着这个JWT,服务器会自动判断其有效情况,如果有效就返回对应的数据。JWT的传递方式多种多样,可以放在请求头中,也可以放在URL里,甚至有的网站把它放在Cookie里,但总而言之,把它传给服务器进行校验就可以了。好,到此为止,我们就了解了网站登录验证的具体实现。</p>
@@ -64,7 +68,10 @@
 </section>
 <section class="minor-section">
 <h4 class="subsection-heading">基于JWT 模拟登录</h4>
-<p class="content-text">基于JWT 的模拟登录思路也比较清晰,由于JWT的字符串就是用户访问的凭证,所以模拟登录只需要做到下面几步。(1) 模拟登录操作。例如拿着用户名和密码信息请求登录接口,获取服务器返回的结果,这个结果中通常包含 JWT信息,将其保存下来即可。(2)之后发送给服务器的请求均携带JWT。在JWT不过期的情况下,通常能正常访问和执行操作。携带方式多种多样,因网站而异。(3) 如果 JWT 过期了,可能需要再次做第一步,重新获取JWT。当然,模拟登录的过程肯定会带一些其他加密参数,需要根据实际情况具体分析。</p>
+<p class="content-text">基于JWT 的模拟登录思路也比较清晰,由于JWT的字符串就是用户访问的凭证,所以模拟登录只需要做到下面几步。</p>
+<p class="content-text list-like">模拟登录操作。例如拿着用户名和密码信息请求登录接口,获取服务器返回的结果,这个结果中通常包含 JWT信息,将其保存下来即可。</p>
+<p class="content-text list-like">之后发送给服务器的请求均携带JWT。在JWT不过期的情况下,通常能正常访问和执行操作。携带方式多种多样,因网站而异。</p>
+<p class="content-text list-like">如果 JWT 过期了,可能需要再次做第一步,重新获取JWT。当然,模拟登录的过程肯定会带一些其他加密参数,需要根据实际情况具体分析。</p>
 </section>
 </section>
 <section class="numbered-section">
@@ -95,8 +102,7 @@
 <h3 class="subsection-heading numbered-heading">3. 模拟登录</h3>
 <p class="content-text">对于这个网站,如果要模拟登录,需要先分析登录过程中发生了什么。打开开发者工具,重新执行登录操作,查看登录过程中产生的请求,如图10-3所示。</p>
 <figure class="inline-figure"><img alt="图10-3 登录过程中产生的请求" loading="lazy" src="figures/ch10/fig-10_3.jpg"/><figcaption>图10-3 登录过程中产生的请求</figcaption></figure>
-<p class="content-text">从图10-3 中可以看到,在登录的瞬间,浏览器发起了一个POST请求,目标URL是https://login2.scrape.center/login,并通过表单提交的方式向服务器提交了登录数据,其中包括 username 和 password</p>
-<p class="content-text">两个字段,返回的状态码是302,Response Headers 的location 字段为根页面,同时 Response Headers还包含 Set-Cookie字段,其中设置了 sessionid。由此我们可以想到,要实现模拟登录,只需要模拟这个POST请求就好了。那我们用代码实现一下吧!每次发出的请求默认都是独立且互不干扰的,例如第一次调用 post 方法模拟登录了网站,紧接着调用get 方法请求了主页面。这两个请求是完全独立的,第一次请求获取的Cookie并不能传给第二次请求,因此常规的顺序调用无法达到模拟登录的效果。下面用代码实现这个例子:</p>
+<p class="content-text">从图10-3 中可以看到,在登录的瞬间,浏览器发起了一个POST请求,目标URL是https://login2.scrape.center/login,并通过表单提交的方式向服务器提交了登录数据,其中包括 username 和 password 两个字段,返回的状态码是302,Response Headers 的location 字段为根页面,同时 Response Headers还包含 Set-Cookie字段,其中设置了 sessionid。由此我们可以想到,要实现模拟登录,只需要模拟这个POST请求就好了。那我们用代码实现一下吧!每次发出的请求默认都是独立且互不干扰的,例如第一次调用 post 方法模拟登录了网站,紧接着调用get 方法请求了主页面。这两个请求是完全独立的,第一次请求获取的Cookie并不能传给第二次请求,因此常规的顺序调用无法达到模拟登录的效果。下面用代码实现这个例子:</p>
 <pre class="code-block" data-lang="python"><code>import requests
 from urllib.parse import urljoin
 
@@ -136,8 +142,10 @@ response_index = requests.get(INDEX_URL, cookies=cookies)
 print('Response Status', response_index.status_code)
 print('Response URL', response_index.url)</code></pre>
 <p class="content-text">由于 requests 具有自动处理重定向的能力,所以在模拟登录的过程中要加上 allow_redirects 参数并将值设置为 False,使requests 不自动处理重定向。这里将登录之后服务器返回的响应内容赋值为response_login 变量,然后调用response_login 的 cookies 属性就可以获取了网站的Cookie信息。由于requests 自动帮我们解析了响应头中的Set-Cookie字段并设置了Cookie,因此不需要我们再去手动解析。接着,调用 requests 的get 方法请求网站的首页。和之前不同,这里的get方法增加了一个参数cookies,传入的值是第一次模拟登录后获取的Cookie,这样第二次请求就携带上了第一次模拟登录获取的Cookie 信息,之后网站会根据里面的SessionID 信息找到同一个Session,并校验出当前发出请求的用户已经处于登录状态,然后返回正确的结果。最后我们还是输出最终的URL,如果结果是 INDEX_URL,就代表模拟登录成功并获取了有效数据,否则代表模拟登录失败。运行结果如下:</p>
-<pre class="result-block"><code>Cookies &lt;RequestsCookie]ar[&lt;Cookie sessionid=psnu8ij69f0ltecd5wasccyzc6ud41tc for login2.scrape.center/&gt;]&gt;</code></pre>
-<p class="content-text">Response Status 200 Response URL https://login2.scrape.center/page/1返回的是 INDEX_URL,这下没有问题了,模拟登录成功!此时还可以进一步输出 response_index 的text 属性,看一下数据是否获取成功。但其实可以发现,这种实现方式比较烦琐,每次请求都需要处理并传递一次Cookie,有没有更简便的方法呢?有的,可以直接借助 requests 内置的Session 对象帮我们自动处理 Cookie,使用Session 对象之后,requests 会自动保存每次请求后设置的 Cookie,并在下次请求时携带上它,这样就变方便了。把刚才的代码简化一下:</p>
+<pre class="result-block"><code>Cookies &lt;RequestsCookieJar [&lt;Cookie sessionid=psnu8ij69f0ltecd5wasccyzc6ud41tc for login2.scrape.center/&gt;]&gt;
+Response Status 200
+Response URL https://login2.scrape.center/page/1</code></pre>
+<p class="content-text">返回的是 INDEX_URL,这下没有问题了,模拟登录成功!此时还可以进一步输出 response_index 的text 属性,看一下数据是否获取成功。但其实可以发现,这种实现方式比较烦琐,每次请求都需要处理并传递一次Cookie,有没有更简便的方法呢?有的,可以直接借助 requests 内置的Session 对象帮我们自动处理 Cookie,使用Session 对象之后,requests 会自动保存每次请求后设置的 Cookie,并在下次请求时携带上它,这样就变方便了。把刚才的代码简化一下:</p>
 <pre class="code-block"><code>import requests
 from urllib.parse import urljoin
 BASE_URL = 'https://login2.scrape.center/'
@@ -155,8 +163,7 @@ print('Cookies', cookies)
 response_index = session.get(INDEX_URL)
 print('Response Status', response_index.status_code)
 print('Response URL', response_index.url)</code></pre>
-<p class="content-text">可以看到,这里声明了一个 Session对象,然后每次发出请求的时候都直接调用 Session 对象的</p>
-<p class="content-text">post 方法或 get 方法就好了,使我们无须再关心 Cookie 的处理和传递问题。运行结果如下:</p>
+<p class="content-text">可以看到,这里声明了一个 Session对象,然后每次发出请求的时候都直接调用 Session 对象的 post 方法或 get 方法就好了,使我们无须再关心 Cookie 的处理和传递问题。运行结果如下:</p>
 <pre class="result-block"><code>Cookies &lt;RequestsCookieJar [&lt;Cookie sessionid=ssngkl4i7en9vm73bb36hxif05k10k13 for login2.scrape.center/&gt;]&gt;
 Response Status 200
 Response URL https://login2.scrape.center/page/1</code></pre>
@@ -217,7 +224,9 @@ Response URL https://login2.scrape.center/page/1</code></pre>
 <figure class="inline-figure"><img alt="图10-5 登录过程中产生的请求" loading="lazy" src="figures/ch10/fig-10_5.jpg"/><figcaption>图10-5 登录过程中产生的请求</figcaption></figure>
 <p class="content-text">从图10-5可以看出,登录时的请求 URL为https://login3.scrape.center/api/login,是通过 Ajax请求的。请求体是JSON 格式的数据,而不是表单数据,返回状态码为200。然后看一下返回结果是怎样的,如图10-6所示。</p>
 <figure class="inline-figure"><img alt="图10-6 返回结果" loading="lazy" src="figures/ch10/fig-10_6.jpg"/><figcaption>图10-6 返回结果</figcaption></figure>
-<p class="content-text">从图10-6可以看出,返回结果也是JSON 格式的数据,包含一个token 字段,其内容为:eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjI1OTg1MDA3LCJ1bWF pbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjI1OTQxODA3fQ.YzOfWYhy_GwcmonfXUTJAAqnBbJo6hen751b82ds0j8这和我们在10.1节讲的一样,由“.”把整个字符串分为三段。那么有了这个JWT之后,怎么获取后续的数据呢?我们翻一下页,观察下后续的请求内容,如图10-7所示。</p>
+<p class="content-text">从图10-6可以看出,返回结果也是JSON 格式的数据,包含一个token 字段,其内容为:</p>
+<pre class="result-block"><code>eyJ0eXAi0iJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjI1OTg1MDA3LCJ1bWFpbCI6ImFkbWluQGFkbWluLmNvbSIsIm9yaWdfaWFOIjoxNjI1OTQxODA3fQ.YzOfWYhy_GwcmonfXUTJAAqnBbJo6hen751b82ds0j8</code></pre>
+<p class="content-text">这和我们在10.1节讲的一样,由“.”把整个字符串分为三段。那么有了这个JWT之后,怎么获取后续的数据呢?我们翻一下页,观察下后续的请求内容,如图10-7所示。</p>
 <figure class="inline-figure"><img alt="图10-7 翻页后的请求内容" loading="lazy" src="figures/ch10/fig-10_7.jpg"/><figcaption>图10-7 翻页后的请求内容</figcaption></figure>
 <p class="content-text">从图10-7可以看出,在后续发出的用于获取数据的Ajax请求中,请求头里多了一个Authorization 字段,其内容为jwt 加上刚才图 10-6 中 token 字段的内容,返回结果也是JSON 格式的数据,如图10-8所示。</p>
 <figure class="inline-figure"><img alt="图10-8 返回结果" loading="lazy" src="figures/ch10/fig-10_8.jpg"/><figcaption>图10-8 返回结果</figcaption></figure>
