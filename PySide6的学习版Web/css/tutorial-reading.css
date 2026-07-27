@@ -1,0 +1,240 @@
+/*
+ * Chapter-scoped reading treatment for the PySide6 tutorial.
+ *
+ * Every rule is nested under an explicit body + chapter scope. Nothing in
+ * this file can affect the workbench, OpenCV tutorial, or an unlisted page.
+ */
+
+body.tutorial-reading-page:is(
+  .chapter-01, .chapter-02, .chapter-03, .chapter-04, .chapter-05,
+  .chapter-06, .chapter-07, .chapter-08, .chapter-09, .chapter-10,
+  .chapter-11, .chapter-12, .chapter-13, .chapter-14, .chapter-15,
+  .chapter-16, .chapter-17, .chapter-18, .chapter-19
+) {
+  & .main-content {
+    max-width: 920px;
+    padding-right: 44px;
+    padding-left: 44px;
+  }
+
+  /*
+   * Narrative paragraphs use a traditional two-em first-line indent and a
+   * small inset from the article edge. Structural lead-ins are reset below.
+   */
+  & .content-text {
+    width: calc(100% - 1rem);
+    margin: 0 0.5rem 0.95rem;
+    color: #303843;
+    font-size: 16px;
+    line-height: 1.9;
+    letter-spacing: 0.006em;
+    text-align: left;
+    text-indent: 2em;
+    overflow-wrap: break-word;
+  }
+
+  & .content-text + .content-text {
+    margin-top: 0.1rem;
+  }
+
+  &.chapter-18 .content-text.list-detail {
+    width: auto;
+    margin-right: 0;
+    margin-left: 0;
+    text-indent: 0;
+  }
+
+  & .content-list {
+    width: calc(100% - 1rem);
+    margin: 0.35rem 0.5rem 1rem;
+    padding-left: 1.75rem;
+    color: #303843;
+    font-size: 16px;
+  }
+
+  & .content-list li {
+    margin-bottom: 0.38rem;
+    padding-left: 0.12rem;
+    line-height: 1.8;
+  }
+
+  & .chapter-intro .content-list {
+    width: auto;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  /* Adjacent one-item lists in the PDF-derived chapters read as one list. */
+  & .content-list + .content-list {
+    margin-top: -0.72rem;
+  }
+
+  & .content-text + .content-list {
+    margin-top: -0.28rem;
+  }
+
+  & .content-list + .content-text {
+    margin-top: 0.15rem;
+  }
+
+  & .code-block {
+    position: relative;
+    margin: 0.8rem 0 1.25rem;
+    border: 1px solid #d9e0e5;
+    border-left: 4px solid #6e9b76;
+    border-radius: 6px;
+    background: #f7f9fa;
+    box-shadow: 0 1px 2px rgba(31, 41, 55, 0.05);
+    padding: 2.55rem 1.15rem 1rem;
+    color: #1f2933;
+    font-family: "Cascadia Mono", "Consolas", "Source Code Pro", "Fira Code",
+      "Microsoft YaHei UI", "Microsoft YaHei", monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overflow-wrap: normal;
+    word-break: normal;
+    tab-size: 4;
+  }
+
+  & .code-block::before {
+    content: "代码";
+    position: absolute;
+    top: 0.68rem;
+    left: 1rem;
+    color: #6b7785;
+    font: 600 12px/1.2 "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    letter-spacing: 0.08em;
+  }
+
+  /*
+   * Console and program output is marked explicitly in each affected chapter.
+   * The label comes from the HTML so file contents and console output can be
+   * named accurately without guessing from the displayed text.
+   */
+  &.chapter-03 .code-block.output-block::before,
+  &.chapter-04 .code-block.output-block::before,
+  &.chapter-08 .code-block.output-block::before,
+  &.chapter-15 .code-block.output-block::before,
+  &.chapter-18 .code-block.output-block::before,
+  &.chapter-19 .code-block.output-block::before {
+    content: attr(data-block-label);
+    letter-spacing: 0.04em;
+  }
+
+  /* Chapters 3–7 use <pre class="code-block"><code>…</code></pre>. */
+  & .code-block > code {
+    display: block;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    white-space: inherit;
+    overflow-wrap: inherit;
+    word-break: inherit;
+  }
+
+  & .code-copy-button {
+    border-color: #ccd6ce;
+    background: #fff;
+    color: #49604d;
+  }
+
+  & .code-copy-button:hover {
+    border-color: #9db4a1;
+    background: #edf5ee;
+    color: #294c30;
+  }
+
+  & .code-block::selection,
+  & .code-block *::selection {
+    background: #cfe6d3;
+    color: #142018;
+  }
+
+  /* Chapter 8 contains a long method signature in prose. */
+  &.chapter-08 .content-text {
+    overflow-wrap: anywhere;
+  }
+
+  /* The wrapper keeps chapter 13 tables semantic and scrollable on phones. */
+  &.chapter-13 .table-scroll {
+    max-width: 100%;
+    margin: 0.75rem 0 1.25rem;
+  }
+
+  &.chapter-13 .table-scroll > .content-table {
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  body.tutorial-reading-page:is(
+    .chapter-01, .chapter-02, .chapter-03, .chapter-04, .chapter-05,
+    .chapter-06, .chapter-07, .chapter-08, .chapter-09, .chapter-10,
+    .chapter-11, .chapter-12, .chapter-13, .chapter-14, .chapter-15,
+    .chapter-16, .chapter-17, .chapter-18, .chapter-19
+  ) {
+    & .main-content {
+      padding: 22px 17px 40px;
+    }
+
+    & .content-text,
+    & .content-list {
+      font-size: 15.5px;
+    }
+
+    & .content-text {
+      line-height: 1.85;
+    }
+
+    & .content-list {
+      padding-left: 1.55rem;
+    }
+
+    & .code-block {
+      max-width: 100%;
+      padding: 2.45rem 0.85rem 0.9rem;
+      font-size: 12.5px;
+      line-height: 1.65;
+      white-space: pre;
+      overflow-x: auto;
+      overflow-wrap: normal;
+      word-break: normal;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    & .code-block > code {
+      max-width: none;
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+
+    &.chapter-13 .table-scroll {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    &.chapter-13 .table-scroll > .content-table {
+      display: table;
+      width: 42rem;
+      min-width: 100%;
+      max-width: none;
+      overflow: visible;
+    }
+
+    &.chapter-13 .table-scroll[aria-label^="表 13-2"] > .content-table {
+      width: 32rem;
+    }
+  }
+}

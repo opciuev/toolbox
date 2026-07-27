@@ -23,8 +23,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="css/tutorial-reading.css?v=20260727">
 </head>
-<body>
+<body class="tutorial-reading-page chapter-02">
 
   <header class="header">
     <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
@@ -141,11 +142,10 @@ obj3.setParent(obj1)</div>
 
       <p class="content-text">若要获取某对象中所包含的子级对象，可以调用 findChildren 方法。例如，在本示例中，调用 obj1 的 findChildren 方法可以返回 obj2 和 obj3。该方法至少需要一个参数，提供待查找对象的类型。在本示例中，需要同时找出 obj2 和 obj3，因此传递给方法的类型应为 QObject 类，因为 AObject 和 BObject 的共同基类是 QObject。</p>
 
-      <div class="code-syntax">chdobjs = obj1.findChildren(QObject)</div>
-
       <p class="content-text">此时，chdobjs 变量中应该包含 obj2 和 obj3，下面代码将输出它们的类名称（访问 __class__ 成员）。</p>
 
-      <div class="code-block">for obj in chdobjs:
+      <div class="code-block">chdobjs = obj1.findChildren(QObject)
+for obj in chdobjs:
     print(obj.__class__)</div>
 
       <p class="content-text">执行后会输出以下内容：</p>
@@ -216,10 +216,7 @@ class MyUI(QWindow):
         <div class="result-box-content">你按下了【向左】键<br>你按下了【向右】键<br>你按下了【向上】键<br>你按下了【向下】键<br>你按下了【向右】键<br>你按下了【向左】键</div>
       </div>
 
-      <div class="section-heading" id="section-3">
-        <span class="section-number">2.3.1</span>
-        <h2>接受与忽略事件</h2>
-      </div>
+      <h3 class="subsection-heading" id="subsection-2-3-1"><span>2.3.1</span> 接受与忽略事件</h3>
 
       <p class="content-text">在重写 event 方法时，如果调用 QEvent 对象的 accept 方法，表示当前 Qt 对象已接受该事件，这会使事件不会传播给父级对象。若调用了 QEvent 对象的 ignore 方法，表示当前 Qt 对象将忽略该事件，事件会传播给父级对象。</p>
       <p class="content-text">注意，此处 accept 和 ignore 方法只是控制事件是否向 Qt 对象树的父级传播，而不是向基类传播。</p>
@@ -303,10 +300,7 @@ from PySide6.QtWidgets import QWidget, QApplication, QMessageBox</div>
         </div>
       </div>
 
-      <div class="section-heading" id="section-4">
-        <span class="section-number">2.3.2</span>
-        <h2>sendEvent 与 postEvent</h2>
-      </div>
+      <h3 class="subsection-heading" id="subsection-2-3-2"><span>2.3.2</span> sendEvent 与 postEvent</h3>
 
       <p class="content-text">QCoreApplication 类提供了两个静态方法，可以在代码中手动发送事件。</p>
       <ol class="content-list">
@@ -411,10 +405,7 @@ from PySide6.QtWidgets import QWidget, QApplication, QMessageBox</div>
         </div>
       </div>
 
-      <div class="section-heading" id="section-5">
-        <span class="section-number">2.3.3</span>
-        <h2>自定义事件</h2>
-      </div>
+      <h3 class="subsection-heading" id="subsection-2-3-3"><span>2.3.3</span> 自定义事件</h3>
 
       <p class="content-text">QEvent.Type 定义了许多内置的事件类型，如 KeyPress、Resize、MouseButtonPress 等。同时，它也为开发人员保留了自定义事件类型的空间。</p>
       <p class="content-text">事件类型本质上是一个整数值，其中 User 的值为 0x3e8（十进制值 1000），MaxUser 的值为 0xffff（十进制值为 65535）。自定义的事件类型的取值必须在 User 与 MaxUser 之间，不能与内置的事件类型重复。</p>
@@ -468,6 +459,371 @@ MyCustomEvent2 = QEvent.Type(QEvent.Type.User + 2)</div>
 def onClicked2(self):
     QApplication.postEvent(self, QEvent(MyCustomEvent2))</div>
 
+      <p class="content-text">自定义事件发送给当前窗口后，需要重写 <code>event</code> 方法进行接收。已经处理的事件返回 <code>True</code>，其他事件继续交给基类。</p>
+
+      <div class="code-block">def event(self, e: QEvent) -&gt; bool:
+    if e.type() == MyCustomEvent1:
+        self.label.setText("自定义事件 1 已触发")
+        return True
+    if e.type() == MyCustomEvent2:
+        self.label.setText("自定义事件 2 已触发")
+        return True
+    return super().event(e)</div>
+
+      <p class="content-text">在创建应用程序对象前注册事件类型，然后显示窗口并进入消息循环。</p>
+
+      <div class="code-block">QEvent.registerEventType(MyCustomEvent1)
+QEvent.registerEventType(MyCustomEvent2)
+
+app = QApplication()
+window = AppWindow()
+window.show()
+app.exec()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-5</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_10.png" alt="触发自定义事件">
+          <div class="caption">单击按钮触发自定义事件</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading">2.3.4 事件过滤器</h3>
+      <p class="content-text">事件过滤器让一个 QObject 监视另一个对象收到的事件，无需仅为了过滤事件而创建新的部件子类。被监视对象通过 <code>installEventFilter</code> 注册监视者；监视者重写 <code>eventFilter</code>。返回 <code>True</code> 表示拦截事件，返回 <code>False</code> 或调用基类实现则继续传递。</p>
+
+      <p class="content-text">下面的窗口监视文本输入框的按键事件，并拦截空格与“#”字符。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+    def __init__(self):
+        super().__init__(None, Qt.Window)
+        self.setWindowTitle("事件过滤")
+        self.resize(200, 80)
+
+        self.txtEdit = QLineEdit(self)
+        self.txtEdit.move(15, 17)
+        self.txtEdit.installEventFilter(self)
+
+    def eventFilter(self, watched: QObject, e: QEvent) -&gt; bool:
+        if watched == self.txtEdit:
+            if e.type() in (QEvent.KeyPress, QEvent.KeyRelease):
+                key_event = QKeyEvent(e)
+                if key_event.key() in (Qt.Key_Space, Qt.Key_NumberSign):
+                    return True
+        return super().eventFilter(watched, e)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-6</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_11.png" alt="事件过滤器禁止输入井号和空格">
+          <div class="caption">事件过滤器拦截“#”字符和空格</div>
+        </div>
+      </div>
+
+      <p class="content-text">同一个对象可以注册多个事件过滤器。过滤器的激活顺序与注册顺序相反：最后注册的过滤器最先收到事件。若不再需要监视，可调用 <code>removeEventFilter</code> 解除注册。</p>
+
+      <div class="code-block">button.installEventFilter(filter1)
+button.installEventFilter(filter2)
+button.installEventFilter(filter3)
+
+# 激活顺序：filter3 → filter2 → filter1
+button.removeEventFilter(filter2)</div>
+
+      <div class="section-heading" id="section-3">
+        <span class="section-number">2.4</span>
+        <h2>信号与槽</h2>
+      </div>
+
+      <p class="content-text">信号与槽是 Qt 对象之间的通信机制。信号负责发出通知，槽负责接收通知并执行相应逻辑。在类中声明信号时使用 <code>Signal</code>，通过对象访问它时，实际得到的是可连接、断开和发送的信号实例。</p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>方法</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>connect(slot)</code></td><td>把信号连接到槽函数或另一个信号。</td></tr>
+          <tr><td><code>disconnect(slot)</code></td><td>解除已经建立的连接。</td></tr>
+          <tr><td><code>emit(...)</code></td><td>发出信号，并把参数传递给槽。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">from PySide6.QtCore import QObject, Signal
+
+class Demo(QObject):
+    message = Signal(str)
+
+demo = Demo()
+demo.message.connect(lambda text: print(f"收到：{text}"))
+demo.message.emit("hello")</div>
+
+      <h3 class="subsection-heading">2.4.1 一个信号连接多个槽</h3>
+      <p class="content-text">同一个信号可以连接多个槽。信号发出后，各个槽通常按照调用 <code>connect</code> 的先后顺序执行。这个特性适合把界面更新、日志记录等互不依赖的操作拆开处理。</p>
+
+      <div class="code-block">button.clicked.connect(save_data)
+button.clicked.connect(update_status)
+button.clicked.connect(write_log)</div>
+
+      <h3 class="subsection-heading">2.4.2 带参数的信号与重载</h3>
+      <p class="content-text">把参数类型传给 <code>Signal</code> 即可声明带参数信号。槽函数应当能够接收相同数量的参数。一个信号还可以提供多个参数类型版本，连接和发送时通过方括号选择所需的重载。</p>
+
+      <div class="code-block">class Worker(QObject):
+    progress = Signal(int, str)
+    valueChanged = Signal((int,), (str,))
+
+worker = Worker()
+worker.progress.connect(
+    lambda value, text: print(value, text)
+)
+worker.progress.emit(60, "处理中")
+
+worker.valueChanged[int].connect(print)
+worker.valueChanged[int].emit(42)</div>
+
+      <h3 class="subsection-heading">2.4.3 自动连接槽</h3>
+      <p class="content-text"><code>QMetaObject.connectSlotsByName</code> 可以按照对象名和槽方法名自动完成连接。子对象要先通过 <code>setObjectName</code> 设置名称，槽则按 <code>on_对象名_信号名</code> 命名，并使用 <code>Slot</code> 装饰器标注。</p>
+
+      <div class="code-block">from PySide6.QtCore import QMetaObject, Slot
+
+self.button.setObjectName("myButton")
+QMetaObject.connectSlotsByName(self)
+
+@Slot()
+def on_myButton_clicked(self):
+    print("按钮被单击")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-7 ～ 图 2-9</span>
+        <div class="result-box-image figure-pair">
+          <div>
+            <img src="images/ch02/ch02_fig_05.png" alt="实时显示输入光标的位置">
+            <div class="caption">使用信号参数显示输入光标的位置</div>
+          </div>
+          <div>
+            <img src="images/ch02/ch02_fig_06.png" alt="自动连接按钮的槽并弹出消息框">
+            <div class="caption">自动连接按钮的槽</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading">2.4.4 自定义信号与信号阻绝器</h3>
+      <p class="content-text">自定义信号可以传递 QColor 等 Qt 类型。下面的思路是在按钮槽中选择颜色，再通过 <code>setColor</code> 信号把颜色交给另一个槽，从而修改窗口调色板。</p>
+
+      <div class="code-block">class ColorWindow(QWidget):
+    setColor = Signal(QColor)
+
+    def __init__(self):
+        super().__init__()
+        self.setColor.connect(self.applyColor)
+
+    def applyColor(self, color):
+        palette = self.palette()
+        palette.setColor(QPalette.Window, color)
+        self.setPalette(palette)</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-10 / 图 2-11</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_07.png" alt="随机更换窗口背景颜色">
+          <div class="caption">发出自定义信号后更换窗口背景颜色</div>
+        </div>
+      </div>
+
+      <p class="content-text"><code>QSignalBlocker</code> 用于临时阻止某个对象发出信号。它支持上下文管理器语法，退出 <code>with</code> 代码块后会自动恢复原来的信号状态。</p>
+
+      <div class="code-block">with QSignalBlocker(self.timer):
+    loop = QEventLoop(self)
+    QTimer.singleShot(10_000, loop.quit)
+    loop.exec()</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-12</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_08.png" alt="临时阻止定时器信号">
+          <div class="caption">临时阻止定时器的 timeout 信号</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-4">
+        <span class="section-number">2.5</span>
+        <h2>字节序列——QByteArray</h2>
+      </div>
+
+      <p class="content-text"><code>QByteArray</code> 用于保存和处理字节序列。它可以追加数据、替换内容、进行数值与字符串转换，也提供切片、Base64 编解码、拆分和频数统计等操作。在纯 Python 代码中也可以使用 <code>bytes</code>，但许多 Qt API 会直接返回或接收 <code>QByteArray</code>。</p>
+
+      <div class="code-block">from PySide6.QtCore import QByteArray
+
+data = QByteArray()
+data.append(b"\x25\x6c\x82")
+data.append(b"\x45\xa6\xd7")
+
+print(data.size())   # 6
+print(data.toHex())  # b'256c8245a6d7'</div>
+
+      <h3 class="subsection-heading">2.5.1 替换与数值转换</h3>
+      <p class="content-text"><code>replace</code> 可以替换字节内容；<code>number</code> 可以把整数或浮点数转换成字节形式的字符串；<code>toInt</code>、<code>toFloat</code> 和 <code>toDouble</code> 则执行反向转换。数值转换方法会同时返回转换结果和是否成功的布尔值。</p>
+
+      <div class="code-block">word = QByteArray("fine")
+word.replace(QByteArray("ne"), QByteArray("sh"))
+print(word.toStdString())  # fish
+
+hex_text = QByteArray.number(28, 16)
+print(hex_text.toStdString())  # 1c
+
+value, ok = QByteArray("1011").toInt(2)
+print(value, ok)  # 11 True</div>
+
+      <h3 class="subsection-heading">2.5.2 截取、切片与重复</h3>
+      <p class="content-text"><code>chop</code> 会直接从末尾移除指定数量的字节，<code>chopped</code> 返回处理后的副本；<code>first</code> 与 <code>last</code> 分别从两端截取；<code>sliced</code> 可从任意偏移量提取数据。<code>repeated</code> 返回重复指定次数的新序列。</p>
+
+      <div class="code-block">data = QByteArray("workstation")
+print(data.sliced(2, 4).toStdString())  # rkst
+print(data.sliced(7).toStdString())     # tion
+
+copy = QByteArray("一二三").repeated(3)
+print(copy.toStdString())</div>
+
+      <h3 class="subsection-heading">2.5.3 Base64、拆分和统计</h3>
+      <p class="content-text">调用 <code>toBase64</code> 与 <code>fromBase64</code> 可以完成 Base64 编解码。若结果用于 URL，可指定 <code>Base64UrlEncoding</code>。<code>split</code> 按分隔符拆分数据，<code>count</code> 用于统计子串出现次数。</p>
+
+      <div class="code-block">source = QByteArray("watermelon")
+encoded = source.toBase64()
+decoded = QByteArray.fromBase64(encoded)
+print(encoded.toStdString())
+print(decoded.toStdString())
+
+parts = QByteArray("D301%542168%K7").split("%")
+print([part.toStdString() for part in parts])</div>
+
+      <div class="section-heading" id="section-5">
+        <span class="section-number">2.6</span>
+        <h2>QBuffer</h2>
+      </div>
+
+      <p class="content-text"><code>QBuffer</code> 为 <code>QByteArray</code> 提供类似文件的读写接口。读写前要调用 <code>open</code> 指定模式；使用后调用 <code>close</code>。它既能维护自己的字节数组，也可以操作已有的 <code>QByteArray</code>。</p>
+
+      <table class="content-table">
+        <thead>
+          <tr><th>打开模式</th><th>含义</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ReadOnly</code></td><td>只读。</td></tr>
+          <tr><td><code>WriteOnly</code></td><td>只写，并清除原数据。</td></tr>
+          <tr><td><code>Append</code></td><td>从原数据末尾追加。</td></tr>
+          <tr><td><code>Text</code></td><td>以平台对应的文本换行规则读写。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">from PySide6.QtCore import QByteArray, QBuffer
+
+data = QByteArray("abc")
+buffer = QBuffer(data)
+buffer.open(QBuffer.Append)
+buffer.write(b"xyz")
+buffer.close()
+
+print(data.toStdString())  # abcxyz</div>
+
+      <p class="content-text"><code>seek</code> 用于设置当前读写偏移量。下面先从索引 5 开始写入，再从索引 3 开始读取 3 个字节。</p>
+
+      <div class="code-block">data = QByteArray("abcdeopq")
+buffer = QBuffer(data)
+buffer.open(QBuffer.WriteOnly)
+buffer.seek(5)
+buffer.write(b"fghi")
+buffer.close()
+
+buffer.open(QBuffer.ReadOnly)
+buffer.seek(3)
+print(buffer.read(3).toStdString())  # def
+buffer.close()</div>
+
+      <div class="section-heading" id="section-6">
+        <span class="section-number">2.7</span>
+        <h2>位序列——QBitArray</h2>
+      </div>
+
+      <p class="content-text"><code>QBitArray</code> 的每个元素只有 <code>True</code> 或 <code>False</code> 两种状态。构造函数可指定长度和默认值；<code>setBit</code> 设置某一位，<code>clearBit</code> 把某一位清为 <code>False</code>，<code>at</code> 读取某一位。</p>
+
+      <div class="code-block">from PySide6.QtCore import QBitArray
+
+bits = QBitArray(8, True)
+bits.setBit(1, False)
+bits.clearBit(4)
+
+values = [bits.at(i) for i in range(bits.size())]
+print(values)
+print(bits.count(False))</div>
+
+      <div class="note-box">
+        <span class="note-icon">i</span>
+        <span><code>clearBit(index)</code> 只清除指定位置；<code>clear()</code> 会清空整个数组，使长度变为 0。</span>
+      </div>
+
+      <div class="section-heading" id="section-7">
+        <span class="section-number">2.8</span>
+        <h2>QSysInfo</h2>
+      </div>
+
+      <p class="content-text"><code>QSysInfo</code> 提供操作系统、内核和 CPU 架构等只读信息，适合在诊断页面、日志或条件分支中使用。</p>
+
+      <div class="code-block">from PySide6.QtCore import QSysInfo
+
+print("系统：", QSysInfo.productType(), QSysInfo.productVersion())
+print("内核：", QSysInfo.kernelType(), QSysInfo.kernelVersion())
+print("CPU：", QSysInfo.currentCpuArchitecture())</div>
+
+      <div class="section-heading" id="section-8">
+        <span class="section-number">2.9</span>
+        <h2>Qt 的动态属性</h2>
+      </div>
+
+      <p class="content-text">所有 <code>QObject</code> 子类都可以在运行阶段增加动态属性。<code>setProperty</code> 写入属性，<code>property</code> 读取属性，<code>dynamicPropertyNames</code> 返回当前对象上所有动态属性的名称。</p>
+
+      <div class="code-block">from PySide6.QtCore import QObject
+
+obj = QObject()
+obj.setProperty("prop1", 500)
+obj.setProperty("prop2", "abc")
+
+for name in obj.dynamicPropertyNames():
+    key = name.toStdString()
+    print(key, "=", obj.property(key))</div>
+
+      <p class="content-text"><code>setProperty</code> 也能写入 Qt 类型本身已经声明的属性。下面通过统一的属性接口设置标签的标题、大小与文本。</p>
+
+      <div class="code-block">label.setProperty("windowTitle", "Demo App")
+label.setProperty("size", QSize(250, 130))
+label.setProperty("text", "示例文本")</div>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-13</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_09.png" alt="使用 setProperty 设置 QLabel 属性">
+          <div class="caption">使用 setProperty 设置 QLabel 对象的属性</div>
+        </div>
+      </div>
+
+      <div class="section-heading" id="section-9">
+        <span class="section-number">2.10</span>
+        <h2>生成随机数</h2>
+      </div>
+
+      <p class="content-text">Qt 项目可以使用 <code>QRandomGenerator</code> 生成随机整数或 0～1 之间的浮点数。直接构造的实例使用固定种子，适合可重复测试；一般业务更适合使用全局共享实例。</p>
+
+      <div class="code-block">from PySide6.QtCore import QRandomGenerator
+
+random = QRandomGenerator.global_()
+
+print(random.generate())
+print(random.generateDouble())
+print(random.bounded(0, 100))  # 0～99</div>
+
+      <h3 class="subsection-heading">2.10.1 种子与内置实例</h3>
+      <p class="content-text">伪随机序列由种子决定，相同种子会产生相同序列。<code>global_()</code> 返回共享实例，适合大多数场景；<code>securelySeeded()</code> 每次创建新的、由系统安全初始化的实例；<code>system()</code> 则直接使用操作系统提供的随机源。涉及密码、令牌或验证码时，应采用专门的密码学安全方案，不应只依赖普通伪随机序列。</p>
+
+      <div class="code-block">shared = QRandomGenerator.global_()
+secure = QRandomGenerator.securelySeeded()
+system_random = QRandomGenerator.system()</div>
+
       <div class="page-nav">
         <a href="index.html#chapter-1">
           <span>&larr;</span>
@@ -476,10 +832,10 @@ def onClicked2(self):
             <div class="nav-title">第 1 章 搭建 PySide 开发环境</div>
           </span>
         </a>
-        <a href="#section-0">
+        <a href="ch03.html">
           <span>
-            <div class="nav-label">返回顶部</div>
-            <div class="nav-title">第 2 章 Qt 基础对象</div>
+            <div class="nav-label">下一章 &rarr;</div>
+            <div class="nav-title">第 3 章 Qt 应用程序</div>
           </span>
         </a>
       </div>

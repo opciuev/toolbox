@@ -20,6 +20,8 @@ const chapters = [
   { id: "ch19", title: "第 19 章 QML 基础", sections: ["19.1 QML 与 QtQuick", "19.2 QML 文档的结构", "19.3 加载 QML 文档", "19.4 QQuickItem 类", "19.5 布局", "19.6 控件基类——Control", "19.7 按钮控件", "19.8 输入控件", "19.9 菜单", "19.10 工具栏", "19.11 列表控件——ListView", "19.12 在 QWidget 中呈现 QtQuick 对象"] }
 ];
 
+const readyChapterIds = new Set(chapters.map((chapter) => chapter.id));
+
 const bookToc = [
   ["第 1 章", "搭建 PySide 开发环境", "1", [["1.1", "配置 Python", "1"], ["1.2", "配置 Visual Studio Code", "2"], ["1.3", "创建 Python 虚拟环境（可选）", "3"], ["1.4", "安装 PySide6 库", "4"], ["1.5", "在 VS Code 中选择 Python 解释器", "4"], ["1.6", "验证开发环境是否搭建成功", "5"]]],
   ["第 2 章", "Qt 基础对象", "6", [["2.1", "QObject 类与 Qt 对象模型", "6"], ["2.2", "建立对象的层级关系", "6"], ["2.3", "事件与 event 方法", "7"], ["2.4", "信号与槽", "16"], ["2.5", "字节序列——QByteArray", "26"], ["2.6", "QBuffer", "32"], ["2.7", "位序列——QBitArray", "35"], ["2.8", "QSysInfo", "36"], ["2.9", "Qt 的动态属性", "37"], ["2.10", "生成随机数", "38"]]],
@@ -33,7 +35,7 @@ const bookToc = [
   ["第 10 章", "菜单栏、工具栏与状态栏", "181", [["10.1", "QMenu", "181"], ["10.2", "菜单栏", "184"], ["10.3", "工具栏", "189"], ["10.4", "contextMenu 事件", "191"], ["10.5", "状态栏", "193"], ["10.6", "快捷键", "196"], ["10.7", "QWidgetAction", "199"]]],
   ["第 11 章", "主窗口", "203", [["11.1", "QMainWindow", "203"], ["11.2", "QDockWidget", "207"], ["11.3", "MDI", "211"]]],
   ["第 12 章", "交互组件", "220", [["12.1", "进度条", "220"], ["12.2", "滑动条", "224"], ["12.3", "仪表盘", "229"], ["12.4", "QLCDNumber", "232"], ["12.5", "托盘图标", "234"], ["12.6", "工具提示", "237"]]],
-  ["第 13 章", "对话框", "242", [["13.1", "QDialog", "242"], ["13.2", "QInputDialog", "245"], ["13.3", "QColorDialog", "253"], ["13.4", "QFileDialog", "256"], ["13.5", "QFontDialog", "261"], ["13.6", "QDialogButtonBox", "263"], ["13.7", "QWizard", "270"], ["13.8", "无按钮对话框", "279"], ["13.9", "QMessageBox", "283"]]],
+  ["第 13 章", "对话框", "242", [["13.1", "QDialog", "242"], ["13.2", "QInputDialog", "245"], ["13.3", "QColorDialog", "253"], ["13.4", "QFileDialog", "256"], ["13.5", "QFontDialog", "261"], ["13.6", "QDialogButtonBox", "263"], ["13.7", "QWizard", "270"], ["13.8", "无按钮对话框", "281"], ["13.9", "QMessageBox", "283"]]],
   ["第 14 章", "列表模型与视图", "289", [["14.1", "模型的抽象基类", "289"], ["14.2", "QStringListModel", "296"], ["14.3", "QStandardItemModel", "297"], ["14.4", "QFileSystemModel", "303"], ["14.5", "编辑功能", "306"], ["14.6", "QListWidget", "314"], ["14.7", "QTableWidget", "318"], ["14.8", "QTreeWidget", "320"]]],
   ["第 15 章", "目录与文件", "322", [["15.1", "QDir", "322"], ["15.2", "QFile", "328"], ["15.3", "QSaveFile", "332"], ["15.4", "QBuffer", "333"], ["15.5", "QTextStream", "334"], ["15.6", "QDataStream", "336"]]],
   ["第 16 章", "动画", "340", [["16.1", "与动画有关的类型", "340"], ["16.2", "基于属性的动画", "340"], ["16.3", "自定义属性", "344"], ["16.4", "关键帧动画", "347"], ["16.5", "动画分组", "348"]]],
@@ -48,7 +50,7 @@ function buildSidebar(currentChapterId) {
 
   nav.innerHTML = chapters.map((ch) => {
     const isCurrent = ch.id === currentChapterId;
-    const isReady = ["ch01", "ch02", "ch03", "ch04"].includes(ch.id);
+    const isReady = readyChapterIds.has(ch.id);
     const chapterHref = ch.id === "ch01" ? "index.html#chapter-1" : `${ch.id}.html`;
     const titleClass = isCurrent ? "nav-group-title current active" : "nav-group-title";
     const subClass = isCurrent ? "nav-sub show" : "nav-sub";
@@ -76,7 +78,7 @@ function renderChapterGrid(targetId) {
   if (!target) return;
 
   target.innerHTML = chapters.map((ch, idx) => {
-    const isReady = ["ch01", "ch02", "ch03", "ch04"].includes(ch.id);
+    const isReady = readyChapterIds.has(ch.id);
     const statusHtml = isReady
       ? '<span class="card-status ready">已完成</span>'
       : '<span class="card-status todo">待建置</span>';

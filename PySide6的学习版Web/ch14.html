@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 14 章 列表模型与视图 - PySide6 教程</title>
+  <link rel="stylesheet" href="../opencv/css/style.css?v=20260422">
+  <style>
+    .figure-box img { max-width: 100%; height: auto; }
+    .subsection-heading { margin: 30px 0 14px; color: #243b53; font-size: 1.28rem; }
+    .subsection-heading span { color: #1976d2; margin-right: 4px; }
+    .code-block { white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }
+  </style>
+<link href="css/tutorial-reading.css?v=20260727" rel="stylesheet"/>
+</head>
+<body class="tutorial-reading-page chapter-14">
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="index.html" class="logo"><span class="logo-icon">&#128218;</span>PySide6 教程</a>
+    <div class="header-right">
+      <a href="../index.html">工作台首页</a>
+      <a href="../opencv/index.html">OpenCV 教程</a>
+    </div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <span class="chapter-badge">第 14 章</span>
+      <h1 class="chapter-title">列表模型与视图</h1>
+      <div class="chapter-meta">本章共 8 个小节 &middot; PySide6 Basic Tutorial</div>
+
+      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>常见的列表模型类</li><li>QStringListModel 和 QStandardItemModel</li><li>QFileSystemModel</li><li>QListWidget</li><li>QTableWidget</li><li>QTreeWidget</li></ol></div>
+
+      <div class="section-heading" id="section-0"><span class="section-number">14.1</span><h2>模型的抽象基类</h2></div>
+
+      <p class="content-text">列表模型（ItemModel）是应用数据与界面视图之间的桥梁，掌控着数据的呈现方式。列表模型采用二维表结构，可通过行号、列号来索引数据，如图14-1所示。</p>
+
+      <p class="content-text">行、列编号从0开始，例如图14-1中B的行号为1，列号为2。由于每个数据项都包含父节点，因此对于顶层数据来说，它也包含一个隐藏的根节点。</p>
+
+      <p class="content-text">如果数据是一维列表（如array、list)，那么它的模型布局只有一列，每个元素为一行，如图14-2所示。</p>
+
+      <p class="content-text">另一种比较复杂的模型是树形结构，数据项存在“父子”关系，如图14-3所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-1、图 14-2、图 14-3</span><div class="result-box-image"><img src="images/ch14/ch14_fig_01.png" alt="图 14-1 二维表结构 图 14-2 一维数据模型 图 14-3 树形结构" loading="lazy"><div class="caption">图 14-1 二维表结构 图 14-2 一维数据模型 图 14-3 树形结构</div></div></div>
+
+      <p class="content-text">A所在的行号为0，列号为0。由于B是A的子节点，它的编号要重新计算，因此B的行号和列号也是0。</p>
+
+      <p class="content-text">QAbstractItemModel类是列表模型的抽象基类。作为公共接口，不能直接实例化，开发人员需要创建 QAbstractItemModel 的派生类，然后才能与视图组件一起使用。</p>
+
+      <p class="content-text">对于只读模型（仅获取和显示数据，不可编辑），只要实现以下方法即可。</p>
+
+      <ol class="content-list" start="1"><li>columnCount：返回某个父节点所包含的列数。</li></ol>
+
+      <ol class="content-list" start="2"><li>rowCount:返回某个父节点下包含的行数。</li></ol>
+
+      <ol class="content-list" start="3"><li>parent：获取给定索引的父节点，返回父节点的索引。</li></ol>
+
+      <ol class="content-list" start="4"><li>index：获取列表项的索引。</li></ol>
+
+      <ol class="content-list" start="5"><li>data：返回给定索引处的基础数据（原始数据）。</li></ol>
+
+      <p class="content-text">如果要视图支持编辑功能，并且希望列表模型能够将已修改的数据更新到原始数据，那就要实现以下方法。</p>
+
+      <ol class="content-list" start="1"><li>setData：用新值更新原始数据。注意，当数据更新后，需要发出dataChanged信号。</li></ol>
+
+      <ol class="content-list" start="2"><li>flags:返回的值中必须包含ItemIsEditable（Qt.ItemFlag枚举定义的成员)。</li></ol>
+
+      <h3 class="subsection-heading"><span>14.1.1</span> ItemDataRole</h3>
+
+      <p class="content-text">Qt.ItemDataRole枚举定义了一组成员，描述了数据项在列表模型中的用途，即视图组件在绘制各部分界面元素时所需要的数据类型，可称为“数据角色”。ItemDataRole枚举定义的成员如下。</p>
+
+      <ol class="content-list" start="1"><li>DisplayRole：显示在视图中的文本，字符串类型。</li></ol>
+
+      <ol class="content-list" start="2"><li>DecorationRole：装饰元素，例如列表项前面的小图标，其类型可以是QIcon，也可以是QPixmap和 QColor。</li></ol>
+
+      <ol class="content-list" start="3"><li>EditRole：数据处于编辑状态，例如在文本框中修改内容。</li></ol>
+
+      <ol class="content-list" start="4"><li>ToolTipRole：返回字符串数据，显示在工具提示中。</li></ol>
+
+      <ol class="content-list" start="5"><li>StatusTipRole：返回的文本将显示在状态栏上。</li></ol>
+
+      <ol class="content-list" start="6"><li>WhatsThisRole：文本将显示在“这是什么”帮助信息中。</li></ol>
+
+      <ol class="content-list" start="7"><li>SizeHintRole：返回QSize类型的数据，表示列表项要占用空间的大小（宽度和高度)。</li></ol>
+
+      <ol class="content-list" start="8"><li>FontRole：应返回QFont类型的对象，用来绘制视图中的内容。</li></ol>
+
+      <ol class="content-list" start="9"><li>TextAlignmentRole：返回Qt.AlignmentFlag枚举的值，用于设置文本的对齐方式。</li></ol>
+
+      <ol class="content-list" start="10"><li>BackgroundRole：返回的数据类型为 QBrush，用来绘制列表项的背景。</li></ol>
+
+      <ol class="content-list" start="11"><li>ForegroundRole：也是返回QBrush类型的数据，表示文本的颜色。</li></ol>
+
+      <ol class="content-list" start="12"><li>CheckStateRole：返回CheckState枚举的值，用于指定复选框的状态。</li></ol>
+
+      <ol class="content-list" start="13"><li>InitialSortOrderRole：列表头的排序方式，返回 SortOrder枚举的值，即升序或降序。</li></ol>
+
+      <ol class="content-list" start="14"><li>AccessibleTextRole：返回字符串类型的数据，用于设置辅助提示的主文本，例如“屏幕朗读”功能。</li></ol>
+
+      <ol class="content-list" start="15"><li>AccessibleDescriptionRole:返回辅助提示的描述信息。</li></ol>
+
+      <p class="content-text">实现 QAbstractItemModel 类的 data 和 setData 方法都需要对 ItemDataRole 的值进行分析，从而返回或设置对应类型的值。</p>
+
+      <h3 class="subsection-heading"><span>14.1.2</span> 示例：整数列表模型</h3>
+
+      <p class="content-text">本示例将自定义一个提供整数类型的列表模型。该模型所使用的原始数据是一个list对象，其元素结构为单个维度—只有一列，每行表示一个元素。然后通过该模型将整数列表呈现在QListView组件中。</p>
+
+      <p class="content-text">具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>定义 CustItemModel类，它派生自 QAbstractItemModel。</li></ol>
+
+      <div class="code-block">class CustItemModel(QAbstractItemModel):</div>
+
+      <ol class="content-list" start="2"><li>为CustItemModel类实现__init__方法。该方法有两个重载，包含data参数的可以直接指定原始数据（内部存储字段是_myData）。</li></ol>
+
+      <div class="code-block">def __init__(self, parent: QObject = None):
+        super().__init__(parent)
+        #引用数据源
+        self._myData = []
+def __init__(self, data: list, parent: QObject = None):
+        super().__init__(parent)
+        self._myData = data</div>
+
+      <ol class="content-list" start="3"><li>如果在构造类实例时未指定原始数据，可以通过 setSourceData 方法设置。其他代码可以通过sourceData方法获取原始数据。</li></ol>
+
+      <div class="code-block">def sourceData(self):
+        return self._myData
+def setSourceData(self, data: list):
+        self._myData = data</div>
+
+      <ol class="content-list" start="4"><li>重写parent方法，返回指定索引的父级。</li></ol>
+
+      <div class="code-block">def parent(self, index: QModelIndex) -&gt; QModelIndex:
+        #此模型没有真正的父级，应返回无效的索
+        return QModelIndex()</div>
+
+      <p class="content-text">本示例所处理的数据只有一个层级，数据项之间不存在父子关系。因此，不需要返回特定的索引，而应返回无效的索引，调用QModelIndex类的默认构造函数即可。无效索引的行号和列号都是-1。</p>
+
+      <ol class="content-list" start="5"><li>重写index方法，返回指定行、列处的索引。</li></ol>
+
+      <div class="code-block">def index(self, row: int, column: int, parent: QModelIndex =QModelIndex ()) -&gt;QModelIndex:
+        return self.createIndex(row, column)</div>
+
+      <p class="content-text">外部代码不能直接访问 QModelIndex 类的成员，但可以通过 createIndex方法来创建索引。本示例不需要考虑父级索引。</p>
+
+      <ol class="content-list" start="6"><li>重写rowCount方法，返回数据的行数。在本示例中，行数就是列表的元素个数。</li></ol>
+
+      <div class="code-block">def rowCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        #由于该模型表示的是一维列表，列表项没有子级
+        #因此，如果parent是有效索引，就要返回0
+        if parent.isValid():
+                return 0
+        #返回数据源的元素个数
+        return len(self._myData)</div>
+
+      <ol class="content-list" start="7"><li>重写columnCount方法，返回数据包含的列数。本示例所处理的数据是普通列表，只有一列。</li></ol>
+
+      <div class="code-block">def columnCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        if parent.isValid():
+            return 0
+        #列表始终只有一列
+        return 1</div>
+
+      <ol class="content-list" start="8"><li>重写data方法，返回特定索引处的数据项。</li></ol>
+
+      <div class="code-block">def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.
+DisplayRole) -&gt; Any:
+        if role == Qt.ItemDataRole.DisplayRole:
+                #只需要获取行号
+                rowIndex = index.row()
+                return self._myData[rowIndex]
+        #返回默认值
+        return None</div>
+
+      <p class="content-text">本示例只实现显示数据，未实现编辑（修改）数据，因此不需要重写setData方法。无论是获取还是设置数据项的值，都应注意role参数，毕竟所返回的数据类型不适用所有的数据角色。此处所返回的数据是用于呈现在用户界面上的，所以只有当role参数是DisplayRole时才返回数据，其他情况一律返回 None。</p>
+
+      <ol class="content-list" start="9"><li>实例化一个视图组件，本示例使用的是QListView。该组件适用于简单的列表项。</li></ol>
+
+      <div class="code-block">lv = QListView()</div>
+
+      <ol class="content-list" start="10"><li>初始化原始数据（一个整数序列）。</li></ol>
+
+      <div class="code-block">intList = [105, 17, 915, 400, 3020, 840]</div>
+
+      <ol class="content-list" start="11"><li>实例化自定义模型类。</li></ol>
+
+      <div class="code-block">model = CustItemModel(intList, lv)</div>
+
+      <p class="content-text">调用CustItemModel类的构造函数时传递原始数据。如果未传递原始数据，可以稍后调用setSourceData方法设置，例如：</p>
+
+      <div class="code-block">model.setSourceData(intList)</div>
+
+      <ol class="content-list" start="12"><li>调用视图组件的 setModel方法关联列表模型。</li></ol>
+
+      <div class="code-block">lv.setModel(model)</div>
+
+      <p class="content-text">示例的运行效果如图14-4所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-4</span><div class="result-box-image"><img src="images/ch14/ch14_fig_02.png" alt="图14-4 呈现整数列表" loading="lazy"><div class="caption">图14-4 呈现整数列表</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.1.3</span> 推荐的基础模型</h3>
+
+      <p class="content-text">尽管直接从 QAbstractItemModel类派生可以实现自定义模型，但由于该类过于抽象，派生时需要重写的成员较多，开发效率不高。如果原始数据的结构比较明确，建议继承QAbstractListModel类或者QAbstractTableModel 类。</p>
+
+      <p class="content-text">QAbstractListModel表示一维列表模型，如一维数组。其处理的数据由多行单列构成。因此，只需要重写 rowCount 方法即可，不需要重写 columnCount 方法。QAbstractTableModel 模型则是面向二维表结构的数据，包含多行多列。由于二维表由行、列组成，因此继承 QAbstractTableModel类时需要实现rowCount 和 columnCount 方法。</p>
+
+      <p class="content-text">从 QAbstractListModel、QAbstractTableModel 类派生时都要重写 data方法以返回指定的数据项，或重写 setData方法以支持数据编辑。</p>
+
+      <h3 class="subsection-heading"><span>14.1.4</span> 示例：学生表</h3>
+
+      <p class="content-text">本示例将创建一个二维表模型，视图结构为5行4列。通过该模型和QTableView组件显示一组学生信息。具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>构建原始数据，稍后用于填充模型。</li></ol>
+
+      <div class="code-block">init_data = [
+        [&quot;小许&quot;, 19,&quot;13205445202&quot;,&quot;671_jtx@163.com&quot;],
+        [&quot;小赵&quot;, 21, &quot;18927274113&quot;, &quot;wixef8@huwan.net&quot;],
+        [&quot;小马&quot;,25,&quot;13609210500&quot;,&quot;p23k-el@21cn.com&quot;],
+        [&quot;小易&quot;,27,&quot;15530048951&quot;,&quot;1812643@qq.com&quot;],
+        [&quot;小何&quot;,30,&quot;47300125336&quot;,&quot;doxROW@dzhome.cn&quot;]</div>
+
+      <p class="content-text">上述数据样本是一个嵌套列表。列表中的顶层元素为学生记录，一条学生记录包含4个元素，代表姓名、年龄、联系电话和电子邮箱。</p>
+
+      <ol class="content-list" start="2"><li>定义模型类 StudentItemModel，基类是 QAbstractTableModel。</li></ol>
+
+      <div class="code-block">class StudentItemModel(QAbstractTableModel):</div>
+
+      <ol class="content-list" start="3"><li>在__init__方法中传递基础数据（initData参数）。</li></ol>
+
+      <div class="code-block">def __init__(self, initData, parent: QObject = None):
+    super().__init__(parent)
+    self._theData = initData</div>
+
+      <ol class="content-list" start="4"><li>重写 rowCount 方法，返回数据表的行数。</li></ol>
+
+      <div class="code-block">def rowCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        if parent.isValid():
+                return 0
+        return len(self._theData)</div>
+
+      <p class="content-text">二维表结构中的行一般没有父/子节点，所以如果parent参数是有效索引，应当返回0，如果索引是无效值，表明正在访问的是顶层数据，此时应返回原始数据的元素个数。</p>
+
+      <ol class="content-list" start="5"><li>重写columnCount方法，返回二维表的列数，本示例是固定值4。</li></ol>
+
+      <div class="code-block">def columnCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        if parent.isValid():
+                return 0
+        return 4</div>
+
+      <ol class="content-list" start="6"><li>重写data方法，返回指定索引处的数据项。</li></ol>
+
+      <div class="code-block">def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.
+DisplayRole) -&gt; Any:
+        if role == Qt.ItemDataRole.DisplayRole:
+                #获取行号和列号
+                rowIdx = index.row()
+                colIdx = index.column()
+                #返回数据项
+                return self._theData[rowIdx][colIdx]
+        #其他情况返回None
+        return None</div>
+
+      <p class="content-text">处理 data 方法时一定要注意 role参数，当其值为 DisplayRole时才返回用于视图呈现的数据。</p>
+
+      <ol class="content-list" start="7"><li>重写headerData方法，返回显示在视图中的列标题。</li></ol>
+
+      <div class="code-block">def headerData(self, section: int, orientation: Qt.Orientation, role: int
+    = Qt.ItemDataRole.DisplayRole) -&gt; Any:
+    #列表头用于界面显示
+    if role == Qt.ItemDataRole.DisplayRole:
+        #如果是水平方向，返回列标题
+        if orientation == Qt.Orientation.Horizontal:
+            if section == 0:
+                return &quot;姓名&quot;
+            if section == 1:
+                return &quot;年龄&quot;
+            if section == 2:
+                return &quot;联系电话&quot;
+            if section == 3:
+                return&quot;电子邮箱&quot;
+        #如果是垂直方向，返回行编号
+        if orientation == Qt.Orientation.Vertical:
+            return section + 1
+    #其他情况返回 None
+    return None</div>
+
+      <p class="content-text">orientation参数表示的是排列方向，水平方向代表的是列标题，垂直方向则是行标题。在上述代码中，列标题为“姓名”“年龄”等，行标题显示行编号。</p>
+
+      <p class="content-text">section参数表示从0开始的编号。如果方向是水平，那么 section=0表示第一列，section=2表示第三列；如果方向是垂直，那么section=0是第一行，section=1是第二行。由于 section是从0开始计算的，为了兼顾人们的阅读习惯，返回行号时使用section+1。这样可以确保第一行的标头显示“1”，第二行的标头显示“2”。</p>
+
+      <ol class="content-list" start="8"><li>二维表数据应使用 QTableView组件来显示。下面代码初始化 QTableView 组件和 StudentItemModel模型。</li></ol>
+
+      <div class="code-block">view = QTableView()
+view.setWindowTitle(&quot;学生信息&quot;)
+#创建模型实例
+model = StudentItemModel(init data, view)
+#为视图组件设置模型
+view.setModel(model)
+#显示组件
+view.show()</div>
+
+      <p class="content-text">示例运行效果如图14-5所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-5</span><div class="result-box-image"><img src="images/ch14/ch14_fig_03.png" alt="图 14-5 表格视图" loading="lazy"><div class="caption">图 14-5 表格视图</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.1.5</span> 示例：突出显示销量高于平均值的行</h3>
+
+      <p class="content-text">本示例模拟一个月度销售表，在视图呈现时，如果某行数据的销量高于平均值，该行文本就显示为蓝色。</p>
+
+      <p class="content-text">在重写 data方法时，当列表项需要绘制显示文本时，role参数的值是 DisplayRole；当需要根据数据来获取绘制文本的颜色时，role参数的值为ForegroundRole。将当前记录的销量与整体销量的平均值比较，若销量大于或等于平均值，就返回QColor(&quot;blue&quot;)。</p>
+
+      <p class="content-text">具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>准备示例数据。</li></ol>
+
+      <div class="code-block">sourceData = [
+    [&#x27;F302011&#x27;, &#x27;热缩管&#x27;, 1823],
+    [&#x27;L281055&#x27;, &#x27;元器件&#x27;, 890],
+    [&#x27;Q490084&#x27;, &#x27;面包板&#x27;, 442],
+    [&#x27;T348192&#x27;, &#x27;二极管&#x27;, 2058],
+    [&#x27;E419001&#x27;, &#x27;导线&#x27;, 1679],
+    [&#x27;G780357&#x27;, &#x27;三极管&#x27;, 1315],
+    [&#x27;K853692&#x27;, &#x27;LED灯珠&#x27;, 4089],
+    [&#x27;U160928&#x27;, &#x27;热敏电阻&#x27;, 2146]
+]</div>
+
+      <ol class="content-list" start="2"><li>调用 mean 函数求得销量的平均值。</li></ol>
+
+      <div class="code-block">evg = mean([x[2] for x in sourceData])</div>
+
+      <p class="content-text">示例数据是嵌套的列表类型，子项也是列表。其中，子项的第三个元素为销量（索引是2)。</p>
+
+      <ol class="content-list" start="3"><li>定义项目模型类 CustItemModel，派生自QAbstractTableModel类。</li></ol>
+
+      <div class="code-block">class CustItemModel(QAbstractTableModel):</div>
+
+      <ol class="content-list" start="4"><li>在__init__方法中通过 data参数传递示例数据。</li></ol>
+
+      <div class="code-block">def __init__(self, data, parent: QWidget = None):
+        super().__init__(parent)
+        self._data = data</div>
+
+      <ol class="content-list" start="5"><li>重写 rowCount 方法，返回数据表的行数。</li></ol>
+
+      <div class="code-block">def rowCount(self, parent = QModelIndex) -&gt; int:
+        if parent.isValid():
+                return 0
+        return len(self._data)</div>
+
+      <ol class="content-list" start="6"><li>重写 columnCount 方法，返回数据表的列数。</li></ol>
+
+      <div class="code-block">def columnCount(self, parent = QModelIndex()) -&gt; int:
+        if parent.isValid():
+                return 0
+        return len(self._data[0])</div>
+
+      <ol class="content-list" start="7"><li>重写headerData方法，返回列标题和行序号。</li></ol>
+
+      <div class="code-block">def headerData(self, section: int, orientation: Qt.Orientation, role: int
+    = Qt.ItemDataRole.DisplayRole) -&gt; Any:
+    if role == Qt.ItemDataRole.DisplayRole:
+        #水平方向返回列标题
+        if orientation == Qt.Orientation.Horizontal:
+            if section == 0:
+                return &quot;分类码&quot;
+            if section == 1:
+                return &quot;品名&quot;
+            if section == 2:
+                return &quot;销量&quot;
+        #否则返回行号
+        return section + 1
+    return None</div>
+
+      <ol class="content-list" start="8"><li>重写data方法，返回指定索引处的数据。</li></ol>
+
+      <div class="code-block">def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.
+DisplayRole) -&gt; Any:
+        #如果数据用于视图显示
+        if role == Qt.ItemDataRole.DisplayRole:
+                #行索引
+                rowIndex = index.row()
+                #列索引
+                colIndex = index.column()
+                #返回数据
+                return self._data[rowIndex][colIndex]
+        #如果数据用于文本颜色
+        if role == Qt.ItemDataRole.ForegroundRole:
+                #获取销售量
+                q = self._data[index.row()][2]
+                #如果销量在平均数之上，显示为蓝色
+                if q &gt;= evg:
+                    return QColor(&quot;blue&quot;)
+        #其他情况返回None
+        return None</div>
+
+      <ol class="content-list" start="9"><li>实例化 QTableView 组件。</li></ol>
+
+      <div class="code-block">table = QTableView()
+table.setWindowTitle(&quot;月度销售额&quot;)</div>
+
+      <ol class="content-list" start="10"><li>为QTableView 组件设置模型。</li></ol>
+
+      <div class="code-block">#实例化模型
+model = CustItemModel(sourceData, table)
+#为视图设置模型
+table.setModel(model)
+#显示组件
+table.show()</div>
+
+      <p class="content-text">运行示例程序，效果如图14-6所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-6</span><div class="result-box-image"><img src="images/ch14/ch14_fig_04.png" alt="图 14-6 模拟销售表" loading="lazy"><div class="caption">图 14-6 模拟销售表</div></div></div>
+
+      <div class="section-heading" id="section-1"><span class="section-number">14.2</span><h2>QStringListModel</h2></div>
+
+      <p class="content-text">QStringListModel派生自QAbstractListModel类，是 Qt 提供的便捷模型类。该模型以字符串列表为基础数据。该类可直接使用，开发人员不需要派生新类。</p>
+
+      <p class="content-text">在实例化 QStringListModel类时，可以通过构造函数参数传递字符串列表，例如：</p>
+
+      <div class="code-block">#字符串列表
+strs = [&quot;夏&quot;, &quot;商&quot;, &quot;周&quot;, &quot;秦&quot;, &quot;汉&quot;]
+#实例化模型并传递字符串列表
+myModel = QStringListModel(strs)</div>
+
+      <p class="content-text">或者先创建 QStringListModel 实例，再通过 setStringList 方法设置字符串列表，例如：</p>
+
+      <div class="code-block">#字符串列表
+strs = [&quot;夏&quot;, &quot;商&quot;, &quot;周&quot;, &quot;秦&quot;, &quot;汉&quot;]
+#实例化模型
+myModel = QStringListModel()
+#设置基础数据
+myModel.setStringList(strs)</div>
+
+      <p class="content-text">QStringListModel模型类实例化后可以直接用于视图组件。演示代码如下：</p>
+
+      <div class="code-block">#字符串列表
+strList = [&quot;桃子&quot;, &quot;梨子&quot;, &quot;李子&quot;, &quot;柚子&quot;, &quot;瓜子&quot;]
+#实例化模型
+model = QStringListModel()
+#设置基础数据
+model.setStringList(strList)
+.....
+listview = QListView()
+#设置模型
+listview.setModel(model)
+#显示视图组件
+listview.show()</div>
+
+      <p class="content-text">上述代码的执行结果如图14-7所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-7</span><div class="result-box-image"><img src="images/ch14/ch14_fig_05.png" alt="图 14-7 字符串列表视图" loading="lazy"><div class="caption">图 14-7 字符串列表视图</div></div></div>
+
+      <div class="section-heading" id="section-2"><span class="section-number">14.3</span><h2>QStandardItemModel</h2></div>
+
+      <p class="content-text">QStandardItemModel也是Qt提供的便捷模型类。该类可通用于各种数据源，简单一维列表、二维列表、树形列表等数据模型均适用。</p>
+
+      <p class="content-text">列表项由 QStandardItem类表示。每个 QStandardItem 对象都拥有一个二维表结构的子项列表，并且支持构建多层次结构的数据模型。调用setChild方法可以将子项设置到指定的行和列中。需要注意的是，只有QTreeView组件才支持树形结构的数据，QTableView、QListView等组件不会显示子项。</p>
+
+      <p class="content-text">要为 QStandardItem 设置数据可以调用 setData 方法，如果数据是字符串类型，调用 setText 方法会更简单。setText方法内部调用了setData方法。</p>
+
+      <p class="content-text">QStandardItemModel 类通过 item 和 setItem 方法在指定行和列获取/设置 QStandardItem 对象。如果模型用于QTableView组件，还可以用 setHorizontalHeaderLabels方法设置列标题，用 setVerticalHeaderLabels方法设置行标题。或者使用 setHorizontalHeaderItem 和 setVerticalHeaderItem 方法，这两个方法可以针对某一行或某一列来设置标题。</p>
+
+      <h3 class="subsection-heading"><span>14.3.1</span> 示例：员工信息表</h3>
+
+      <p class="content-text">本示例将演示 QStandardItemModel与QStandardItem类的基本用法。示例将构建一个4列3行的员工信息表。具体步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>实例化 QTableView 和 QStandardItemModel类，代码如下：</li></ol>
+
+      <div class="code-block">#创建视图组件实例
+view = QTableView()
+view.setWindowTitle(&quot;员工信息&quot;)
+#创建模型实例
+stdModel = QStandardItemModel(view)</div>
+
+      <ol class="content-list" start="2"><li>调用 setHorizontalHeaderLabels 方法设置列标题。</li></ol>
+
+      <div class="code-block">stdModel.setHorizontalHeaderLabels([&quot;员工ID&quot;,&quot;姓名&quot;,&quot;年龄&quot;,&quot;部门&quot;])</div>
+
+      <ol class="content-list" start="3"><li>向模型添加数据。</li></ol>
+
+      <div class="code-block"># ------ 第一行 ------
+stdModel.setItem(
+    0,
+    0,
+    QStandardItem(&quot;1213&quot;)
+)
+stdModel.setItem(
+    0,
+    1,
+    QStandardItem(&quot;小张&quot;)
+)
+stdModel.setItem(
+    0,
+    2,
+    QStandardItem(&quot;27&quot;)
+)
+stdModel.setItem(
+    0,
+    3,
+    QStandardItem(&quot;法务部&quot;)
+)
+
+# ------ 第二行 ------
+stdModel.setItem(
+    1,
+    0,
+    QStandardItem(&quot;1456&quot;)
+)
+stdModel.setItem(
+    1,
+    1,
+    QStandardItem(&quot;小李&quot;)
+)
+stdModel.setItem(
+    1,
+    2,
+    QStandardItem(&quot;30&quot;)
+)
+stdModel.setItem(
+    1,
+    3,
+    QStandardItem(&quot;财务部&quot;)
+)
+
+# ------ 第三行 ------
+stdModel.setItem(
+    2,
+    0,
+    QStandardItem(&quot;6825&quot;)
+)
+stdModel.setItem(
+    2,
+    1,
+    QStandardItem(&quot;小陈&quot;)
+)
+stdModel.setItem(
+    2,
+    2,
+    QStandardItem(&quot;35&quot;)
+)
+stdModel.setItem(
+    2,
+    3,
+    QStandardItem(&quot;人力资源部&quot;)
+)</div>
+
+      <ol class="content-list" start="4"><li>将模型对象设置到QTableView组件中，显示数据。</li></ol>
+
+      <div class="code-block">view.setModel(stdModel)
+#显示视图
+view.show()</div>
+
+      <p class="content-text">示例程序的运行效果如图14-8所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-8</span><div class="result-box-image"><img src="images/ch14/ch14_fig_06.png" alt="图 14-8员工信息视图" loading="lazy"><div class="caption">图 14-8员工信息视图</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.3.2</span> 示例：显示图标</h3>
+
+      <p class="content-text">本示例将演示在标准列表模型中显示图标的方法。QStandardItem类存在可接受 QIcon 对象的构造函数：</p>
+
+      <div class="code-block">def __init__(icon: Union[QIcon, QPixmap], text: str)</div>
+
+      <p class="content-text">即在实例化 QStandardItem类时可以将已加载的图标资源传递给icon参数。另外，如果在实例化时未传递图标资源，也可以通过以下方法设置：</p>
+
+      <div class="code-block">def setIcon(icon: Union[QIcon, QPixmap])</div>
+
+      <p class="content-text">本示例将使用一维列表，向模型添加4个子项，每个子项都带有小图标。核心代码如下：</p>
+
+      <div class="code-block">#初始化视图组件
+theView = QListView()
+#创建标准模型实例
+model = QStandardItemModel(theView)
+#一级列表只有一列
+model.setColumnCount(1)
+#加载图标
+icon1 = QIcon(&quot;01.png&quot;)
+icon2 = QIcon(&quot;02.png&quot;)
+icon3 = QIcon(&quot;03.png&quot;)
+icon4 = QIcon(&quot;04.png&quot;)
+#创建标准项
+item1 = QStandardItem(icon1, &quot;object 1&quot;)
+item2 = QStandardItem(icon2, &quot;object 2&quot;)
+item3 = QStandardItem(icon3, &quot;object 3&quot;)
+item4 = QStandardItem(icon4, &quot;object 4&quot;)
+#向模型添加数据项
+model.appendRow(item1)
+model.appendRow(item2)
+model.appendRow(item3)
+model.appendRow(item4)
+#为视图组件设置项目模型
+theView.setModel(model)
+#显示组件
+theView.show()</div>
+
+      <p class="content-text">由于示例数据只有一列，可以调用setColumnCount方法设置总列数为1。列表视图的呈现效果如图 14-9所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-9</span><div class="result-box-image"><img src="images/ch14/ch14_fig_07.png" alt="图14-9 带小图标的列表项" loading="lazy"><div class="caption">图14-9 带小图标的列表项</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.3.3</span> 示例：树形视图</h3>
+
+      <p class="content-text">要构造树形视图，QStandardItem对象需要调用 setChild方法添加子节点。该方法有两个重载：</p>
+
+      <div class="code-block">def setChild(row: int, column: int, item: QStandardItem)
+def setChild(row: int, item: QStandardItem)</div>
+
+      <p class="content-text">row、column参数指定在何处放置子节点（行号和列号)，item参数是子节点的数据项。对于简单的树形结构，可以认为子节点均放在第一列，每个子节点占一行。</p>
+
+      <p class="content-text">以下是本示例所构建的数据项。</p>
+
+      <div class="code-block">#顶层节点
+top1 = QStandardItem(&quot;文件&quot;)
+top2 = QStandardItem(&quot;编辑&quot;)
+top3 = QStandardItem(&quot;格式&quot;)
+#第一个顶层节点的子节点
+topl.setChild(0, QStandardItem(&quot;打开&quot;))
+top1.setChild(1, QStandardItem(&quot;新建&quot;))
+top1.setChild(2, QStandardItem(&quot;关闭&quot;))
+#第二个顶层节点的子节点
+top2.setChild(0, QStandardItem(&quot;复制&quot;))
+top2.setChild(1, QStandardItem(&quot;剪切&quot;))
+top2.setChild(2, QStandardItem(&quot;粘贴&quot;))
+top2.setChild(3, QStandardItem(&quot;查找&quot;))
+#第三个顶层节点的子节点
+top3.setChild(0,QStandardItem(&quot;增加缩进量&quot;))
+top3.setChild(1,QStandardItem(&quot;减少缩进量&quot;))
+#第二层子节点
+subitem = QStandardItem(&quot;对齐&quot;)
+#添加第三层子节点
+subitem.setChild(0, QStandardItem(&quot;左&quot;))
+subitem.setChild(1, QStandardItem(&quot;中&quot;))
+subitem.setChild(2, QStandardItem(&quot;右&quot;))
+top3.setChild(2, subitem)</div>
+
+      <p class="content-text">要显示树形结构的数据，需要用QTreeView组件。设置标准模型的代码如下：</p>
+
+      <div class="code-block">treeview = QTreeView()
+#隐藏标头
+treeview.setHeaderHidden(True)
+#实例化标准模型
+model = QStandardItemModel(treeview)
+#添加数据项
+model.appendRow(top1)
+model.appendRow(top2)
+model.appendRow(top3)</div>
+
+      <p class="content-text">top1、top2 和 top3 属于顶层数据项，直接添加到 QStandardItemModel 对象中即可。由于本示例未设置列或行的标题，所以应当调用setHeaderHidden(True)来隐藏标头区域。呈现结果如图14-10所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-10</span><div class="result-box-image"><img src="images/ch14/ch14_fig_08.png" alt="图 14-10 树形视图" loading="lazy"><div class="caption">图 14-10 树形视图</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.3.4</span> 示例：多列树形视图</h3>
+
+      <p class="content-text">本示例将实现具有多个列的树形数据表。用到的仍然是 QTreeView组件和 QStandardItemModel类。</p>
+
+      <p class="content-text">一般树形视图的子节点只有一列，而实现多列视图的原理就是在调用setChild方法时同时指定行号和列号。不过，QTreeView组件只有第一列才支持树形结构，因此在建立列表项的层级关系时仅需考虑第一列即可。</p>
+
+      <p class="content-text">本示例将构建一个值班人员表。顶层节点是工作人员所在的分组，子节点才是值班信息。具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>QStandardItem类默认是允许编辑、check等操作。本示例所构建的数据模型是只读的，不允许修改。因此，从QStandardItem派生出MyStandardItem类，在初始化过程中默认将编辑、拖放等功能禁用。这样做可避免每次创建标准项都要手动禁用一次。</li></ol>
+
+      <div class="code-block">class MyStandardItem(QStandardItem):
+        def __init__(self):
+                super().__init__()
+                self._set_init()
+        def __init__(self, text: str):
+                super().__init__(text)
+                self._set_init()
+        def_set_init(self):
+                #禁用编辑
+                self.setEditable(False)
+                #禁用拖放
+                self.setDragEnabled(False)
+                self.setDropEnabled(False)
+                #禁用check 功能
+                self.setCheckable(False)</div>
+
+      <ol class="content-list" start="2"><li>创建标准列表模型实例。</li></ol>
+
+      <div class="code-block">model = QStandardItemModel()
+#设置列标题
+model.setHorizontalHeaderLabels([&quot;姓名&quot;,&quot;性别&quot;,&quot;值班时间&quot;])</div>
+
+      <ol class="content-list" start="3"><li>准备示例数据。</li></ol>
+
+      <div class="code-block">#添加列表项
+group1 = MyStandardItem(&quot;新闻组&quot;)
+group1.setChild(0, 0, MyStandardItem(&quot;小徐&quot;))
+groupl.setChild(0, 1, MyStandardItem(&quot;男&quot;))
+group1.setChild(0, 2, MyStandardItem(&quot;上午&quot;))
+group1.setChild(1, 0, MyStandardItem(&quot;小钱&quot;))
+groupl.setChild(1, 1, MyStandardItem(&quot;男&quot;))
+groupl.setChild(1, 2, MyStandardItem(&quot;下午&quot;))
+group2 = MyStandardItem(&quot;漫画组&quot;)
+group2.setChild(0, 0, MyStandardItem(&quot;小罗&quot;))
+group2.setChild(0, 1, MyStandardItem(&quot;女&quot;))
+group2.setChild(0, 2, MyStandardItem(&quot;上午&quot;))
+group2.setChild(1, 0, MyStandardItem(&quot;小高&quot;))
+group2.setChild(1, 1, MyStandardItem(&quot;男&quot;))
+group2.setChild(1, 2, MyStandardItem(&quot;晚上&quot;))
+group3 = MyStandardItem(&quot;广播组&quot;)
+group3.setChild(0, 0, MyStandardItem(&quot;小曾&quot;))
+group3.setChild(0, 1, MyStandardItem(&quot;男&quot;))
+group3.setChild(0, 2, MyStandardItem(&quot;下午&quot;))
+group3.setChild(1, 0, MyStandardItem(&quot;小郭&quot;))
+group3.setChild(1, 1, MyStandardItem(&quot;女&quot;))
+group3.setChild(1, 2, MyStandardItem(&quot;中午&quot;))
+group3.setChild(2, 0, MyStandardItem(&quot;小付&quot;))
+group3.setChild(2, 1, MyStandardItem(&quot;男&quot;))
+group3.setChild(2, 2, MyStandardItem(&quot;下午&quot;))
+model.setItem(0, 0, groupl)
+model.setItem(1, 0, group2)
+model.setItem(2, 0, group3)</div>
+
+      <ol class="content-list" start="4"><li>初始化 QTreeView 组件。</li></ol>
+
+      <div class="code-block">treeview = QTreeView()
+treeview.setWindowTitle(&quot;值班安排&quot;)</div>
+
+      <ol class="content-list" start="5"><li>为视图组件设置列表模型。</li></ol>
+
+      <div class="code-block">treeview.setModel(model)</div>
+
+      <ol class="content-list" start="6"><li>显示组件。</li></ol>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-11</span><div class="result-box-image"><img src="images/ch14/ch14_fig_09.png" alt="图 14-11 分组的值班人员表" loading="lazy"><div class="caption">图 14-11 分组的值班人员表</div></div></div>
+
+      <div class="section-heading" id="section-3"><span class="section-number">14.4</span><h2>QFileSystemModel</h2></div>
+
+      <p class="content-text">QFileSystemModel类是 Qt提供的列表模型，支持对本地文件系统的访问。如 QTreeView等视图组件可以借助该类显示文件和目录结构。另外，QFileSystemModel类还提供了以下方法，可以方便地进行一些常用操作。</p>
+
+      <ol class="content-list" start="1"><li>mkdir：创建新目录。</li></ol>
+
+      <ol class="content-list" start="2"><li>rmdir：删除目录。</li></ol>
+
+      <ol class="content-list" start="3"><li>remove：删除文件。</li></ol>
+
+      <ol class="content-list" start="4"><li>setNameFilters：过滤文件名。</li></ol>
+
+      <ol class="content-list" start="5"><li>setFilter:为目录设置过滤方式。</li></ol>
+
+      <p class="content-text">QFileSystemModel 模型类在实例化后，需要调用 setRootPath方法设置一个根目录。调用该方法并不意味着模型只提取根目录下的内容，而是为了激活后台线程上的文件扫描操作。如果不调用setRootPath方法，QFileSystemModel模型中将读取不到目录和文件信息。因此，调用 setRootPath 方法时也可以传递空白字符串，不会影响目录和文件信息的提取。</p>
+
+      <h3 class="subsection-heading"><span>14.4.1</span> 示例：显示目录和文件</h3>
+
+      <p class="content-text">QFileSystemModel 类通常与 QTreeView 组件一起使用，实现以树形结构显示目录和文件列表。本示例将显示C:\Windows目录下的目录和文件。核心代码如下：</p>
+
+      <div class="code-block">#实例化视图组件
+treeview = QTreeView()
+treeview.setWindowTitle(&quot;目录和文件&quot;)
+#实例化模型类
+model = QFileSystemModel()
+model.setRootPath(&quot;&quot;)
+#为视图组件设置模型
+treeview.setModel(model)
+#设置要显示的根目录
+treeview.setRootIndex(model.index(&quot;C:\\Windows&quot;))
+#显示窗口
+treeview.show()</div>
+
+      <p class="content-text">调用 QTreeView 组件的 setRootIndex方法后才会显示指定路径下的内容。若不调用 setRootIndex方法，默认会显示分区/磁盘列表（如C:、D:)。setRootIndex方法的参数要求传递列表项索引，可以通过QFileSystemModel类的 index方法获取。</p>
+
+      <p class="content-text">上述代码的运行结果如图14-12所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-12</span><div class="result-box-image"><img src="images/ch14/ch14_fig_10.png" alt="图 14-12 目录与文件列表" loading="lazy"><div class="caption">图 14-12 目录与文件列表</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.4.2</span> 示例：使用过滤器</h3>
+
+      <p class="content-text">调用下面的方法成员，可以为QFileSystemModel设置文件名过滤器（也称“筛选器”):</p>
+
+      <div class="code-block">def setNameFilters(filters: Sequence[str])</div>
+
+      <p class="content-text">filters参数是字符串序列，表明该方法可以设置多个过滤条件，例如：</p>
+
+      <div class="code-block">setNameFilters([&quot;*.doc&quot;, &quot;*.vob&quot;])</div>
+
+      <p class="content-text">上述代码表示只有扩展名为.doc和.vob的文件有效。</p>
+
+      <p class="content-text">本示例的窗口顶部有一个QLineEdit组件，可通过键盘输入过滤条件。单击“确定”按钮后应用过滤器。QTreeView组件用于显示文件列表。</p>
+
+      <p class="content-text">自定义窗口DemoWindow类的完整代码如下：</p>
+
+      <div class="code-block">class DemoWindow(QWidget):
+        def __init__(self):
+                super().__init__()
+                #窗口顶部布局
+                _topLayout = QHBoxLayout()
+                self._txtFilter = QLineEdit(self)
+                _topLayout.addWidget(self._txtFilter, 1)
+                btn = QPushButton(&quot;确定&quot;, self)
+                _topLayout.addWidget(_btn)
+                #连接 clicked 信号
+                _btn.clicked.connect(self.onClicked)
+                #实例化模型类
+                self._model = QFileSystemModel(self)
+                self._model.setRootPath(&quot;E:\\&quot;)
+                #实例化视图组件
+                self._view = QTreeView(self)
+                #设置模型引用
+                self._view.setModel(self._model)
+                #设置根节点
+                self.view.setRootIndex(self.model.index(&quot;E:\\test&quot;))
+                #窗口整体布局
+                _layout = QVBoxLayout()
+                self.setLayout(_layout)
+                #将上述各对象添加到布局
+                layout.addLayout(_topLayout)
+                _layout.addWidget(self._view, 1)
+        def onClicked(self):
+                #获取输入的过滤关键字
+                s = self._txtFilter.text()
+                if len(s) == 0:
+                    return
+                #拆分字符串
+                filters = s.split(&#x27;;&#x27;)
+                #应用过滤
+                self._model.setNameFilters(filters)</div>
+
+      <p class="content-text">上述代码设定要显示文件的目录为E:\test（读者可以根据实际情况改为其他路径)，必须保证此目录已存在，且里面有相应的文件。如果目录不存在，QTreeView组件默认显示分区列表。</p>
+
+      <p class="content-text">“确定”按钮的clicked信号连接到onClicked方法。本示例允许输入多个过滤条件，条件之间用分号（;）隔开。应用过滤器时通过 split将输入的字符串拆分为字符串列表，再传递给 setNameFilters方法。</p>
+
+      <p class="content-text">示例运行结果如图14-13所示。</p>
+
+      <p class="content-text">在文本框中输入“*.txt”，单击“确定”按钮。此时，扩展名为.txt以外的文件变为禁用状态，文本呈现为灰色，并且不能选中，如图14-14所示。</p>
+
+      <p class="content-text">应用多个过滤器，例如输入“*.zip;*.mp3;*.tar”，单击“确定”按钮后，只有扩展名为.zip、.mp3、.tar的文件有效。</p>
+
+      <p class="content-text">通常人们更习惯于将不符合过滤条件的文件隐藏，而不是变为禁用状态。要实现此效果需要调用 setNameFilterDisables 方法，并向参数赋值 False。代码如下：</p>
+
+      <div class="code-block">self._model.setNameFilterDisables(False)</div>
+
+      <p class="content-text">修改后再次进行过滤，不符合条件的文件就不再显示了，如图14-15所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-13、图 14-14、图 14-15</span><div class="result-box-image"><img src="images/ch14/ch14_fig_11.png" alt="图14-13 未使用过滤器的文件列表 图14-14 应用单个过滤器后 图 14-15 只显示符合条件的文件" loading="lazy"><div class="caption">图14-13 未使用过滤器的文件列表 图14-14 应用单个过滤器后 图 14-15 只显示符合条件的文件</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.4.3</span> 示例：创建和删除目录</h3>
+
+      <p class="content-text">本示例将使用mkdir方法创建新目录，使用 rmdir方法删除选中的目录。示例程序窗口使用QGridLayout布局，第一行放置 QTreeView 组件，第二行放置两个 QPushButton组件。具体代码如下：</p>
+
+      <div class="code-block">#程序窗口
+window = QWidget()
+#设置标题
+window.setWindowTitle(&quot;创建和删除目录&quot;)
+#设置窗口大小
+window.resize(325, 287)
+#布局
+layout = QGridLayout()
+window.setLayout(layout)
+#实例化 QTreeView 组件
+treeview = QTreeView(window)
+layout.addWidget(treeview, 0, 0, 1, 2)
+#创建两个按钮组件
+btnMakeDir = QPushButton(&quot;创建目录&quot;, window)
+btnRemoveDir = QPushButton(&quot;删除目录&quot;, window)
+layout.addWidget(btnMakeDir, 1, 0)
+layout.addWidget(btnRemoveDir, 1, 1)
+layout.setRowStretch(0, 1)</div>
+
+      <p class="content-text">下面的代码初始化 QFileSystemModel 对象：</p>
+
+      <div class="code-block">#实例化 QFileSystemModel 类
+theModel = QFileSystemModel(window)
+#当前目录
+currIndex = theModel.setRootPath(QDir.currentPath())
+#视图组件与模型关联
+treeview.setModel(theModel)
+treeview.setRootIndex(currIndex)</div>
+
+      <p class="content-text">QDir.currentPath静态方法返回当前目录的路径（默认是应用程序所在的目录)。setRootPath调用后会返回根目录在模型中的索引，随后可以将该索引用于 QTreeView组件的 setRootIndex方法。</p>
+
+      <p class="content-text">连接“创建目录”“删除目录”按钮的clicked信号，处理代码如下：</p>
+
+      <div class="code-block">def onMkDirClicked():
+    #让用户输入新目录的名称
+    newDirName, ok = QInputDialog.getText(
+        window,
+        &quot;输入&quot;, &quot;新目录的名称：&quot;
+    )
+    if ok:
+        #创建目录
+        theModel.mkdir(currIndex, newDirName)
+def onRmDirClicked():
+    #获取当前选定的项
+    selIndex = treeview.currentIndex()
+    if theModel.isDir(selIndex):
+        #删除目录
+        theModel.rmdir(selIndex)
+btnMakeDir.clicked.connect(onMkDirClicked)
+btnRemoveDir.clicked.connect(onRmDirClicked)</div>
+
+      <p class="content-text">一般情况下，currentIndex方法返回的是 QTreeView 中被选择的索引，然后要用 isDir方法判断被选项是否为目录（本示例仅删除目录)。如果选中的是目录，就用rmdir方法删除。</p>
+
+      <p class="content-text">运行示例程序，单击“创建目录”按钮，弹出输入对话框。在对话框中输入新目录名称，例如“Winderful”，如图14-16所示。</p>
+
+      <p class="content-text">确认输入后，Winderful目录被创建，QTreeView组件自动刷新，如图14-17所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-16、图 14-17</span><div class="result-box-image"><img src="images/ch14/ch14_fig_12.png" alt="图 14-16 输入新目录名 图 14-17 视图自动刷新" loading="lazy"><div class="caption">图 14-16 输入新目录名 图 14-17 视图自动刷新</div></div></div>
+
+      <p class="content-text">在 QTreeView组件中选中刚才创建的 Winderful 目录，再单击“删除目录”按钮将其删除。</p>
+
+      <div class="section-heading" id="section-4"><span class="section-number">14.5</span><h2>编辑功能</h2></div>
+
+      <p class="content-text">列表模型要实现编辑功能，需要重写setData方法。该方法声明如下：</p>
+
+      <div class="code-block">def setData(
+        index: QModelIndex,
+        value: Any,
+        role: int = ...
+) -&gt; bool</div>
+
+      <p class="content-text">index参数代表正在被编辑的数据项索引。value参数传递的是数据项对应的值。role参数是Qt.ItemDataRole 枚举的值，通常为EditRole。setData 方法内需要完成将 value 传递到基础数据，并替换旧的值。如果此过程顺利完成则返回True，若失败则返回False。</p>
+
+      <p class="content-text">另外，为了表明模型支持编辑，需要重写flags方法，返回的Qt.ItemFlag枚举值中必须包含ItemIsEditable。</p>
+
+      <p class="content-text">若需要对数据列表进行追加、插入、删除等操作，则重写insertRows、insertColumns方法。</p>
+
+      <h3 class="subsection-heading"><span>14.5.1</span> 示例：可编辑列表</h3>
+
+      <p class="content-text">本示例将从QAbstractListModel类派生出自定义的模型类，实现一维列表的编辑功能。具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>定义 CustModel，基类是 QAbstractListModel。</li></ol>
+
+      <div class="code-block">class CustModel(QAbstractListModel):</div>
+
+      <ol class="content-list" start="2"><li>在__init__方法中通过 data参数传递原始数据。</li></ol>
+
+      <div class="code-block">def __init__(self, data: list, parent: QObject = None):
+        super().__init__(parent)
+        self._data = data</div>
+
+      <ol class="content-list" start="3"><li>定义两个方法，用于获取和设置原始（基础）数据。</li></ol>
+
+      <div class="code-block">def sourceList(self):
+        return self._data
+def setSourceList(self, list: list):
+        self._data = list</div>
+
+      <ol class="content-list" start="4"><li>重写rowCount方法，返回列表中的元素数量。</li></ol>
+
+      <div class="code-block">def rowCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        if parent.isValid():
+                return 0
+        return len(self._data)</div>
+
+      <ol class="content-list" start="5"><li>重写data方法，返回指定索引处的数据。</li></ol>
+
+      <div class="code-block">def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.
+DisplayRole) -&gt; Any:
+        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.
+EditRole:
+                #获取行号
+                i = index.row()
+                #如果索引无效，返回None
+                if self.hasIndex(i, 0) == False:
+                    return None
+                #返回数据
+                return self._data[i]
+        return None</div>
+
+      <p class="content-text">上述代码满足 role参数为DisplayRole或EditRole时返回数据，保证在正常显示和正在编辑两种状态下都能呈现数据。如果仅在DisplayRole前提下返回数据，那么在用户界面上编辑数据时，输入文本框的初始内容就是空白字符串。这不太符合人们的使用习惯，通常在编辑数据时，文本框应默认显示原有的数据。</p>
+
+      <ol class="content-list" start="6"><li>重写setData方法，实现在用户完成编辑后更新原始数据。</li></ol>
+
+      <div class="code-block">def setData(self, index: QModelIndex, value: Any, role: int = Qt.
+ItemDataRole.EditRole) -&gt; bool:
+        if role == Qt.ItemDataRole.EditRole:
+                #获取索引
+                    i = index.row()
+                    #设置数据
+                    self._data[i] = value
+                    #重要：一定要发出 dataChanged 信号
+                    self.dataChanged.emit(index, index, [role])
+                    return True
+                    return False</div>
+
+      <p class="content-text">当数据被更新后，必须发出dataChanged信号，使得连接该信号的视图组件能及时刷新显示。setData方法如果更改数据失败，要返回False。</p>
+
+      <ol class="content-list" start="7"><li>重写 flags方法，返回包含ItemIsEditable的标志值。</li></ol>
+
+      <div class="code-block">def flags(self, index: QModelIndex) -&gt; Qt.ItemFlag:
+        #获取基类设置的标志
+        f = super().flags(index)
+        #加上可编辑标志
+        f = f | Qt.ItemFlag.ItemIsEditable
+        return f</div>
+
+      <p class="content-text">ItemFlag枚举支持使用“或”运算符组合多个值。</p>
+
+      <ol class="content-list" start="8"><li>构建测试数据。</li></ol>
+
+      <div class="code-block">srcList = [&#x27;白菜&#x27;, &#x27;卷心菜&#x27;, &#x27;芥菜&#x27;, &#x27;萝卜&#x27;, &#x27;绿花菜&#x27;, &#x27;芹菜&#x27;]</div>
+
+      <ol class="content-list" start="9"><li>创建自定义的模型实例。</li></ol>
+
+      <div class="code-block">model = CustModel(srcList)</div>
+
+      <ol class="content-list" start="10"><li>构建用户界面。</li></ol>
+
+      <div class="code-block">#程序窗口
+win = QWidget()
+#布局
+layout = QGridLayout()
+win.setLayout(layout)
+#按钮
+btn = QPushButton(&quot;显示数据&quot;, win)
+layout.addWidget(btn, 1, 0)
+#标签
+lb = QLabel(win)
+lb.setWordWrap(True)
+layout.addWidget(lb, 1, 1)
+layout.setColumnStretch(0, 0)
+layout.setColumnStretch(1, 1)
+#列表视图
+listview = QListView(win)
+listview.setModel(model)
+layout.addWidget(listview, 0, 0, 1, 2)</div>
+
+      <p class="content-text">程序窗口使用网格布局。第一行跨两列放一个QListView组件，用来显示数据。第二行放置一个按钮和一个标签组件。按钮被单击后会在标签上显示原始数据列表。此做法是为了验证数据是否被成功修改。</p>
+
+      <ol class="content-list" start="11"><li>连接按钮的 clicked信号，显示原始数据。</li></ol>
+
+      <div class="code-block">def onBtnClicked():
+        s =&#x27;、&#x27;.join(model.sourceList())
+        1b.setText(s)
+btn.clicked.connect(onBtnClicked)</div>
+
+      <p class="content-text">运行示例程序后，先单击“显示数据”按钮，确认原始数据和视图呈现的数据一致，如图14-18所示。</p>
+
+      <p class="content-text">在QListView组件上选择要编辑的项，双击或者按快捷键 F2，使其进入编辑状态。例如，将“绿花菜”改为“白花菜”，如图14-19所示。</p>
+
+      <p class="content-text">按【Enter】键或在QListView组件的其他空白区域单击一下鼠标，结束编辑状态。再次单击“显示数据”按钮，可以看到，原始数据也被更新了，如图14-20所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-18、图 14-19、图 14-20</span><div class="result-box-image"><img src="images/ch14/ch14_fig_13.png" alt="图 14-18 初始数据 图14-19 输入“白花菜” 图14-20 原始数据已更新" loading="lazy"><div class="caption">图 14-18 初始数据 图14-19 输入“白花菜” 图14-20 原始数据已更新</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.5.2</span> 插入和删除数据</h3>
+
+      <p class="content-text">让列表模型支持插入、删除操作需要重写以下方法。</p>
+
+      <div class="code-block">def insertRows(
+    row: int,
+    count: int,
+    parent: QModelIndex = ...) -&gt; bool</div>
+
+      <div class="code-block">def insertColumns(
+    column: int,
+    count: int,
+    parent: QModelIndex = ...) -&gt; bool</div>
+
+      <div class="code-block">def removeRows(
+                row: int,
+                count: int,
+                parent: QModelIndex = ...)
+        -&gt; bool
+def removeColumns(
+                column: int,
+                count: int,
+                parent: QModelIndex = ...)</div>
+
+      <p class="content-text">对于 insert* 方法，row、column 参数指定新行（新列）的插入点索引，新的数据项会在指定索引之前插入。假设有 A、B、C 三列，在 B 的索引处插入 D，B、C 列将向后移一位，变成 A、D、B、C。要把数据项插入列表的开头，可以指定 row=0 或 column=0；若要把数据项追加到列表的末尾，可以指定 row=rowCount() 或 column=columnCount()。其中，rowCount 方法返回当前列表的行数，columnCount 方法返回当前列表的列数。parent 参数指定新插入的行或列所属的父级节点，对于普通列表或表格视图，直接使用 QModelIndex() 即可。count 参数指定要插入的行数（或列数）。</p>
+
+      <p class="content-text">remove*方法的参数含义与insert*方法相同。无论是插入新数据项，还是删除现有数据项，如果操作成功，则方法应返回True，失败就返回False。</p>
+
+      <p class="content-text">在重写 insert*方法时，插入新数据项前必须调用 beginInsertRows或 beginInsertColumns 方法。完成后还要调用 endInsertRows 或 endInsertColumns 方法。重写 remove*方法的原理相同，删除数据前要调用 beginRemoveRows 或 beginRemoveColumns 方法，处理完毕后要调用 endRemoveRows 或endRemoveColumns方法。这样做是为了能及时通知与模型关联的视图组件，以应对模型数据的变化。</p>
+
+      <h3 class="subsection-heading"><span>14.5.3</span> 示例：新增/删除图书信息</h3>
+
+      <p class="content-text">本示例通过自定义模型实现新增和删除图书信息的功能。模型类名为BookModel，派生自QAbstractTableModel类，实现过程如下。</p>
+
+      <ol class="content-list" start="1"><li>构造函数内初始化一个列表对象，用于存放图书信息。</li></ol>
+
+      <div class="code-block">def __init__(self, parent: QObject = None):
+        super().__init__(parent)
+        #内部数据，存放图书信息
+        self._books = []</div>
+
+      <ol class="content-list" start="2"><li>重写columnCount方法，返回表格的列数。本示例直接返回2，表示表格有两列。</li></ol>
+
+      <div class="code-block">def columnCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        if parent.isValid():
+                return 0
+        #本模型只有两列：书名、作者
+        return 2</div>
+
+      <ol class="content-list" start="3"><li>重写 rowCount 方法，返回表格的行数。</li></ol>
+
+      <div class="code-block">def rowCount(self, parent: QModelIndex = QModelIndex()) -&gt; int:
+        if parent.isValid():
+                return 0
+        return len(self._books)</div>
+
+      <ol class="content-list" start="4"><li>重写flags方法，返回相关的标志位。本示例的模型不需要编辑功能，因此返回的值中不包含ItemIsEditable。</li></ol>
+
+      <div class="code-block">def flags(self, index: QModelIndex) -&gt; Qt.ItemFlag:
+    # ItemIsEnabled:可交互
+    # ItemIsSelectable:允许选择
+    #ItemNeverHasChildren：列表项无子项
+    f = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemNeverHasChildren
+    return f</div>
+
+      <ol class="content-list" start="5"><li>重写headerData方法，返回行、列标题。</li></ol>
+
+      <div class="code-block">def headerData(self, section: int, orientation: Qt.Orientation, role: int
+    = Qt.ItemDataRole.DisplayRole) -&gt; Any:
+    if role == Qt.ItemDataRole.DisplayRole:
+        if orientation == Qt.Orientation.Horizontal:
+            #列标题
+            if section == 0:
+                return &quot;书名&quot;
+            if section == 1:
+                return &quot;作者&quot;
+        elif orientation == Qt.Orientation.Vertical:
+            #行标题
+            return f&#x27;{section + 1}&#x27;
+    return None</div>
+
+      <ol class="content-list" start="6"><li>重写data方法，返回指定索引处的数据项。</li></ol>
+
+      <div class="code-block">def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.
+    DisplayRole) -&gt; Any:
+    if role == Qt.ItemDataRole.DisplayRole:
+        #获取行号和列号
+        ri = index.row()
+        ci = index.column()
+        if not self.hasIndex(ri, ci):
+            return None
+        return self._books[ri][ci]
+    return None</div>
+
+      <ol class="content-list" start="7"><li>重写insertRows方法，向表格的指定索引处插入若干行。</li></ol>
+
+      <div class="code-block">def insertRows(self, row: int, count: int, parent: QModelIndex =
+QModelIndex()) -&gt; bool:
+        if parent.isValid():
+                return False
+        if row &lt; 0 or count &lt; 1 or row &gt; self.rowCount():
+                return False
+        #统计已添加的数量
+        n = 0
+        #插入新项的索引
+        idx = row
+        #开始写入
+        self.beginInsertRows(parent, row, row + count - 1)
+        while n &lt; count:
+                item = [&#x27;&lt;未知书名&gt;&#x27;, &#x27;&lt;未知作者&gt;&#x27;]
+                #插入新项
+                self._books.insert(idx, item)
+                #计数增加
+                n = n+ 1
+                #索引增加
+                idx = idx + 1
+        self.endInsertRows()
+        return True</div>
+
+      <p class="content-text">在处理添加新数据项操作前，必须调用 beginInsertRows方法，在完成新增数据项后必须调用endInsertRows 方法。beginInsertRows 方法的参数与 insertRows 方法不同。insertRows 方法的 row 参数是插入点索引，count参数是要插入的行数。而beginInsertRows方法的声明如下：</p>
+
+      <div class="code-block">def beginInsertRows(
+    parent: QModelIndex,
+    first: int,
+    last: int)</div>
+
+      <p class="content-text">该方法是用first参数表示新行的开始索引，用last参数表示新行的结束索引。例如，这样调用insertRows 方法：</p>
+
+      <div class="code-block">insertRows(2, 3)</div>
+
+      <p class="content-text">它表示索引2处为插入点，连续插入3行。在调用 beginInsertRows方法时要转换一下，即 first=2，last=2+(3-1)=4。也就是说，插入后3个行的索引是2、3、4。</p>
+
+      <p class="content-text">在 beginInsertRows与 endInsertRows之间是逻辑代码，实现向_books字段添加新元素。在本示例中，新添加的元素默认值为“&lt;未知书名&gt;”和“&lt;未知作者&gt;”。</p>
+
+      <p class="content-text">由于本示例不需要在模型中插入新列，因此没有重写insertColumns方法。</p>
+
+      <ol class="content-list" start="8"><li>重写 removeRows 方法，从索引 row 处开始，删除 count 行。</li></ol>
+
+      <div class="code-block">def removeRows(self, row: int, count: int, parent: QModelIndex =
+    QModelIndex()) -&gt; bool:
+    if parent.isValid():
+        return False
+    if row &lt; 0 or row &gt; self.rowCount() - 1 or count &lt; 1:
+        return False
+    #此变量负责计数
+    n= 0
+    #要删除的项索引
+    idx = row
+    #开始移除
+    self.beginRemoveRows(parent, row, row + count - 1)
+    while n &lt; count and len(self. books) &gt; 0:
+        #删除
+        del self._books[idx]
+        #计数增加
+        n=n+ 1
+        #索引增加
+        idx = idx + 1
+    self.endRemoveRows()
+    return True</div>
+
+      <p class="content-text">removeRows 方法的实现与 insertRows 方法相似。在删除数据前，必须调用 beginRemoveRows 方法，删除数据后调用 endRemoveRows 方法。</p>
+
+      <p class="content-text">insertRows、removeRows方法均返回 bool 值，如果成功就返回 True，否则返回 False。</p>
+
+      <ol class="content-list" start="9"><li>定义appendBook方法，可以方便追加图书信息。</li></ol>
+
+      <div class="code-block"># bookName：书名
+# author: 作者
+def appendBook(self, bookName, author):
+        #新行号
+        newRow = self.rowCount()
+        if self.insertRow(newRow):
+                #更新数据
+                item = self._books[newRow]
+                item[0] = bookName
+                item[1] = author</div>
+
+      <p class="content-text">追加记录是把数据项插入列表的末尾，因此新的行号总是等于rowCount方法的返回值。</p>
+
+      <p class="content-text">插入图书信息时仅设置了默认值，在插入成功后需要更新数据。此处直接修改books字段即可，不需要重写 setData 方法来更新数据，因为 BookModel 没有编辑功能。</p>
+
+      <ol class="content-list" start="10"><li>定义removeBook方法，删除指定索引的行。</li></ol>
+
+      <div class="code-block">def removeBook(self, index: QModelIndex):
+        self.removeRow(index.row())</div>
+
+      <p class="content-text">完成模型类的编写后，将构建视图界面进行验证。CustWindow类表示应用程序窗口，里面包含显示数据用的 QTableView 组件，两个 QLineEdit 组件用来输入图书信息，最后是两个操作按钮——添加和删除图书信息。具体代码如下：</p>
+
+      <div class="code-block">class CustWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        #整体布局
+        self.rootLayout = QVBoxLayout()
+        self.setLayout(self.rootLayout)
+        #表格视图
+        self.tableView = QTableView(self)
+        #只能选择一项
+        self.tableView.setSelectionMode(QAbstractItemView.SelectionMode.
+            SingleSelection)
+        #显示网格线
+        self.tableView.setShowGrid(True)
+        #只能选择一整行
+        self.tableView.setSelectionBehavior(QAbstractItemView.SelectionBehavior.
+            SelectRows)
+        self.rootLayout.addWidget(self.tableView, 1)
+        #子布局
+        self.subLayout = QFormLayout()
+        #输入框
+        self.edtBookname = QLineEdit(self)
+        self.edtAuthor = QLineEdit(self)
+        #两个按钮
+        self.btnLayout = QHBoxLayout()
+        self.btnNewItem = QPushButton(&quot;添加新书&quot;, self)
+        self.btnDelItem = QPushButton(&quot;删除书籍&quot;, self)
+        self.btnLayout.addWidget(self.btnNewItem)
+        self.btnLayout.addWidget(self.btnDelItem)
+        self.subLayout.addRow(self.btnLayout)
+        self.subLayout.addRow(&quot;书名:&quot;, self.edtBookname)
+        self.subLayout.addRow(&quot;作者:&quot;, self.edtAuthor)
+        #添加到根布局
+        self.rootLayout.addLayout(self.subLayout)
+        #连接按钮的 clicked 信号
+        self.btnNewItem.clicked.connect(self.onNewItem)
+        self.btnDelItem.clicked.connect(self.onDelItem)
+        #数据模型
+        self.model = BookModel(self)
+        self.tableView.setModel(self.model)
+    def onNewItem(self):
+        #获取输入的内容
+        bookname = self.edtBookname.text()
+        author = self.edtAuthor.text()
+        if len(bookname) == 0 or len(author) == 0:
+            return
+        #调用快捷方法添加新项
+        self.model.appendBook(bookname, author)
+        #添加新项后清除输入框
+        self.edtBookname.clear()
+        self.edtAuthor.clear()
+    def onDelItem(self):
+        #获取表格视图中被选项的索引
+        indexes = self.tableView.selectedIndexes()
+        if len(indexes) == 0:
+            return
+        #只需要获取一个索引即可
+        selIndex = indexes[0]
+        #删除数据项
+        self.model.removeBook(selIndex)</div>
+
+      <p class="content-text">图书信息是以行为单位来处理的，所以QTableView组件的 selectionBehavior属性应设置为SelectRows；selectionMode属性为 SingleSelection表示每次只能选择一项（单选模式）。</p>
+
+      <p class="content-text">运行示例后，在文本框内输入书名和作者，单击“添加新书”按钮，即可将数据插入模型中；在QTableView组件中选中要删除的行，单击“删除书籍”按钮即可将数据从模型中删除，如图14-21所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-21</span><div class="result-box-image"><img src="images/ch14/ch14_fig_14.png" alt="图 14-21 添加或删除图书信息" loading="lazy"><div class="caption">图 14-21 添加或删除图书信息</div></div></div>
+
+      <div class="section-heading" id="section-5"><span class="section-number">14.6</span><h2>QListWidget</h2></div>
+
+      <p class="content-text">QListWidget 类是 QListView 的派生类，它是 QListView 的便捷版本。QListWidget 自身维护着一个内部列表模型，使用时不需要创建列表模型。</p>
+
+      <p class="content-text">列表项由QListWidgetItem类封装。在实例化时，可以通过构造函数设置文本和图标。QListWidgetItem类的构造函数声明如下：</p>
+
+      <div class="code-block">def __init__(
+                icon: Union[QIcon, QPixmap],
+                text: str,
+                listview: Optional[QListWidget] = ...,
+                type: int = ...)
+def __init__(
+                listview: Optional[QListWidget] = ...,
+                type: int = ...)
+def __init__(other: QListWidgetItem)
+def __init__(
+                text: str,
+                listview: Optional[QListWidget] = ...,
+                type: int = ...)</div>
+
+      <p class="content-text">text参数指定要显示的文本，icon参数指定要显示的小图标，listview参数指定列表项的容器QListWidget 组件。创建 QListWidgetItem 实例后，需要通过 addItem 方法添加到 QListWidget 组件中。</p>
+
+      <p class="content-text">为了使添加列表项变得更加简单，QListWidget组件还提供了以下方法成员：</p>
+
+      <div class="code-block">#以文本形式直接添加
+def addItem(label: str)
+#可以一次性添加多个子项
+def addItems(labels: Sequence[str])</div>
+
+      <p class="content-text">如果需要在某个索引处插入子项，还可以使用以下方法：</p>
+
+      <div class="code-block">def insertItem(row: int, item: QListWidgetItem)
+def insertItem(row: int, label: str)
+def insertItems(row: int, labels: Sequence[str])</div>
+
+      <p class="content-text">row参数指定要插入子项的索引，item、label参数都表示要插入的项。labels参数指定一个字符串序列，可以一次性插入多个子项。</p>
+
+      <p class="content-text">要删除某个子项可以调用takeItem方法，或者调用clear方法清空列表。</p>
+
+      <h3 class="subsection-heading"><span>14.6.1</span> 示例：添加与删除列表项</h3>
+
+      <p class="content-text">本示例将演示addItem、takeItem和 clear方法的使用。示例窗口有3个按钮，“添加”按钮允许用户输入和添加列表项，“删除”按钮将删除被选择的项，“清空”按钮将清空整个列表。</p>
+
+      <p class="content-text">具体的实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>实现窗口基本布局。</li></ol>
+
+      <div class="code-block">#应用程序窗口
+window = QWidget()
+#设置窗口标题
+window.setWindowTitle(&quot;Demo&quot;)
+#布局
+rootLayout = QHBoxLayout(window)
+#列表组件
+listwg = QListWidget(window)
+rootLayout.addWidget(listwg, 1)
+#3个按钮
+btnAdd = QPushButton(&quot;添加&quot;, window)
+btnDel = QPushButton(&quot;删除&quot;, window)
+btnClear = QPushButton(&quot;清空&quot;, window)
+subLayout = QVBoxLayout()
+subLayout.addWidget(btnAdd)
+subLayout.addWidget(btnDel)
+subLayout.addWidget(btnClear)
+subLayout.addStretch(1)
+#将子布局添加到父布局中
+rootLayout.addLayout(subLayout, 0)</div>
+
+      <p class="content-text">窗口的根布局使用 QHBoxLayout，先添加 QListWidget 组件，随后添加 QVBoxLayout 布局。</p>
+
+      <p class="content-text">QVBoxLayout 布局内添加 3 个按钮。</p>
+
+      <ol class="content-list" start="2"><li>连接“添加”按钮的 clicked信号，通过 QInputDialog 组件获取用户输入的文本，然后将文本添加到 QListWidget 组件中。</li></ol>
+
+      <div class="code-block">def onAddClicked():
+        #通过输入对话框获取文本
+        text,ok = QInputDialog.getText(window,&quot;输入&quot;,&quot;请输入列表项文本：&quot;)
+        if ok:
+                #添加列表项
+                listwg.addItem(text)
+btnAdd.clicked.connect(onAddClicked)</div>
+
+      <ol class="content-list" start="3"><li>连接“删除”按钮的clicked信号，删除选中的子项。</li></ol>
+
+      <div class="code-block">def onDelClicked():
+    #获取当前选择的索引
+    currIndex = listwg.currentRow()
+    #删除指定的项
+    item = listwg.takeItem(currIndex)
+    if item is not None:
+        QMessageBox.information(window, &quot;提示&quot;, f&quot;列表项【{item.text()}】已经删除&quot;)
+btnDel.clicked.connect(onDelClicked)</div>
+
+      <p class="content-text">takeItem方法会返回被删除的项(QListWidgetItem)。上述代码使用 QMessageBox组件弹出消息框，显示已删除项的文本。</p>
+
+      <ol class="content-list" start="4"><li>连接“清空”按钮的clicked信号，删除所有列表项。</li></ol>
+
+      <div class="code-block">def onClearClicked():
+    #如果列表是空的，就不需要清除
+    if listwg.count() == 0:
+        return
+    if QMessageBox.question(
+        window,
+        &quot;询问&quot;, &quot;确定要清空列表吗？&quot;,
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
+        #清空列表
+        listwg.clear()
+btnClear.clicked.connect(onClearClicked)</div>
+
+      <p class="content-text">运行示例程序，单击“添加”按钮，弹出输入对话框。在对话框中输入要添加的文本，确认之后新列表项将显示在QListWidget组件中，如图14-22所示。</p>
+
+      <p class="content-text">选中“第三项”，然后单击“删除”按钮。随后返回主窗口，QListWidget组件已经看不到“第三项”了，如图14-23所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-22、图 14-23</span><div class="result-box-image"><img src="images/ch14/ch14_fig_15.png" alt="图 14-22 新添加的列表项 图 14-23“第三项”已删除" loading="lazy"><div class="caption">图 14-22 新添加的列表项 图 14-23“第三项”已删除</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.6.2</span> 示例：排序</h3>
+
+      <p class="content-text">本示例演示 QListWidget 组件的排序功能，即 sortItems 方法的使用。排序方案由 Qt.SortOrder 枚举定义，只有两种排序法：升序（AscendingOrder）和降序（DescendingOrder）。</p>
+
+      <p class="content-text">示例程序的界面布局如下：</p>
+
+      <div class="code-block">#窗口
+window = QWidget()
+window.setWindowTitle(&quot;排序&quot;)
+#布局
+layout = QGridLayout()
+window.setLayout(layout)
+#按钮
+btnSortAsc = QPushButton(&quot;升序&quot;, window)
+btnSortDes = QPushButton(&quot;降序&quot;, window)
+layout.addWidget(btnSortAsc, 0, 0)
+layout.addWidget(btnSortDes, 0, 1)
+# QListWidget
+listwq = QListWidget(window)
+layout.addWidget(listwg, 1, 0, 1, 2)</div>
+
+      <p class="content-text">QListWidget组件用于显示数据，两个按钮用于操作排序方式。下面的代码向QListWidget组件添加8个列表项。</p>
+
+      <div class="code-block">item1 = QListWidgetItem()
+iteml.setData(Qt.ItemDataRole.DisplayRole, 707)
+item2 = QListWidgetItem()
+item2.setData(Qt.ItemDataRole.DisplayRole, 58)
+item3 = QListWidgetItem()
+item3.setData(Qt.ItemDataRole.DisplayRole, 149)
+item4 = QListWidgetItem()
+item4.setData(Qt.ItemDataRole.DisplayRole, 365)
+item5 = QListWidgetItem()
+item5.setData(Qt.ItemDataRole.DisplayRole, 28)
+item6 = QListWidgetItem()
+item6.setData(Qt.ItemDataRole.DisplayRole, 931)
+item7 = QListWidgetItem()
+item7.setData(Qt.ItemDataRole.DisplayRole, 74)
+item8 = QListWidgetItem()
+item8.setData(Qt.ItemDataRole.DisplayRole, 168)
+listwg.addItem(iteml)
+listwg.addItem(item2)
+listwg.addItem(item3)
+listwg.addItem(item4)
+listwg.addItem(item5)
+listwg.addItem(item6)
+listwg.addItem(item7)
+listwg.addItem(item8)</div>
+
+      <p class="content-text">分别连接两个按钮的 clicked 信号，调用 sortItems 方法进行排序。代码如下：</p>
+
+      <div class="code-block">def onSortAsc():
+        listwg.sortItems(Qt.SortOrder.AscendingOrder)
+btnSortAsc.clicked.connect(onSortAsc)
+def onSortDes():
+        listwg.sortItems(Qt.SortOrder.DescendingOrder)
+btnSortDes.clicked.connect(onSortDes)</div>
+
+      <p class="content-text">运行示例程序，初始数据列表如图14-24所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-24</span><div class="result-box-image"><img src="images/ch14/ch14_fig_16.png" alt="图 14-24 初始数据列表" loading="lazy"><div class="caption">图 14-24 初始数据列表</div></div></div>
+
+      <div class="section-heading" id="section-6"><span class="section-number">14.7</span><h2>QTableWidget</h2></div>
+
+      <p class="content-text">QTableWidget类派生自QTableView，它是 QTableView类的便捷版本。该类用于在用户界面上呈现二维表格，每个单元格都可以用QTableWidgetItem类表示（包括行、列标题)。要设置某个单元格的内容可以调用 setItem 方法；要设置行标题，可以用 setHorizontalHeaderItem 或 setHorizontalHeaderLabels方法；设置列标题应调用 setVerticalHeaderItem 或 setVerticalHeaderLabels 方法。</p>
+
+      <h3 class="subsection-heading"><span>14.7.1</span> 示例：订单表</h3>
+
+      <p class="content-text">本示例将用QTableWidget类构建一张4行5列的二维表格。</p>
+
+      <p class="content-text">QTableWidget组件初始化时需要先指定行数和列数，否则就算调用了setItem方法设置单元格内容也不会有任何显示。可以通过构造函数直接指定行数和列数：</p>
+
+      <div class="code-block">tablewg = QTableWidget(4, 5)</div>
+
+      <p class="content-text">如果在调用构造函数时未指定行、列数量，可以调用setRowCount、setColumnCount方法。例如：</p>
+
+      <div class="code-block">tablewg.setRowCount(4)
+tablewg.setColumnCount(5)</div>
+
+      <p class="content-text">调用 setHorizontalHeaderLabels 方法设置列标题。</p>
+
+      <div class="code-block">tablewg.setHorizontalHeaderLabels([&quot;编号&quot;,&quot;省&quot;,&quot;市&quot;,&quot;客户数&quot;,&quot;订单数&quot;])</div>
+
+      <p class="content-text">最后是往 QTableWidget 组件中添加内容。先创建 QTableWidgetItem 实例，再通过 setItem 方法把QTableWidgetItem 实例设置到指定的单元格中。</p>
+
+      <div class="code-block">#第一行
+cell00 = QTableWidgetItem(&quot;6001&quot;)
+cell01 = QTableWidgetItem(&quot;河南&quot;)
+cell02 = QTableWidgetItem(&quot;安阳&quot;)
+cell03 = QTableWidgetItem(&quot;28&quot;)
+cel104 = QTableWidgetItem(&quot;317&quot;)
+tablewg.setItem(0, 0, cell00)
+tablewq.setItem(0, 1, cell01)
+tablewg.setItem(0, 2, cell02)
+tablewg.setItem(0, 3, cell03)
+tablewg.setItem(0, 4, cell04)
+#第二行
+cell10 = QTableWidgetItem(&quot;6002&quot;)
+cell11 = QTableWidgetItem(&quot;四川&quot;)
+cell12 = QTableWidgetItem(&quot;眉山&quot;)
+cell13 = QTableWidgetItem(&quot;3&quot;)
+cell14 = QTableWidgetItem(&quot;149&quot;)
+tablewg.setItem(1, 0, cell10)
+tablewg.setItem(1, 1, cell11)
+tablewg.setItem(1, 2, cell12)
+tablewg.setItem(1, 3, cell13)
+tablewg.setItem(1, 4, cell14)
+#第三行
+cell20 = QTableWidgetItem(&quot;6003&quot;)
+cell21 = QTableWidgetItem(&quot;江西&quot;)
+cell22 = QTableWidgetItem(&quot;九江&quot;)
+cel123 = QTableWidgetItem(&quot;11&quot;)
+cel124 = QTableWidgetItem(&quot;326&quot;)
+tablewg.setItem(2, 0, cell20)
+tablewg.setItem(2, 1, cell21)
+tablewg.setItem(2, 2, cell22)
+tablewg.setItem(2, 3, cell23)
+tablewg.setItem(2, 4, cell24)
+#第四行
+cell30 = QTableWidgetItem(&quot;6004&quot;)
+cell31 = QTableWidgetItem(&quot;浙江&quot;)
+cell32 = QTableWidgetItem(&quot;金华&quot;)
+cell33 = QTableWidgetItem(&quot;35&quot;)
+cell34 = QTableWidgetItem(&quot;403&quot;)
+tablewg.setItem(3, 0, cell30)
+tablewg.setItem(3, 1, cell31)
+tablewg.setItem(3, 2, cell32)
+tablewg.setItem(3, 3, cell33)
+tablewg.setItem(3, 4, cell34)</div>
+
+      <p class="content-text">最终效果如图14-25所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-25</span><div class="result-box-image"><img src="images/ch14/ch14_fig_17.png" alt="图 14-25 简单的订单表" loading="lazy"><div class="caption">图 14-25 简单的订单表</div></div></div>
+
+      <h3 class="subsection-heading"><span>14.7.2</span> 示例：身高信息表</h3>
+
+      <p class="content-text">本示例将构建一个学生身高信息表。数据样本如下：</p>
+
+      <div class="code-block">data = [
+    [&quot;481125&quot;, &quot;小周&quot;, 155],
+    [&quot;481131&quot;, &quot;小高&quot;, 167],
+    [&quot;481140&quot;, &quot;小李&quot;, 172],
+    [&quot;481195&quot;, &quot;小王&quot;, 160],
+    [&quot;481129&quot;, &quot;小宁&quot;, 175],
+    [&quot;481148&quot;, &quot;小范&quot;, 158],
+    [&quot;481135&quot;, &quot;小郑&quot;, 166],
+    [&quot;481178&quot;, &quot;小林&quot;, 171]
+]</div>
+
+      <p class="content-text">以下代码将初始化 QTableWidget 组件：</p>
+
+      <div class="code-block">#表格为8行3列
+table = QTableWidget(8, 3)
+#设置列标题
+cols = [
+        QTableWidgetItem(&quot;学号&quot;),
+        QTableWidgetItem(&quot;姓名&quot;),
+        QTableWidgetItem(&quot;身高/cm&quot;)
+]
+#设置标题的背景颜色和文本颜色
+for c in cols:
+        c.setBackground(QColor(&quot;#00FA9A&quot;))
+#将内容设置到列标题单元格中
+for i in range(len(cols)):
+        table.setHorizontalHeaderItem(i, cols[i])</div>
+
+      <p class="content-text">将数据源 data 添加到 QTableWidget 组件中。</p>
+
+      <div class="code-block">for r in range(8):
+    for c in range(3):
+        val = data[r][c]
+        item = QTableWidgetItem()
+        item.setData(Qt.ItemDataRole.DisplayRole, val)
+        table.setItem(r, c, item)</div>
+
+      <p class="content-text">对于身高大于或等于170的数据行，将背景颜色设置为黄色（改变一行中所有单元格的背景）。</p>
+
+      <div class="code-block">for r in range(table.rowCount()):
+        h = table.item(r, 2).data(Qt.ItemDataRole.DisplayRole)
+        if h &gt;= 170:
+                for i in range(table.columnCount()):
+                    item = table.item(r, i)
+                    #设置背景颜色
+                    item.setBackground(QColor(&quot;yellow&quot;))</div>
+
+      <p class="content-text">最后的呈现效果如图14-26所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-26</span><div class="result-box-image"><img src="images/ch14/ch14_fig_18.png" alt="图 14-26修改单元格的背景颜色" loading="lazy"><div class="caption">图 14-26修改单元格的背景颜色</div></div></div>
+
+      <div class="section-heading" id="section-7"><span class="section-number">14.8</span><h2>QTreeWidget</h2></div>
+
+      <p class="content-text">QTreeWidget是QTreeView的派生类，也是一个便捷类，使用时不需要创建列表模型。</p>
+
+      <p class="content-text">树节点由QTreeWidgetItem类表示。可以通过构造函数来建立树形结构，例如：</p>
+
+      <div class="code-block">tree = QTreeWidget()
+......
+#&quot;A&quot;&quot;B&quot;均为顶层节点
+#&quot;C&quot;是&quot;A&quot;的子节点，&quot;D&quot;是&quot;B&quot;的子节点
+node1 = QTreeWidgetItem(tree, [&quot;A&quot;])
+node2 = QTreeWidgetItem(tree, [&quot;B&quot;])
+node3 = QTreeWidgetItem(node1, [&quot;C&quot;])
+node4 = QTreeWidgetItem(node2, [&quot;D&quot;])</div>
+
+      <p class="content-text">node1、node2 在调用 QTreeWidgetItem 构造函数时，传递的父级对象都是 QTreeWidget 实例。这表明“A”“B”将成为顶层节点。node3的父级对象是node1，使得“C”成为“A”的子节点，如图14-27所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-27</span><div class="result-box-image"><img src="images/ch14/ch14_fig_19.png" alt="图14-27 4个节点之间的层次关系" loading="lazy"><div class="caption">图14-27 4个节点之间的层次关系</div></div></div>
+
+      <p class="content-text">也可以在实例化 QTreeWidgetItem 对象后，调用 addChild或 insertChild方法添加子节点，如下面代码所示。</p>
+
+      <div class="code-block">node1 = QTreeWidgetItem([&quot;A&quot;])
+node2 =QTreeWidgetItem([&quot;B&quot;])
+node3 = QTreeWidgetItem([&quot;C&quot;])
+node4 = QTreeWidgetItem([&quot;D&quot;])
+node1.addChild(node3)
+node2.addChild(node4)</div>
+
+      <p class="content-text">再调用 QTreeWidget 组件的 addTopLevelItem 或 addTopLevelItems 方法将“A”“B”添加为顶层节点。</p>
+
+      <div class="code-block">tree.addTopLevelItems([node1, node2])</div>
+
+      <p class="content-text">QTreeWidgetItem类支持多列，例如：</p>
+
+      <div class="code-block">tree = QTreeWidget()
+tree.setColumnCount(3)
+#第一个顶层节点
+root1 = QTreeWidgetItem(tree, [&quot;A组&quot;])
+#添加子节点
+rootl.addChild(QTreeWidgetItem([&quot;小陈&quot;,&quot;市场部&quot;,&quot;18120002154&quot;]))
+root1.addChild(QTreeWidgetItem([&quot;小文&quot;,&quot;财务部&quot;,&quot;13625611240&quot;]))
+#第二个顶层节点
+root2 = QTreeWidgetItem(tree, [&quot;B组&quot;])
+#添加子节点
+root2.addChild(QTreeWidgetItem([&quot;小孙&quot;,&quot;技术部&quot;,&quot;13200058925&quot;]))
+root2.addChild(QTreeWidgetItem([&quot;小罗&quot;,&quot;生产部&quot;,&quot;15826511123&quot;]))</div>
+
+      <p class="content-text">在添加节点前，QTreeWidget 组件需要调用 setColumnCount方法设置列数（上述代码中是 3 列）。</p>
+
+      <p class="content-text">顶层节点“A组”“B组”只有1列，而它们的子节点有3列。效果如图14-28所示。</p>
+
+      <p class="content-text">下面的代码设置并显示列标题：</p>
+
+      <div class="code-block">#headerHidden属性默认是False，因此下面一行可以省略
+tree.setHeaderHidden(False)
+#设置列标题
+tree.setHeaderLabels([&quot;姓名&quot;, &quot;部门&quot;, &quot;联系电话&quot;])</div>
+
+      <p class="content-text">效果如图14-29所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 14-28、图 14-29</span><div class="result-box-image"><img src="images/ch14/ch14_fig_20.png" alt="图14-28 包含多列的节点 图 14-29显示列标题" loading="lazy"><div class="caption">图14-28 包含多列的节点 图 14-29显示列标题</div></div></div>
+
+      <div class="page-nav"><a href="ch13.html"><span>&larr;</span><span><div class="nav-label">上一章</div><div class="nav-title">第 13 章 对话框</div></span></a><a href="ch15.html"><span><div class="nav-label">下一章 &rarr;</div><div class="nav-title">第 15 章 目录与文件</div></span></a></div>
+    </main>
+  </div>
+  <footer class="footer">周家安的 PySide6 基础教程 — 本地学习页面</footer>
+  <script src="js/sidebar.js"></script>
+  <script>buildSidebar("ch14");</script>
+</body>
+</html>

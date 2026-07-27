@@ -1,0 +1,2322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 13 章 对话框 - PySide6 教程</title>
+  <link rel="stylesheet" href="../opencv/css/style.css?v=20260422">
+  <style>
+    .figure-box img { max-width: 100%; height: auto; }
+    .subsection-heading { margin: 30px 0 14px; color: #243b53; font-size: 1.28rem; }
+    .subsection-heading span { color: #1976d2; margin-right: 4px; }
+    .code-block { white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }
+  </style>
+<link href="css/tutorial-reading.css?v=20260727" rel="stylesheet"/>
+</head>
+<body class="tutorial-reading-page chapter-13">
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="index.html" class="logo"><span class="logo-icon">&#128218;</span>PySide6 教程</a>
+    <div class="header-right">
+      <a href="../index.html">工作台首页</a>
+      <a href="../opencv/index.html">OpenCV 教程</a>
+    </div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <span class="chapter-badge">第 13 章</span>
+      <h1 class="chapter-title">对话框</h1>
+      <div class="chapter-meta">本章共 9 个小节 &middot; PySide6 Basic Tutorial</div>
+
+      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>对话框的公共基类QDialog</li><li>QInputDialog</li><li>QFontDialog 与 QColorDialog</li><li>文件对话框QFileDialog</li><li>向导 QWizard</li><li>消息对话框 QMessageBox</li></ol></div>
+
+      <div class="section-heading" id="section-0"><span class="section-number">13.1</span><h2>QDialog</h2></div>
+
+      <p class="content-text">对话框用于完成与用户的短暂会话，例如打开文件、选择颜色、输入比较简单的信息等。对话框也属于桌面环境中的顶层窗口，因此它具备标题栏、边框等外观。</p>
+
+      <p class="content-text">QDialog作为对话框的公共基类，实现了一部分通用功能，包括以下方法成员。</p>
+
+      <ol class="content-list"><li>exec：该方法将以模态窗口的方式打开对话框。exec方法调用后不会立即返回，除非对话框关闭，因此对话框在打开期间会阻断用户与其他窗口的交互。如果对话框是应用程序级别的，那么同一个应用程序中的其他窗口将无法使用，直到对话框关闭；如果对话框与某个窗口关联（该窗口成为对话框的父级)，那么只有当前窗口的交互行为被阻止，不会影响其他窗口的运行。</li>
+        <li>open：该方法是异步的，调用后立即返回。要获取对话框的操作结果，可以连接finished，或者 accepted、rejected 信号。</li>
+        <li>accept：对话框接受用户输入并隐藏。调用该方法会发出accepted信号。</li>
+        <li>reject：拒绝当前输入结果并隐藏对话框。调用该方法会发出rejected信号。</li>
+        <li>done：隐藏对话框并设置对话框的操作结果。调用该方法会使 QDialog对象发出 finished信号。</li></ol>
+
+      <p class="content-text">如果表示操作结果的整数值与QDialog.DialogCode枚举的某个成员相等，那么调用done方法后也会发出 accepted 或 rejected 信号。</p>
+
+      <h3 class="subsection-heading"><span>13.1.1</span> 示例：实现自定义对话框</h3>
+
+      <p class="content-text">由于 QDialog类已实现对话框的基础功能，而且 QDialog也是 QWidget的子类，因此要实现自定义的对话框，只需从QDialog类派生即可，其界面的布局方法与QWidget类相同。</p>
+
+      <p class="content-text">本示例将实现一个使用QSpinBox组件输入整数值的对话框。具体步骤如下。</p>
+
+      <p class="content-text">定义 CustDialog类，以 QDialog为基类。</p>
+
+      <div class="code-block">class CustDialog(QDialog):
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+        #布局
+        layout = QGridLayout()
+        self.setLayout(layout)
+        #标签
+        lb = QLabel(self)
+        lb.setText(&quot;请输入：&quot;)
+        layout.addWidget(lb, 0,0)
+        #数字输入框
+        self.spinBox = QSpinBox(self)
+        self.spinBox.setRange(0, 300)
+        layout.addWidget(self.spinBox, 0, 1)
+        #两个按钮
+        self.btnOK = QPushButton(&quot;确定&quot;, self)
+        self.btnCancel = QPushButton(&quot;取消&quot;, self)
+        btnLayout = QHBoxLayout()
+        btnLayout.addWidget(self.btnOK)
+        btnLayout.addWidget(self.btnCancel)
+        layout.addLayout(btnLayout,1,0,1,2,Qt.AlignmentFlag.AlignCenter)
+        #连接信号
+        self.btnOK.clicked.connect(self.accept)
+        self.btnCancel.clicked.connect(self.reject)
+
+    #用于获取已输入的整数值
+    def getInput(self) -&gt; int:
+        return self.spinBox.value()</div>
+
+      <p class="content-text">getInput方法公开给外部代码调用，用于获取QSpinBox组件中输入的整数值。“确定”“取消”按钮的主要功能是设置对话框结果，因此将它们的 clicked 信号分别与 accept 和 reject 方法连接即可，当按钮被单击时会自动调用这些方法。</p>
+
+      <p class="content-text">创建应用程序窗口（通过QWidget类），界面上添加一个按钮组件（QPushButton）和标签组件（QLabel）。</p>
+
+      <div class="code-block">window = QWidget()
+window.resize(280, 160)
+#布局
+rootLayout = QVBoxLayout()
+window.setLayout(rootLayout)
+#按钮
+btn = QPushButton(&quot;输入整数值&quot;,window)
+rootLayout.addWidget(btn)
+#标签
+lbRes = QLabel(window)
+rootLayout.addWidget(lbRes)</div>
+
+      <p class="content-text">实例化 CustDialog 对话框类。</p>
+
+      <div class="code-block">dlg = CustDialog(window)</div>
+
+      <p class="content-text">“输入整数值”按钮的 clicked 信号与 onClicked 函数连接。在 onClicked 函数中打开自定义对话框，并获取输入的整数值。</p>
+
+      <div class="code-block">def onClicked():
+        result = dlg.exec()
+        #只有返回码为Accepted才表明对话框已接受输入
+        if (result == QDialog.DialogCode.Accepted):
+                lbRes.setText(f&quot;输入的值:{dlg.getInput()}&quot;)
+btn.clicked.connect(onClicked)</div>
+
+      <p class="content-text">显示程序窗口。</p>
+
+      <div class="code-block">window.show()</div>
+
+      <p class="content-text">运行示例程序后，单击窗口上的“输入整数值”按钮，将弹出如图13-1所示的对话框。</p>
+
+      <p class="content-text">输入整数后，单击“确定”按钮隐藏对话框，返回到应用程序窗口，标签组件就会显示输入的值，如图13-2所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-1、图 13-2</span><div class="result-box-image"><img src="images/ch13/ch13_fig_01.png" alt="图 13-1 自定义对话框 图 13-2 已输入的整数值" loading="lazy"><div class="caption">图 13-1 自定义对话框 图 13-2 已输入的整数值</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.1.2</span> 示例：异步对话框</h3>
+
+      <p class="content-text">open方法在打开对话框后会立即返回，应用程序可以通过连接相应的信号来获取用户的操作结果。</p>
+
+      <p class="content-text">例如，当对话框接受输入（如单击“确定”按钮）后会发出accepted信号。应用程序可以连接该信号，并做出响应。如果需要对操作结果进行复杂处理，可以连接finished信号。该信号带有一个int类型的参数，以表示操作结果。该值可以是 DialogCode枚举所定义的 Accepted 和 Rejected，也可以是开发者自定义的数值。</p>
+
+      <p class="content-text">当QDialog类默认的信号（finished、accepted、rejected）不能满足开发需求时，可以从QDialog类派生出自定义类型，然后添加自定义处理，使应用程序能够从对话框中获取更多数据，例如用户选择的字体。</p>
+
+      <p class="content-text">本示例将演示一个自定义对话框。对话框内允许用户输入姓名和年龄，当用户单击“确定”按钮后，对话框除发出默认的finished等事件外，还会发出自定义的dataReady信号。dataReady信号将传递用户输入的姓名和年龄。</p>
+
+      <p class="content-text">CustDialog类的实现代码如下：</p>
+
+      <div class="code-block">class CustDialog(QDialog):
+        #自定义信号
+        dataReady = Signal(str, int)
+        def __init__(self, parent: QWidget = None):
+                super().__init__(parent)
+                self.layout = QFormLayout()
+                self.setLayout(self._layout)
+                #单行文本输入组件
+                self._edtName = QLineEdit(self)
+                #设置长度限制
+                self._edtName.setMaxLength(15)
+                #数字输入组件
+                self._spAge = QSpinBox(self)
+                #设置范围
+                self._spAge.setRange(10, 65)
+                self._layout.addRow(&quot;姓名:&quot;,self._edtName)
+                self._layout.addRow(&quot;年龄: &quot;, self._spAge)
+                #按钮
+                _subLayout = QHBoxLayout()
+                self._okBtn = QPushButton(&quot;确定&quot;, self)
+                self._ccBtn = QPushButton(&quot;取消&quot;, self)
+                _subLayout.addWidget(self._okBtn)
+                _subLayout.addWidget(self._ccBtn)
+                self._layout.addRow(_subLayout)
+                #连接按钮的clicked信号
+                self._okBtn.clicked.connect(self.accept)
+        self._ccBtn.clicked.connect(self.reject)
+def done(self, res: int):
+        #如果确认输入，就发出 dataReady信号
+        if res == QDialog.DialogCode.Accepted:
+                self.dataReady.emit(self._edtName.text(), self._spAge.value())
+        #调用基类的 done 方法
+        super().done(res)</div>
+
+      <p class="content-text">dataReady是自定义的信号，它带有两个参数——字符串类型和整数类型。为了实现在对话框确认时发出dataReady信号，上述代码重写了done方法。如果对话框的操作结果是Accepted，就发出dataReady信号，同时传递 QLineEdit 和 QSpinBox 组件的值。</p>
+
+      <p class="content-text">下面的代码初始化应用程序窗口和自定义对话框。</p>
+
+      <div class="code-block">#初始化窗口
+window = QWidget()
+window.resize(275, 200)
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+#按钮
+btn = QPushButton(&quot;输入信息&quot;, window)
+layout.addWidget(btn)
+#标签
+lbResult = QLabel(window)
+layout.addWidget(lbResult)
+#初始化对话框
+dialog = CustDialog(window)
+#连接信号
+def onData(name: str, age: int):
+        s = f&#x27;姓名：{name}，年龄：{age}&#x27;
+        lbResult.setText(s)
+dialog.dataReady.connect(onData)
+btn.clicked.connect(dialog.open)
+#显示窗口
+window.showNormal()</div>
+
+      <p class="content-text">应用程序窗口包含一个按钮和一个标签组件。按钮被单击后显示 CustDialog对话框，当对话框隐藏后，在标签组件中显示输入的数据。</p>
+
+      <p class="content-text">运行示例程序，单击窗口上的“输入信息”按钮，打开如图13-3所示的对话框。</p>
+
+      <p class="content-text">输入姓名与年龄后，单击“确定”按钮隐藏对话框，回到应用程序窗口。标签组件将显示已输入的内容，如图13-4所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-3、图 13-4</span><div class="result-box-image"><img src="images/ch13/ch13_fig_02.png" alt="图 13-3 自定义对话框 图 13-4 输入的内容" loading="lazy"><div class="caption">图 13-3 自定义对话框 图 13-4 输入的内容</div></div></div>
+
+      <div class="section-heading" id="section-1"><span class="section-number">13.2</span><h2>QInputDialog</h2></div>
+
+      <p class="content-text">QInputDialog类提供一个可输入单个值的简易的对话框，支持的类型有浮点数、整数、字符串。</p>
+
+      <p class="content-text">QInputDialog类通过InputMode枚举来确定输入模式，该枚举定义了以下成员。</p>
+
+      <ol class="content-list"><li>TextInput：输入的内容是字符串类型。</li>
+        <li>IntInput： 输入整数值。</li>
+        <li>DoubleInput：输入的值是浮点数值。</li></ol>
+
+      <p class="content-text">QInputDialog类的公共成员可以依据InputMode枚举的值进行分组，详见表13-1。</p>
+
+      <div class="table-scroll" role="region" aria-label="表 13-1，可横向滚动">
+      <table class="content-table">
+        <caption>表 13-1 QInputDialog 类的公共成员分组</caption>
+        <thead><tr><th>InputMode 的值</th><th>成员名称</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="2">TextInput</td><td>textValue / setTextValue</td><td>获取或设置字符串内容</td></tr>
+          <tr><td>textEchoMode / setTextEchoMode</td><td>获取或设置字符的显示方式，即 QLineEdit 类的 EchoMode 枚举类型，如 Password 可以让输入的字符显示为掩码</td></tr>
+          <tr><td rowspan="5">IntInput</td><td>intValue / setIntValue</td><td>获取或设置输入的整数值</td></tr>
+          <tr><td>intMaximum / setIntMaximum</td><td>获取或设置整数的最大值</td></tr>
+          <tr><td>intMinimum / setIntMinimum</td><td>获取或设置整数的最小值</td></tr>
+          <tr><td>setIntRange</td><td>设置整数值的范围（最大值和最小值）</td></tr>
+          <tr><td>intStep / setIntStep</td><td>获取或设置 QInputDialog 内部 QSpinBox 组件的步长值</td></tr>
+          <tr><td rowspan="6">DoubleInput</td><td>doubleValue / setDoubleValue</td><td>获取或设置输入的浮点数值</td></tr>
+          <tr><td>doubleDecimals / setDoubleDecimals</td><td>获取或设置 QInputDialog 内部 QDoubleSpinBox 组件的精度（保留小数位，默认为 2）</td></tr>
+          <tr><td>doubleMaximum / setDoubleMaximum</td><td>获取或设置浮点数的最大值</td></tr>
+          <tr><td>doubleMinimum / setDoubleMinimum</td><td>获取或设置浮点数的最小值</td></tr>
+          <tr><td>setDoubleRange</td><td>设置浮点数值的范围（最大值和最小值）</td></tr>
+          <tr><td>doubleStep / setDoubleStep</td><td>获取或设置 QInputDialog 内部 QDoubleSpinBox 组件的步长</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p class="content-text">另外，以下三个方法可以自定义对话框上显示的文本信息。</p>
+
+      <ol class="content-list"><li>setLabelText：设置对话框内的输入提示文本，如“请输入用户名”。</li>
+        <li>setOkButtonText：为 OK按钮设置自定义文本，如“确定”。该按钮使对话框返回 Accepted操作结果。</li>
+        <li>setCancelButtonText：设置Cancel按钮所显示的文本，如“关闭”。该按钮会使对话框返回Rejected 操作结果。</li></ol>
+
+      <h3 class="subsection-heading"><span>13.2.1</span> 示例：QInputDialog 的基本用法</h3>
+
+      <p class="content-text">本示例会在窗口中创建三个按钮，对应QInputDialog对话框的三种输入模式。当用户输入结束并单击“确定”按钮后，对话框将隐藏，并在窗口上显示所输入的内容。具体的实现步骤如下。</p>
+
+      <p class="content-text">初始化程序窗口（使用QWidget类）。</p>
+
+      <div class="code-block">window = QWidget()
+window.setWindowTitle(&quot;输入对话框&quot;)
+window.resize(240, 130)
+#布局
+layout = QGridLayout()
+window.setLayout(layout)</div>
+
+      <p class="content-text">程序窗口使用网格布局，第一列的三个行放置按钮组件。</p>
+
+      <div class="code-block">btnDouble = QPushButton(&quot;输入 double 数值&quot;, window)
+btnInt = QPushButton(&quot;输入 int 数值&quot;, window)
+btnText = QPushButton(&quot;输入文本&quot;, window)
+layout.addWidget(btnDouble, 0, 0)
+layout.addWidget(btnInt, 1, 0)
+layout.addWidget(btnText, 2, 0)</div>
+
+      <p class="content-text">第二列的三个行放置三个标签组件。</p>
+
+      <div class="code-block">lbDoubleValue = QLabel(window)
+lbIntValue = QLabel(window)
+lbTextValue = QLabel(window)
+layout.addWidget(lbDoubleValue, 0,1)
+layout.addWidget(lbIntValue, 1, 1)
+layout.addWidget(lbTextValue, 2, 1)</div>
+
+      <p class="content-text">初始化 QInputDialog 对话框。</p>
+
+      <div class="code-block">dialog = QInputDialog(window)
+#对于double类型的值，设置最大值和最小值
+dialog.setDoubleRange(1.0, 1000.0)
+#设置浮点数精度
+dialog.setDoubleDecimals(3)
+#对于int类型的值，设置最大值与最小值
+dialog.setIntRange(0, 150)
+#设置标签文本
+dialog.setLabelText(&quot;请输入:&quot;)
+#设置按钮文本
+dialog.setOkButtonText(&quot;确定&quot;)
+dialog.setCancelButtonText(&quot;取消&quot;)
+#设置对话框标题
+dialog.setWindowTitle(&quot;用户输入&quot;)</div>
+
+      <p class="content-text">在初始化时，可以为整数、浮点数和字符串类型的输入值设置对应的参数（如setIntRange方法设置整数值的有效范围，setDoubleRange 方法设置浮点数值的范围)。整数值的输入使用的是 QSpinBox组件，浮点数值的输入使用的是QDoubleSpinBox组件，文本内容则用 QLineEdit组件输入。</p>
+
+      <p class="content-text">分别连接三个按钮的 clicked 信号，通过 setInputMode 方法切换 QInputDialog 对话框的输入模式，然后显示对话框等待用户输入，最后显示输入的内容。</p>
+
+      <div class="code-block">def onClickedDouble():
+        #修改输入模式
+        dialog.setInputMode(QInputDialog.InputMode.DoubleInput)
+        result = dialog.exec()
+        #显示输入的值
+        if result == QDialog.DialogCode.Accepted:
+                lbDoubleValue.setText(f&quot;{dialog.doubleValue())&quot;)
+btnDouble.clicked.connect(onClickedDouble)
+def onClickedInt():
+                    #修改输入模式
+                    dialog.setInputMode(QInputDialog.InputMode.IntInput)
+                    result = dialog.exec()
+                    #显示输入的值
+                    if result == QDialog.DialogCode.Accepted:
+                    lbIntValue.setText(f&quot;(dialog.intValue()}&quot;)
+            btnInt.clicked.connect(onClickedInt)
+            def onClickedText():
+                    #改变输入模式
+                    dialog.setInputMode(QInputDialog.InputMode.TextInput)
+                    res = dialog.exec()
+                    #显示输入的文本
+                    if res == QDialog.DialogCode.Accepted:
+                    lbTextValue.setText(dialog.textValue())
+            btnText.clicked.connect(onClickedText)</div>
+
+      <p class="content-text">需要注意的是，切换输入模式，即调用 setInputMode方法一定要在 exec方法调用之前完成。</p>
+
+      <p class="content-text">显示程序窗口。</p>
+
+      <div class="code-block">window.showNormal()</div>
+
+      <p class="content-text">运行示例程序，如图13-5所示。</p>
+
+      <p class="content-text">单击“输入int数值”按钮，QInputDialog对话框打开，如图13-6所示。</p>
+
+      <p class="content-text">输入整数值，然后单击“确定”按钮，回到主窗口。输入的内容会显示在按钮右边的标签组件上，如图13-7所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-5、图 13-6、图 13-7</span><div class="result-box-image"><img src="images/ch13/ch13_fig_03.png" alt="图 13-5 QInputDialog 示例程序的主窗口 图 13-6 输入对话框 图 13-7 显示输入的内容" loading="lazy"><div class="caption">图 13-5 QInputDialog 示例程序的主窗口 图 13-6 输入对话框 图 13-7 显示输入的内容</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.2.2</span> QInputDialog 的信号</h3>
+
+      <p class="content-text">除了从QDialog类继承的信号（如 accepted、rejected)，QInputDialog类也定义了3 组信号。</p>
+
+      <ol class="content-list"><li>doubleValueChanged与 doubleValueSelected:当输入模式为浮点数值时使用。</li>
+        <li>intValueChanged与intValueSelected:当输入模式为整数值时使用。</li>
+        <li>textValueChanged与 textValueSelected:当输入模式为文本时使用。</li></ol>
+
+      <p class="content-text">*ValueChanged信号表示对话框处于活动状态时，输入的内容改变时发出；而*ValueSelected信号表示对话框已经提交，用户最终输入的内容。</p>
+
+      <p class="content-text">例如，以整数输入模式打开QInputDialog对话框。当用户输入3时，intValueChanged信号发出，参数值为3；接着用户输入0，即 QSpinBox组件内的现有值是 30，此时intValueChanged信号参数值为 30;用户继续输入0，此时intValueChanged信号的参数值为300。若此时用户输入完成，单击“确定”按钮，intValueSelected 信号发出，参数值为 300。</p>
+
+      <h3 class="subsection-heading"><span>13.2.3</span> 示例：实时显示输入内容</h3>
+
+      <p class="content-text">本示例通过连接 textValueChanged和textValueSelected信号，在程序主窗口上实时显示对话框中正在输入的内容。具体步骤如下。</p>
+
+      <p class="content-text">初始化程序窗口。在窗口中添加一个按钮组件和一个标签组件。</p>
+
+      <div class="code-block">window = QWidget()
+window.setWindowTitle(&quot;Demo&quot;)
+window.resize(270, 220)
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+#按钮
+btn = QPushButton(&quot;请输入文本&quot;, window)
+layout.addWidget(btn)
+#标签
+lb = QLabel(window)
+layout.addWidget(lb)
+layout.addStretch(1)</div>
+
+      <p class="content-text">初始化输入对话框，输入模式为文本。</p>
+
+      <div class="code-block">dialog = QInputDialog(window)
+#文本输入模式
+dialog.setInputMode(QInputDialog.InputMode.TextInput)</div>
+
+      <p class="content-text">连接按钮的 clicked信号，调用 open 方法显示对话框。</p>
+
+      <div class="code-block">def onClicked():
+        dialog.open()
+btn.clicked.connect(onClicked)</div>
+
+      <p class="content-text">连接 QInputDialog 组件的 textValueChanged信号，更新标签组件上的文本，实时显示输入的内容。</p>
+
+      <div class="code-block">def onTextValChanged(txt: str):
+        lb.setText(&quot;正在输入:&quot; + txt)
+dialog.textValueChanged.connect(onTextValChanged)</div>
+
+      <p class="content-text">连接textValueSelected信号，输入完毕后获取最终的文本。</p>
+
+      <div class="code-block">def onTextSelected(txt: str):
+        lb.setText(&quot;输入完毕\n文本内容：&quot; + txt)
+dialog.textValueSelected.connect(onTextSelected)</div>
+
+      <p class="content-text">连接rejected信号，当输入取消后清空标签组件的文本。</p>
+
+      <div class="code-block">def onRejected():
+        lb.clear()
+dialog.rejected.connect(onRejected)</div>
+
+      <p class="content-text">运行示例程序后，单击“请输入文本”按钮，打开输入对话框。在文本框中先输入“天”，此时会看到主窗口上显示“正在输入：天”，如图13-8所示。</p>
+
+      <p class="content-text">接着输入“南”，主窗口上显示“正在输入：天南”，如图13-9所示。</p>
+
+      <p class="content-text">随后输入“海北”，单击OK按钮完成输入，主窗口显示“输入完毕文本内容：天南海北”，如图 13-10 所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-8、图 13-9、图 13-10</span><div class="result-box-image"><img src="images/ch13/ch13_fig_04.png" alt="图 13-8 输入第一个字符 图 13-9 输入第二个字符 图 13-10 输入结束" loading="lazy"><div class="caption">图 13-8 输入第一个字符 图 13-9 输入第二个字符 图 13-10 输入结束</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.2.4</span> 示例：使用下拉列表框完成文本输入</h3>
+
+      <p class="content-text">在文本输入模式下，除了用键盘敲入内容，也可以从下拉列表中选择一项作为输入的文本。若希望用下拉列表框代替文本框，需要调用setComboBoxItems方法设置一个字符串列表，作为下拉列表框的数据来源。</p>
+
+      <p class="content-text">本示例将实现：单击窗口上的按钮，打开输入对话框，然后从下拉列表框中选择一项作为输入的文本，最后输入文本显示在主窗口上。实现步骤如下。</p>
+
+      <p class="content-text">初始化程序窗口。</p>
+
+      <div class="code-block">win = QWidget()
+win.setWindowTitle(&quot;Demo&quot;)
+#垂直布局
+layout = QVBoxLayout()
+win.setLayout(layout)</div>
+
+      <p class="content-text">在布局对象中添加一个按钮组件和一个标签组件。</p>
+
+      <div class="code-block">#按钮
+btn = QPushButton(&quot;请选择房间面积&quot;, win)
+layout.addWidget(btn)
+#标签
+lbMsg = QLabel(win)
+layout.addWidget(lbMsg)</div>
+
+      <p class="content-text">初始化输入对话框。</p>
+
+      <div class="code-block">inputDialog = QInputDialog(win)
+#文本输入模式
+inputDialog.setInputMode(QInputDialog.InputMode.TextInput)
+#设置对话框标题
+inputDialog.setWindowTitle(&quot;选择面积&quot;)
+#设置提示文本
+inputDialog.setLabelText(&quot;请选择你的卧室面积：&quot;)
+#设置按钮文本
+inputDialog.setOkButtonText(&quot;提交&quot;)
+inputDialog.setCancelButtonText(&quot;放弃&quot;)</div>
+
+      <p class="content-text">调用 setComboBoxItems 方法设置下拉列表。</p>
+
+      <div class="code-block">items = [&quot;3~5平方米&quot;, &quot;6~8平方米&quot;, &quot;9~10平方米&quot;,
+         &quot;11~15平方米&quot;, &quot;15平方米以上&quot;]</div>
+
+      <div class="code-block">inputDialog.setComboBoxItems(list)</div>
+
+      <p class="content-text">连接按钮组件的clicked信号。显示输入对话框，待完成输入后显示已输入文本。</p>
+
+      <div class="code-block">def onClicked():
+        #显示对话框
+        res = inputDialog.exec()
+        #获取输入文本
+        if res == QInputDialog.DialogCode.Accepted:
+                lbMsg.setText(f&quot;你的卧室面积大约为 {inputDialog.textValue()}&quot;)
+btn.clicked.connect(onClicked)</div>
+
+      <p class="content-text">运行示例程序，单击“请选择房间面积”按钮，打开输入对话框。从下拉列表框中选择一个选项，如图13-11所示。</p>
+
+      <p class="content-text">单击“确定”按钮，回到程序窗口，显示输入的文本如图13-12所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-11、图 13-12</span><div class="result-box-image"><img src="images/ch13/ch13_fig_05.png" alt="图13-11 从下拉列表中选择 图 13-12 显示输入文本" loading="lazy"><div class="caption">图13-11 从下拉列表中选择 图 13-12 显示输入文本</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.2.5</span> 便捷方法</h3>
+
+      <p class="content-text">QInputDialog类提供了一组静态方法成员，可以直接调用，不需要创建QInputDialog类的实例。不同输入模式对应着不同的方法成员。</p>
+
+      <p class="content-text">对于整数输入模式，应调用getInt方法，它的声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getInt(
+                parent: QWidget,
+                title: str,
+                label: str,
+                value: int = ...,
+                minValue: int = ...,
+                maxValue: int = ...,
+                step: int = ...,
+                flags: Qt.WindowType =...)
+        -&gt; Tuple[int, bool]</div>
+
+      <p class="content-text">parent参数指定对话框的父级窗口。title参数指定对话框的标题栏文本。label参数设置对话框上的说明文本。value参数设置初始值（默认为0)。minValue参数指定最小值，maxValue参数指定最大值。</p>
+
+      <p class="content-text">step参数指定内部 QSpinBox 组件的步长值，默认值为1。flags参数设置窗口标志（Qt.WindowType)。</p>
+
+      <p class="content-text">value、minValue、maxValue、step、flags参数可以省略。</p>
+
+      <p class="content-text">getInt方法返回两个值：第一个值是输入的内容；第二个是bool类型的值，表示对话框是否确认输入，如单击“确定”按钮则返回True。</p>
+
+      <p class="content-text">对于浮点数输入模式，应调用getDouble方法，其声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getDouble(
+                parent: QWidget,
+                title: str,
+                label: str,
+                value: float = ...,
+                minValue: float = ...,
+                maxValue: float = ...,
+                decimals: int = ...,
+                flags: Qt.WindowType = ...,
+                step: float = ...)
+        -&gt;Tuple[float, bool]</div>
+
+      <p class="content-text">parent、title、label等参数的含义与getInt方法相同，decimals参数指定浮点数值的精度（保留小数位)，默认是2。</p>
+
+      <p class="content-text">对于文本输入模式，应调用getText方法，它的声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getText(
+                parent: QWidget,
+                title: str,
+                label: str,
+                echo: QLineEdit.EchoMode = ...,
+                text: str = ...,
+                flags: Qt.WindowType = ...,
+                inputMethodHints: Qt.InputMethodHint =...)
+        -&gt; Tuple[str, bool]</div>
+
+      <p class="content-text">echo参数指定文本的呈现方式，默认为Normal。text参数设置初始文本，默认为空字符串。</p>
+
+      <p class="content-text">inputMethodHints设置输入法的附加选项，默认为ImhNone，表示无须设置。例如，要禁止输入法自动切换英文大小写，可以指定ImhNoAutoUppercase。</p>
+
+      <p class="content-text">另外，在文本输入模式下如果希望使用下拉列表框完成输入，还可以使用getItem方法：</p>
+
+      <div class="code-block">@staticmethod
+def getItem(
+            parent: QWidget,
+                title: str,
+                label: str,
+                items: Sequence[str],
+                current: int = ...,
+                editable: bool = ...,
+                flags: Qt.WindowType = ...,
+                inputMethodHints: Qt.InputMethodHint = ...)
+        -&gt; Tuple[str, bool]</div>
+
+      <p class="content-text">items参数指定一个字符串列表，作为下拉列表框的数据来源。current参数指定下拉列表框中默认选择的项（索引）。editable参数指定下拉列表框是否允许编辑：如果允许，用户可以手动输入内容；若禁止编辑，用户只能从列表中选择一项。其他参数的含义与getText方法相同。</p>
+
+      <h3 class="subsection-heading"><span>13.2.6</span> 示例：使用便捷方法打开输入对话框</h3>
+
+      <p class="content-text">本示例将演示getInt和getText方法的使用。窗口上有两个按钮组件，单击后分别调用getInt和getText方法打开输入对话框。输入结束后，通过标签组件显示输入内容。核心代码如下：</p>
+
+      <div class="code-block">#两个按钮
+btnInt = QPushButton(&quot;输入整数&quot;,window)
+btnText = QPushButton(&quot;输入文本&quot;,window)
+#两个标签
+lbInt = QLabel(window)
+lbText = QLabel(window)
+#连接信号
+def onBtnIntClicked():
+    #显示输入对话框
+    val, ok = QInputDialog.getInt(
+        window,
+        &quot;对话框&quot;,
+        &quot;请输入一个整数值：&quot;,
+        1, 0, 100
+    )
+    #显示结果
+    if ok:
+        lbInt.setText(f&quot;输入的整数值：{val}&quot;)
+btnInt.clicked.connect(onBtnIntClicked)
+def onBtnTextClicked():
+    #显示输入对话框
+    val, ok = QInputDialog.getText(
+        window,
+        &quot;对话框&quot;,
+        &quot;请输入文本内容：&quot;
+    )
+    #显示结果
+    if ok:
+        lbText.setText(f&quot;输入的文本内容：{val}&quot;)
+btnText.clicked.connect(onBtnTextClicked)</div>
+
+      <p class="content-text">getInt方法返回的第一个值是用户输入的内容，第二个值表示输入是否被确认。因此，在显示输入结果时，需要判断第二个返回值是否为True。</p>
+
+      <p class="content-text">运行示例程序，单击“输入整数”按钮，打开输入对话框。输入一个整数值并确认后返回程序窗口，显示的输入结果如图13-13所示。</p>
+
+      <p class="content-text">“输入文本”按钮的测试方法类似，此处不再赘述。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-13</span><div class="result-box-image"><img src="images/ch13/ch13_fig_06.png" alt="图13-13 显示已输入的整数值" loading="lazy"><div class="caption">图13-13 显示已输入的整数值</div></div></div>
+
+      <div class="section-heading" id="section-2"><span class="section-number">13.3</span><h2>QColorDialog</h2></div>
+
+      <p class="content-text">QColorDialog提供用于选择颜色的对话框，返回QColor类型的对象。该对话框包含两个与用户当前选择的颜色相关的成员。</p>
+
+      <ol class="content-list"><li>currentColor：返回当前被选中的颜色，调用 setCurrentColor 方法能以编程方式修改当前选定的颜色。</li>
+        <li>selectedColor：用户最终选择的颜色，前提是当用户已单击“确定”等按钮确认。</li></ol>
+
+      <p class="content-text">currentColor方法与 selectedColor方法所返回的颜色值可能相同，但含义不同。用户在确认对话框之前可能会选择红色，但在提交前发现选错了，于是又选择了蓝色。因此，在整个会话中，currentColor所返回的值由红色变成蓝色，而selectedColor方法返回的是用户最终选择的颜色。</p>
+
+      <p class="content-text">currentColor 的值改变后，QColorDialog 对象会发出 currentColorChanged。当用户提交选择后，会发出 colorSelected 信号。</p>
+
+      <h3 class="subsection-heading"><span>13.3.1</span> 示例：设置文本颜色</h3>
+
+      <p class="content-text">本示例将使用QColorDialog对话框为 QLabel组件设置文本颜色。代码如下：</p>
+
+      <div class="code-block">#窗口
+window = QWidget()
+#按钮
+btn = QPushButton(&quot;选择颜色&quot;, window)
+layout.addWidget(btn)
+#标签
+lb = QLabel(&quot;示例文本&quot;, window)
+#修改字体大小
+font = lb.font()
+font.setPixelSize(32)
+lb.setFont(font)
+lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(lb)
+#选择颜色对话框
+dialog = QColorDialog(Qt.GlobalColor.blue, window)
+#设置对话框标题
+dialog.setWindowTitle(&quot;选择颜色&quot;)
+#连接信号
+def onClicked():
+        dialog.open()
+btn.clicked.connect(onClicked)
+def onColorSelected(color: QColor):
+        #获取标签组件的调色板
+        palette = lb.palette()
+        #改变颜色
+        palette.setColor(QPalette.ColorRole.WindowText, color)
+        #重新设置调色板
+        lb.setPalette(palette)
+
+dialog.colorSelected.connect(onColorSelected)
+#显示窗口
+window.show()</div>
+
+      <p class="content-text">窗口中创建了一个按钮组件和一个标签组件。单击按钮后打开颜色对话框，确认选择后通过调色板修改标签组件的文本颜色。先调用 palette 方法获取原来的调色板数据，然后调用 setColor 修改颜色(QLabel 组件默认的颜色角色是 WindowText)。修改后调用 setPalette方法重新设置调色板。</p>
+
+      <p class="content-text">运行示例程序，单击“选择颜色”按钮，打开选择颜色对话框，如图13-14所示。</p>
+
+      <p class="content-text">选择好颜色后，单击OK按钮确认，QLabel组件的文本颜色就会发生改变，如图13-15所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-14、图 13-15</span><div class="result-box-image"><img src="images/ch13/ch13_fig_07.png" alt="图13-14 选择颜色对话框 图13-15 标签文本的颜色已更新" loading="lazy"><div class="caption">图13-14 选择颜色对话框 图13-15 标签文本的颜色已更新</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.3.2</span> 自定义颜色区域</h3>
+
+      <p class="content-text">颜色对话框在标准颜色之外提供了一个自定义颜色区域，如图 13-16 所示。用户可以将从取色器中选定的颜色添加到这个区域。自定义颜色区域的设置在多个 QColorDialog 实例之间共享，用户可以通过这个自定义区域快速选择自己所需要的颜色。开发人员也可以通过 QColorDialog 类公开的方法以编程方式操作自定义颜色区域。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-16</span><div class="result-box-image"><img src="images/ch13/ch13_fig_08.png" alt="图13-16 自定义颜色的区域" loading="lazy"><div class="caption">图13-16 自定义颜色的区域</div></div></div>
+
+      <p class="content-text">由于自定义颜色在QColorDialog实例之间共享，所以与自定义颜色区域相关的成员都是静态的。</p>
+
+      <p class="content-text">要往自定义区域添加颜色，请调用setCustomColor方法，其声明如下：</p>
+
+      <div class="code-block">def setCustomColor(
+        index: int,
+        color: QColor | QRgba64 | Any | GlobalColor | str | int
+)</div>
+
+      <p class="content-text">index参数指的是自定义区域中颜色位置索引，第一个位置为0，第二个为1，等等。color参数设置颜色。如果要往自定义区域中所有位置设定颜色，最好先知道系统允许的颜色数量，避免index参数的值超出有效范围。customCount方法能获取到系统允许的自定义颜色数量，例如：</p>
+
+      <div class="code-block">count = QColorDialog.customCount()
+print(f&#x27;支持的自定义颜色数量：{count}&#x27;)</div>
+
+      <p class="content-text">代码执行的结果为：</p>
+
+      <p class="content-text">支持的自定义颜色数量：16表明当前系统允许设置16个自定义颜色。</p>
+
+      <p class="content-text">下面的代码将设置4个自定义颜色：</p>
+
+      <div class="code-block">QColorDialog.setCustomColor(0, QColor(&quot;red&quot;))
+QColorDialog.setCustomColor(1, QColor(&quot;lightblue&quot;))
+QColorDialog.setCustomColor(2, QColor(&quot;green&quot;))
+QColorDialog.setCustomColor(3, QColor(&quot;#3E64A5&quot;))</div>
+
+      <p class="content-text">当打开 QColorDialog对话框时，会看到如图13-17所示的界面。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-17</span><div class="result-box-image"><img src="images/ch13/ch13_fig_09.png" alt="图 13-17 4 个自定义颜色" loading="lazy"><div class="caption">图 13-17 4 个自定义颜色</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.3.3</span> 示例：使用便捷方法</h3>
+
+      <p class="content-text">QColorDialog 类也公开了静态的 getColor 方法，不需要实例化 QColorDialog 类即可打开颜色对话框。getColor方法的声明如下：</p>
+
+      <div class="code-block">def getColor(
+        initial: QColor | QRgba64 | Any | GlobalColor | str | int = ...,
+        parent: QWidget | None = ...,
+        title: str = ...,
+        options: QColorDialog.ColorDialogOption = ...
+) -&gt; QColor</div>
+
+      <p class="content-text">initial参数设置打开对话框时的初始颜色，默认为白色。title参数指定对话框的标题，parent参数指定父级对象（一般是程序主窗口）。options参数指定对话框选项，一般可以忽略。返回值为QColor对象，如果用户放弃选择，那么 QColor 对象的 isValid 方法就会返回 False。</p>
+
+      <p class="content-text">本示例的核心代码如下：</p>
+
+      <div class="code-block">#程序窗口
+window = QWidget()
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+#按钮
+button = QPushButton(&quot;选择颜色&quot;, window)
+layout.addWidget(button)
+#容器组件
+frame = QFrame(window)
+frame.setFrameShape(QFrame.Shape.Box)
+#一定要设置 autoFillBackground
+frame.setAutoFillBackground(True)
+layout.addWidget(frame)
+#连接clicked信号
+def clickHandler():
+        color = QColorDialog.getColor(
+                QColor(&quot;black&quot;), #初始颜色
+                window, #父对象
+                &quot;选择颜色&quot; #对话框标题
+        )
+        if color.isValid():
+                #修改背景色
+                p = frame.palette()
+                p.setColor(QPalette.ColorRole.Window, color)
+                frame.setPalette(p)
+button.clicked.connect(clickHandler)</div>
+
+      <p class="content-text">QPushButton组件被单击后，通过getColor方法打开颜色对话框，最后用选择的颜色填充QFrame组件的背景。</p>
+
+      <p class="content-text">注意，QFrame组件要调用setAutoFillBackground方法并将参数设置为True，否则无法呈现背景色。</p>
+
+      <p class="content-text">运行示例程序，然后单击“选择颜色”按钮，打开颜色对话框。确认选择后，QFrame组件的背景色会改变，如图13-18所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-18</span><div class="result-box-image"><img src="images/ch13/ch13_fig_10.png" alt="图 13-18 修改 QFrame 组件的背景色" loading="lazy"><div class="caption">图 13-18 修改 QFrame 组件的背景色</div></div></div>
+
+      <div class="section-heading" id="section-3"><span class="section-number">13.4</span><h2>QFileDialog</h2></div>
+
+      <p class="content-text">QFileDialog类提供可以选择文件或目录的对话框。该对话框的工作模式可以通过setFileMode方法设置，参数的值由FileMode枚举定义。</p>
+
+      <ol class="content-list"><li>AnyFile：不管文件是否已经存在都可以选择，此模式常用于保存文件对话框。</li>
+        <li>ExistingFile：选择单个文件，此文件必须是存在的。</li>
+        <li>Directory：可以选择目录和文件。在Windows系统中，选择目录的对话框中不支持文件选择。</li>
+        <li>ExistingFiles：选择多个已存在的文件。</li></ol>
+
+      <p class="content-text">当用户选择文件并确认对话框后，QFileDialog对象会发出 fileSelected（单个文件）和filesSelected（多个文件）信号。</p>
+
+      <h3 class="subsection-heading"><span>13.4.1</span> 示例：切换文件选择模式</h3>
+
+      <p class="content-text">本示例将实现单文件、多文件选择模式的切换。具体实现步骤如下。</p>
+
+      <p class="content-text">初始化程序窗口，窗口使用网格布局。</p>
+
+      <div class="code-block">window = QWidget()
+#布局
+layout = QGridLayout()
+window.setLayout(layout)</div>
+
+      <p class="content-text">添加 QPushButton、QLabel、QCheckBox 组件。QLabel 组件用于显示已选择的文件。</p>
+
+      <div class="code-block">btnOpen = QPushButton(&quot;打开...&quot;, window)
+layout.addWidget(btnOpen, 0, 0)
+lb = QLabel(window)
+layout.addWidget(lb, 1, 0, 1, 2)
+ckbMulti = QCheckBox(&quot;选择多个文件&quot;, window)
+layout.addWidget(ckbMulti, 0, 1)</div>
+
+      <p class="content-text">初始化 QFileDialog 对话框。</p>
+
+      <div class="code-block">fileDialog = QFileDialog()
+#过滤器
+fileDialog.setNameFilter(&quot;Music Files(*.mp3 *.ape*.wav),;;Video Files(*mkv*.mp4*.avi)&quot;)</div>
+
+      <p class="content-text">setNameFilter方法用于设置文件类型过滤器。过滤器可以筛选出哪些文件会显示在选项列表中。多个文件扩展名用空格分隔，多个过滤器之间用两个英文的分号分隔。过滤器前面的文本用于描述文件类型，如上述代码中的“MusicFiles”，括号中指定要显示在列表中的文件扩展名，如*.wav、*.mp3。</p>
+
+      <p class="content-text">也可以使用setNameFilter方法，以列表方式添加过滤器。代码如下：</p>
+
+      <div class="code-block">filters = [
+        &quot;Music Files(*.mp3 *.ape *.wav)&quot;,
+        &quot;Video Files(*mkv *.mp4 *.avi)&quot;
+]
+fileDialog.setNameFilters(filters)</div>
+
+      <p class="content-text">连接QPushButton 组件的 clicked信号，显示文件对话框。</p>
+
+      <div class="code-block">def onClicked():
+        fileDialog.open()
+btnOpen.clicked.connect(onClicked)</div>
+
+      <p class="content-text">连接 QCheckBox 组件的 toggled 信号。调用 QFileDialog 对象的 setFileMode 方法，根据QCheckBox的选择状态修改文件选择模式。</p>
+
+      <div class="code-block">def onToggled(checked):
+        if checked:
+                #单文件模式
+                fileDialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        else:
+                #多文件模式
+                fileDialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+ckbMulti.toggled.connect(onToggled)</div>
+
+      <p class="content-text">连接QFileDialog组件的 fileSelected信号。只有在单文件选择模式下才会发出。</p>
+
+      <div class="code-block">def onSelectedFile(filename: str):
+        lb.setText(f&quot;已选择的文件：{filename}&quot;)
+fileDialog.fileSelected.connect(onSelectedFile)</div>
+
+      <p class="content-text">连接QFileDialog组件的 filesSelected信号。当选择模式为多文件时发出。</p>
+
+      <div class="code-block">def onSelectedFiles(list):
+        s =&#x27;已选择的文件：\n&#x27;
+        for f in list:
+                s += f + &quot;\n&quot;
+        lb.setText(s)
+fileDialog.filesSelected.connect(onSelectedFiles)</div>
+
+      <p class="content-text">多文件选择模式下，参数list是一个字符串列表，包含被选择文件的路径。</p>
+
+      <p class="content-text">运行示例程序，当“选择多个文件”复选框处于未选中状态时，单击“打开”按钮，此时文件对话框只能选择一个文件：当“选择多个文件”复选框处于选中状态时，文件对话框可以同时选择多个文件。</p>
+
+      <h3 class="subsection-heading"><span>13.4.2</span> 示例：选择目录</h3>
+
+      <p class="content-text">本示例实现目录选择功能。调用 setFileMode方法并向参数赋值FileMode.Directory后，QFileDialog对话框允许选择目录对象（在Windows下，目录模式不显示文件)。</p>
+
+      <p class="content-text">DemoWindow类的实现代码如下：</p>
+
+      <div class="code-block">class DemoWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        #布局
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        #按钮
+        btnOpen = QPushButton(&quot;浏览目录...&quot;, self)
+        layout.addWidget(btnOpen)
+        #标签
+        self.lbDisplay = QLabel(self)
+        layout.addWidget(self.lbDisplay)
+        #连接信号
+        btnOpen.clicked.connect(self.onClicked)
+
+    def onClicked(self):
+        #创建文件对话框实例
+        dialog = QFileDialog()
+        #设置对话框标题
+        dialog.setWindowTitle(&quot;浏览目录&quot;)
+        #设置为目录选择模式
+        dialog.setFileMode(QFileDialog.FileMode.Directory)
+        #设置初始目录
+        dialog.setDirectory(QStandardPaths.standardLocations(QStandardPaths.
+            StandardLocation.DocumentsLocation) [0])
+        #显示对话框
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            pathList = dialog.selectedFiles()
+        #显示所选目录的路径
+        self.lbDisplay.setText(&quot;目录:&quot; + pathList[0])</div>
+
+      <p class="content-text">调用 setFileMode方法设置为目录模式后，可以使用 setDirectory方法设置一个默认目录——本示例默认选择用户文档目录。通过 QStandardPaths.StandardLocation.DocumentsLocation 可以得到文档目录的列表。列表中一般只包含一个路径（如果设置多个文档路径，会包含多个路径)。</p>
+
+      <p class="content-text">运行示例程序后，单击“浏览目录”按钮，打开文件对话框，如图13-19所示，此时已自动选择“文档”目录。</p>
+
+      <p class="content-text">选择一个目录，然后单击“选择文件夹”按钮，回到程序窗口，窗口上就会显示被选目录的路径，如图13-20所示。</p>
+
+      <h3 class="subsection-heading"><span>13.4.3</span> 便捷方法</h3>
+
+      <p class="content-text">QFileDialog与QColorDialog等类型一样，提供了一个静态方法，可直接调用。QFileDialog类的便捷方法如下。</p>
+
+      <p class="content-text">选择文件。主要有两个方法：getOpenFileName与getOpenFileNames。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-19、图 13-20</span><div class="result-box-image"><img src="images/ch13/ch13_fig_11.png" alt="图 13-19目录列表 图13-20 显示被选择的目录" loading="lazy"><div class="caption">图 13-19目录列表 图13-20 显示被选择的目录</div></div></div>
+
+      <p class="content-text">getOpenFileName方法用于选择单个文件，其声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getOpenFileName(
+                parent: QWidget,
+                caption: Optional[str] = ...,
+                dir: str = ...,
+                filter: str = ...,
+                selectedFilter: str = ...,
+                options: QFileDialog.Option = ...)
+        -&gt; Tuple[str, str]</div>
+
+      <p class="content-text">caption参数设置对话框的标题，dir参数设置初始目录，filter参数设置过滤器，selectedFilter参数设置默认选择的过滤器，options参数设置对话框选项。该方法的返回值是包含两个元素的元组，第一个元素代表被选文件的路径，第二个元素代表选择文件时所使用的过滤器。</p>
+
+      <p class="content-text">getOpenFileName方法的使用示例如下：</p>
+
+      <div class="code-block">file, filter = QFileDialog.getOpenFileName(
+        window,
+        &quot;选择文件&quot;,
+        &quot;E:\\&quot;,
+        &quot;任意文件(*.*)&quot;
+)
+#显示文件路径
+msg = f&#x27;文件： {file}&#x27;
+msg += f&#x27;\n过滤器：{filter}&#x27;
+......</div>
+
+      <p class="content-text">另一个方法是 getOpenFileNames，其声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getOpenFileNames(
+                parent: QWidget,
+                caption: Optional[str] = ...,
+                dir: str = ...,
+                filter: str = ...,
+                selectedFilter: str = ...,
+                options: QFileDialog.Option = ...)
+        -&gt; Tuple[List[str], str]</div>
+
+      <p class="content-text">各参数的含义与getOpenFileName方法相同，但getOpenFileNames方法可以选择多个文件，其返回值也是包含两个元素的元组。第一个元素是字符串列表，表示被选文件；第二个元素是当前使用的过滤器。</p>
+
+      <p class="content-text">getOpenFileNames方法的示例代码如下：</p>
+
+      <div class="code-block">files, filter = QFileDialog.getOpenFileNames(
+        window,
+        &quot;选择文件&quot;,
+        &quot;E:\\&quot;,
+        &quot;任意文件(*.*)&quot;
+)
+#显示文件路径
+msg =&#x27;文件列表：\n&#x27;
+for f in files:
+        msg += f&#x27;{f}\n&#x27;
+msg += f&#x27;\n过滤器：{filter}&#x27;</div>
+
+      <p class="content-text">选择目录。比较常用的是 getExistingDirectory 方法，声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getExistingDirectory(
+                parent: Optional[QWidget] = ...,
+                caption: str = ...,
+                dir: str = ...,
+                options: QFileDialog.Option = ...)
+        -&gt; str</div>
+
+      <p class="content-text">各参数的含义与getOpenFileName相似，该方法返回目录的路径。使用示例如下：</p>
+
+      <div class="code-block">selectedDir = QFileDialog.getExistingDirectory(
+        window,
+        &quot;选择目录&quot;,
+        &quot;E:\\&quot;
+)
+#显示目录路径
+msg =&#x27;目录: {0}&#x27;.format(selectedDir)</div>
+
+      <p class="content-text">保存文件。主要是getSaveFileName方法，其声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getSaveFileName(
+                parent: QWidget,
+                caption: Optional[str] = ...,
+                dir: str = ...,
+                filter: str = ...,
+                selectedFilter: str = ...,
+                options: QFileDialog.Option = ...)
+        -&gt; Tuple[str, str]</div>
+
+      <p class="content-text">参数和返回值与 getOpenFileName 方法相同，但 getSaveFileName 方法获取的是保存文件的路径，该路径通常是不存在的新文件。因此，getSaveFileName方法允许选择不存在的文件路径。</p>
+
+      <p class="content-text">getSaveFileName方法的使用示例如下：</p>
+
+      <div class="code-block">saveFile, theFilter = QFileDialog.getSaveFileName(
+        window,
+        &quot;选择目录&quot;,
+        &quot;E:\\&quot;,
+        &quot;文本文件(*.txt);;HTML 页面文件(*.html *.htm);;XML 文件(*.xml)&quot;,
+        &quot;XML 文件(*.xml)&quot;
+)
+#显示文件路径
+msg = f&#x27;文件： {saveFile}\n&#x27;
+msg += f&#x27;过滤器：{theFilter}&#x27;</div>
+
+      <p class="content-text">……上述代码中定义了三个过滤器（文本文件、HTML页面文件和XML文件)，默认选择XML文件，即选择的文件名默认追加.xml扩展名。</p>
+
+      <div class="section-heading" id="section-4"><span class="section-number">13.5</span><h2>QFontDialog</h2></div>
+
+      <p class="content-text">QFontDialog类提供一个允许用户选择字体的对话框。在初始化时，可以通过以下重载的构造函数设置默认字体（通过initial参数）。</p>
+
+      <div class="code-block">def __init__(self, initial: QFont, parent: Optional[QWidget] = ...)</div>
+
+      <p class="content-text">currentFont方法返回的是用户当前选择（并不表示最终选择）的字体。调用setCurrentFont方法可以以编程方式设置当前字体，同时 QFontDialog 对象会发出 currentFontChanged 信号。</p>
+
+      <p class="content-text">当用户确认选择后，可以访问 selectedFont方法获取最终被选择的字体，同时会发出 fontSelected信号。对于调用open方法打开对话框的方案，可以连接fontSelected信号来获取被选择的字体。</p>
+
+      <h3 class="subsection-heading"><span>13.5.1</span> 示例：使用新增的 open 方法</h3>
+
+      <p class="content-text">QFontDialog类除了从QDialog类继承的open方法，还新增了一个重载版本，其声明如下：</p>
+
+      <div class="code-block">def open(
+        receiver: QObject,
+        member: bytes
+)</div>
+
+      <p class="content-text">receiver参数表示接收消息的对象，一般可以指定程序窗口。member参数指定与fontSelected信号连接的方法。方法调用后会自动建立 fontSelected信号与member之间的连接；当QFontDialog 对话框确认后会自动解除与fontSelected信号的连接。</p>
+
+      <p class="content-text">member参数以字符串的形式指定方法成员的名称(包括参数的类型)，同时需要SLOT函数进行转化，例如：</p>
+
+      <div class="code-block">SLOT(&#x27;someMethod(int)&#x27;)</div>
+
+      <p class="content-text">本示例将定义名为 TestWindow的窗口类。窗口上添加QLabel和QPushButton组件。当单击按钮时，初始化 QFontDialog 对象，用户确认后改变QLabel组件的字体。</p>
+
+      <p class="content-text">TestWindow类的实现代码如下：</p>
+
+      <div class="code-block">class TestWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle(&quot;Demo&quot;)
+        self.resize(265, 180)
+        #布局
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        #标签
+        self.lbText = QLabel(&quot;示例文本&quot;, self)
+        layout.addWidget(self.lbText)
+        #按钮
+        btn = QPushButton(&quot;选择字体...&quot;, self)
+        layout.addWidget(btn)
+        #连接信号
+        btn.clicked.connect(self.onBtnClicked)
+
+    def onBtnClicked(self):
+        #实例化对话框
+        dialog = QFontDialog(self)
+        #调用open方法，自动连接信号
+        dialog.open(self, SLOT(&#x27;onFontSelected(QFont)&#x27;))
+
+    @Slot(QFont)
+    def onFontSelected(self, font: QFont):
+        #应用已选择的字体
+        self.lbText.setFont(font)</div>
+
+      <p class="content-text">onFontSelected 方法与 QFontDialog 对象的 fontSelected信号建立连接。作为槽（Slot）方法，需要在声明方法时加上@Slot装饰器。</p>
+
+      <p class="content-text">示例程序运行后，单击“选择字体”按钮，打开字体对话框，如图13-21所示。</p>
+
+      <p class="content-text">单击OK按钮关闭对话框，QLabel组件的文本将应用被选择的字体，如图13-22所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-21、图 13-22</span><div class="result-box-image"><img src="images/ch13/ch13_fig_12.png" alt="图 13-21 字体对话框 图 13-22 应用被选择的字体" loading="lazy"><div class="caption">图 13-21 字体对话框 图 13-22 应用被选择的字体</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.5.2</span> 示例：使用便捷方法</h3>
+
+      <p class="content-text">QFontDialog类也公开了静态的便捷方法 getFont，直接调用可打开字体对话框并等待用户选择。</p>
+
+      <p class="content-text">getFont方法的声明如下：</p>
+
+      <div class="code-block">@staticmethod
+def getFont(
+                initial: Union[QFont, str, Sequence[str]],
+                parent: Optional[QWidget] = ...,
+                title: str = ...,
+                options: QFontDialog.FontDialogOption = ...)
+        -&gt; Tuple[bool, QFont]
+@staticmethod
+def getFont(
+                parent: Optional[QWidget] = ...
+            )
+        -&gt; Tuple[bool, QFont]</div>
+
+      <p class="content-text">initial参数指定默认的字体。parent参数指定父级对象，通常是程序窗口。title参数设置对话框标题。options参数设置对话框选项。</p>
+
+      <p class="content-text">getFont方法的返回值包含两个元素。第一个元素为 bool类型，若为True表示用户已确认选择，否则用户已放弃选择。第二个元素是所选择的字体对象，类型为QFont。</p>
+
+      <p class="content-text">DemoWindow是本示例自定义的窗口类，其完整代码如下：</p>
+
+      <div class="code-block">class DemoWindow(QWidget):
+        def __init__(self):
+                super().__init__()
+                self.resize(250, 200)
+                #布局
+                layout = QGridLayout()
+                self.setLayout(layout)
+                #按钮
+                button = QPushButton(&quot;字体...&quot;, self)
+                layout.addWidget(button, 0, 0)
+                #文本编辑器
+                self.editor = QTextEdit(self)
+                layout.addWidget(self.editor, 1, 0)
+                #连接 clicked 信号
+                button.clicked.connect(self.onClicked)
+
+        def onClicked(self):
+                #打开字体对话框并等待选择
+                ok, font = QFontDialog.getFont(
+                    &quot;宋体&quot;,     #默认字体
+                    self,           #父级对象
+                    &quot;选择字体&quot;   #对话框标题
+                )
+                #如果用户已确认选择，修改文本编辑器中选定内容的字体
+                if ok:
+                    self.editor.setCurrentFont(font)</div>
+
+      <p class="content-text">getFont方法的initial参数既可以使用QFont实例，也可以直接用字体名称，如本示例中的“宋体”。</p>
+
+      <p class="content-text">运行示例程序后，在编辑框中输入测试内容，然后选中部分字符。单击“字体”按钮打开字体对话框。选择好字体后确认，编辑器中选定的字符就会应用新的字体了，如图13-23所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-23</span><div class="result-box-image"><img src="images/ch13/ch13_fig_13.png" alt="图 13-23 设置选定文本的字体" loading="lazy"><div class="caption">图 13-23 设置选定文本的字体</div></div></div>
+
+      <div class="section-heading" id="section-5"><span class="section-number">13.6</span><h2>QDialogButtonBox</h2></div>
+
+      <p class="content-text">QDialogButtonBox组件提供一个承载按钮列表的容器，将它布局在自定义对话框中，可以更方便地创建按钮组。</p>
+
+      <p class="content-text">QDialogButtonBox组件内部有两种排列按钮的方式——水平或垂直。可通过向构造函数传递Qt.Orientation枚举的值来指定按钮排列方向。如果 QDialogButtonBox 对象已经实例化，也可以调用setOrientation 方法修改。</p>
+
+      <h3 class="subsection-heading"><span>13.6.1</span> 按钮角色</h3>
+
+      <p class="content-text">实例化 QDialogButtonBox类后，可以调用 addButton 方法添加按钮。按钮角色由 ButtonRole 枚举定义，用来描述按钮在对话框中的功能。该枚举的成员如下。</p>
+
+      <ol class="content-list"><li>InvalidRole：表示按钮不可用。使用该值会导致按钮被隐藏。</li>
+        <li>AcceptRole：表示接受对话框中的内容。</li>
+        <li>RejectRole：表示拒绝对话框中的内容。</li>
+        <li>DestructiveRole：舍弃状态，如“放弃”按钮，表示用户放弃当前在编辑的内容。</li>
+        <li>ActionRole：表示执行某项操作，这些操作可能会修改对话框中某些组件的值。</li>
+        <li>HelpRole：表示帮助按钮。</li>
+        <li>YesRole：代表“是”、Yes、Ok等按钮，表示用户接受对话框的内容，与Accept角色相似。</li>
+        <li>NoRole：代表“否”、No等按钮，表示用户拒绝对话框的内容，与Reject角色相似。</li>
+        <li>ResetRole：表示重置对话框中的组件状态，通常是清空文本框内的文本。</li>
+        <li>ApplyRole：代表“应用”、Apply等按钮。</li></ol>
+
+      <p class="content-text">ButtonRole枚举仅定义了按钮的角色，并未做任何处理。开发者需要根据实际情况响应其行为。</p>
+
+      <p class="content-text">QDialogButtonBox 组件中任何按钮被单击后都会发出 clicked信号。该信号带有一个 QAbstractButton类型的参数，表示被单击的按钮引用。程序代码可以与clicked信号连接，然后根据按钮的角色来完成各自的功能。不过，QDialogButtonBox类在发出clicked信号后，会分析按钮的角色，做出特殊处理—发送额外的信号，具体如下。</p>
+
+      <ol class="content-list"><li>如果遇到 AcceptRole、YesRole角色的按钮，会发出 accepted信号。</li>
+        <li>如果遇到 RejectRole、NoRole 角色的按钮，会发出 rejected信号。</li>
+        <li>如果遇到 HelpRole角色的按钮，会发出 helpRequested 信号。</li></ol>
+
+      <h3 class="subsection-heading"><span>13.6.2</span> 示例：使用按钮角色</h3>
+
+      <p class="content-text">本示例将演示按钮角色在QDialogButtonBox中的运用。</p>
+
+      <p class="content-text">自定义对话框中的 QDialogButtonBox 对象包含 Yes 和 No 按钮，对应的是 accepted 和 rejected 信号。具体代码如下：</p>
+
+      <div class="code-block">class CustDialog(QDialog):
+        def __init__(self, parent: QWidget = None):
+                super().__init__(parent)
+                #对话框标题
+                self.setWindowTitle(&quot;对话框&quot;)
+                #对话框窗口大小
+                self.resize(300, 120)
+                #布局
+                layout = QVBoxLayout()
+                self.setLayout(layout)
+                #标签
+                lbtxt = QLabel(&quot;请单击下方的按钮&quot;, self)
+                layout.addWidget(lbtxt, 1, Qt.AlignmentFlag.AlignCenter)
+                #对话框按钮
+                dialogBtns = QDialogButtonBox(self)
+                layout.addWidget(dialogBtns, 0, Qt.AlignmentFlag.AlignRight)
+                #添加按钮
+                dialogBtns.addButton(&quot;Yes&quot;, QDialogButtonBox.ButtonRole.YesRole)
+                dialogBtns.addButton(&quot;No&quot;, QDialogButtonBox.ButtonRole.NoRole)
+                #连接主号
+                dialogBtns.accepted.connect(self.accept)
+                dialogBtns.rejected.connect(self.reject)</div>
+
+      <p class="content-text">Yes按钮使用的角色是 YesRole，No按钮使用的角色是 NoRole。Yes按钮被单击后会使QDialogButtonBox 对象发出 accepted 信号，将该信号与对话框的 accept 方法连接后才能发挥作用。同理，No按钮会发出rejected信号，该信号也要与对话框的reject方法连接。</p>
+
+      <p class="content-text">下面的代码实现程序窗口。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+        def __init__(self):
+                super().__init__()
+                self.setWindowTitle(&quot;Demo&quot;)
+                self.resize(220, 100)
+                self._layout = QGridLayout()
+                self.setLayout(self._layout)
+                #标签组件
+                self._lb = QLabel(self)
+                self._layout.addWidget(self._lb, 0, 0)
+                #按钮组件
+                self._btn = QPushButton(&quot;显示对话框&quot;, self)
+                self._layout.addWidget(self._btn, 1, 0)
+                #连接信号
+                self._btn.clicked.connect(self.onClicked)
+        def onClicked(self):
+                dialog = CustDialog(self)
+                result = dialog.exec()
+                if result == QDialog.DialogCode.Accepted:
+                    self._lb.setText(&quot;你单击了Yes按钮&quot;)
+                else:
+                    self._lb.setText(&quot;你单击了No按钮&quot;)</div>
+
+      <p class="content-text">运行示例程序，单击“显示对话框”按钮，打开自定义的对话框，如图13-24所示。</p>
+
+      <p class="content-text">单击任一按钮，关闭对话框。程序窗口将显示操作结果，如图13-25所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-24、图 13-25</span><div class="result-box-image"><img src="images/ch13/ch13_fig_14.png" alt="图 13-24 对话框中的 Yes 和 No 按钮 图 13-25 显示对话框结果" loading="lazy"><div class="caption">图 13-24 对话框中的 Yes 和 No 按钮 图 13-25 显示对话框结果</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.6.3</span> 标准按钮</h3>
+
+      <p class="content-text">标准按钮将自动套用系统默认定义的文本和角色，由StandardButton枚举定义，它的成员如下。</p>
+
+      <ol class="content-list"><li>No：表示“否”（No）按钮，对应的按钮角色是 NoRole。</li>
+        <li>Yes：表示“是”（Yes）按钮，对应的按钮角色是YesRole。</li>
+        <li>Ok：表示“确定”按钮，对应 AcceptRole。</li>
+        <li>Open：表示“打开”（Open）按钮，对应AcceptRole。</li>
+        <li>Save：表示“保存”（Save）按钮，对应的角色是 AcceptRole。</li>
+        <li>Cancel:表示“取消”（Cancel）按钮，对应RejectRole。</li>
+        <li>Close：表示“关闭”（Close）按钮，对应的角色是RejectRole。</li>
+        <li>Discard:表示“放弃”（Discard）按钮，对应的角色是DestructiveRole。</li>
+        <li>Apply：表示“应用”（Apply）按钮，对应的角色是 ApplyRole。</li>
+        <li>Reset：表示“重置”（Reset）按钮，对应 ResetRole。</li>
+        <li>RestoreDefaults：表示“恢复默认”（Restore Defaults）按钮，对应 ResetRole。</li>
+        <li>Help：表示“帮助”（Help）按钮，对应的角色是HelpRole。</li>
+        <li>SaveAll：表示“全部保存”（Save All）按钮，对应的角色是 AcceptRole。</li>
+        <li>YesToAll：表示“全部都是”（Yes to All）按钮，对应的角色是 YesRole。</li>
+        <li>NoToAll：表示“全部都否”（No to All）按钮，对应 NoRole 角色。</li>
+        <li>Abort：表示“退出”（Abort）按钮，对应的角色是 RejectRole。</li>
+        <li>Retry：表示“重试”（Retry）按钮，对应 AcceptRole 角色。</li>
+        <li>Ignore:表示“忽略”（Ignore）按钮，对应 AcceptRole角色。</li>
+        <li>NoButton：表示无效按钮，将被隐藏。</li></ol>
+
+      <p class="content-text">在初始化 QDialogButtonBox类时，可以用以下重载的__init__方法设置标准按钮：</p>
+
+      <div class="code-block">def __init__(
+                buttons: QDialogButtonBox.StandardButton,
+                orientation: Qt.Orientation,
+                parent: Optional[QWidget] = ...)
+def __init__(
+                buttons: QDialogButtonBox.StandardButton,
+                parent: Optional[QWidget] = ...)</div>
+
+      <p class="content-text">创建 QDialogButtonBox 实例后，还可以调用 setStandardButtons 方法来设置标准按钮。</p>
+
+      <h3 class="subsection-heading"><span>13.6.4</span> 示例：展示所有标准按钮</h3>
+
+      <p class="content-text">本示例主要是让读者直观地看到各标准按钮的呈现效果。具体代码如下：</p>
+
+      <div class="code-block">app = QApplication()
+#滚动视图组件成为主窗口
+w = QScrollArea()
+dialogbtns = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Ok |
+        QDialogButtonBox.StandardButton.Cancel |
+        QDialogButtonBox.StandardButton.Yes |
+        QDialogButtonBox.StandardButton.No |
+        QDialogButtonBox.StandardButton.YesToAll |
+        QDialogButtonBox.StandardButton.NoToAll |
+        QDialogButtonBox.StandardButton.Reset |
+        QDialogButtonBox.StandardButton.RestoreDefaults |
+        QDialogButtonBox.StandardButton.Open |
+        QDialogButtonBox.StandardButton.Close |
+        QDialogButtonBox.StandardButton.Save |
+        QDialogButtonBox.StandardButton.SaveAll |
+        QDialogButtonBox.StandardButton.Abort |
+        QDialogButtonBox.StandardButton.Retry |
+        QDialogButtonBox.StandardButton.Ignore |
+        QDialogButtonBox.StandardButton.Apply |
+        QDialogButtonBox.StandardButton.Discard |
+        QDialogButtonBox.StandardButton.Help,
+        #垂直方向
+        Qt.Orientation.Vertical,
+        w
+)
+w.setWidget(dialogbtns)
+w.show()
+QApplication.exec()</div>
+
+      <p class="content-text">由于NoButton会使按钮隐藏（不可见），因此上述代码未包含NoButton的值。</p>
+
+      <p class="content-text">运行示例后，就能看到所有的标准按钮了，如图13-26所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-26</span><div class="result-box-image"><img src="images/ch13/ch13_fig_15.png" alt="图 13-26 标准按钮列表" loading="lazy"><div class="caption">图 13-26 标准按钮列表</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.6.5</span> 示例：标准按钮与clicked 信号</h3>
+
+      <p class="content-text">当 QDialogButtonBox组件中的某个按钮被单击后，QDialogButtonBox 组件会发出 clicked 信号，同时传递被单击按钮的引用。</p>
+
+      <p class="content-text">在处理 QDialogButtonBox 组件所发出的 clicked 信号时，可以通过 standardButton 方法获得与按钮对应的 StandardButton 值，接着分析 StandardButton值就能确定被单击的是哪个标准按钮了。</p>
+
+      <p class="content-text">本示例将演示如何在clicked信号的处理代码中判断被触发的标准按钮。自定义对话框类CustDialog的实现代码如下：</p>
+
+      <div class="code-block">class CustDialog(QDialog):
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+        #对话框标题
+        self.setWindowTitle(&quot;示例对话框&quot;)
+        #布局
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+        #标签
+        self.lb = QLabel(&quot;请单击右边的按钮&quot;, self)
+        layout.addWidget(self.lb, 2)
+        #对话框按钮
+        self.dialogButtons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Apply |
+            QDialogButtonBox.StandardButton.Reset |
+            QDialogButtonBox.StandardButton.Ignore,
+            Qt.Orientation.Vertical,
+            self
+        )
+        layout.addWidget(self.dialogButtons, 1)
+        #连接信号
+        self.dialogButtons.clicked.connect(self.onBtnClicked)
+
+    def onBtnClicked(self, button: QAbstractButton):
+        #分析哪个按钮被单击
+        stdBtn = self.dialogButtons.standardButton(button)
+        if stdBtn == QDialogButtonBox.StandardButton.Apply:
+            self.lb.setText(&quot;Apply按钮被触发&quot;)
+        if stdBtn == QDialogButtonBox.StandardButton.Reset:
+            self.lb.setText(&quot;Reset 按钮被触发&quot;)
+        if stdBtn == QDialogButtonBox.StandardButton.Ignore:
+            self.lb.setText(&quot;Ignore按钮被触发&quot;)</div>
+
+      <p class="content-text">在初始化应用程序时，可以将CustDialog对话框作为程序的主窗口。</p>
+
+      <div class="code-block">app = QApplication()
+dialog = CustDialog()
+dialog.open()
+QApplication.exec()</div>
+
+      <p class="content-text">运行示例程序，如图13-27所示。</p>
+
+      <p class="content-text">单击Apply按钮，QLabel组件会显示相关信息，如图13-28所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-27、图 13-28</span><div class="result-box-image"><img src="images/ch13/ch13_fig_16.png" alt="图 13-27 自定义对话框 图 13-28 Apply 按钮被单击后" loading="lazy"><div class="caption">图 13-27 自定义对话框 图 13-28 Apply 按钮被单击后</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.6.6</span> 示例：用户注册对话框</h3>
+
+      <p class="content-text">本示例将实现一个用户注册对话框（UserRegDialog)，对话框底部的按钮由QDialogButtonBox组件来完成。在该对话框中，需要输入用户名、密码和E-mail。单击“注册”按钮后回到程序主窗口，并显示新用户信息。对话框输入的用户信息将保存到字典类型（dict）的对象中。</p>
+
+      <p class="content-text">UserRegDialog类的完整代码如下：</p>
+
+      <div class="code-block">class UserRegDialog(QDialog):
+        def __init__(self, parent: QWidget = None):
+                super().__init__(parent)
+                #保存输入的内容
+                self._data = dict()
+                #设置标题
+                self.setWindowTitle(&quot;注册新用户&quot;)
+                #布局
+                layout = QFormLayout()
+                self.setLayout(layout)
+                #用户名字段
+                self.edtName = QLineEdit(self)
+                layout.addRow(&quot;用户名：&quot;, self.edtName)
+                #密码字段
+                self.edtPass1 = QLineEdit(self)
+                self.edtPass1.setEchoMode(QLineEdit.EchoMode.Password)
+                layout.addRow(&quot;密码：&quot;, self.edtPass1)
+                #确认密码字段
+                self.edtPass2 = QLineEdit(self)
+                self.edtPass2.setEchoMode(QLineEdit.EchoMode.Password)
+                layout.addRow(&quot;确认密码：&quot;, self.edtPass2)
+                #电子邮箱字段
+                self.edtEmail = QLineEdit(self)
+                layout.addRow(&quot;E-mail：&quot;, self.edtEmail)
+                #对话框按钮
+                self.dialogButtons = QDialogButtonBox(
+                        Qt.Orientation.Horizontal, self
+                )
+                layout.addRow(self.dialogButtons)
+                #添加&quot;注册&quot;按钮
+                self.btnOK = self.dialogButtons.addButton(
+                        &quot;注册&quot;, QDialogButtonBox.ButtonRole.ActionRole
+                )
+                #添加&quot;取消&quot;按钮
+                self.btnCancel = self.dialogButtons.addButton(
+                        &quot;取消&quot;, QDialogButtonBox.ButtonRole.ActionRole
+                )
+                #连接信号
+                self.dialogButtons.clicked.connect(self.onButtonClicked)
+
+        def onButtonClicked(self, button: QAbstractButton):
+                #如果单击的是&quot;注册&quot;按钮
+                if button is self.btnOK:
+                        userName = self.edtName.text()
+                        passWord = self.edtPass1.text()
+                        passWord2 = self.edtPass2.text()
+                        email = self.edtEmail.text()
+                        if len(userName) &lt; 3:
+                                QMessageBox.warning(
+                                        self, &quot;警告&quot;, &quot;请输入有效的用户名&quot;
+                                )
+                                return
+                        if len(passWord) &lt; 5:
+                                QMessageBox.warning(
+                                        self, &quot;警告&quot;, &quot;请输入有效的密码&quot;
+                                )
+                                return
+                        if passWord != passWord2:
+                                QMessageBox.warning(
+                                        self, &quot;警告&quot;, &quot;两个密码不一致&quot;
+                                )
+                                return
+                        #设置数据
+                        self._data[&#x27;username&#x27;] = userName
+                        self._data[&#x27;password&#x27;] = passWord
+                        self._data[&#x27;email&#x27;] = email
+                        self.accept()
+                #如果单击的是&quot;取消&quot;按钮
+                elif button is self.btnCancel:
+                        self.reject()
+
+        #获取输入的数据
+        def userData(self) -&gt; dict:
+                return self._data</div>
+
+      <p class="content-text">密码字段使用了两个QLineEdit组件，即需要两次输入的密码一致才能通过验证。如果用户单击了“注册”按钮，先对各字段输入的值进行验证。如果验证成功，将数据存入data字段。最后调用对话框基类的accept方法接受输入；如果单击的是“取消”按钮，则调用对话框基类的reject方法拒绝输入。</p>
+
+      <p class="content-text">下面的代码创建程序窗口，并由“新增用户”按钮的clicked信号处理代码负责显示对话框。当用户信息完成输入后，在标签组件中显示用户信息。代码如下：</p>
+
+      <div class="code-block">window = QWidget()
+window.setWindowTitle(&quot;Demo&quot;)
+window.resize(235, 210)
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+#按钮
+btn = QPushButton(&quot;新增用户&quot;, window)
+layout.addWidget (btn)
+#标签
+lbmsg = QLabel(window)
+layout.addWidget(lbmsg)
+#连接信号
+def onClicked():
+        dialog = UserRegDialog(window)
+        res = dialog.exec()
+        if res == QDialog.DialogCode.Accepted:
+                #显示用户信息
+                user = dialog.userData()
+                msg = f&quot;用户名：{user[&#x27;username&#x27;]}\n&quot;
+                msg += f&quot;密码: {user[&#x27;password&#x27;]}\n&quot;
+                msg += f&quot;E-mail：{user[&#x27;email&#x27;]}&quot;
+                lbmsg.setText(msg)
+btn.clicked.connect(onClicked)
+#显示窗口
+window.show()</div>
+
+      <p class="content-text">示例程序运行后，单击“新增用户”按钮，打开输入用户信息的对话框，如图13-29所示。</p>
+
+      <p class="content-text">单击“注册”按钮，回到主窗口，显示新用户信息，如图13-30所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-29、图 13-30</span><div class="result-box-image"><img src="images/ch13/ch13_fig_17.png" alt="图 13-29 注册用户对话框 图 13-30 显示用户信息" loading="lazy"><div class="caption">图 13-29 注册用户对话框 图 13-30 显示用户信息</div></div></div>
+
+      <p class="content-text">程序界面不应该直接显示用户密码，此处仅用于演示。</p>
+
+      <div class="section-heading" id="section-6"><span class="section-number">13.7</span><h2>QWizard</h2></div>
+
+      <p class="content-text">QWizard类派生自QDialog，它是一种特殊的对话框。QWizard组件呈现为向导对话框，用户可以通过“返回”（Back)、“下一步”（Next）、“完成”（Finish）等按钮在页面之间导航。</p>
+
+      <p class="content-text">单个向导页由 QWizardPage类表示。它是 QWidget的子类，因此可以像普通 QWidget一样使用，如添加布局和子级组件。不过，QWizardPage类增加了额外的界面元素：title（标题）、subTitle（副标题）、pixmap（显示在页面上的各样图标)。初始化 QWizard组件后，需要调用 addPage方法添加页面。调用exec 或 open 方法显示向导对话框。</p>
+
+      <h3 class="subsection-heading"><span>13.7.1</span> 示例：创建简单的向导对话框</h3>
+
+      <p class="content-text">本示例主要演示 QWizard类与 QWizardPage类的使用。示例将为向导创建两个页面，以下两个函数分别初始化并返回向导页面。</p>
+
+      <div class="code-block">#初始化第一个页面
+def createPage1(parent: QWidget):
+        page = QWizardPage(parent)
+        #设置标题
+        page.setTitle(&quot;第一页&quot;)
+        #设置副标题
+        page.setSubTitle(&quot;第一页副标题&quot;)
+        #组件
+        lbcontent = QLabel(&quot;第一页的内容&quot;, page)
+        #设置布局
+        layout = QVBoxLayout()
+        layout.addWidget(lbcontent)
+        page.setLayout(layout)
+        return page
+#初始化第二个页面
+def createPage2(parent: QWidget):
+        page = QWizardPage(parent)
+        #设置标题与副标题
+        page.setTitle(&quot;第二页&quot;)
+        page.setSubTitle(&quot;第二页副标题&quot;)
+        lbbody = QLabel(&quot;第二页的内容&quot;, page)
+        layout = QVBoxLayout()
+        layout.addWidget(lbbody)
+        page.setLayout(layout)
+        return page</div>
+
+      <p class="content-text">实例化QWizard组件，添加上述两个方法所返回的向导页。</p>
+
+      <div class="code-block">wz = QWizard()
+wz.setWindowTitle(&quot;向导示例&quot;)
+#添加页面
+wz.addPage(createPage1(wz))
+wz.addPage(createPage2(wz))</div>
+
+      <p class="content-text">调用 open方法以异步方式显示向导对话框。</p>
+
+      <div class="code-block">wz.open()</div>
+
+      <p class="content-text">运行示例程序，如图13-31所示。</p>
+
+      <p class="content-text">单击Next按钮，将跳转到第二页，如图13-32所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-31、图 13-32</span><div class="result-box-image"><img src="images/ch13/ch13_fig_18.png" alt="图 13-31向导对话框的第一个页面 图 13-32 向导对话框的第二个页面" loading="lazy"><div class="caption">图 13-31向导对话框的第一个页面 图 13-32 向导对话框的第二个页面</div></div></div>
+
+      <p class="content-text">此时，单击Finish按钮可关闭对话框；单击Back按钮可以回到第一页。</p>
+
+      <h3 class="subsection-heading"><span>13.7.2</span> WizardButton 枚举</h3>
+
+      <p class="content-text">该枚举定义了QWizard组件中的按钮。</p>
+
+      <ol class="content-list"><li>BackButton：“返回”按钮。</li>
+        <li>NextButton：“下一步”“继续”按钮。</li>
+        <li>CommitButton：“确认”按钮。</li>
+        <li>FinishButton：“完成”按钮。</li>
+        <li>CancelButton：“取消”按钮。</li>
+        <li>HelpButton：“帮助”按钮。</li>
+        <li>CustomButton1：第一个自定义按钮。</li>
+        <li>CustomButton2：第二个自定义按钮。</li>
+        <li>CustomButton3：第三个自定义按钮。</li>
+        <li>Stretch：不表示按钮，而是向布局插入空格。此空格会占用剩余的布局空间。</li></ol>
+
+      <p class="content-text">其中包含三个自定义按钮，可以由开发人员自行实现。</p>
+
+      <h3 class="subsection-heading"><span>13.7.3</span> 示例：设置按钮的文本</h3>
+
+      <p class="content-text">本示例将演示如何修改向导对话框中的按钮文本，调用的是setButtonText方法，它的声明如下：</p>
+
+      <div class="code-block">def setButtonText(
+        which: WizardButton,
+        text: str</div>
+
+      <p class="content-text">参数 which的类型是WizardButton枚举，指定要修改显示文本的按钮，text参数指定新的文本。</p>
+
+      <p class="content-text">CustPage从 QWizardPage类派生，通过构造函数可以直接设置新页面的标题、副标题以及页面内容。具体代码如下：</p>
+
+      <div class="code-block">class CustPage(QWizardPage):
+        def __init__(
+                    self,
+                    title: str, #标题
+                    subtitle: str, #副标题
+                    body: str, #页面内容
+                    parent: QWidget = None
+                ):
+                super().__init__(parent)
+                #设置标题和副标题
+                self.setTitle(title)
+                self.setSubTitle(subtitle)
+                #添加布局
+                layout = QHBoxLayout()
+                self.setLayout(layout)
+                #添加文本编辑组件
+                editor = QTextEdit(self)
+                editor.setText(body)
+                #设置为只读
+                editor.setReadOnly(True)
+                layout.addWidget(editor)</div>
+
+      <p class="content-text">页面的内容文本用 QTextEdit组件显示。由于此处 QTextEdit 组件的功能是显示文本，因此可以用setReadOnly 方法设置为只读。</p>
+
+      <p class="content-text">实例化 QWizard组件，用CustPage类创建 3 个页面。</p>
+
+      <div class="code-block">wizard = QWizard()
+#设置窗口标题
+wizard.setWindowTitle(&quot;向导示例&quot;)
+#添加页面
+wizard.addPage(CustPage(&quot;页面A&quot;, &quot;页面A的副标题&quot;, &quot;页面A的内容&quot;, wizard))
+wizard.addPage(CustPage(&quot;页面B&quot;, &quot;页面B的副标题&quot;, &quot;页面B的内容&quot;, wizard))
+wizard.addPage(CustPage(&quot;页面C&quot;, &quot;页面C的副标题&quot;, &quot;页面C的内容&quot;, wizard))</div>
+
+      <p class="content-text">调用 setButtonText方法，修改 Back、Next、Finish、Cancel 按钮的文本。</p>
+
+      <div class="code-block">#修改Back按钮的文本
+wizard.setButtonText(
+        QWizard.WizardButton.BackButton,
+        &quot;后退&quot;
+)
+#修改 Next 按钮的文本
+wizard.setButtonText(
+        QWizard.WizardButton.NextButton,
+        &quot;下一页&quot;
+)
+#修改Finish按钮的文本
+wizard.setButtonText(
+        QWizard.WizardButton.FinishButton,
+        &quot;完成&quot;
+)
+#修改 Cancel 按钮的文本
+wizard.setButtonText(
+        QWizard.WizardButton.CancelButton,
+        &quot;取消&quot;
+)</div>
+
+      <p class="content-text">由于QWizard类继承了QDialog类的成员，所以可以连接QWizard对象的accepted、rejected信号，以便在向导对话框关闭后进行相关处理。本示例仅调用print函数向控制台输出文本内容。</p>
+
+      <div class="code-block">wizard.accepted.connect(lambda:print(&quot;向导已完成&quot;))
+wizard.rejected.connect(lambda: print(&quot;向导被取消&quot;))</div>
+
+      <p class="content-text">运行示例程序，按钮文本如图13-33所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-33</span><div class="result-box-image"><img src="images/ch13/ch13_fig_19.png" alt="图13-33 修改后的按钮文本" loading="lazy"><div class="caption">图13-33 修改后的按钮文本</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.7.4</span> 示例：重写 nextId 方法</h3>
+
+      <p class="content-text">不管是 QWizard类还是 QWizardPage类，都有nextId方法，该方法会返回下一个页面的编号。默认实现是返回比当前页面更大的编号。addPage方法添加页面后会返回页面编号，此编号默认是按添加的顺序递增的。例如，第一个页面的编号是0，第二个页面的编号是1……如果调用setPage方法来添加页面，则可以自定义页面编号。然后重写nextId方法，返回下一个页面的编号。QWizard 和QWizardPage类都可以重写 nextId 方法。本示例将重写 QWizardPage类的 nextId方法，实现在单击“Next”按钮后跳过“输入注册码”页面。</p>
+
+      <p class="content-text">示例的实现步骤如下。</p>
+
+      <p class="content-text">定义3个变量，代表3个页面的编号。</p>
+
+      <div class="code-block">PAGE_1 = 0
+PAGE_2 = 1
+PAGE_3 = 2</div>
+
+      <p class="content-text">定义Page1类，实现“欢迎”页面。</p>
+
+      <div class="code-block">class Page1(QWizardPage):
+        def __init__(self, parent: QWidget = None):
+                super().__init__(parent)
+                #设置标题
+                self.setTitle(&quot;欢迎&quot;)
+                #组件
+                self.lb = QLabel(&quot;是否填写注册码？&quot;, self)
+                self.rd1 = QRadioButton(&quot;前往下一页填写注册码&quot;, self)
+                self.rd2 = QRadioButton(&quot;跳过填写注册码&quot;, self)
+                self.rd1.setChecked(True)
+                #布局
+                layout = QVBoxLayout()
+                layout.addWidget(self.lb)
+                layout.addWidget(self.rd1)
+                layout.addWidget(self.rd2)
+                layout.addStretch()
+                self.setLayout(layout)
+        def nextId(self) -&gt; int:
+                if self.rd1.isChecked():
+                    return PAGE_2
+                elif self.rd2.isChecked():
+                    return PAGE_3
+                return PAGE_2</div>
+
+      <p class="content-text">该页面包含两个 QRadioButton 组件，将在重写nextId方法时使用。如果第一个QRadioButton 被选择，就返回编号为PAGE_2的页面；如果第二个QRadioButton被选中，就返回编号为PAGE_3的页面(跳过了 PAGE_2)。</p>
+
+      <p class="content-text">定义Page2类，这是第二个页面，用于输入注册码。</p>
+
+      <div class="code-block">class Page2(QWizardPage):
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+        #设置标题
+        self.setTitle(&quot;填写注册码&quot;)
+        #组件
+        edtName = QLineEdit(self)
+        edtRegCode = QLineEdit(self)
+        #布局
+        layout = QFormLayout()
+        layout.addRow(&quot;用户:&quot;,edtName)
+        layout.addRow(&quot;注册码：&quot;,edtRegCode)
+        self.setLayout(layout)
+
+    def nextId(self) -&gt; int:
+        return PAGE_3</div>
+
+      <p class="content-text">重写nextId方法，直接返回第三个页面的编号PAGE3。</p>
+
+      <p class="content-text">定义Page3类，这是第三个页面。</p>
+
+      <div class="code-block">class Page3(QWizardPage):
+        def __init__(self, parent: QWidget = None):
+                super().__init__(parent)
+                #设置标题
+                self.setTitle(&quot;完成&quot;)
+                #组件
+                lb = QLabel(&quot;恭喜你，所有操作已完成。&quot;, self)
+                #布局
+                layout = QVBoxLayout()
+                layout.addWidget(lb)
+                self.setLayout(layout)
+        def nextId(self) -&gt; int:
+                #-1表示当前页是最后一页
+                return -1</div>
+
+      <p class="content-text">重写nextId方法，返回-1，表示没有下一个页面了。</p>
+
+      <p class="content-text">初始化 QWizard 对象。</p>
+
+      <div class="code-block">wizard = QWizard()
+wizard.setWindowTitle(&quot;示例向导&quot;)
+#设置选项，隐藏副标题
+wizard.setOption(QWizard.WizardOption.IgnoreSubTitles, True)</div>
+
+      <p class="content-text">由于本示例中3个页面都未使用副标题，因此可以设置 WizardOption.IgnoreSubTitles选项以忽略副标题。</p>
+
+      <p class="content-text">将3个页面添加到QWizard对象中。由于本示例事先定义了3个页面的编号，所以添加页面时应调用 setPage方法，而不是 addPage方法。</p>
+
+      <div class="code-block">wizard.setPage(PAGE_1, Page1(wizard))
+wizard.setPage(PAGE_2, Page2(wizard))
+wizard.setPage(PAGE_3, Page3(wizard))</div>
+
+      <p class="content-text">显示向导对话框可以用 exec、open方法，也可以调用从 QWidget类继承的 show方法。</p>
+
+      <div class="code-block">wizard.show()</div>
+
+      <p class="content-text">运行示例后，“欢迎”页面有两个选项。若选择“前往下一页填写注册码”，单击Next按钮后，会跳转到“填写注册码”页面，如图13-34所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-34</span><div class="result-box-image"><img src="images/ch13/ch13_fig_20.png" alt="图13-34 跳转到“填写注册码”页面" loading="lazy"><div class="caption">图13-34 跳转到“填写注册码”页面</div></div></div>
+
+      <p class="content-text">若选择的是“跳过填写注册码”，单击Next按钮后，会跳转到“完成”页面，如图13-35所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-35</span><div class="result-box-image"><img src="images/ch13/ch13_fig_21.png" alt="图13-35 直接跳转到“完成”页面" loading="lazy"><div class="caption">图13-35 直接跳转到“完成”页面</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.7.5</span> 示例：共享页面数据</h3>
+
+      <p class="content-text">QWizard类提供 field和 setField方法。field方法用于读取数据，setField方法用于写入数据。数据可以是任何类型，需要指定唯一的字段名称。这些数据可以在各页面之间共享。例如，X页面写入的数据，可以在Y页面读取。QWizardPage类也提供了field和 setField方法，实际上其内部调用了QWizard类的 field 和 setField 方法。</p>
+
+      <p class="content-text">本示例将在QWizard组件中添加两个页面。第一个页面需要在3个文本框中输入内容（公司名称、公司电话和公司主页)，跳转到第二页时，显示在第一页中输入的内容。</p>
+
+      <p class="content-text">具体实现步骤如下。</p>
+
+      <p class="content-text">定义PageA类，派生自QWizardPage，作为向导的第一个页面。</p>
+
+      <div class="code-block">class PageA(QWizardPage):
+        def __init__(self):
+                super().__init__()
+                #设置标题
+                self.setTitle(&quot;A页&quot;)
+                #设置副标题
+                self.setSubTitle(&quot;收集信息&quot;)
+            #布局
+                layout = QFormLayout()
+                #组件
+                edtTel = QLineEdit(self)
+                edtComp = QLineEdit(self)
+                edtSite = QLineEdit(self)
+                layout.addRow(&quot;公司名称：&quot;, edtComp)
+                layout.addRow(&quot;公司电话：&quot;,edtTel)
+                layout.addRow(&quot;公司主页：&quot;,edtSite)
+                self.setLayout(layout)
+                #注册字段
+                self.registerField(&quot;comp_name&quot;, edtComp)
+                self.registerField(&quot;comp_tel&quot;, edtTel)
+                self.registerField(&quot;comp_site&quot;, edtSite)</div>
+
+      <p class="content-text">上述代码的最后调用 registerField方法注册了3个字段名，并且分别与3个 QLineEdit 组件关联。</p>
+
+      <p class="content-text">关联之后QWizard组件会自动将QLineEdit组件中输入的文本保存为共享数据。</p>
+
+      <p class="content-text">实现PageB类，它是向导的第二个页面。</p>
+
+      <div class="code-block">class PageB(QWizardPage):
+    def __init__(self):
+        super().__init__()
+        #设置标题
+        self.setTitle(&quot;B页&quot;)
+        #设置副标题
+        self.setSubTitle(&quot;显示信息&quot;)
+        #组件
+        self.lbInfo = QLabel(self)
+        #布局
+        layout = QVBoxLayout()
+        layout.addWidget(self.lbInfo)
+        self.setLayout(layout)
+        #允许文本换行
+        self.lbInfo.setWordWrap(True)
+
+    def initializePage(self):
+        #获取字段值
+        compName = self.field(&quot;comp_name&quot;)
+        compTel = self.field(&quot;comp_tel&quot;)
+        compSite = self.field(&quot;comp_site&quot;)
+        self.lbInfo.setText(f&quot;公司名称：{compName}\n&quot;+
+            f&quot;公司电话：{compTel}\n&quot;+
+            f&quot;公司主页：{compSite}&quot;)</div>
+
+      <p class="content-text">需要注意的是，调用field方法获取共享数据的代码不能写在__init__方法中（会读不到数据），应当重写QWizardPage类的initializePage方法（页面初始化过程中会调用该方法），并在该方法内进行读取。</p>
+
+      <p class="content-text">初始化 QWizard 组件。</p>
+
+      <div class="code-block">wizard = QWizard()
+wizard.setWindowTitle(&quot;Demo&quot;)
+#向导风格
+wizard.setWizardStyle(QWizard.WizardStyle.ModernStyle)</div>
+
+      <p class="content-text">添加向导页。</p>
+
+      <div class="code-block">wizard.addPage(PageA())
+wizard.addPage(PageB())</div>
+
+      <p class="content-text">显示向导对话框。</p>
+
+      <div class="code-block">wizard.show()</div>
+
+      <p class="content-text">运行示例程序后，在第一个页面上输入文本，如图13-36所示。</p>
+
+      <p class="content-text">单击Next按钮跳转到第二个页面，显示上一个页面中输入的内容，如图13-37所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-36、图 13-37</span><div class="result-box-image"><img src="images/ch13/ch13_fig_22.png" alt="图 13-36 输入内容 图13-37 显示上一个页面中输入的内容" loading="lazy"><div class="caption">图 13-36 输入内容 图13-37 显示上一个页面中输入的内容</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.7.6</span> 向导风格与图标</h3>
+
+      <p class="content-text">WizardStyle枚举为 QWizard 组件定义了以下4种风格。</p>
+
+      <ol class="content-list">
+        <li>ClassicStyle：Windows 传统风格。</li>
+        <li>ModernStyle：Windows 现代风格。</li>
+        <li>AeroStyle：Windows 的 Aero 风格（Windows Vista/7 以上版本）。</li>
+        <li>MacStyle：macOS 风格。</li>
+      </ol>
+
+      <p class="content-text">同时，WizardPixmap枚举定义了QWizard组件的各部位的图标。这些图标是否呈现将受到WizardStyle的影响，不同风格的向导对话框在外观上有所差异。</p>
+
+      <p class="content-text">WizardPixmap枚举的成员如下。</p>
+
+      <ol class="content-list"><li>WatermarkPixmap：显示在页面左侧的图像，在 ClassicStyle 和 ModernStyle风格下可见。</li>
+        <li>BannerPixmap:显示在页面顶部的横幅。仅在 ModernStyle下可见。</li>
+        <li>LogoPixmap：显示在页面右上角的小图标，在 ClassicStyle 和 ModernStyle下可见。</li>
+        <li>BackgroundPixmap：背景图，仅在 MacStyle下可见。</li></ol>
+
+      <p class="content-text">QWizard组件可以调用 setWizardStyle方法设置向导风格，调用 setPixmap方法设置图标。在QWizard组件上设置的图标会应用到所有页面上，如果要为某个页面单独设置图标，可以调用QWizardPage类的 setPixmap 方法。</p>
+
+      <h3 class="subsection-heading"><span>13.7.7</span> 示例：为向导设置图标</h3>
+
+      <p class="content-text">本示例将演示如何为向导对话框设置图标。示例将使用ModernStyle风格，并分别为WatermarkPixmap、LogoPixmap 和 BannerPixmap 设置图标。</p>
+
+      <p class="content-text">自定义一个页面类CustPage，通过构造函数的参数来设置页面的标题、副标题和正文内容。代码如下：</p>
+
+      <div class="code-block">class CustPage(QWizardPage):
+        def __init__(self, title: str, subtitle: str, body: str):
+                super().__init__()
+                #设置标题和副标题
+                self.setTitle(title)
+                self.setSubTitle(subtitle)
+                #标签组件
+                lbtext = QLabel(body, self)
+                lbtext.setWordWrap(True)
+                #布局
+                layout = QGridLayout(self)
+                layout.addWidget(lbtext, 0, 0)</div>
+
+      <p class="content-text">随后初始化QWizard组件，代码如下：</p>
+
+      <div class="code-block">wizard = QWizard()
+wizard.setWindowTitle(&quot;Demo&quot;)
+#设置风格
+wizard.setWizardStyle(QWizard.WizardStyle.ModernStyle)</div>
+
+      <p class="content-text">用CustPage类为向导组件添加两个页面。</p>
+
+      <div class="code-block">wizard.addPage(CustPage(
+        &quot;页面-1&quot;,
+        &quot;欢迎使用本向导&quot;,
+        &quot;本向导会帮助你完成所有设置工作。&quot;
+))
+wizard.addPage(CustPage(
+        &quot;页面-2&quot;,
+        &quot;完成设置&quot;,
+        &quot;恭喜！所有设置已就绪。&quot;
+))</div>
+
+      <p class="content-text">下面的代码为向导设置图标：</p>
+
+      <div class="code-block">#左侧图像
+img = QPixmap(&quot;01.jpg&quot;)
+wizard.setPixmap(
+        QWizard.WizardPixmap.WatermarkPixmap,
+        img.scaled(120, 240)
+)
+#顶部横幅
+img = QPixmap(&quot;02.png&quot;)
+wizard.setPixmap(
+        QWizard.WizardPixmap.BannerPixmap,
+        img.scaled(450, 75)
+)
+#右上角的图标
+logo = QIcon(&quot;03.png&quot;)
+wizard.setPixmap(
+        QWizard.WizardPixmap.LogoPixmap,
+        logo.pixmap(64)
+)</div>
+
+      <p class="content-text">QWizardPage类在呈现页面时并不会自动缩放图标，因此如果图像的尺寸比较大，最好调用scaled方法进行缩放处理。QIcon对象可以用pixmap方法返回指定大小的图像数据，上述代码中的64表示生成64×64大小的图标。</p>
+
+      <p class="content-text">示例的运行效果如图13-38所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-38</span><div class="result-box-image"><img src="images/ch13/ch13_fig_23.png" alt="图 13-38自定义向导的图标" loading="lazy"><div class="caption">图 13-38自定义向导的图标</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.7.8</span> 示例：使用自定义按钮</h3>
+
+      <p class="content-text">QWizard 组件允许添加 3个自定义按钮，由 WizardButton枚举的 3个成员定义，即 CustomButton1、CustomButton2和CustomButton3。应用程序可以为这3个按钮添加自定义的处理代码。自定义按钮被单击后，QWizard 组件会发出 customButtonClicked 信号。信号带有一个整型参数，是 WizardButton枚举的成员值，该值用来区分哪个按钮被单击。</p>
+
+      <p class="content-text">3个自定义按钮不一定要同时启用，可以通过组合WizardOption枚举的成员来控制要启用的按钮。</p>
+
+      <p class="content-text">例如，下面的组合表示启用第一、二个自定义按钮。</p>
+
+      <div class="code-block">WizardOption.HaveCustomButton1 | WizardOption.HaveCustomButton2</div>
+
+      <p class="content-text">本示例将启用全部自定义按钮，具体步骤如下。</p>
+
+      <p class="content-text">定义 createPage函数，用来创建向导页面，返回QWizardPage实例。</p>
+
+      <div class="code-block">def createPage():
+        page = QWizardPage()
+        #设置标题
+        page.setTitle(&quot;示例页&quot;)
+        #设置副标题
+        page.setSubTitle(&quot;这是副标题&quot;)
+        #组件
+        edit = QTextEdit(page)
+        edit.setText(&quot;这是页面内容。&quot;)
+        #设置为只读
+        edit.setReadOnly(True)
+        #布局
+        layout = QHBoxLayout()
+        page.setLayout(layout)
+        layout.addWidget(edit)
+        #返回页面实例
+        return page</div>
+
+      <p class="content-text">实例化 QWizard 组件。</p>
+
+      <div class="code-block">wizard = QWizard()</div>
+
+      <p class="content-text">设置QWizard组件的选项，启用3个自定义按钮。</p>
+
+      <div class="code-block">oldOptions = wizard.options()
+newOptions = oldOptions | QWizard.WizardOption.HaveCustomButton1 | QWizard.WizardOption.HaveCustomButton2 | QWizard.WizardOption.HaveCustomButton3
+wizard.setOptions(newOptions)</div>
+
+      <p class="content-text">先调用 options方法返回QWizard 组件现有的选项值，然后再与HaveCustomButton1、HaveCustomButton2等值进行“或”运算（合并新、旧值），最后调用setOptions方法重新设置选项值。</p>
+
+      <p class="content-text">这样做可以确保现有的选项不会丢失。</p>
+
+      <p class="content-text">添加页面。</p>
+
+      <div class="code-block">wizard.addPage(createPage())</div>
+
+      <p class="content-text">连接 customButtonClicked信号，分析被单击的自定义按钮，并用print函数输出到屏幕。</p>
+
+      <div class="code-block">def buttonClicked(index):
+        if index == QWizard.WizardButton.CustomButton1.value:
+                print(&quot;你单击了第一个自定义按钮&quot;)
+        if index == QWizard.WizardButton.CustomButton2.value:
+                print(&quot;你单击了第二个自定义按钮&quot;)
+        if index == QWizard.WizardButton.CustomButton3.value:
+                print(&quot;你单击了第三个自定义按钮&quot;)
+wizard.customButtonClicked.connect(buttonClicked)</div>
+
+      <p class="content-text">为3个自定义按钮设置显示文本。</p>
+
+      <div class="code-block">wizard.setButtonText(QWizard.WizardButton.CustomButton1,&quot;自定义1&quot;)
+wizard.setButtonText(QWizard.WizardButton.CustomButton2, &quot;自定义2&quot;)
+wizard.setButtonText(QWizard.WizardButton.CustomButton3, &quot;自定义3&quot;)</div>
+
+      <p class="content-text">显示向导对话框。</p>
+
+      <div class="code-block">wizard.show()</div>
+
+      <p class="content-text">示例的运行结果如图13-39所示。依次单击3个自定义按钮，控制台窗口会输出相关文本。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-39</span><div class="result-box-image"><img src="images/ch13/ch13_fig_24.png" alt="图 13-39 自定义按钮" loading="lazy"><div class="caption">图 13-39 自定义按钮</div></div></div>
+
+      <div class="section-heading" id="section-7"><span class="section-number">13.8</span><h2>无按钮对话框</h2></div>
+
+      <p class="content-text">许多常用对话框组件（如 QFontDialog）都包含一个NoButtons选项，启用该选项后，对话框不会显示如Ok、Cancel等控制按钮。按钮隐藏后，用户不需要单击按钮来接受或拒绝对话框结果，关闭对话框后，所做的修改将自动生效。</p>
+
+      <p class="content-text">控制按钮隐藏后，不再需要连接 colorSelected、fontSelected等信号来获取数据了，而是连接currentColorChanged、currentFontChanged、doubleValueChanged等信号，实时获取最新数据。</p>
+
+      <p class="content-text">接下来以QFontDialog和QColorDialog为例进行演示：单击“字体”按钮打开字体对话框，只要在对话框中修改了相关参数，主窗口中的文本会立刻更新其字体；同理，当单击“颜色”按钮打开颜色对话框后，只要在对话框中修改颜色，主窗口上的文本颜色也会实时更新。</p>
+
+      <p class="content-text">示例的大致步骤如下。</p>
+
+      <p class="content-text">定义CustWindow类，从QWidget类派生，作为程序的主窗口。</p>
+
+      <div class="code-block">class CustWindow(QWidget):
+        ......</div>
+
+      <p class="content-text">实现initUi方法，负责实例化要用到的可视化组件。</p>
+
+      <div class="code-block">def initUi(self):
+        #标签组件
+        self._lb = QLabel(&quot;诚实守信&quot;, self)
+        #文本居中
+        self._lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #设置字体大小
+        theFont = self._lb.font()
+        theFont.setPixelSize(36)
+        self._lb.setFont(theFont)
+        #两个按钮组件
+        self._btnFont = QPushButton(&quot;字体...&quot;, self)
+        self._btnColor = QPushButton(&quot;颜色...&quot;, self)
+        #根布局
+        self._rootLayout = QVBoxLayout()
+        #按钮布局
+        self._btnLayout = QHBoxLayout()
+        self._rootLayout.addWidget(self._lb, 1)
+        self._btnLayout.addWidget(self._btnFont)
+        self._btnLayout.addWidget(self._btnColor)
+        self._rootLayout.addLayout(self._btnLayout, 0)
+        self.setLayout(self._rootLayout)
+        #对话框
+        self._fontDialog = QFontDialog(self)
+        self._colorDialog = QColorDialog(self)</div>
+
+      <p class="content-text">两个按钮组件的功能是打开QFontDialog和QColorDialog对话框。标签组件的文本字体和文本本颜色将通过相应的对话框实时更新。</p>
+
+      <p class="content-text">在 init 方法中调用initUi方法，然后设置对话框选项，隐藏控制按钮。</p>
+
+      <div class="code-block">def __init__(self):
+        super().__init__()
+        #初始化UI组件
+        self.initUi()
+        #对话框隐藏按钮
+        self._fontDialog.setOption(
+                QFontDialog.FontDialogOption.NoButtons, True
+        )
+        self._colorDialog.setOption(
+                QColorDialog.ColorDialogOption.NoButtons, True
+        )
+......</div>
+
+      <p class="content-text">连接按钮的 clicked信号，打开相应的对话框。</p>
+
+      <div class="code-block">#连接两个按钮的clicked信号
+self._btnFont.clicked.connect(self.onFontBtnClicked)
+self._btnColor.clicked.connect(self.onColorBtnClicked)
+......
+def onFontBtnClicked(self):
+        self._fontDialog.open()
+def onColorBtnClicked(self):
+        self._colorDialog.open()</div>
+
+      <p class="content-text">连接 QFontDialog 组件的 currentFontChanged 信号，实时修改标签组件的字体。</p>
+
+      <div class="code-block">self._fontDialog.currentFontChanged.connect(self.onFontChanged)
+def onFontChanged(self, font: QFont):
+        self._lb.setFont(font)</div>
+
+      <p class="content-text">连接 QColorDialog 组件的 currentColorChanged 信号，实时改变标签文本的颜色。</p>
+
+      <div class="code-block">self._colorDialog.currentColorChanged.connect(self.onColorChanged)
+def onColorChanged(self, color: QColor):
+        #获取当前调色板
+        palette = self._lb.palette()
+        #修改颜色
+        palette.setColor(QPalette.ColorRole.WindowText, color)
+        #重新设置调色板
+        self._lb.setPalette(palette)</div>
+
+      <p class="content-text">实例化并显示 CustWindow 窗口。</p>
+
+      <div class="code-block">window = CustWindow()
+#设置窗口大小
+window.resize(285, 210)
+#显示窗口
+window.show()</div>
+
+      <p class="content-text">运行示例程序，单击“颜色”按钮，打开颜色对话框。此时，只要改变选定的颜色，标签组件的文本会自动改变颜色，如图13-40所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-40</span><div class="result-box-image"><img src="images/ch13/ch13_fig_25.png" alt="图 13-40 文本颜色同步更新" loading="lazy"><div class="caption">图 13-40 文本颜色同步更新</div></div></div>
+
+      <p class="content-text">确定需要的颜色后，直接关闭对话框即可。</p>
+
+      <div class="section-heading" id="section-8"><span class="section-number">13.9</span><h2>QMessageBox</h2></div>
+
+      <p class="content-text">QMessageBox组件的功能是向用户展示消息框，主要作用是发出通知。与QDialogButtonBox类相似，QMessageBox类也定义了代表按钮角色的 ButtonRole枚举，以及代表标准按钮的 StandardButton枚举。</p>
+
+      <h3 class="subsection-heading"><span>13.9.1</span> 示例：使用标准按钮</h3>
+
+      <p class="content-text">当在 QMessageBox 类中使用标准按钮（使用 StandardButton 枚举添加的按钮）后，exec 方法返回StandardButton中的某个值，以表示被单击的按钮。</p>
+
+      <p class="content-text">本示例将在窗口中创建一个按钮组件，单击后弹出QMessageBox对话框。对话框关闭后在标签组件中显示被单击的按钮。实现步骤如下。</p>
+
+      <p class="content-text">以QWidget对象为主窗口，使用垂直布局。</p>
+
+      <div class="code-block">window = QWidget()
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)</div>
+
+      <p class="content-text">添加按钮和标签组件。</p>
+
+      <div class="code-block">#按钮
+button = QPushButton(&quot;显示消息&quot;)
+layout.addWidget(button)
+#标签
+label = QLabel()
+layout.addWidget(label)</div>
+
+      <p class="content-text">初始化 QMessageBox 组件。</p>
+
+      <div class="code-block">msgBox = QMessageBox()
+#消息主文本
+msgBox.setText(&quot;你确定要退出程序？&quot;)
+#附加文本
+msgBox.setInformativeText(&quot;退出程序后，所有数据将丢失&quot;)
+#设置标准按钮
+msgBox.setStandardButtons(
+        QMessageBox.StandardButton.Yes |
+        QMessageBox.StandardButton.No
+)</div>
+
+      <p class="content-text">本示例的消息对话框将显示Yes（是）和No（否）按钮。</p>
+
+      <p class="content-text">setText方法设置对话框的主要消息文本，一般采用简短明了的文字，便于用户迅速阅读；setInformativeText方法设置补充文本，用于解释主要消息文本，以帮助用户做出选择。</p>
+
+      <p class="content-text">连接按钮的clicked信号，调用exec方法显示消息对话框。对话框关闭后显示被单击的按钮。</p>
+
+      <div class="code-block">def onclicked():
+        result = msgBox.exec()
+        #判断用户单击了哪个按钮
+        if result == QMessageBox.StandardButton.Yes:
+                label.setText(&quot;你单击了【Yes】按钮&quot;)
+        if result == QMessageBox.StandardButton.No:
+                label.setText(&quot;你单击了【No】按钮&quot;)
+button.clicked.connect(onclicked)</div>
+
+      <p class="content-text">显示程序窗口。</p>
+
+      <div class="code-block">window.show()</div>
+
+      <p class="content-text">运行示例程序，单击窗口上的“显示消息”按钮，打开如图13-41所示的消息框。</p>
+
+      <p class="content-text">单击对话框中的Yes（是）按钮，回到程序窗口，标签组件显示的文本如图13-42所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-41、图 13-42</span><div class="result-box-image"><img src="images/ch13/ch13_fig_26.png" alt="图 13-41消息对话框 图13-42 显示消息框中被单击的按钮" loading="lazy"><div class="caption">图 13-41消息对话框 图13-42 显示消息框中被单击的按钮</div></div></div>
+
+      <h3 class="subsection-heading"><span>13.9.2</span> 示例：使用标准图标</h3>
+
+      <p class="content-text">QMessageBox.Icon枚举定义了几种标准的图标。</p>
+
+      <ol class="content-list"><li>NoIcon：不显示图标。</li>
+        <li>Information：普通消息。</li>
+        <li>Warning:警告消息，一般用于发生错误但不严重的情况。</li>
+        <li>Question：询问消息，需要用户做出选择，如“是否要保存文件？”。</li>
+        <li>Critical：级别比较严重的错误，会导致程序无法继续运行。</li></ol>
+
+      <p class="content-text">QMessageBox组件调用 setIcon 方法可以设置标准图标。如果希望使用自定义的图标，可以调用setIconPixmap 方法并提供 QPixmap 对象。</p>
+
+      <p class="content-text">本示例将创建4个按钮，对应Information、Question、Warning和Critical图标。单击按钮后，会使用对应的标准图标弹出 QMessageBox对话框。核心代码如下：</p>
+
+      <div class="code-block">btnInfo = QPushButton(&quot;普通消息&quot;, window)
+btnWarn = QPushButton(&quot;警告消息&quot;, window)
+btnQuest = QPushButton(&quot;询问消息&quot;, window)
+btnCriti = QPushButton(&quot;错误消息&quot;, window)
+......
+msgBox = QMessageBox(window)
+#连接按钮的 clicked 信号
+def onInfoBtnClicked():
+                #设置消息文本
+                msgBox.setText(&quot;这是一般的消息&quot;)
+                #设置标准按钮
+                msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+                #设置图标
+                msgBox.setIcon(QMessageBox.Icon.Information)
+                #显示对话框
+                msgBox.exec()
+btnInfo.clicked.connect(onInfoBtnClicked)
+
+def onQuestBtnClicked():
+                #设置消息文本
+                msgBox.setText(&quot;这是一条询问消息&quot;)
+                #设置图标
+                msgBox.setIcon(QMessageBox.Icon.Question)
+                #设置标准按钮
+                msgBox.setStandardButtons(
+                        QMessageBox.StandardButton.Yes |
+                        QMessageBox.StandardButton.No
+                )
+                #显示对话框
+                msgBox.exec()
+btnQuest.clicked.connect(onQuestBtnClicked)
+
+def onWarnBtnClicked():
+                #设置消息文本
+                msgBox.setText(&quot;这是一个警告消息&quot;)
+                #设置图标
+                msgBox.setIcon(QMessageBox.Icon.Warning)
+                #设置标准按钮
+                msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+                #显示对话框
+                msgBox.exec()
+btnWarn.clicked.connect(onWarnBtnClicked)
+
+def onCriticalBtnClicked():
+                #设置消息文本
+                msgBox.setText(&quot;这是一条错误消息&quot;)
+                #设置图标
+                msgBox.setIcon(QMessageBox.Icon.Critical)
+                #设置标准按钮
+                msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+                #显示对话框
+                msgBox.exec()
+btnCriti.clicked.connect(onCriticalBtnClicked)</div>
+
+      <p class="content-text">运行示例代码，然后分别单击窗口上的4个按钮，就能看到各图标的外观了，具体可参考表13-2。</p>
+
+      <div class="table-scroll" role="region" aria-label="表 13-2，可横向滚动">
+      <table class="content-table">
+        <caption>表 13-2 消息框的标准图标</caption>
+        <thead><tr><th>图标</th><th>示例消息</th><th>示例按钮</th></tr></thead>
+        <tbody>
+          <tr><td>Information</td><td>这是一般的消息</td><td>OK</td></tr>
+          <tr><td>Question</td><td>这是一条询问消息</td><td>Yes / No</td></tr>
+          <tr><td>Warning</td><td>这是一个警告消息</td><td>OK</td></tr>
+          <tr><td>Critical</td><td>这是一条错误消息</td><td>OK</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3 class="subsection-heading"><span>13.9.3</span> 静态成员</h3>
+
+      <p class="content-text">QMessageBox类主要用于向用户呈现消息，如果每次使用都要实例化QMessageBox类，会非常不方便。因此，QMessageBox类提供了一组静态方法，在需要弹出消息对话框时可直接调用。</p>
+
+      <p class="content-text">information方法。显示常规的消息，该方法有两个重载。</p>
+
+      <div class="code-block">@staticmethod
+def information(
+            parent: QWidget,
+                title: str,
+                text: str,
+                button0: QMessageBox.StandardButton,
+                button1: QMessageBox.StandardButton = ...)
+        -&gt; QMessageBox.StandardButton
+@staticmethod
+def information(
+                parent: QWidget,
+                title: str,
+                text: str,
+                buttons: QMessageBox.StandardButton = ...,
+                defaultButton: QMessageBox.StandardButton = ...)
+        -&gt; QMessageBox.StandardButton</div>
+
+      <p class="content-text">parent参数指定对话框的父窗口。title参数指定对话框的标题，text参数指定消息内容。button0、button1参数指定对话框中的第一、第二按钮（对话框只显示两个按钮)。buttons参数可以通过或运算指定多个标准按钮。defaultButton参数指定一个标准按钮，当用户按下【Enter】键时会自动触发（如果为NoButton，则由 QMessageBox类自动选择默认按钮)。</p>
+
+      <p class="content-text">question方法。显示询问消息框，带有问号图标。它的两个重载如下：</p>
+
+      <div class="code-block">@staticmethod
+def question(
+                parent: QWidget,
+                title: str,
+                text: str,
+                button0: QMessageBox.StandardButton,
+                button1: QMessageBox.StandardButton)
+        -&gt; int
+@staticmethod
+def question(
+                parent: QWidget,
+                title: str,
+                text: str,
+                buttons: QMessageBox.StandardButton = ...,
+                defaultButton: QMessageBox.StandardButton = ...)
+        -&gt; QMessageBox.StandardButton</div>
+
+      <p class="content-text">各参数的含义与information方法一致。</p>
+
+      <p class="content-text">warning方法。弹出警告消息，呈现感叹号图标。该方法也有两个重载。</p>
+
+      <div class="code-block">@staticmethod
+def warning(
+                parent: QWidget,
+                title: str,
+                text: str,
+                button0: QMessageBox.StandardButton,
+                button1: QMessageBox.StandardButton)
+        -&gt; int
+@staticmethod
+def warning(
+                parent: QWidget,
+                title: str,
+                text: str,
+                buttons: QMessageBox.StandardButton = ...,
+                defaultButton: QMessageBox.StandardButton =...)
+        -&gt; QMessageBox.StandardButton</div>
+
+      <p class="content-text">各参数的含义也与information方法相同。</p>
+
+      <p class="content-text">critical。显示错误消息，该方法也有两个重载。</p>
+
+      <div class="code-block">@staticmethod
+def critical(
+                parent: QWidget,
+                title: str,
+                text: str,
+                button0: QMessageBox.StandardButton,
+                button1: QMessageBox.StandardButton)
+        -&gt; int
+@staticmethod
+def critical(
+                parent: QWidget,
+                title: str,
+                text: str,
+                buttons: QMessageBox.StandardButton = ...,
+                defaultButton: QMessageBox.StandardButton = ...)
+        -&gt; QMessageBox.StandardButton</div>
+
+      <p class="content-text">各参数的含义与information方法相同。</p>
+
+      <h3 class="subsection-heading"><span>13.9.4</span> 示例：使用静态方法</h3>
+
+      <p class="content-text">本示例将演示使用 question静态方法来打开消息对话框。程序窗口为QMainWindow类，包含菜单栏。菜单栏中添加了“应用程序”菜单，“应用程序”菜单下包含“退出”命令。具体的代码如下：</p>
+
+      <div class="code-block">#窗口
+mainWindow = QMainWindow()
+mainWindow.setWindowTitle(&quot;Demo&quot;)
+mainWindow.resize(300, 260)
+#添加菜单栏
+menuBar = mainWindow.menuBar()
+#添加菜单
+menu = menuBar.addMenu(&quot;应用程序&quot;)
+#添加菜单项
+exitAction = menu.addAction(&quot;退出&quot;)</div>
+
+      <p class="content-text">连接 exitAction的 triggered信号，在“退出”命令触发时询问用户是否退出应用程序。</p>
+
+      <div class="code-block">def onTriggered():
+    # 询问用户是否退出
+    result = QMessageBox.question(
+        mainWindow,
+        &quot;退出程序&quot;,
+        &quot;确定要退出应用程序吗？&quot;,
+        QMessageBox.StandardButton.Yes,
+        QMessageBox.StandardButton.No
+    )
+    # 如果是 Yes，就退出当前程序
+    if result == QMessageBox.StandardButton.Yes:
+        QApplication.quit()
+
+# 连接信号
+exitAction.triggered.connect(onTriggered)</div>
+
+      <p class="content-text">消息对话框显示 Yes和 No 按钮，如果用户单击了 Yes 按钮，就调用 QApplication 类的 quit方法退出程序。quit方法是静态成员，可以直接调用。</p>
+
+      <p class="content-text">示例代码执行后，依次执行“应用程序”→“退出”，就会弹出消息框询问是否要退出，如图13-43所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 13-43</span><div class="result-box-image"><img src="images/ch13/ch13_fig_27.png" alt="图 13-43 询问是否退出应用程序" loading="lazy"><div class="caption">图 13-43 询问是否退出应用程序</div></div></div>
+
+      <div class="page-nav"><a href="ch12.html"><span>&larr;</span><span><div class="nav-label">上一章</div><div class="nav-title">第 12 章 交互组件</div></span></a><a href="ch14.html"><span><div class="nav-label">下一章 &rarr;</div><div class="nav-title">第 14 章 列表模型与视图</div></span></a></div>
+    </main>
+  </div>
+  <footer class="footer">周家安的 PySide6 基础教程 — 本地学习页面</footer>
+  <script src="js/sidebar.js"></script>
+  <script>buildSidebar("ch13");</script>
+</body>
+</html>

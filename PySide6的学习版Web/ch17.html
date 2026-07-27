@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 17 章 Qt 样式表 - PySide6 教程</title>
+  <link rel="stylesheet" href="../opencv/css/style.css?v=20260422">
+  <style>
+    .figure-box img { max-width: 100%; height: auto; }
+    .subsection-heading { margin: 30px 0 14px; color: #243b53; font-size: 1.28rem; }
+    .subsection-heading span { color: #1976d2; margin-right: 4px; }
+    .code-block { white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }
+  </style>
+<link href="css/tutorial-reading.css?v=20260727" rel="stylesheet"/>
+</head>
+<body class="tutorial-reading-page chapter-17">
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <a href="index.html" class="logo"><span class="logo-icon">&#128218;</span>PySide6 教程</a>
+    <div class="header-right">
+      <a href="../index.html">工作台首页</a>
+      <a href="../opencv/index.html">OpenCV 教程</a>
+    </div>
+  </header>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">章节目录</div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main-content">
+      <span class="chapter-badge">第 17 章</span>
+      <h1 class="chapter-title">Qt 样式表</h1>
+      <div class="chapter-meta">本章共 7 个小节 &middot; PySide6 Basic Tutorial</div>
+
+      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>Qt 样式表格式</li><li>盒子模型</li><li>颜色与渐变画刷</li><li>字体</li><li>伪状态与子控件</li></ol></div>
+
+      <div class="section-heading" id="section-0"><span class="section-number">17.1</span><h2>Qt 样式表概述</h2></div>
+
+      <p class="content-text">Qt样式表（Qt Style Sheets，QSS）可以快速、方便地自定义可视化组件的外观，不需要从现有组件派生，也不需要重写 QStyle类。从本质上看，QSS 是普通文本，与HTML 中的 CSS（Cascading StyleSheets，译为“级联样式表”或“层叠样式表”）相似，语法上也很接近。</p>
+
+      <p class="content-text">QSS具有继承性和覆盖性。例如，在应用程序级别设置的样式表会被应用到当前进程的所有可视化组件上。若某个窗口设置了自己的样式表，那么它就会覆盖应用程序级别的样式表，同时该窗口内的组件会继承窗口所设置的样式表。</p>
+
+      <p class="content-text">举个例子，下面的样式表将设置按钮的背景色为粉红色，复选框的文本为蓝色，效果如图17-1所示。</p>
+
+      <div class="code-block">QPushButton {
+    background-color: pink;
+}
+QCheckBox {
+    color: blue;
+}</div>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-1</span><div class="result-box-image"><img src="images/ch17/ch17_fig_01.png" alt="图 17-1简单的 QSS 演示" loading="lazy"><div class="caption">图 17-1简单的 QSS 演示</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.1.1</span> 基本格式</h3>
+
+      <p class="content-text">QSS与HTML CSS的语法接近，由选择器和规则声明代码组成。选择器用来指明该样式是“给谁用的”，即应用到哪些对象上，例如：</p>
+
+      <div class="code-block">QFrame {
+    ...
+}</div>
+
+      <p class="content-text">上述样式表指定此样式将应用到QFrame对象上。如果样式表要应用到多个对象上，可以用逗号分隔多个值，例如：</p>
+
+      <div class="code-block">QPushButton, QSpinBox, QRadioButton {
+    ...
+}</div>
+
+      <p class="content-text">上述样式表会同时应用到QPushButton、QSpinBox 和 QRadioButton类型的组件上。如果要让同类型的实例应用不同的样式，可以添加属性过滤，例如：</p>
+
+      <div class="code-block">QPushButton[type=&quot;1&quot;] {
+    ...
+}
+QPushButton[type=&quot;2&quot;] {
+    ...
+}</div>
+
+      <p class="content-text">尽管两个样式都是为 QPushButton 组件准备的，但只有具备属性 type 且值为 1 的按钮才会应用第一个样式；同理，第二个样式要求按钮对象具备值为2的type属性。用下面代码实例化的QPushButton组件就会应用第二个样式。</p>
+
+      <div class="code-block">button = QPushButton(&quot;按钮&quot;, parent)
+button.setProperty(&quot;type&quot;, 2)</div>
+
+      <p class="content-text">setProperty 方法用于向 QObject 对象添加动态属性，QPushButton 是 QObject 的子类，也继承了setProperty 方法。需要注意的是，虽然 Python 也是动态语言，允许直接使用动态属性，但基于 Python的动态属性对 QSS 是无效的。而 setProperty 方法所设置的动态属性是符合 Qt 内部机制的，因此对 QSS是有效的。</p>
+
+      <p class="content-text">如果希望将样式应用于所有可视化对象，可以使用通配符（*，即星号），例如：</p>
+
+      <div class="code-block">* {
+    ...
+}</div>
+
+      <p class="content-text">选择器后面是一对大括号，大括号内部就是样式规则，每条规则都以分号（;）结束。一条样式规则由属性和值构成，两者之间用冒号（:）隔开。因此，完整的QSS样式表格式如下：</p>
+
+      <div class="code-block">&lt;选择器&gt; {
+    background-color: red;
+    padding: 5px 15px;
+    ...
+}</div>
+
+      <p class="content-text">其中，background-color 和 padding 是样式属性，red 是 background-color 属性的值。</p>
+
+      <p class="content-text">被选择的对象也可以存在父/子关系。假设某个QWidget实例表示顶层窗口，窗口中包含3个QFrame对象，那么如果要为这3个QFrame对象统一设置背景色，选择器可以这样写：</p>
+
+      <div class="code-block">QWidget &gt; QFrame {
+    background-color: black;
+}</div>
+
+      <p class="content-text">不过，上述选择器要求QFrame必须是QWidget的直接子级，否则无效。若要将样式应用于间接子级，选择器应当用空格来连接，而不是“&gt;”。例如：</p>
+
+      <div class="code-block">QWidget QFrame {
+    ...
+}</div>
+
+      <h3 class="subsection-heading"><span>17.1.2</span> 示例：如何设置样式表</h3>
+
+      <p class="content-text">不管是 QApplication类还是 QWidget类，都公开了setStyleSheet方法，用于设置 Qt 样式表。该方法仅接收字符串类型的参数，可以直接传递 QSS 文本。若调用的是 QApplication 对象的 setStyleSheet方法，那么所设置的样式表将在整个应用程序范围内有效；若在某个QWidget（QWidget的派生类）对象上调用setStyleSheet方法，那么所设置的样式仅对该 QWidget 对象以及它的子对象有效，对其他QWidget 对象无效。</p>
+
+      <p class="content-text">本示例将演示在 QWidget 的派生类MyWindow的__init_方法中调用 setStyleSheet方法为此窗口中的 QRadioButton、QCheckBox、QPushButton、QGroupBox、QLCDNumber组件设置样式。</p>
+
+      <p class="content-text">MyWindow窗口中各组件的布局请参考下面的代码。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+        def __init__(self):
+                super().__init__()
+                #布局
+                layout = QGridLayout()
+                self.setLayout(layout)
+                #组合框1
+                g1 = QGroupBox(&quot;单选项&quot;, self)
+                #组合框1中的内容
+                _g1Layout = QVBoxLayout()
+                g1.setLayout(_glLayout)
+                #单选按钮
+                rdbtn1 = QRadioButton(&quot;Task-A&quot;, g1)
+                rdbtn2 = QRadioButton(&quot;Task-B&quot;, g1)
+                rdbtn3 = QRadioButton(&quot;Task-C&quot;, g1)
+                _g1Layout.addWidget(rdbtn1)
+                _g1Layout.addWidget(rdbtn2)
+                _g1Layout.addWidget(rdbtn3)
+                #组合框2
+                g2 = QGroupBox(&quot;复选项&quot;, self)
+                #组合框2的内容
+                _g2Layout = QVBoxLayout()
+                g2.setLayout(_g2Layout)
+                #复选按钮
+                ckbtn1 = QCheckBox(&quot;Line 1&quot;, g2)
+                ckbtn2 = QCheckBox(&quot;Line 2&quot;, g2)
+                ckbtn3 = QCheckBox(&quot;Line 3&quot;, g2)
+                _g2Layout.addWidget(ckbtn1)
+                _g2Layout.addWidget(ckbtn2)
+                _g2Layout.addWidget(ckbtn3)
+                #布局上面两个组合框
+                layout.addWidget(g1, 0, 0)
+                layout.addWidget(g2, 0, 1)
+                #模拟LCD数字组件
+                lcd = QLCDNumber(self)
+                1cd.display(1234)
+                layout.addWidget(lcd, 1, 0)
+                #两个按钮
+                pushbtn1 = QPushButton(&quot;OK&quot;, self)
+                pushbtn2 = QPushButton(&quot;Cancel&quot;, self)
+                _btnLayoùt = QHBoxLayout()
+                _btnLayout.addWidget(pushbtnl)
+                _btnLayout.addWidget(pushbtn2)
+                #将按钮添加到布局中
+                layout.addLayout(_btnLayout, 1, 1)</div>
+
+      <p class="content-text">下面是QSS（样式表）内容。</p>
+
+      <div class="code-block">self.setStyleSheet(&quot;&quot;&quot;
+QCheckBox, QRadioButton {
+    color: #f77d95;
+}
+QPushButton {
+    color: white;
+    background: green;
+}
+QGroupBox {
+    border-color: blue;
+    border-width: 3px;
+    border-style: dotted;
+}
+QLCDNumber {
+    color: purple;
+}
+&quot;&quot;&quot;)</div>
+
+      <p class="content-text">上述样式将实现：</p>
+
+      <ol class="content-list" start="1"><li>QRadioButton 和 QCheckBox 组件使用相同的文本颜色。</li></ol>
+
+      <ol class="content-list" start="2"><li>按钮（QPushButton）组件的背景色为绿色，文本颜色为白色。</li></ol>
+
+      <ol class="content-list" start="3"><li>组合框（QGroupBox）的边框为蓝色点状线条，宽度为3像素。</li></ol>
+
+      <ol class="content-list" start="4"><li>QLCDNumber 组件的文本颜色为紫色。</li></ol>
+
+      <p class="content-text">示例的运行效果如图17-2所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-2</span><div class="result-box-image"><img src="images/ch17/ch17_fig_02.png" alt="图17-2 应用样式表后的窗口组件" loading="lazy"><div class="caption">图17-2 应用样式表后的窗口组件</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.1.3</span> 示例：样式的继承和覆盖</h3>
+
+      <p class="content-text">本示例将演示样式表之间的继承和覆盖关系。自定义类DemoWindow派生自QWidget类，作为程序主窗口，并且在该窗口上设置面向QLabel组件的样式表。窗口中创建了4个QLabel组件，这些组件会继承窗口上所设置的样式，但第四个 QLabel 组件调用 setStyleSheet方法单独设置了新样式，它会覆盖窗口上设置的样式。</p>
+
+      <p class="content-text">具体代码如下：</p>
+
+      <div class="code-block">class DemoWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        # 设置窗口级别的样式
+        self.setStyleSheet("""
+            QLabel {
+                color: blue;
+            }
+        """)
+        # 4 个 QLabel 组件
+        lb1 = QLabel("文本一", self)
+        lb2 = QLabel("文本二", self)
+        lb3 = QLabel("文本三", self)
+        lb4 = QLabel("文本四", self)
+        # 最后一个单独设置样式
+        lb4.setStyleSheet("color: green")
+        # 设置 4 个 QLabel 组件的位置
+        lb1.move(25, 15)
+        lb2.move(25, 40)
+        lb3.move(25, 65)
+        lb4.move(25, 90)</div>
+
+      <p class="content-text">窗口级别的样式定义了QLabel组件的文本将呈现为蓝色，lb1、lb2、lb3都会继承此样式。而lb4设置了独立的样式，让文本呈现为绿色，效果如图17-3所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-3</span><div class="result-box-image"><img src="images/ch17/ch17_fig_03.png" alt="图 17-3 第四个 QLabel 组件将覆盖父窗口的样式" loading="lazy"><div class="caption">图 17-3 第四个 QLabel 组件将覆盖父窗口的样式</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.1.4</span> 示例：从文件加载 QSS</h3>
+
+      <p class="content-text">本示例将演示从文件读取Qt样式表并应用到窗口上。将样式表写到一个独立的文件中，可以方便修改，不需要修改应用程序代码。</p>
+
+      <p class="content-text">新建一个文件，文件名可以随意。为了易于辨别，一般使用.qss扩展名。本示例将文件命名为test.qss。</p>
+
+      <p class="content-text">样式文件实际上是一个文本文件，编码为UTF-8，输入以下内容。</p>
+
+      <div class="code-block">/* 样式1 */
+* {
+    color: #FF00FF;
+}
+/* 样式2 */
+QPushButton {
+    background: SpringGreen;
+}
+/* 样式3 */
+QListWidget::item:hover {
+    background-color: lightyellow;
+}
+QListWidget::item:selected {
+    background-color: red;
+}</div>
+
+      <p class="content-text">样式1的选择器为*，表示它会应用到所有对象上，color属性设置文本的颜色。样式2设置QPushButton 组件的背景颜色。样式 3 将应用于 QListWidget 组件的列表项，伪状态:hover 表示当鼠标指针悬浮于列表项上面时所呈现的背景颜色；:selected表示当列表项被选中后呈现的背景颜色。</p>
+
+      <p class="content-text">在初始化 QWidget对象的代码时，使用QFile和QTextStream类读取样式表文件的内容，然后传递给 setStyleSheet 方法。代码如下：</p>
+
+      <div class="code-block">def __init__(self):
+        super().__init__()
+        #从文件中加载样式表
+        qssFile = QFile(&quot;test.qss&quot;)
+        if qssFile.open(QFile.OpenModeFlag.ReadOnly):
+                #以流的方式读取
+                stream = QTextStream(qssFile)
+                styleText = stream.readAll()
+                #关闭文件
+                qssFile.close()
+                #设置样式表
+                self.setStyleSheet(styleText)</div>
+
+      <p class="content-text">示例窗口应用样式表后如图17-4所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-4</span><div class="result-box-image"><img src="images/ch17/ch17_fig_04.png" alt="图17-4 从文件中加载样式表" loading="lazy"><div class="caption">图17-4 从文件中加载样式表</div></div></div>
+
+      <div class="section-heading" id="section-1"><span class="section-number">17.2</span><h2>盒子模型</h2></div>
+
+      <p class="content-text">可视化组件被一系列矩形包围，而且这些矩形同处于一个中心点上。如图17-5所示，该图来自Qt官方文档。</p>
+
+      <p class="content-text">border 是组件的边框，边框之外的空间是 margin（外边距)，边框内是 padding（内边距)。margin决定当前组件与父容器之间的距离，padding决定了当前组件与内容之间的距离。父容器的padding等于当前组件的 margin，当前组件的 padding等于子级组件的 margin。如图17-6所示，对 A 来说，A 与 B 边距之间的空隙为 padding；对 B 来说，A、B之间的空隙是 margin，B、C之间的空隙为 padding；对 C 来说，B、C之间的空隙是 margin。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-5、图 17-6</span><div class="result-box-image"><img src="images/ch17/ch17_fig_05.png" alt="图 17-5 盒子模型示意图 图 17-6 内外边距的相对关系" loading="lazy"><div class="caption">图 17-5 盒子模型示意图 图 17-6 内外边距的相对关系</div></div></div>
+
+      <p class="content-text">外边距对应的QSS属性为margin，可以用1~4个数值表示。例如：</p>
+
+      <div class="code-block">margin: 15px;
+margin: 10px 30px;
+margin: 12px 22px 32px;
+margin: 8px 12px 10px 13px;</div>
+
+      <p class="content-text">margin属性的值依次是上边距（Top）、右边距（Right）、下边距（Bottom）、左边距（Left)。</p>
+
+      <p class="content-text">如果属性只有一个值，则表示4个方向的边距都相等。如上述例子中的第一行，它代表上、右、下和左边距都是15个像素。</p>
+
+      <p class="content-text">如果属性指定了两个值，表示上、下边距相等，右、左边距相等。如上述例子的第二行，10px30px代表上、下边距都是10像素，左、右边距都是30像素。</p>
+
+      <p class="content-text">如果属性指定了三个值，表示左、右边距相等，上、下边距独立。如上述例子的第三行，上边距为8像素，下边距为13像素，左、右边距都是22像素。</p>
+
+      <p class="content-text">如果属性指定了4个值，则代表上、下、左、右边距相互独立。如上述例子中的第四行，上边距为8像素，右边距为12像素，下边距为10像素，左边距为13像素。</p>
+
+      <p class="content-text">内边距使用padding属性。与margin属性类似，padding属性可以指定1~4个值，例如：</p>
+
+      <div class="code-block">padding: 20px;
+padding: 10px 15px;
+padding: 5px 15px 7px;
+padding: 16px 25px 5px 3px;</div>
+
+      <p class="content-text">上述赋值方式的含义与margin属性相同，此处不再赘述。</p>
+
+      <p class="content-text">margin和padding 属性还可以拆分为以下属性。</p>
+
+      <ol class="content-list" start="1"><li>margin-top/padding-top：设置上边距。</li></ol>
+
+      <ol class="content-list" start="2"><li>margin-right/padding-right：设置右边距。</li></ol>
+
+      <ol class="content-list" start="3"><li>margin-bottom/padding-bottom：设置下边距。</li></ol>
+
+      <ol class="content-list" start="4"><li>margin-left/padding-left：设置左边距。</li></ol>
+
+      <h3 class="subsection-heading"><span>17.2.1</span> 示例：设置按钮的外边距</h3>
+
+      <p class="content-text">本示例将演示为4个按钮组件设置外边距。具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>创建两个 QFrame 实例。</li></ol>
+
+      <div class="code-block">gridLineH = QFrame(self)
+gridLineH.setFrameShape(QFrame.Shape.HLine)
+gridLineH.setMidLineWidth(2)
+gridLineV = QFrame(self)
+gridLineV.setFrameShape(QFrame.Shape.VLine)
+gridLineV.setMidLineWidth(2)</div>
+
+      <p class="content-text">Shape.HLine表示 QFrame组件仅显示一根水平直线，同理，VLine 表示仅显示一根垂直的直线。</p>
+
+      <p class="content-text">setMidLineWidth方法设置水平/垂直线的宽度（粗细）。</p>
+
+      <ol class="content-list" start="2"><li>初始化网格布局对象，并将上述两个QFrame组件添加到布局。</li></ol>
+
+      <div class="code-block">layout = QGridLayout()
+self.setLayout(layout)
+layout.addWidget(gridLineH, 1, 0, 1, 3)
+layout.addWidget(gridLineV, 0, 1, 3, 1)</div>
+
+      <p class="content-text">由于QGridLayout类不能显示网格线，因此用两个 QFrame组件来充当两个网格线。水平网格线位于第二行，跨三列分布；垂直网格线位于第二列，跨三行分布。</p>
+
+      <ol class="content-list" start="3"><li>初始化4个按钮组件，分别放在网格的第一行第一列、第一行第三列、第三行第一列、第三行第三列。</li></ol>
+
+      <div class="code-block">btn1 = QPushButton(&quot;A&quot;, self)
+btn2 = QPushButton(&quot;B&quot;, self)
+btn3 = QPushButton(&quot;C&quot;, self)
+btn4 = QPushButton(&quot;D&quot;, self)
+#设置按钮的大小调整策略
+btn1.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.
+Policy.MinimumExpanding)
+btn2.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.
+Policy.MinimumExpanding)
+btn3.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.
+Policy.MinimumExpanding)
+btn4.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.
+Policy.MinimumExpanding)
+layout.addWidget(btn1, 0, 0)
+layout.addWidget(btn2, 0, 2)
+layout.addWidget(btn3, 2, 0)
+layout.addWidget(btn4, 2, 2)</div>
+
+      <p class="content-text">setSizePolicy 方法用于设置按钮的大小缩放策略，MinimumExpanding 表示让按钮尽可能占用可用空间，只有这样设置才能看到margin、margin-top等属性的应用效果。</p>
+
+      <ol class="content-list" start="4"><li>为上述4个按钮组件设置样式表。</li></ol>
+
+      <div class="code-block">btn1.setStyleSheet(&quot;margin: 25px&quot;)
+btn2.setStyleSheet(&quot;margin: 12px 28px 35px 40px&quot;)
+btn3.setStyleSheet(&quot;margin: 30px 58px&quot;)
+btn4.setStyleSheet(&#x27;..
+        margin-top: 60px;
+        margin-bottom: 30px;
+        margin-lef: 15px;
+        margin-right: 70px;</div>
+
+      <p class="content-text">使用网格线是为了能直观看到设置外边距后的效果，网格线可作为容器边沿的参考线。示例程序的运行结果如图17-7所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-7</span><div class="result-box-image"><img src="images/ch17/ch17_fig_06.png" alt="图 17-7 4 个按钮的外边距" loading="lazy"><div class="caption">图 17-7 4 个按钮的外边距</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.2.2</span> 示例：设置 QListWidget 对象的内边距</h3>
+
+      <p class="content-text">本示例将为列表组件（QListWidget）设置内边距，即组件边框与其内容之间的距离。具体代码如下：</p>
+
+      <div class="code-block">#样式表
+style = '''
+QListWidget {
+    padding-left: 25px;
+    padding-bottom: 37px;
+    padding-right: 15px;
+    padding-top: 43px;
+}
+'''
+#创建应用程序对象
+app = QApplication()
+#设置全局样式表
+app.setStyleSheet(style)
+#实例化组件
+listwg = QListWidget()
+#添加列表项
+listwg.resize(300, 280)
+listwg.addItem(&quot;芒果&quot;)
+listwg.addItem(&quot;葡萄&quot;)
+listwg.addItem(&quot;西瓜&quot;)
+listwg.addItem(&quot;黄桃&quot;)
+listwg.addItem(&quot;柚子&quot;)
+#显示组件
+listwg.show()
+#进入事件循环
+QApplication.exec()</div>
+
+      <p class="content-text">上述代码通过应用程序对象（QApplication实例）的setStyleSheet 方法设置全局样式表，使用了padding-top、padding-left等属性。由于是全局样式，它会应用整个应用程序内的所有QListWidget 对象上（本示例只有一个QListWidget 实例）。</p>
+
+      <p class="content-text">示例的运行结果如图17-8所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-8</span><div class="result-box-image"><img src="images/ch17/ch17_fig_07.png" alt="图 17-8 QListWidget 内边距" loading="lazy"><div class="caption">图 17-8 QListWidget 内边距</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.2.3</span> 边框</h3>
+
+      <p class="content-text">边框是围绕在可视化对象周围的矩形。在样式表中，可以使用border属性设置边框，参数包括线条宽度、线条类型（风格）以及颜色。例如：</p>
+
+      <div class="code-block">border: 2px solid red;
+border: 1px dotted black;
+border: 3px dashed rgb(200, 115, 86);</div>
+
+      <p class="content-text">上述样式中，第一行设定边框宽度为2像素，线型为实线，颜色是红色；第二行设定边框线宽为1像素，线型是点状虚线，颜色是黑色；第三行设置边框宽度为3像素，虚线，颜色通过rgb函数来指定(括号内的3个整数代表R、G、B的值)。</p>
+
+      <p class="content-text">border属性可以分解为以下3个属性（其中，位于“/*”与“*/”内的文本是注释，采用C语言的注释风格，与CSS的规范一致):</p>
+
+      <div class="code-block">border-width: 3px; /*线条宽度*/
+border-style: dashed; /*线条类型*/
+border-color: red; /* 线条颜色 */</div>
+
+      <p class="content-text">border属性可以仅设置特定方向上的边框样式，因此该属性也可以分解为border-top、border-right、border-bottom、border-left属性。例如：</p>
+
+      <div class="code-block">border-top: 2px dotted green;
+border-bottom: 1px solid gray;</div>
+
+      <p class="content-text">上述样式仅设置了上、下边框的样式。上边框宽度为2像素，线型为点状虚线，颜色是绿色；下边框是宽度为1像素，线型为实线，颜色为灰色。</p>
+
+      <p class="content-text">border-top、border-right等属性也可以进一步分解为：</p>
+
+      <div class="code-block">border-top-width: 1px; /*上边框的宽度*/
+border-right-width: 2px; /* 右边框的宽度 */
+border-bottom-width: 2px; /*下边框的宽度*/
+border-left-width: 1px; /* 左边框的宽度 */
+border-top-style: solid; /*上边框的线型 */
+border-right-style: dotted; /*右边框的线型*/
+border-bottom-style: dashed; /*下边框的线型 */
+border-left-style: dashed; /*左边框的线型 */
+border-top-color: blue; /* 上边框的颜色 */
+border-right-color: black; /* 右边框的颜色 */
+border-bottom-color: #CCE562;/*下边框的颜色*/
+border-left-color: white; /*左边框的颜色*/</div>
+
+      <h3 class="subsection-heading"><span>17.2.4</span> 示例：为 QLabel 组件设置边框样式</h3>
+
+      <p class="content-text">本示例将创建4个QLabel实例，并为它们分配唯一的名称（通过 setObjectName方法)。具体的代码如下：</p>
+
+      <div class="code-block">#应用程序窗口
+win = QWidget()
+win.setWindowTitle(&quot;Demo&quot;)
+win.resize(300,270)
+#布局
+layout = QVBoxLayout()
+win.setLayout(layout)
+# 4 个 QLabel 组件
+lb1 = QLabel(&quot;文本1&quot;, win)
+lb2 = QLabel(&quot;文本2&quot;, win)
+lb3 = QLabel(&quot;文本 3&quot;, win)
+lb4 = QLabel(&quot;文本4&quot;, win)
+layout.addWidget(lbl)
+layout.addWidget(lb2)
+layout.addWidget(lb3)
+layout.addWidget(lb4)
+#为 QLabel 组件设置名称
+lb1.setObjectName(&quot;label1&quot;)
+lb2.setObjectName(&quot;label2&quot;)
+lb3.setObjectName(&quot;label3&quot;)
+lb4.setObjectName(&quot;label4&quot;)</div>
+
+      <p class="content-text">由于4个QLabel对象拥有各自的名称，所以在设置样式表时可以使用对象名称选择器，格式如下：</p>
+
+      <div class="code-block">#&lt;对象名称&gt;
+        .....</div>
+
+      <p class="content-text">为4个QLabel组件设置的样式表如下：</p>
+
+      <div class="code-block">styleSheet = '''
+#label1 {
+    border: 1px solid pink;
+}
+#label2 {
+    /* 先将边框设置为 none */
+    border: none;
+    /* 然后单独设置左、右边框 */
+    border-left: 4px solid green;
+    border-right: 4px solid skyblue;
+}
+#label3 {
+    /* 上、下、左、右边框的颜色不同 */
+    border-top-color: gray;
+    border-right-color: green;
+    border-bottom-color: purple;
+    border-left-color: orange;
+    /* 统一设置边框宽度和线型 */
+    border-width: 6px;
+    border-style: dashed;
+    /* 改变上边框的线条类型 */
+    border-top-style: dotted;
+}
+#label4 {
+    /* 左、上边框的线型相同 */
+    border-top-style: dashed;
+    border-left-style: dashed;
+    /* 右、下边框的线型相同 */
+    border-right-style: double;
+    border-bottom-style: double;
+    /* 上、下边框的宽度相同 */
+    border-top-width: 5px;
+    border-bottom-width: 5px;
+    /* 左右边框的宽度相同 */
+    border-left-width: 3px;
+    border-right-width: 3px;
+    /* 左、上边框的颜色相同 */
+    border-top-color: #B8860B;
+    border-left-color: #B8860B;
+    /* 右、下边框的颜色相同 */
+    border-right-color: firebrick;
+    border-bottom-color: firebrick;
+}
+'''
+win.setStyleSheet(styleSheet)</div>
+
+      <p class="content-text">第一个QLabel组件（对象名称为label1）统一设置所有边框的宽度、线型和颜色；第二个QLabel组件（对象名称为label2）先将各边框设置为none，即不显示边框，然后单独为左、右边框设置属性（只显示左、右边框)：第三个QLabel组件（对象名称为label3）上、下、左、右边框的颜色都不相同，接着设置相同的线条宽度和类型，最后单独设置上边框为点状虚线：第四个QLabel组件（对象名称为label4）左、上边框的颜色、线型和宽度相同，右、下边框的颜色、线型和宽度相同。</p>
+
+      <p class="content-text">该示例的运行结果如图17-9所示。</p>
+
+      <h3 class="subsection-heading"><span>17.2.5</span> 圆角边框</h3>
+
+      <p class="content-text">设置圆角边框需要使用border-radius属性。边框的圆角由1/4个圆组成（如图17-10所示），因此该样式属性有两个值—第一个值代表水平方向上的半径长度，第二个值代表垂直方向上的半径长度。如果border-radius属性只设置了一个值，那就表示圆角的水平半径和垂直半径的长度一致。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-9、图 17-10</span><div class="result-box-image"><img src="images/ch17/ch17_fig_08.png" alt="图 17-9 QLabel 组件的自定义边框 图 17-10 边框圆角示意图" loading="lazy"><div class="caption">图 17-9 QLabel 组件的自定义边框 图 17-10 边框圆角示意图</div></div></div>
+
+      <p class="content-text">边框是一个矩形区域，它有4个角，如果将border-radius属性拆分，会产生4个属性。</p>
+
+      <div class="code-block">border-top-left-radius: 5px; /*左上角的半径长度*/
+border-top-right-radius: 3px; /*右上角的半径长度*/
+border-bottom-right-radius:12px; /*右下角的半径长度*/
+border-bottom-left-radius: 6px; /*左下角的半径长度*/</div>
+
+      <h3 class="subsection-heading"><span>17.2.6</span> 示例：带圆角边框的按钮</h3>
+
+      <p class="content-text">本示例将使用 border-radius属性为 QPushButton组件设置圆角边框。样式表如下：</p>
+
+      <div class="code-block">styleSheet = '''
+QPushButton
+{
+    border-radius: 8px 6px;
+    border: 2px solid deeppink;
+    background: lightgray;
+    color: brown;
+}
+'''</div>
+
+      <p class="content-text">border-radius属性设置圆角的水平半径长度为8像素，垂直半径的长度为6像素。border属性设置按钮的边框样式。background属性设置按钮的背景颜色，而color属性则设置按钮上的文本颜色。</p>
+
+      <p class="content-text">应用程序窗口的布局如下面代码所示。</p>
+
+      <div class="code-block">window = QWidget()
+window.resize(250, 60)
+#布局
+layout = QHBoxLayout()
+window.setLayout(layout)
+#3个按钮
+layout.addWidget(QPushButton(&quot;应用&quot;, window))
+layout.addWidget(QPushButton(&quot;取消&quot;, window))
+layout.addWidget(QPushButton(&quot;退出&quot;, window))</div>
+
+      <p class="content-text">以下代码调用 setStyleSheet 方法设置样式表：</p>
+
+      <div class="code-block">window.setStyleSheet(styleSheet)</div>
+
+      <p class="content-text">示例的运行效果如图17-11所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-11</span><div class="result-box-image"><img src="images/ch17/ch17_fig_09.png" alt="图 17-11 带圆角边框的按钮" loading="lazy"><div class="caption">图 17-11 带圆角边框的按钮</div></div></div>
+
+      <div class="section-heading" id="section-2"><span class="section-number">17.3</span><h2>颜色</h2></div>
+
+      <p class="content-text">在Qt样式表中，颜色有以下几种表示方式。</p>
+
+      <ol class="content-list" start="1"><li>直接使用已命名颜色，如blue、green等。</li></ol>
+
+      <ol class="content-list" start="2"><li>rgb或 rgba函数。rgb 函数需要 3个参数——红色（Red)、绿色（Green)、蓝色（Blue)。rgba函数多了一个Alpha值，即透明度。</li></ol>
+
+      <ol class="content-list" start="3"><li>直接使用十六进制的RGB数值，如#25C4AF、#f5062c等。</li></ol>
+
+      <ol class="content-list" start="4"><li>hsv或hsva函数使用HSV色彩空间。其参数由色调（Hue)、饱和度（Saturation）以及明度(Value）组成。hsva函数中多了Alpha值，表示透明度。</li></ol>
+
+      <ol class="content-list" start="5"><li>hsl或hsla函数使用HSL色彩空间。参数由色调（Hue)、饱和度（Saturation）和亮度（Lightness）组成。hsla函数多出一个Alpha值，表示透明度。</li></ol>
+
+      <p class="content-text">R、G、B、A既可以用0~255（包括0和255）的整数值表示，也可以用百分比表示。例如：</p>
+
+      <div class="code-block">background-color: rgba(25%, 50%, 100%, 50%);
+background-color: rgb(127, 245, 105);</div>
+
+      <p class="content-text">H（色调）的值在0~359（包括0和359），它用一个圆环中的角度来区分颜色，如图17-12所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-12</span><div class="result-box-image"><img src="images/ch17/ch17_fig_10.png" alt="图17-12 色相（色调）示意图" loading="lazy"><div class="caption">图17-12 色相（色调）示意图</div></div></div>
+
+      <p class="content-text">其中有3个特殊的角：0°（或359°）表示红色，120°表示绿色，240°表示蓝色。还有3种颜色的交汇处：60°表示黄色，180°表示青色，300°表示品红色。</p>
+
+      <p class="content-text">S（饱和度）、V（明度）和L（亮度）的取值范围都是[0,255]，或者使用百分比。</p>
+
+      <p class="content-text">在HSV（也称HSB）颜色空间中，若V的值为0，无论H、S取何值，颜色都呈现为黑色。如果V的值为100%，S为0，那么颜色将呈现为白色，若S为100%，则颜色的纯度最高。</p>
+
+      <p class="content-text">在HSL颜色空间中，若L的值为0，无论H、S取何值，颜色都呈现为黑色。若L的值为100%，无论H、S取何值，颜色都是白色。L的值在50%时，黑色和白色的比例可以忽略，此时颜色的浓度取决于S。S值越大颜色越鲜艳。</p>
+
+      <p class="content-text">颜色值通常用于如 color（文本颜色）、background-color（背景颜色）、border-color（边框颜色）等样式属性中。</p>
+
+      <h3 class="subsection-heading"><span>17.3.1</span> 示例：设置QLabel组件的文本颜色</h3>
+
+      <p class="content-text">本示例分别为4个 QLabel组件设置文本颜色（使用 color属性），其中用到的颜色表示法有rgb、hsv、hsl和十六进制整数值。</p>
+
+      <p class="content-text">首先创建QWidget实例作为示例程序的窗口，使用的布局类是QVBoxLayout。随后添加4个QLabel组件。代码如下：</p>
+
+      <div class="code-block">#应用程序窗口
+window = QWidget()
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+# QLabel 组件
+lb1 = QLabel(&quot;文本 1&quot;, window)
+lb2 = QLabel(&quot;文本 2&quot;, window)
+lb3 = QLabel(&quot;文本 3&quot;, window)
+lb4 = QLabel(&quot;文本 4&quot;, window)
+#将组件添加到布局
+layout.addWidget(lb1)
+layout.addWidget(lb2)
+layout.addWidget(lb3)
+layout.addWidget(lb4)
+#为组件分配名称
+lb1.setObjectName(&quot;labelA&quot;)
+lb2.setObjectName(&quot;labelB&quot;)
+lb3.setObjectName(&quot;labelC&quot;)
+lb4.setObjectName(&quot;labelD&quot;)</div>
+
+      <p class="content-text">4个组件都是QLabel类，若要统一设置样式，QSS可以使用QLabel作为选择器；若需要独立设置样式，则需要为每个QLabel组件命名，并将对象名称（CSS中是元素ID）作为选择器。</p>
+
+      <p class="content-text">下面的代码将为窗口设置样式表。</p>
+
+      <div class="code-block">styleSheet = '''
+#labelA {
+    color: rgb(0, 200, 240);
+}
+#labelB {
+    color: hsv(30, 100%, 100%);
+}
+#labelC {
+    color: hsl(240, 100%, 25%);
+}
+#labelD {
+    color: #FC05FF;
+}
+'''
+window.setStyleSheet(styleSheet)</div>
+
+      <p class="content-text">其中，labelB 使用了hsv函数，H值为 30°，S和 V均为最大值，此时会呈现出最明亮的橙色；labelC使用了hsl函数，H值为240°代表蓝色，L取值25%表示蓝色中混入部分黑色，使蓝色看起来更深(接近深蓝色，深蓝色的L值为27%)。</p>
+
+      <p class="content-text">示例运行后的效果如图17-13所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-13</span><div class="result-box-image"><img src="images/ch17/ch17_fig_11.png" alt="图 17-13 标签的文本颜色" loading="lazy"><div class="caption">图 17-13 标签的文本颜色</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.3.2</span> 示例：设置 QWidget 的背景颜色</h3>
+
+      <p class="content-text">本示例将演示使用 background-color 属性为 QWidget 组件设置背景颜色。示例窗口使用 QHBoxLayout类进行布局，且添加4个QWidget实例。具体代码如下：</p>
+
+      <div class="code-block">window = QWidget()
+window.resize(300, 250)
+#布局
+layout = QHBoxLayout()
+window.setLayout(layout)
+#实例化 4 个 Qwidget 对象
+wglist = [
+    QWidget(window),
+    QWidget(window),
+    QWidget(window),
+    QWidget(window)
+]
+#添加到布局
+for w in wglist:
+    layout.addWidget(w)</div>
+
+      <p class="content-text">下面的代码分别为4个 QWidget对象分配名称：</p>
+
+      <div class="code-block">for i in range(len(wglist)):
+        wglist[i].setObjectName(f&quot;widget_{i + 1}&quot;)</div>
+
+      <p class="content-text">4个 QWidget 组件的对象名称为 widget_1、widget_2、widget_3 和 widget_4。接下来要为它们设置样式。</p>
+
+      <div class="code-block">style = '''
+#widget_1 {
+    background-color: red;
+}
+#widget_2 {
+    background-color: hsl(120, 100%, 28%);
+}
+#widget_3 {
+    background-color: rgb(255, 255, 10);
+}
+#widget_4 {
+    background-color: #d448c9;
+}
+'''
+window.setStyleSheet(style)</div>
+
+      <p class="content-text">widget_1 直接使用已命名颜色 red。widget_2 使用 hsl函数，圆角 120°代表的是绿色，L 值为 28%表示绿色中混合少量黑色，使其变成深绿色。widget_3使用rgb函数指定R、G、B的值。widget_4使用十六进制值来描述颜色。</p>
+
+      <p class="content-text">示例程序的运行结果如图17-14所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-14</span><div class="result-box-image"><img src="images/ch17/ch17_fig_12.png" alt="图 17-14 设置背景颜色" loading="lazy"><div class="caption">图 17-14 设置背景颜色</div></div></div>
+
+      <div class="section-heading" id="section-3"><span class="section-number">17.4</span><h2>渐变画刷</h2></div>
+
+      <p class="content-text">渐变画刷使用一种或多种颜色绘制（或填充）目标区域，每种颜色之间存在过渡效果。渐变画刷通过色标（Stop，也可译作“停止点”或“渐变点”）来描述颜色参数，每个色标均包括位置和颜色。色标的位置用的是相对值，位于渐变区域的起点处为0，终点处为1。例如，0.5表示起点和终点所在线段的中央。</p>
+
+      <p class="content-text">Qt 样式表通过专门的函数来定义渐变画刷——qlineargradient、qradialgradient 和qconicalgradient。</p>
+
+      <p class="content-text">这些样式函数将映射到 QtGui 模块下的 QLinearGradient、QRadialGradient 和 QConicalGradient 类。</p>
+
+      <h3 class="subsection-heading"><span>17.4.1</span> 线性渐变</h3>
+
+      <p class="content-text">qlineargradient函数定义的是线性画刷。在该渐变模型中，颜色将沿着一条直线分布，渐变方向可能是从上到下，也可能是从左到右、从左上角到右下角等，这取决于起点和终点的坐标。线性渐变的基本结构如图17-15所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-15</span><div class="result-box-image"><img src="images/ch17/ch17_fig_13.png" alt="图17-15线性渐变的基本结构" loading="lazy"><div class="caption">图17-15线性渐变的基本结构</div></div></div>
+
+      <p class="content-text">qlineargradient函数需要提供渐变起点坐标（x1、y1）、终点坐标（x2、y2）以及色标点集合（stop）。</p>
+
+      <p class="content-text">使用格式如下：</p>
+
+      <div class="code-block">        qlineargradient
+            x1: 0.5,
+yl: 0,
+x2: 0.5,
+y2: 1,
+stop: 0 blue, /*第一个色标点*/
+stop: 0.5 red, /*第二个色标点 */
+stop: 1 green /* 第三个色标点 */</div>
+
+      <p class="content-text">上述样式创建的线性渐变画刷的起点是(0.5,0)，终点是(0.5,1)，即渐变方向是从上到下。画刷包含3个色标：位于起点处，蓝色；位于中点处，红色；位于终点处，绿色。</p>
+
+      <h3 class="subsection-heading"><span>17.4.2</span> 示例：使用线性渐变颜色填充背景</h3>
+
+      <p class="content-text">本示例将创建 3 个 QWidget 组件实例，然后用线性渐变画刷填充它们的背景，QSS 属性可以用background 或 background-color。</p>
+
+      <p class="content-text">3个 QWidget组件使用 QGridLayout 布局，具体的代码如下：</p>
+
+      <div class="code-block">#示例程序窗口
+window = QWidget()
+window.resize(400, 200)
+#布局
+layout = QGridLayout()
+window.setLayout(layout)
+layout.setRowStretch(0, 1)
+#3个 QWidget 对象
+wg1 = QWidget(window)
+wg2 = QWidget(window)
+wg3 = QWidget(window)
+#添加到布局
+layout.addWidget(wg1, 0, 0)
+layout.addWidget(wg2, 0, 1)
+layout.addWidget(wg3, 0, 2)</div>
+
+      <p class="content-text">在本示例中，将通过自定义属性 desc 来筛选组件（用于区分 3 个 QWidget 对象），在 QSS 中的选择器语法为 QWidget[desc=xxx]。下面的代码将为 3 个 QWidget 对象设置 desc 属性。</p>
+
+      <div class="code-block">wg1.setProperty(&quot;desc&quot;, 1)
+wg2.setProperty(&quot;desc&quot;, 2)
+wg3.setProperty(&quot;desc&quot;, 3)</div>
+
+      <p class="content-text">最后在顶层窗口上设置样式表。代码如下：</p>
+
+      <div class="code-block">style = """
+QWidget[desc='1'] {
+    background: qlineargradient(
+        x1: 0,
+        y1: 0.5,
+        x2: 1,
+        y2: 0.5,
+        stop: 0 red,
+        stop: 1 lightblue);
+}
+QWidget[desc='2'] {
+    background: qlineargradient(
+        x1: 0,
+        y1: 0,
+        x2: 1,
+        y2: 1,
+        stop: 0 black,
+        stop: 1 hsl(180, 95%, 52%));
+}
+QWidget[desc='3'] {
+    background-color: qlineargradient(
+        x1: 0.5,
+        y1: 0,
+        x2: 0.5,
+        y2: 1,
+        stop: 0 hsl(80, 100%, 60%),
+        stop: 1 deeppink);
+}
+"""
+window.setStyleSheet(style)</div>
+
+      <p class="content-text">第一个样式是从左到右进行渐变，起点的X坐标是0，Y坐标是0.5（位于垂直方向的中央)，终点在填充区域的最右端；第二个样式是从左上角往右下角渐变；第三个样式是从上往下渐变，因此起点的Y坐标是0，终点的Y坐标是1。</p>
+
+      <p class="content-text">示例的运行效果如图17-16所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-16</span><div class="result-box-image"><img src="images/ch17/ch17_fig_14.png" alt="图17-16 线性渐变画刷示例" loading="lazy"><div class="caption">图17-16 线性渐变画刷示例</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.4.3</span> 径向渐变</h3>
+
+      <p class="content-text">qradialgradient函数定义的是径向渐变。径向渐变需要设定两个坐标点：圆心（Center Point）和焦点(FocalPoint)。圆心用于确定渐变区域的位置，焦点是颜色渐变的起点。如果圆心与焦点重合，那从圆心向外辐射可以形成任意个数的同心圆，渐变点将落在这些同心圆上，如图17-17所示。如果圆心与焦点不重合，画刷会自动调整颜色的呈现空间。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-17</span><div class="result-box-image"><img src="images/ch17/ch17_fig_15.png" alt="图 17-17 径向渐变" loading="lazy"><div class="caption">图 17-17 径向渐变</div></div></div>
+
+      <p class="content-text">调用 qradialgradient 函数需要提供以下参数。</p>
+
+      <ol class="content-list" start="1"><li>cx：圆心的 X坐标。</li></ol>
+
+      <ol class="content-list" start="2"><li>cy：圆心的 Y 坐标。</li></ol>
+
+      <ol class="content-list" start="3"><li>radius：渐变区域的半径，一般为1。如果半径设置为2，那么渐变圆环会增大一倍。</li></ol>
+
+      <ol class="content-list" start="4"><li>fx：渐变起点的X坐标，可以与圆心重合，也可以与圆心不同。</li></ol>
+
+      <ol class="content-list" start="5"><li>fy：渐变起点的Y坐标，可以与圆心重合，也可以不重合。</li></ol>
+
+      <ol class="content-list" start="6"><li>stop：此参数可以出现多次，用于定义渐变色标。</li></ol>
+
+      <h3 class="subsection-heading"><span>17.4.4</span> 示例：移动径向渐变的圆心位置</h3>
+
+      <p class="content-text">本示例将使用径向渐变画刷填充窗口背景，然后单击窗口区域会动态调整渐变区域的圆心。</p>
+
+      <p class="content-text">本示例的Qt样式表将使用字符串模板，当需要修改渐变画刷的圆心坐标时，就调用str.format方法来格式化并生成最终样式。样式表模板如下：</p>
+
+      <div class="code-block">self.__style = '''
+QWidget:window {{
+    background: qradialgradient(
+        cx: {0},
+        cy: {1},
+        radius: 1,
+        fx: {0},
+        fy: {1},
+        stop: 0 red,
+        stop: 0.5 lightblue,
+        stop: 1 gold
+    );
+}}
+'''</div>
+
+      <p class="content-text">注意，上述样式表中，大括号进行了转义（“{{”代表“{”，“}}”代表“}”)。这是因为字符串在格式化时使用的占位符是大括号（如“{0}”)，若不进行转义处理，str.format方法会解析错误。本示例假定圆心坐标（cx、cy）和渐变焦点（fx、fy）重合，渐变颜色从圆心向外辐射。所以，cx 与 fx 相等，cy 与 fy 相等。</p>
+
+      <p class="content-text">cx、cy、fx、fy均使用逻辑坐标，即0映射到填充空间的原点，1映射到填充空间的最大值。假如填充的空间为100×200px，那么cx:0.5,cy:1表示圆心的坐标是(50,200)。radius:1是渐变半径，表示渐变过渡会覆盖从起点到终点的整个区域。</p>
+
+      <p class="content-text">重写QWidget类的mousePressEvent方法，在按下鼠标左键后，将渐变圆心移动到鼠标指针所在的位置。</p>
+
+      <div class="code-block">def mousePressEvent(self, event: QMouseEvent):
+        #判断按下的是否为左键
+        if event.button() == Qt.MouseButton.LeftButton:
+                #获取窗口的大小
+                winsize = self.size()
+                #获取当前鼠标指针的位置
+                locpos = event.position()
+                #计算逻辑坐标
+                xx = locpos.x() / winsize.width()
+                yy = locpos.y() / winsize.height()
+                #修改样式
+                self.setStyleSheet(self.__style.format(xx, yy))
+        super().mousePressEvent(event)</div>
+
+      <p class="content-text">计算逻辑坐标时先获取窗口的大小（宽度、高度)，接着获取鼠标指针相对于窗口的坐标。最后将当前坐标除以窗口的大小，就能得到逻辑坐标。</p>
+
+      <p class="content-text">运行示例程序后，默认的渐变圆心在窗口中央，如图17-18所示。</p>
+
+      <p class="content-text">现在，在窗口的左下角单击一下，径向渐变区域的圆心会移动到当前鼠标指针所在的位置，如图17-19所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-18、图 17-19</span><div class="result-box-image"><img src="images/ch17/ch17_fig_16.png" alt="图17-18 渐变区域的默认位置 图17-19 渐变区域的位置已改变" loading="lazy"><div class="caption">图17-18 渐变区域的默认位置 图17-19 渐变区域的位置已改变</div></div></div>
+
+      <p class="content-text">由此可见，圆心坐标可决定渐变区域的位置。</p>
+
+      <h3 class="subsection-heading"><span>17.4.5</span> 示例：移动径向渐变的焦点位置</h3>
+
+      <p class="content-text">本示例与17.4.4节相似，本示例将演示修改径向渐变画刷中的焦点坐标（fx、fy的值）对填充效果的影响。</p>
+
+      <p class="content-text">本示例使用的样式表如下：</p>
+
+      <div class="code-block">self._styleSheet = """
+QWidget:window {{
+    background-color: qradialgradient(
+        cx: 0.5,
+        cy: 0.5,
+        radius: 0.5,
+        fx: {0},
+        fy: {1},
+        stop: 0 lightyellow,
+        stop: 0.5 darkgreen,
+        stop: 1 hsl(270, 100%, 45%)
+    );
+}}
+"""</div>
+
+      <p class="content-text">上述样式中，圆心的坐标（cx、cy）将被固定在渐变区域的中央。焦点（fx、fy）定义的是渐变颜色的起点，此处使用了占位符{0}、{1}，随后会通过str.format方法格式化，占位符会被替换为具体的值。</p>
+
+      <p class="content-text">重写 QWidget类的 mousePressEvent 方法，当右击窗口后，将焦点坐标改为当前鼠标指针的位置。</p>
+
+      <p class="content-text">代码如下：</p>
+
+      <div class="code-block">def mousePressEvent(self, event: QMouseEvent):
+    #如果按下的是右键
+    if event.button() == Qt.MouseButton.RightButton:
+        #获取窗口的大小
+        windowSz= self.size()
+        #获取鼠标指针的当前位置
+        locPos = event.position()
+        #计算逻辑坐标
+        lx, ly = locPos.x() / windowSz.width(), locPos.y() / windowSz.height()
+        #修改样式表
+        self.setStyleSheet(self._styleSheet.format(lx, ly))
+    super().mousePressEvent(event)</div>
+
+      <p class="content-text">fx、fy也是使用逻辑坐标，即取值范围在0~1。换算方法是当前鼠标的坐标除以窗口的宽度（或高度）所得到的比例。</p>
+
+      <p class="content-text">示例程序运行后，渐变填充的默认焦点与圆心重合，如图17-20所示。</p>
+
+      <p class="content-text">随后，在窗口左上角附近右击，会发现渐变颜色的起始位置已改变，如图17-21所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-20、图 17-21</span><div class="result-box-image"><img src="images/ch17/ch17_fig_17.png" alt="图17-20 渐变的焦点与圆心重合 图17-21 渐变颜色的起点已改变" loading="lazy"><div class="caption">图17-20 渐变的焦点与圆心重合 图17-21 渐变颜色的起点已改变</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.4.6</span> 锥形渐变</h3>
+
+      <p class="content-text">qconicalgradient函数可定义锥形渐变，因其呈现结果酷似圆锥而得名。锥形渐变需要指定3个参数：</p>
+
+      <p class="content-text">cx（圆心的X坐标）、cy（圆心的Y坐标）以及angle（起始角度）。圆心坐标指定的是中心位置，渐变方向从angle开始，沿逆时针方向旋转，渐变区域可覆盖整个圆周角(360°)。锥形渐变的结构如图17-22所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-22</span><div class="result-box-image"><img src="images/ch17/ch17_fig_18.png" alt="图 17-22 锥形渐变的结构" loading="lazy"><div class="caption">图 17-22 锥形渐变的结构</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.4.7</span> 示例：使用锥形渐变填充 QFrame 组件</h3>
+
+      <p class="content-text">本示例将演示qconicalgradient 函数的使用，并且可以通过程序窗口上的按钮实时改变圆心和初始角度。具体步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>示例窗口使用QGridLayout（网格）布局。</li></ol>
+
+      <div class="code-block">rootLayout = QGridLayout()
+self.setLayout(rootLayout)</div>
+
+      <ol class="content-list" start="2"><li>网格的第一行放置 QFrame 组件。</li></ol>
+
+      <div class="code-block">self._frame = QFrame(self)
+#设置边框
+self._frame.setFrameShape(QFrame.Shape.Box)
+#添加到布局中
+rootLayout.addWidget(self._frame, 0, 0, 1, 3)</div>
+
+      <ol class="content-list" start="3"><li>向窗口添加 6 个 QPushButton 组件，由 QButtonGroup 对象集中处理 clicked 信号。</li></ol>
+
+      <div class="code-block">btnGroup = QButtonGroup(self)
+btnGroup.addButton(QPushButton(&quot;圆心1&quot;,self),1)
+btnGroup.addButton(QPushButton(&quot;圆心 2&quot;,self),2)
+btnGroup.addButton(QPushButton(&quot;圆心3&quot;, self), 3)
+btnGroup.addButton(QPushButton(&quot;角度1&quot;, self), 4)
+btnGroup.addButton(QPushButton(&quot;角度2&quot;, self), 5)
+btnGroup.addButton(QPushButton(&quot;角度3&quot;, self), 6)
+#连接信号
+btnGroup.idClicked.connect(self.onIdClicked)</div>
+
+      <ol class="content-list" start="4"><li>将 6个 QPushButton 组件添加到布局。</li></ol>
+
+      <div class="code-block">rootLayout.addWidget(btnGroup.button(1), 1, 0)
+rootLayout.addWidget(btnGroup.button(2), 2, 0)
+rootLayout.addWidget(btnGroup.button(3), 3, 0)
+rootLayout.addWidget(btnGroup.button(4), 1, 2)
+rootLayout.addWidget(btnGroup.button(5), 2, 2)
+rootLayout.addWidget(btnGroup.button(6), 3, 2)
+rootLayout.setColumnStretch(1, 1)</div>
+
+      <ol class="content-list" start="5"><li>初始化相关字段的值。</li></ol>
+
+      <div class="code-block">self._cx = 0.5
+self._cy = 0.5
+self._angle = 60
+self._updateStyleSheet()</div>
+
+      <p class="content-text">cx和_cy字段表示圆心坐标，angle字段表示渐变的初始角。在_updateStyleSheet方法中会用到这些字段来生成最终的样式表。</p>
+
+      <ol class="content-list" start="6"><li>_updateStyleSheet方法的完整代码如下：</li></ol>
+
+      <div class="code-block">def _updateStyleSheet(self):
+        # 拼接样式表文本
+        s = f&#x27;&#x27;&#x27;
+                background: qconicalgradient(
+                    cx: {self._cx},
+                    cy: {self._cy},
+                    angle: {self._angle},
+                    stop: 0 blue,
+                    stop: 0.3 hsl(135, 100%, 45%),
+                    stop: 0.8 darkgreen,
+                    stop: 1 hsl(185, 100%, 65%)
+                );
+        &#x27;&#x27;&#x27;
+        # 设置 QFrame 组件的样式表
+        self._frame.setStyleSheet(s)</div>
+
+      <ol class="content-list" start="7"><li>与 QButtonGroup 对象的 idClicked 信号连接的 onIdClicked 方法定义如下：</li></ol>
+
+      <div class="code-block">def onIdClicked(self, id: int):
+        # id = 1-3，改变圆心
+        if id == 1:
+                self._cx = 0.5
+                self._cy = 0.5
+        elif id == 2:
+                self._cx = 0
+                self._cy = 1
+        elif id == 3:
+                self._cx = 0.8
+                self._cy = 0.7
+        #id = 4-6，改变渐变起始角
+        elif id == 4:
+                self._angle = 45
+        elif id == 5:
+                self._angle = 150
+        elif id == 6:
+                self._angle = 270
+        #更新样式表
+        self._updateStyleSheet()</div>
+
+      <p class="content-text">运行示例程序，初始渐变效果如图17-23所示。</p>
+
+      <p class="content-text">单击“圆心3”按钮，锥形的中心位置会发生变化，如图17-24所示。</p>
+
+      <p class="content-text">单击“角度2”按钮，渐变颜色的起始角度会发生变化，如图17-25所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-23、图 17-24、图 17-25</span><div class="result-box-image"><img src="images/ch17/ch17_fig_19.png" alt="图 17-23 锥形渐变效果 图 17-24圆心坐标已改变 图 17-25 初始角已改变" loading="lazy"><div class="caption">图 17-23 锥形渐变效果 图 17-24圆心坐标已改变 图 17-25 初始角已改变</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.4.8</span> 渐变区域的延展方案</h3>
+
+      <p class="content-text">当设定的填充区域小于被填充平面时，就需要采取适当的渐变延展方案来处理渐变区域以外的空间。在Qt样式表中，可以使用 spread参数来设置渐变延展方式，默认为pad。Qt 的官方文档未提及 spread参数，但可以在Qt的源代码中找到。下面是部分C++源代码。</p>
+
+      <div class="code-block">.....
+int spread = -1;
+QStringList spreads;
+spreads &lt;&lt; &quot;pad&quot;_L1 &lt;&lt; &quot;reflect&quot;_L1 &lt;&lt; &quot;repeat&quot;_L1;</div>
+
+      <div class="code-block">// 如果是stop 参数
+if(attr.compare(&quot;stop&quot;_L1, Qt::CaseInsensitive) == 0) {
+        QCss::Value stop, color;
+        .....
+        // 分析出色标的位置和颜色值并添加到QGradientStop列表中
+        stops.append(QGradientStop(stop.variant.toReal(), colorFromData(cd, pal)));
+} else {
+        ......
+        // 如果是 spread 参数
+        if(attr.compare(&quot;spread&quot;_L1, Qt::CaseInsensitive) == 0) {
+                // spreads 列表代表了spread 参数的有效值—pad、repeat、reflect
+                spread = spreads.indexOf(value.variant.toString());
+        } else {
+                // 其他参数，皆转换为浮点数值，存在vars列表中
+                vars[attr] = value.variant.toReal();
+        }
+}
+......</div>
+
+      <p class="content-text">通过分析源代码，得知spread参数支持的值如下。</p>
+
+      <ol class="content-list" start="1"><li>pad：用最靠近该区域的色标进行填充，例如：</li></ol>
+
+      <div class="code-block">qlineargradient(
+        x1: 0.4,
+        y1: 0.5,
+        x2: 1,
+        y2: 0.5,
+        stop: 0 yellow,
+        stop: 1 blue,
+        spread: pad
+)</div>
+
+      <p class="content-text">上述函数定义的是线性渐变。渐变区域在水平方向上的起点位于0.4处，这使得从0~0.4的区域未被覆盖，且最靠近此区域的色标位于0处，因此未进行渐变填充的区域将使用黄色填充，如图17-26所示。</p>
+
+      <p class="content-text">外部区域也可能位于渐变区域之后，例如：</p>
+
+      <div class="code-block">qlineargradient(
+        x1: 0,
+        y1: 0.5,
+        x2: 0.5,
+        y2: 0.5,
+        stop: 0 white,
+        stop: 1 green,
+        spread: pad</div>
+
+      <p class="content-text">上述样式中，渐变区域的水平坐标在0.5（目标平面的1/2处)，这使得0.5～1.0成了渐变的外部区域。</p>
+
+      <p class="content-text">距离该区域最近的色标位于1处，因此画刷将使用绿色填充剩余的空间，如图17-27所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-26、图 17-27</span><div class="result-box-image"><img src="images/ch17/ch17_fig_20.png" alt="图17-26 外部区域在渐变区域之前 图17-27 外部区域在渐变区域后面" loading="lazy"><div class="caption">图17-26 外部区域在渐变区域之前 图17-27 外部区域在渐变区域后面</div></div></div>
+
+      <ol class="content-list" start="2"><li>repeat：重复渐变区域，直到填满剩余的空间，如图17-28所示。</li></ol>
+
+      <ol class="content-list" start="3"><li>reflect：将前一个填充区域的色标进行反转（例如，将红→蓝的渐变转化为蓝→红的渐变)，然后进行填充，如图17-29所示，A是渐变区域，B、C、D都是被填充的区域。B将A的色标反转后进行填充。同理，C将B的色标反转，D将C的色标反转。</li></ol>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-28、图 17-29</span><div class="result-box-image"><img src="images/ch17/ch17_fig_21.png" alt="图 17-28 重复填充区域 图 17-29 反转填充" loading="lazy"><div class="caption">图 17-28 重复填充区域 图 17-29 反转填充</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.4.9</span> 示例：在径向渐变中使用 spread 参数</h3>
+
+      <p class="content-text">本示例将演示径向渐变函数（qradialgradient）中使用spread参数。具体实现步骤如下。</p>
+
+      <ol class="content-list" start="1"><li>本示例使用的样式表如下：</li></ol>
+
+      <div class="code-block">_style = &quot;&quot;&quot;
+QWidget#test
+{
+    background: qradialgradient(
+        cx: 0.5,
+        cy: 0.5,
+        radius: 0.3,
+        fx: 0.5,
+        fy: 0.5,
+        spread: $spread_type,
+        stop: 0 red,
+        stop: 1 gold
+    );
+}
+&quot;&quot;&quot;</div>
+
+      <p class="content-text">$spread_type 是一个文本模板参数，随后在代码中会通过 string 模块下的 Template 类将$spread_type替换为具体的值（pad、repeat或reflect)。上述样式中将radius参数（渐变区域所覆盖的半径长度）设置为小于1的值，这样会使得渐变区域无法铺满整个填充平面，渐变区域需要向外延展。</p>
+
+      <ol class="content-list" start="2"><li>实例化 string 模块下的 Template 类。</li></ol>
+
+      <div class="code-block">from string import Template
+......
+self._txtTemp = Template(_style)</div>
+
+      <ol class="content-list" start="3"><li>完成示例窗口的基本布局。</li></ol>
+
+      <div class="code-block">#总布局
+rootLayout = QHBoxLayout()
+self.setLayout(rootLayout)
+# QWidget 组件
+wdg = QWidget(self)
+#设置 QWidget 组件的对象名称
+wdg.setObjectName(&quot;test&quot;)
+#添加到布局
+rootLayout.addWidget(wdg, 1)
+#按钮
+btnPad = QPushButton(&quot;pad&quot;, self)
+btnRepeat = QPushButton(&quot;repeat&quot;, self)
+btnReflect = QPushButton(&quot;reflect&quot;, self)
+#按钮布局
+btnLayout = QVBoxLayout()
+btnLayout.addWidget(btnPad)
+btnLayout.addWidget(btnRepeat)
+btnLayout.addWidget(btnReflect)
+btnLayout.addStretch(1)
+rootLayout.addLayout(btnLayout)</div>
+
+      <ol class="content-list" start="4"><li>设置默认样式。</li></ol>
+
+      <div class="code-block">self.setStyleSheet(self._txtTemp.substitute(spread_type=&quot;pad&quot;))</div>
+
+      <p class="content-text">Template 对象的 substitute 方法会用指定的参数值替换文本模板中的“$spread_type”，然后返回替换后的字符串。substitute方法支持用关键字参数来设置替换值，如本示例中的spread_type。</p>
+
+      <ol class="content-list" start="5"><li>分别为 3 个按钮连接 clicked 信号。</li></ol>
+
+      <div class="code-block">btnPad.clicked.connect(self.onPad)
+btnRepeat.clicked.connect(self.onRepeat)
+btnReflect.clicked.connect(self.onReflect)</div>
+
+      <ol class="content-list" start="6"><li>实现 onPad、onRepeat 以及 onReflect 方法。</li></ol>
+
+      <div class="code-block">def onPad(self):
+        self.setStyleSheet(self._txtTemp.substitute(spread_type=&quot;pad&quot;))
+def onRepeat(self):
+        self.setStyleSheet(self._txtTemp.substitute(spread_type=&quot;repeat&quot;))
+def onReflect(self):
+        self.setStyleSheet(self._txtTemp.substitute(spread_type=&quot;reflect&quot;))</div>
+
+      <p class="content-text">运行示例后，默认的渐变填充效果如图17-30所示。</p>
+
+      <p class="content-text">单击“repeat”按钮，示例程序会修改为使用重复的渐变区域来填满整个平面，如图17-31所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-30、图 17-31</span><div class="result-box-image"><img src="images/ch17/ch17_fig_22.png" alt="图17-30 默认使用 pad方式扩充渐变区域 图17-31 重复渐变区域" loading="lazy"><div class="caption">图17-30 默认使用 pad方式扩充渐变区域 图17-31 重复渐变区域</div></div></div>
+
+      <div class="section-heading" id="section-4"><span class="section-number">17.5</span><h2>字体</h2></div>
+
+      <p class="content-text">字体样式可以使用font属性来设置，一般来说，能够呈现文本的可视化组件都支持此样式。该样式对标的是 QWidget 类的 font 属性。</p>
+
+      <p class="content-text">font 样式的格式如下：</p>
+
+      <div class="code-block">font: &lt;weight&gt; &lt;style&gt; &lt;size&gt; &lt;font family&gt;</div>
+
+      <p class="content-text">或者（&lt;weight&gt;与&lt;style&gt;可以互换位置）</p>
+
+      <div class="code-block">font: &lt;style&gt; &lt;weight&gt; &lt;size&gt; &lt;font family&gt;</div>
+
+      <p class="content-text">&lt;weight&gt;表示字体的加粗程度，其有效值如下。</p>
+
+      <ol class="content-list" start="1"><li>normal：正常显示字体，不加粗。</li></ol>
+
+      <ol class="content-list" start="2"><li>bold： 常规加粗。</li></ol>
+
+      <ol class="content-list" start="3"><li>一个浮点数值，可以灵活控制字体的加粗程度（范围：[0,1000])。</li></ol>
+
+      <p class="content-text">&lt;style&gt;表示字体风格（通常指是否为斜体)，目前可用的值如下。</p>
+
+      <ol class="content-list" start="1"><li>normal：正常显示，即不带倾斜的文本。</li></ol>
+
+      <ol class="content-list" start="2"><li>italic：文本呈现为斜体。</li></ol>
+
+      <ol class="content-list" start="3"><li>oblique：与italic相似，也可以使文本呈现为斜体。但italic只在某个字体自身支持倾斜时才会生效。如果所使用的字体不支持倾斜，就应当使用oblique而不是italic。</li></ol>
+
+      <p class="content-text">&lt;size&gt;指的是字体大小，单位可以选择点（pt）和像素（px）。</p>
+
+      <p class="content-text">&lt;fontfamily&gt;指字体名称，可以指定多个字体名称，用逗号分隔，例如：</p>
+
+      <div class="code-block">隶书，宋体，Modern</div>
+
+      <p class="content-text">如果字体的名称中包含空格，则应将字体名称放在单引号或双引号中，例如：</p>
+
+      <div class="code-block">宋体,&quot;Yu Gothic&quot;</div>
+
+      <p class="content-text">当指定的字体名称多于一个时，应用程序会选择第一个有效的字体。</p>
+
+      <p class="content-text">下面是font样式的一些例子：</p>
+
+      <div class="code-block">/* 使用仿宋字体、加粗，字号为 20 像素 */
+font: bold 20px 仿宋;
+
+/* 字体为幼圆、斜体、加粗，字号为 15 点 */
+font: bold italic 15pt 幼圆;</div>
+
+      <p class="content-text">&lt;style&gt;和&lt;weight&gt;的值可以省略，例如：</p>
+
+      <div class="code-block">/* 字体：Dubai，字号：16 像素 */
+font: 16px Dubai;</div>
+
+      <p class="content-text">font属性也可以分解成以下样式属性。</p>
+
+      <ol class="content-list" start="1"><li>font-family：字体名称。</li></ol>
+
+      <ol class="content-list" start="2"><li>font-size：字体大小（字号）。</li></ol>
+
+      <ol class="content-list" start="3"><li>font-style：字体风格（是否为斜体)。</li></ol>
+
+      <ol class="content-list" start="4"><li>font-weight：字体加粗。</li></ol>
+
+      <h3 class="subsection-heading"><span>17.5.1</span> 示例：设置 QLabel 和 PushButton 组件的字体</h3>
+
+      <p class="content-text">font（包括 font-size等）属性可用于所有可呈现文本的组件。本示例仅用 QLabel 和 QPushButton组件来演示。</p>
+
+      <p class="content-text">示例窗口包含两个 QLabel实例和一个QPushButton实例。代码如下：</p>
+
+      <div class="code-block">#程序窗口
+window = QWidget()
+window.resize(260, 180)
+#布局
+rootLayout = QVBoxLayout()
+window.setLayout(rootLayout)
+# QLabel 组件
+lb1 = QLabel(&quot;文本内容A&quot;,window)
+lb2 = QLabel(&quot;文本内容B&quot;, window)
+#第一个QLabel组件设置对象名称
+lb1.setObjectName(&quot;title&quot;)
+#添加到布局
+rootLayout.addWidget(lb1)
+rootLayout.addWidget(lb2)
+# QPushButton 组件
+button = QPushButton(&quot;这是一个按钮&quot;, window)
+#添加到布局
+rootLayout.addWidget(button)</div>
+
+      <p class="content-text">以下是本示例用到的样式表。</p>
+
+      <div class="code-block">styleSheet = &quot;&quot;&quot;
+QLabel#title {
+    font: bold italic 28px 黑体;
+    color: blue;
+}
+QLabel {
+    font-family: 楷体;
+    font-size: 18pt;
+    font-weight: 850;
+}
+QPushButton {
+    font-size: 20px;
+    font-family: 隶书;
+}
+&quot;&quot;&quot;
+#应用样式表
+window.setStyleSheet(styleSheet)</div>
+
+      <p class="content-text">QLabel#title 表示被命名为 title 的 QLabel 组件，即上述代码中的第一个 QLabel 组件，通过setObjectName方法分配了对象名称。</p>
+
+      <p class="content-text">示例的运行效果如图17-32所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-32</span><div class="result-box-image"><img src="images/ch17/ch17_fig_23.png" alt="图 17-32 字体样式示例" loading="lazy"><div class="caption">图 17-32 字体样式示例</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.5.2</span> 示例：为 QTableWidget设置字体</h3>
+
+      <p class="content-text">本示例将演示设置表格组件（QTableWidget）的字体样式，用到的样式表如下：</p>
+
+      <div class="code-block">style = &quot;&quot;&quot;
+QTableWidget, QHeaderView {
+    font-family: 楷体;
+    font-size: 18px;
+}
+QTableWidget {
+    color: darkblue;
+}
+QHeaderView {
+    color: green;
+}
+&quot;&quot;&quot;</div>
+
+      <p class="content-text">需要注意的是，如果选择器只使用 QTableWidget，font-* 属性只能应用到单元格所呈现的文本上，行（或列）标题区域并不起作用。这是因为标题区域使用了单独的组件 QHeaderView。因此，在设置字体时应该加上 QHeaderView 类的选择器。</p>
+
+      <p class="content-text">上述样式设置QTableWidget组件内所有文本使用楷体，字号为18像素。数据单元格的文本颜色为深蓝色，标题区域的文本为绿色。</p>
+
+      <p class="content-text">QTableWidget 组件的初始化代码如下：</p>
+
+      <div class="code-block">#表格组件
+view = QTableWidget()
+view.setWindowTitle(&quot;Demo&quot;)
+view.resize(300, 245)
+#设置总行数和总列数
+view.setColumnCount(3)
+view.setRowCount(4)
+#设置列标题
+view.setHorizontalHeaderLabels([&quot;编号&quot;,&quot;姓名&quot;,&quot;年龄&quot;])
+#设置数据项
+#第一行
+view.setItem(0, 0, QTableWidgetItem(&quot;D091&quot;))
+view.setItem(0, 1, QTableWidgetItem(&quot;老王&quot;))
+view.setItem(0, 2, QTableWidgetItem(&quot;36&quot;))
+#第二行
+view.setItem(1, 0, QTableWidgetItem(&quot;D095&quot;))
+view.setItem(1, 1, QTableWidgetItem(&quot;老吴&quot;))
+view.setItem(1, 2, QTableWidgetItem(&quot;40&quot;))
+#第三行
+view.setItem(2, 0, QTableWidgetItem(&quot;D093&quot;))
+view.setItem(2, 1, QTableWidgetItem(&quot;老唐&quot;))
+view.setItem(2, 2, QTableWidgetItem(&quot;32&quot;))
+#第四行
+view.setItem(3, 0, QTableWidgetItem(&quot;D096&quot;))
+view.setItem(3, 1, QTableWidgetItem(&quot;老佟&quot;))
+view.setItem(3, 2, QTableWidgetItem(&quot;41&quot;))</div>
+
+      <p class="content-text">本示例的运行结果如图17-33所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-33</span><div class="result-box-image"><img src="images/ch17/ch17_fig_24.png" alt="图 17-33为表格组件设置字体" loading="lazy"><div class="caption">图 17-33为表格组件设置字体</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.5.3</span> 示例：转换大小写</h3>
+
+      <p class="content-text">使用text-transform样式属性可以切换大小写，此样式只对字母有效，对汉字无影响。该属性的可用值如下。</p>
+
+      <ol class="content-list" start="1"><li>none：大小写混合，即原文本不变。</li></ol>
+
+      <ol class="content-list" start="2"><li>lowercase：将所有字母转换为小写。</li></ol>
+
+      <ol class="content-list" start="3"><li>uppercase：将所有字母转换为大写。</li></ol>
+
+      <p class="content-text">本示例的程序窗口上有3个按钮，分别对应text-transform属性的3个值。单击按钮可以改变QLabel组件内文本的大小写。窗口的组件布局代码如下：</p>
+
+      <div class="code-block">#程序窗口
+win = QWidget()
+win.resize(300, 150)
+#布局
+mainLayout = QHBoxLayout()
+win.setLayout(mainLayout)
+#按钮
+btnNormal = QPushButton(&quot;正常显示&quot;,win)
+btnLowercase = QPushButton(&quot;全部小写&quot;, win)
+btnUppercase = QPushButton(&quot;全部大写&quot;, win)
+#按钮布局
+buttonsLayout = QVBoxLayout()
+buttonsLayout.addWidget(btnNormal)
+buttonsLayout.addWidget(btnLowercase)
+buttonsLayout.addWidget (btnUppercase)
+buttonsLayout.addStretch(1)
+#添加到根布局中
+mainLayout.addLayout (buttonsLayout)
+#标签
+lbtxt = QLabel(win)
+#添加到布局中
+mainLayout.addWidget(lbtxt, 1)
+#支持自动换行
+lbtxt.setWordWrap(True)
+#设置文本
+lbtxt.setText(&#x27;&#x27;&#x27;
+Carra pushed himself to the limit at Stamford Bridge to make up for his lack of match
+fitness and his reading of the game was phenomenal.
+&#x27;&#x27;&#x27;)</div>
+
+      <p class="content-text">连接按钮的 clicked信号，为 QLabel 组件设置 text-transform 样式。</p>
+
+      <div class="code-block">btnNormal.clicked.connect(lambda: lbtxt.setStyleSheet(&quot;text-transform: none&quot;))
+btnLowercase.clicked.connect(lambda: lbtxt.setStyleSheet(&quot;text-transform: lowercase&quot;))
+btnUppercase.clicked.connect(lambda: lbtxt.setStyleSheet(&quot;text-transform: uppercase&quot;))</div>
+
+      <p class="content-text">运行示例程序，默认的文本呈现如图17-34所示。</p>
+
+      <p class="content-text">单击“全部大写”按钮，文本将全部呈现为大写，如图17-35所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-34、图 17-35</span><div class="result-box-image"><img src="images/ch17/ch17_fig_25.png" alt="图 17-34 文本的默认呈现 图 17-35 文本呈现为大写" loading="lazy"><div class="caption">图 17-34 文本的默认呈现 图 17-35 文本呈现为大写</div></div></div>
+
+      <div class="section-heading" id="section-5"><span class="section-number">17.6</span><h2>伪状态</h2></div>
+
+      <p class="content-text">伪状态（pseudo-states）类似于CSS中的伪类。伪状态并不是真正的样式类，而是描述对象的状态。</p>
+
+      <p class="content-text">伪状态跟随在类名或对象ID后，用冒号（:）连接，表示只有在目标对象处于指定状态下才会应用的样式规则。例如：</p>
+
+      <div class="code-block">QPushButton:hover
+(
+        color: blue;</div>
+
+      <p class="content-text">“:hover”是伪状态，表示鼠标指针悬浮在对象上。上述样式的含义是：当鼠标指针移动并悬停在按钮上时，按钮的文本会变成蓝色。需要注意的是，冒号的前后不能出现空格，以下写法都是错误的：</p>
+
+      <div class="code-block">QPushButton :hover /*冒号前面出现空格*/
+QPushButton: hover /*冒号后面出现空格*/
+QPushButton : hover /*冒号前后均出现空格*/</div>
+
+      <p class="content-text">目前支持的伪状态如下。</p>
+
+      <ol class="content-list">
+        <li>active：当 QWidget 位于活动窗口时，此状态有效。</li>
+        <li>adjoins-item：当 QTreeView 或 QTreeWidget 组件的分支指示器与数据项相邻时触发此状态。如图17-36所示，显示为“→”的指示器与数据项（如“杭州”）相邻，而显示为“↑”的指示器与数据项不相邻。</li>
+        <li>alternate：当前对象是列表视图（如 QListView）的交替行，如图17-37所示。</li>
+      </ol>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-36、图 17-37</span><div class="result-box-image"><img src="images/ch17/ch17_fig_26.png" alt="图17-36 分支指示器与数据项的位置关系 图 17-37 交替行" loading="lazy"><div class="caption">图17-36 分支指示器与数据项的位置关系 图 17-37 交替行</div></div></div>
+
+      <ol class="content-list" start="4">
+        <li>bottom：位于容器底部的组件，如 QTabWidget 中标签栏位于底部。</li>
+        <li>checked：当前组件处于 checked 状态，如 QCheckBox 组件。</li>
+        <li>unchecked：与 checked 状态相反，表示组件处于 unchecked 状态。</li>
+        <li>closable：表示组件可关闭，主要用于 QDockWidget 组件。</li>
+        <li>closed：表示目标组件已处于关闭状态，如 QTreeView 的节点被折叠。</li>
+        <li>default：表示组件的默认状态。</li>
+        <li>disabled：表示组件被禁用。</li>
+        <li>enabled：表示组件处于可用状态。</li>
+        <li>editable：QComboBox 组件允许编辑。</li>
+        <li>exclusive：例如互斥菜单项，同一时刻只能选中一项。</li>
+        <li>first：列表中的第一项。</li>
+        <li>flat：扁平化风格，如按钮。</li>
+        <li>floatable：目标组件支持浮动窗口状态，如 QDockWidget、QToolBar。</li>
+        <li>focus：组件获得输入焦点时的状态。</li>
+        <li>has-children：在 QTreeView（或 QTreeWidget）视图中，如果某节点拥有子节点，就会触发此状态。</li>
+        <li>has-siblings：在 QTreeView（或 QTreeWidget）视图中，如果节点 X 之后存在同级节点，就会触发该状态。如图17-38所示，“江西省”节点之后存在同级节点“福建省”，因此“江西省”节点可触发 has-siblings 状态；“吉安”节点之后没有同级节点，所以不满足该状态。</li>
+      </ol>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-38</span><div class="result-box-image"><img src="images/ch17/ch17_fig_27.png" alt="图 17-38 存在同级节点的项" loading="lazy"><div class="caption">图 17-38 存在同级节点的项</div></div></div>
+
+      <ol class="content-list" start="20">
+        <li>horizontal：用于 QSlider、QScrollBar 等组件，当它们水平呈现时满足该状态。</li>
+        <li>vertical：表示组件的呈现方向是垂直的，常用于 QSlider 等组件。</li>
+        <li>hover：鼠标指针悬浮在组件上。</li>
+        <li>indeterminate：常用于 QCheckBox、QRadioButton 等组件，表示这些组件处于不确定状态（如 QCheckBox 的复选框被部分选中）。</li>
+        <li>last：表示最后一项，如 QTabWidget 中最后一个标签。</li>
+        <li>left：常用于 QTabWidget，表示标签栏位于左侧。</li>
+        <li>maximized：当前对象处于最大化状态，通常指 MDI 子窗口已最大化。</li>
+        <li>middle：常用于 QTabWidget 等组件，表示 X 不是第一个标签，也不是最后一个标签。</li>
+        <li>minimized：对象已经最小化，常指 MDI 子窗口。</li>
+        <li>movable：可移动的项，如 QDockWidget 组件，可以进行拖动来更改布局。</li>
+        <li>next-selected：例如在 QTabWidget 组件中，当前标签是 X，Y 标签紧跟在 X 后。如果 Y 标签被选中，X 标签就满足 next-selected 状态。</li>
+        <li>previous-selected：与 next-selected 状态的含义相反。</li>
+        <li>no-frame：组件无边框，例如 QLineEdit 组件。</li>
+        <li>non-exclusive：该项所在的分组不存在互斥关系，如普通菜单项。</li>
+        <li>off：用于 QCheckBox、QRadioButton 等组件，当复选框未选中时触发此状态。</li>
+        <li>on：与 off 状态相反，当复选框被选中时触发。</li>
+        <li>only-one：列表中只有一项。</li>
+        <li>open：当对象处于打开状态时触发，如 QTreeView 的节点被展开，或 QComboBox 的下拉列表被打开。</li>
+        <li>pressed：当鼠标按键在该对象上按下时触发，如单击按钮。</li>
+        <li>read-only：表示输入组件处于只读状态，如 QLineEdit。</li>
+        <li>right：表示 QTabWidget 组件中标签栏位于右侧。</li>
+        <li>selected：被选中的项，如被选中的菜单项。</li>
+        <li>top：常用于表示 QTabWidget 组件的标签栏位于顶部。</li>
+        <li>window：当前 QWidget 对象属于窗口，如顶层 QWidget 组件。</li>
+      </ol>
+
+      <h3 class="subsection-heading"><span>17.6.1</span> 示例：自定义 QPushButton 的样式</h3>
+
+      <p class="content-text">本示例将在窗口上创建3个按钮实例，并为它们设置以下样式。</p>
+
+      <div class="code-block">/* 正常样式 */
+QPushButton {
+    /* 背景颜色 */
+    background-color: hsl(245, 100%, 30%);
+    /* 文本颜色 */
+    color: white;
+    /* 圆角边框 */
+    border-radius: 4px;
+}
+/* 鼠标指针悬浮 */
+QPushButton:hover {
+    background-color: green;
+    color: yellow;
+}
+/* 当鼠标按下时 */
+QPushButton:pressed {
+    background: gold;
+    color: purple;
+}</div>
+
+      <p class="content-text">QPushButton 选择器设置按钮在正常状态下的样式；当鼠标指针移动到按钮上时会应用 QPushButton:hover 样式；当鼠标左键按下时将应用 QPushButton:pressed 样式。此处用到了两个伪状态——hover 和 pressed。</p>
+
+      <p class="content-text">应用程序窗口的布局代码如下：</p>
+
+      <div class="code-block">window = QWidget()
+window.setWindowTitle(&#x27;Demo&#x27;)
+#设置窗口大小
+window.resize(250, 150)
+#窗口布局
+rootLayout = QVBoxLayout()
+window.setLayout(rootLayout)
+#3个按钮
+button1 = QPushButton(&quot;按钮 1&quot;, window)
+button2 = QPushButton(&quot;按钮 2&quot;, window)
+button3 = QPushButton(&quot;按钮 3&quot;, window)
+#将按钮添加到布局中
+rootLayout.addWidget(button1)
+rootLayout.addWidget(button2)
+rootLayout.addWidget(button3)</div>
+
+      <p class="content-text">运行示例程序，然后将鼠标指针移到任一按钮上，该按钮的背景与文本颜色会改变，如图17-39所示。</p>
+
+      <p class="content-text">当按下鼠标按键时，按钮的颜色也发生了变化，如图17-40所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-39、图 17-40</span><div class="result-box-image"><img src="images/ch17/ch17_fig_28.png" alt="图17-39“按钮2”的颜色发生了变化 图 17-40 按钮处于按下状态" loading="lazy"><div class="caption">图17-39“按钮2”的颜色发生了变化 图 17-40 按钮处于按下状态</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.6.2</span> 示例：QRadioButton 被选择后的样式</h3>
+
+      <p class="content-text">本示例窗口中包含4个单选按钮（QRadioButton)，其初始化代码如下：</p>
+
+      <div class="code-block">#程序窗口
+window = QWidget()
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+#添加标签组件
+lb = QLabel(&quot;会试第一名叫什么？&quot;, window)
+layout.addWidget(lb)
+layout.addStretch(1)
+#添加单选按钮
+rd1 = QRadioButton(&quot;解元&quot;, window)
+rd2 = QRadioButton(&quot;会元&quot;, window)
+rd3 = QRadioButton(&quot;经魁&quot;, window)
+rd4 = QRadioButton(&quot;亚元&quot;, window)
+layout.addWidget(rd1)
+layout.addWidget(rd2)
+layout.addWidget(rd3)
+layout.addWidget(rd4)</div>
+
+      <p class="content-text">为QRadioButton组件指定样式表，当其被选中时改变背景颜色和文本颜色。样式表如下：</p>
+
+      <div class="code-block">QRadioButton:checked {
+    color: blue;
+    background: white;
+}</div>
+
+      <p class="content-text">上述样式表使用了checked伪状态，也可以用 on，即</p>
+
+      <div class="code-block">QRadioButton:on
+        ......</div>
+
+      <p class="content-text">运行示例程序，然后选中任意一个QRadioButton对象，其外观会发生变化，如图17-41所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-41</span><div class="result-box-image"><img src="images/ch17/ch17_fig_29.png" alt="图 17-41 QRadioButton 被选择后的样式" loading="lazy"><div class="caption">图 17-41 QRadioButton 被选择后的样式</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.6.3</span> 示例：自定义列表项的外观</h3>
+
+      <p class="content-text">本示例用QListWidget来演示自定义列表项的样式。样式表如下：</p>
+
+      <div class="code-block">/* 容器的样式 */
+QListWidget {
+    background: beige;
+}
+/* 列表项的样式 */
+QListWidget::item {
+    color: #2F4F4F;
+}
+/* 鼠标指针悬停时的列表项样式 */
+QListWidget::item:hover {
+    background: #FFDAB9;
+}
+/* 被选项的样式 */
+QListWidget::item:selected {
+    color: #F8F8FF;
+    background: #CD853F;
+}</div>
+
+      <p class="content-text">上述样式中，“::item”表示列表视图的子控件。在本示例中代表的是QListWidget中呈现的列表项。</p>
+
+      <p class="content-text">QListWidget::item 选择器指定了列表项在常规状态下的外观；QListWidget::item:hover 选择器表示当鼠标指针悬浮在列表项上时所呈现的外观；QListWidget::item:selected 选择器则表示列表项被选中后呈现的外观。</p>
+
+      <p class="content-text">QListWidget的初始化代码如下：</p>
+
+      <div class="code-block">listwg = QListWidget()
+listwg.resize(242, 280)
+#添加列表项
+listwg.addItems([&quot;铅酸电池&quot;, &quot;镍镉电池&quot;, &quot;镍氢电池&quot;, &quot;锂离子电池&quot;])
+#显示窗口
+listwg.show()</div>
+
+      <p class="content-text">示例运行后，默认呈现如图17-42所示。</p>
+
+      <p class="content-text">将鼠标指针移动到任一项上（进入hover状态)，该项的背景色将发生变化，如图17-43所示。</p>
+
+      <p class="content-text">选择一个列表项，被选项的背景颜色和文本颜色均发生变化（进入selected状态)，如图17-44所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-42、图 17-43、图 17-44</span><div class="result-box-image"><img src="images/ch17/ch17_fig_30.png" alt="图 17-42 列表项的常规外观 图 17-43 激活 hover 状态 图 17-44 激活 selected 状态" loading="lazy"><div class="caption">图 17-42 列表项的常规外观 图 17-43 激活 hover 状态 图 17-44 激活 selected 状态</div></div></div>
+
+      <div class="section-heading" id="section-6"><span class="section-number">17.7</span><h2>子控件</h2></div>
+
+      <p class="content-text">一些结构复杂的组件内部可能包含其他组件，如QTabWidget中的标签栏，QTableView中的标题栏等。若要设置组件中的某部分的样式，就需要在样式选择器上使用子控件。</p>
+
+      <p class="content-text">子控件的标志是以两个冒号开头的标识符，例如：</p>
+
+      <div class="code-block">QCheckBox::indicator</div>
+
+      <p class="content-text">其中，::indicator表示子控件部分，::是引导符号，表示该符号后面是子控件的名称indicator。</p>
+
+      <h3 class="subsection-heading"><span>17.7.1</span> 示例：使用渐变画刷填充被选中的列表项</h3>
+
+      <p class="content-text">对于列表组件（如QListView)，若要设定子项的样式，就需要用到item子控件。本示例将以QTableWidget类来演示，被选中的单元格会呈现出渐变背景。</p>
+
+      <p class="content-text">以下代码将初始化QTableWidget实例，它的数据表结构是五行四列。</p>
+
+      <div class="code-block">#示例窗口
+viewWindow = QTableWidget()
+#设置窗口标题
+viewWindow.setWindowTitle(&quot;图像信息表&quot;)
+#设置窗口大小
+viewWindow.resize(315, 270)
+#总共五行四列
+viewWindow.setRowCount(5)
+viewWindow.setColumnCount(4)
+#设置列标题
+viewWindow.setHorizontalHeaderLabels([&quot;编号&quot;,&quot;格式&quot;,&quot;宽度&quot;,&quot;高度&quot;])
+#添加数据
+#----- 第一列 -----
+for i in range(0, viewWindow.rowCount()):
+        viewWindow.setItem(i, 0, QTableWidgetItem(f&quot;KS-{i + 1}&quot;))
+from random import randint, choice
+# -----第二列---
+formats = [&quot;PNG&quot;, &quot;JPEG&quot;, &quot;GIF&quot;, &quot;TIFF&quot;, &quot;BMP&quot;]
+for i in range(0, viewWindow.rowCount()):
+        viewWindow.setItem(i, 1, QTableWidgetItem(choice(formats)))
+#-----第三列----
+for i in range(0, viewWindow.rowCount()):
+        viewWindow.setItem(i, 2, QTableWidgetItem(str(randint(5, 999))))
+#-----第四列----
+for i in range(0, viewWindow.rowCount()):
+        viewWindow.setItem(i, 3, QTableWidgetItem(str(randint(15, 2000))))</div>
+
+      <p class="content-text">数据的第二列先定义包含PNG、JPEG等元素的列表实例，然后调用choice函数从列表中随机抽出一个值来充当该单元格的数据；第三、四列将通过randint函数来生成随机整数。</p>
+
+      <p class="content-text">为QTableWidget 实例的列表项设置样式。样式表如下：</p>
+
+      <div class="code-block">/* 正常状态下的样式 */
+QTableWidget::item
+{
+        color: orange;
+}
+
+/* 列表项被选择时的样式 */
+QTableWidget::item:selected
+{
+        background: qlineargradient(
+                x1: 0.5,
+                y1: 0,
+                x2: 0.5,
+                y2: 1,
+                stop: 0 deeppink,
+                stop: 1 green
+        );
+        color: white;
+}</div>
+
+      <p class="content-text">上述样式表有两组选择器。</p>
+
+      <ol class="content-list" start="1"><li>QTableWidget::item指的是在常规状态下列表项的样式。本示例将其文本设置为橙色。</li></ol>
+
+      <ol class="content-list" start="2"><li>QTableWidget::item:selected指的是列表项被选中后的样式。本示例将使用线性渐变画刷来填充背景颜色，并把文本改为白色。</li></ol>
+
+      <p class="content-text">运行示例程序，数据表格的默认效果如图17-45所示。</p>
+
+      <p class="content-text">通过单击、拖动鼠标选择部分单元格，此时被选区域的背景颜色发生改变，如图17-46所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-45、图 17-46</span><div class="result-box-image"><img src="images/ch17/ch17_fig_31.png" alt="图 17-45表格的常规状态 图 17-46 被选单元格的渐变背景" loading="lazy"><div class="caption">图 17-45表格的常规状态 图 17-46 被选单元格的渐变背景</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.7.2</span> 示例：自定义 QCheckBox 的状态指示图标</h3>
+
+      <p class="content-text">本示例将通过为 indicator子控件设置样式的方式修改 QCheckBox组件的状态图标（复选框图标)。</p>
+
+      <p class="content-text">其样式表如下：</p>
+
+      <div class="code-block">/* 常规状态 */
+QCheckBox::indicator {
+    image: url(check1.png);
+    width: 16px;
+    height: 16px;
+}
+
+/* checked 状态 */
+QCheckBox::indicator:checked {
+    image: url(check2.png);
+}</div>
+
+      <p class="content-text">为子控件设置图标应使用image属性，使用url函数指定要加载的图像文件路径（可以使用相对路径)。image属性一般不会自动放大图像，但在必要时会自动缩小图像。</p>
+
+      <p class="content-text">下面的代码初始化4个QCheckBox 组件实例。</p>
+
+      <div class="code-block">......
+#布局
+layout = QVBoxLayout()
+window.setLayout(layout)
+# 4 个 QCheckBox 实例
+cb1 = QCheckBox(&quot;萝卜&quot;, window)
+cb2 = QCheckBox(&quot;菠萝&quot;, window)
+cb3= QCheckBox(&quot;青菜&quot;, window)
+cb4 = QCheckBox(&quot;芒果&quot;, window)
+#添加到布局
+layout.addWidget(cb1)
+layout.addWidget(cb2)
+layout.addWidget(cb3)
+layout.addWidget(cb4)
+......</div>
+
+      <p class="content-text">运行示例程序，当QCheckBox组件处于unchecked状态时，复选框中的图标以灰度显示，如图17-47所示。</p>
+
+      <p class="content-text">当QCheckBox组件处于 checked状态时，复选框中的图标被“点亮”，如图17-48所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-47、图 17-48</span><div class="result-box-image"><img src="images/ch17/ch17_fig_32.png" alt="图 17-47复选框图标显示为灰度 图 17-48 复选框的图标已更新" loading="lazy"><div class="caption">图 17-47复选框图标显示为灰度 图 17-48 复选框的图标已更新</div></div></div>
+
+      <h3 class="subsection-heading"><span>17.7.3</span> 示例：设置 QTableWidget 的表头样式</h3>
+
+      <p class="content-text">本示例将自定义QTableWidget组件的行、列标题栏的样式（同样适用于QTableView组件)。数据表格的表头部分由QHeaderView组件负责呈现。该类派生自 QAbstractItemView，因此它也是一种列表视图。</p>
+
+      <p class="content-text">要自定义表头组件中的列表项（单元格)，Qt样式的选择器需要使用section子控件，例如：</p>
+
+      <div class="code-block">QHeaderView::section</div>
+
+      <p class="content-text">本示例所使用的样式表如下：</p>
+
+      <div class="code-block">/* 水平标题栏 */
+QHeaderView::section:horizontal {
+    background: orange;
+    border: none; /* 去除所有边框 */
+    color: white;
+    /* 设置底部边框 */
+    border-bottom: 2px solid deeppink;
+    /* 设置右边框 */
+    border-right: 1px dotted white;
+    padding: 0px 10px;
+}
+
+/* 垂直标题栏 */
+QHeaderView::section:vertical {
+    background: blue;
+    /* 去掉所有边框 */
+    border: none;
+    color: white;
+    /* 设置右边框 */
+    border-right: 2px solid yellow;
+}</div>
+
+      <p class="content-text">QTableWidget组件的初始化代码如下：</p>
+
+      <div class="code-block">view = QTableWidget()
+#总行数为5行
+view.setRowCount(5)
+#总列数为3列
+view.setColumnCount(3)
+#设置列标题
+view.setHorizontalHeaderLabels([&#x27;A&#x27;,&#x27;B&#x27;,&#x27;C&#x27;])
+#设置数据
+for r in range(view.rowCount()):
+    for c in range(view.columnCount()):
+        view.setItem(r, c, QTableWidgetItem(f&quot;Cell_{r}_{c}&quot;))</div>
+
+      <p class="content-text">最终效果如图17-49所示。</p>
+
+      <div class="result-box figure-box"><span class="result-box-header">图 17-49</span><div class="result-box-image"><img src="images/ch17/ch17_fig_33.png" alt="图17-49 自定义的表头样式" loading="lazy"><div class="caption">图17-49 自定义的表头样式</div></div></div>
+
+      <div class="page-nav"><a href="ch16.html"><span>&larr;</span><span><div class="nav-label">上一章</div><div class="nav-title">第 16 章 动画</div></span></a><a href="ch18.html"><span><div class="nav-label">下一章 &rarr;</div><div class="nav-title">第 18 章 多线程</div></span></a></div>
+    </main>
+  </div>
+  <footer class="footer">周家安的 PySide6 基础教程 — 本地学习页面</footer>
+  <script src="js/sidebar.js"></script>
+  <script>buildSidebar("ch17");</script>
+</body>
+</html>
