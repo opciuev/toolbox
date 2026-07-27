@@ -34,7 +34,15 @@
       <ul class="chapter-nav">
         <li><a href="../index.html">← 返回全书目录</a></li>
         <li><a class="current" href="ch01.html">01 用基础模型构建 AI 应用</a></li>
-        <li><span class="disabled">02 理解基础模型 · 未制作</span></li>
+        <li><a href="ch02.html">02 理解基础模型</a></li>
+        <li><a href="ch03.html">03 评测方法论</a></li>
+        <li><a href="ch04.html">04 评测 AI 系统</a></li>
+        <li><a href="ch05.html">05 提示工程</a></li>
+        <li><a href="ch06.html">06 RAG 与智能体</a></li>
+        <li><a href="ch07.html">07 微调</a></li>
+        <li><a href="ch08.html">08 数据集工程</a></li>
+        <li><a href="ch09.html">09 推理优化</a></li>
+        <li><a href="ch10.html">10 AI 工程架构与用户反馈</a></li>
       </ul>
 
       <p class="sidebar-label">本章</p>
@@ -57,6 +65,7 @@
         <li><a href="#application-development">应用开发</a></li>
         <li><a href="#fullstack">AI 工程与全栈工程</a></li>
         <li><a href="#summary">总结</a></li>
+        <li><a href="#notes">注释</a></li>
       </ul>
 
       <div class="sidebar-note">第 1 章 · PDF 第 32–115 页</div>
@@ -1312,11 +1321,48 @@
               本书余下部分将逐步探索这套框架，起点是 AI 工程最基本的构件：让如此多精彩应用成为可能的基础模型。
             </p>
           </div>
+        </section>
 
-          <div class="chapter-end">
-            <strong>第 1 章结束</strong>
+        <section class="book-section" id="notes">
+          <span class="section-number">原书注释</span>
+          <h2>注释</h2>
+          <p class="section-en">Notes</p>
+          <div class="translation" data-layer="source">
+            <ol>
+              <li>本书用“传统机器学习”指代基础模型出现之前的所有机器学习。</li>
+              <li>对于非英语语言，一个 Unicode 字符有时可以表示为多个词元。</li>
+              <li>自回归语言模型有时也称为因果语言模型。</li>
+              <li>严格来说，如果非常努力地设法实现，像 BERT 这样的掩码语言模型也可以用于文本生成。</li>
+              <li>实际的数据标注成本取决于多种因素，包括任务复杂度、规模（数据集越大，每个样本的成本通常越低）以及标注服务提供商。例如，截至 2024 年 9 月，Amazon SageMaker Ground Truth 对少于 5 万张图片的标注收费为每张 8 美分，而对超过 100 万张图片的标注收费仅为每张 2 美分。</li>
+              <li>这类似于人类知道什么时候该停止说话也很重要。</li>
+              <li>作者在学校学到的是，模型参数既包括模型权重，也包括模型偏置。不过如今，我们通常用“模型权重”来指代全部参数。</li>
+              <li>更大的模型需要更多训练数据，这似乎有悖直觉：如果模型能力更强，难道不应该只需更少的样本就能学会吗？然而，我们的目标并不是让大模型使用相同数据达到小模型的表现，而是最大限度地提高模型表现。</li>
+              <li>作为对比，美国公立中小学的总支出约为 9,000 亿美元，仅为美国 AI 投资额的九倍。</li>
+              <li>趣闻：截至 2024 年 9 月 16 日，theresanaiforthat.com 网站列出了 16,814 个 AI，涵盖 14,688 项任务和 4,803 种工作。</li>
+              <li>探索不同的 AI 应用或许是作者写作本书时最喜欢的事情之一。看到人们正在构建什么非常有趣。你可以查看作者持续追踪的开源 AI 应用列表；该列表每 12 小时更新一次。</li>
+              <li>企业通常会在广告和营销上投入大量资金，因此实现这部分工作的自动化可以节省巨额成本。平均而言，营销支出占公司预算的 11%。参见 Christine Moorman 2017 年发表于《华尔街日报》的“Marketing Budgets Vary by Industry”。</li>
+              <li>作者发现 AI 对本书的写作过程很有帮助，也能预见 AI 将可以自动化写作过程中的许多环节。写小说时，作者经常让 AI 集思广益，设想接下来可能发生什么，或者角色可能怎样应对某种情形。作者仍在评估哪些类型的写作可以自动化，哪些不能。</li>
+              <li>作者的假设是：我们会变得如此不信任互联网上的内容，以至于只阅读由自己信任的人或品牌生成的内容。</li>
+              <li>Apple 和 Amazon 将生成式 AI 的进展融入 Siri 和 Alexa 所花的时间之长令作者惊讶。一位朋友认为，这可能是因为这些公司对质量和合规有更高要求，而且开发语音界面所需的时间比聊天界面更长。</li>
+              <li>免责声明：作者是 Convai 的顾问。</li>
+              <li>作者目前在 Google Photos 中存有超过 4 万张照片和视频。没有 AI，几乎不可能在需要时找到想要的照片。</li>
+              <li>作者个人也认为 AI 很擅长解释数据和图表。遇到信息过多、令人困惑的图表时，作者会让 ChatGPT 将其拆解说明。</li>
+              <li>不过，规模较小的初创公司可能不得不优先保证产品聚焦，甚至负担不起安排一个人专门“四处看看”。</li>
+              <li>生成式 AI 早期流传着一个笑话：AI 初创公司不过是 OpenAI 或 Claude 的套壳。</li>
+              <li>在写作本书期间，作者几乎不可能在与任何 AI 初创公司交谈时听不到“数据飞轮”这个词。</li>
+              <li>免责声明：作者是 Photoroom 的投资者。</li>
+              <li>正如一家《财富》500 强公司的 AI 负责人告诉作者的那样：他的团队知道怎样使用 10 块 GPU，却不知道怎样使用 1,000 块 GPU。</li>
+              <li>而且，他们还会获得高得惊人的薪酬待遇。</li>
+              <li>如果你觉得“预训练”和“后训练”这两个术语缺乏想象力，你并不孤单。AI 研究界擅长很多事情，但命名并不是其中之一。我们已经讨论过，“大语言模型”很难算一个科学术语，因为“大”这个词含义模糊。作者也真心希望人们不要再发表标题为“X Is All You Need”的论文了。</li>
+              <li>Streamlit、Gradio 和 Plotly Dash 是构建 AI Web 应用的常用工具。</li>
+              <li>Anton Bacaj 告诉作者：“AI 工程就是把 AI 模型放进技术栈的软件工程。”</li>
+            </ol>
           </div>
         </section>
+
+        <div class="chapter-end">
+          <strong>第 1 章结束</strong>
+        </div>
       </main>
     </div>
 

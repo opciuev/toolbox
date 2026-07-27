@@ -404,6 +404,55 @@ button {
   font-family: Georgia, "Songti SC", serif;
 }
 
+.callout.note {
+  background: var(--blue-soft);
+  border-left-color: var(--navy-2);
+}
+
+.callout.tip {
+  background: var(--green-soft);
+  border-left-color: var(--green);
+}
+
+.callout.warning {
+  background: var(--amber-soft);
+  border-left-color: var(--amber);
+}
+
+.book-section pre {
+  margin: 22px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  color: #e8eef6;
+  background: #1d2733;
+  border: 1px solid #344456;
+  border-radius: 10px;
+  font: 13.5px/1.65 "Cascadia Code", "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.book-section :not(pre) > code {
+  padding: 0.12em 0.38em;
+  color: #713f12;
+  background: #fff2d8;
+  border-radius: 4px;
+  font: 0.9em/1.4 "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+}
+
+.equation {
+  margin: 20px 0;
+  padding: 14px 18px;
+  overflow-x: auto;
+  color: var(--navy);
+  background: #f2f6fb;
+  border: 1px solid #d6e1ed;
+  border-radius: 9px;
+  font-family: "Cambria Math", Georgia, serif;
+  text-align: center;
+}
+
 .chapter-end {
   padding: 28px;
   color: #53606e;

@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="《AI Engineering》第8章：数据集工程。" />
+    <title>第8章：数据集工程 · AI Engineering 中文阅读</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">AI</span>
+        <span>AI Engineering 中文阅读</span>
+      </a>
+      <span class="header-subtitle">第 8 章</span>
+      <button class="menu-button" type="button" aria-label="打开章节目录" aria-expanded="false">☰</button>
+    </header>
+    <div class="reading-progress" aria-hidden="true"></div>
+    <div class="sidebar-overlay" aria-hidden="true"></div>
+
+    <aside class="sidebar" aria-label="章节目录">
+      <p class="sidebar-label">全书</p>
+      <ul class="chapter-nav">
+        <li><a href="../index.html">← 返回全书目录</a></li>
+        <li><a href="ch01.html">01 用基础模型构建 AI 应用</a></li>
+        <li><a href="ch02.html">02 理解基础模型</a></li>
+        <li><a href="ch03.html">03 评测方法论</a></li>
+        <li><a href="ch04.html">04 评测 AI 系统</a></li>
+        <li><a href="ch05.html">05 提示工程</a></li>
+        <li><a href="ch06.html">06 RAG 与智能体</a></li>
+        <li><a href="ch07.html">07 微调</a></li>
+        <li><a class="current" href="ch08.html">08 数据集工程</a></li>
+        <li><a href="ch09.html">09 推理优化</a></li>
+        <li><a href="ch10.html">10 AI 工程架构与用户反馈</a></li>
+      </ul>
+      <p class="sidebar-label">本章</p>
+      <ul class="section-nav">
+        <li><a href="#intro">章引言</a></li>
+        <li><a href="#data-centric">以数据为中心的 AI</a></li>
+        <li><a href="#curation">数据整理</a></li>
+        <li><a href="#quality">数据质量</a></li>
+        <li><a href="#coverage">数据覆盖度</a></li>
+        <li><a href="#quantity">数据数量</a></li>
+        <li><a href="#acquisition">数据获取与标注</a></li>
+        <li><a href="#augmentation-synthesis">数据增强与合成</a></li>
+        <li><a href="#why-synthesis">为什么合成数据</a></li>
+        <li><a href="#traditional-synthesis">传统数据合成技术</a></li>
+        <li><a href="#rule-based">基于规则的数据合成</a></li>
+        <li><a href="#simulation">模拟</a></li>
+        <li><a href="#ai-synthesis">AI 驱动的数据合成</a></li>
+        <li><a href="#instruction-synthesis">指令数据合成</a></li>
+        <li><a href="#verification">数据验证</a></li>
+        <li><a href="#synthetic-limitations">AI 生成数据的局限</a></li>
+        <li><a href="#distillation">模型蒸馏</a></li>
+        <li><a href="#processing">数据处理</a></li>
+        <li><a href="#inspect">检查数据</a></li>
+        <li><a href="#deduplicate">数据去重</a></li>
+        <li><a href="#clean-filter">清理与过滤</a></li>
+        <li><a href="#format">格式化数据</a></li>
+        <li><a href="#summary">总结</a></li>
+        <li><a href="#notes">注释</a></li>
+      </ul>
+      <div class="sidebar-note">第 8 章 · 源文第 13574–15148 行</div>
+    </aside>
+
+    <div class="reader-layout">
+      <main class="reader">
+        <header class="chapter-hero">
+          <p class="chapter-eyebrow">Chapter 8</p>
+          <h1>数据集工程</h1>
+          <p class="chapter-en">Dataset Engineering</p>
+          <div class="chapter-meta">
+            <span class="meta-pill">作者：Chip Huyen</span>
+            <span class="meta-pill">图 7 张 · 表 4 张</span>
+          </div>
+        </header>
+
+        <section class="book-section" id="intro">
+          <span class="section-number">章引言</span>
+          <h2>模型质量始于训练数据</h2>
+          <p class="section-en">Introduction</p>
+          <div class="translation" data-layer="source">
+            <p>
+              模型质量取决于训练数据质量。没有数据，即使拥有世界上最好的 ML 团队和无限算力，也无法微调出好模型。数据集工程的目标，是创建一个能训练出最佳模型的数据集，最好还不超出预算。
+            </p>
+            <p>
+              能负担从零开发模型的公司越来越少，更多公司转而用数据打造 AI 表现差异。模型需要的数据越来越多，处理数据也更困难，需要更多人才和基础设施投入。
+            </p>
+            <p>
+              数据工作已经从“有空顺手做”的附属任务，演变成专门岗位。很多 AI 公司如今聘有数据标注员、数据集创建者和数据质量工程师，他们可能嵌入核心工程团队，也可能与其并行协作。
+            </p>
+            <p>
+              模型生态已经充满选择，数据生态则更加复杂：数据集和技术层出不穷。本章概览数据版图，以及建立自有数据集时需要考虑的问题。
+            </p>
+            <p>
+              本章先讨论数据整理：需要什么数据、需要多少、什么叫高质量；随后讨论数据合成和处理。整理、生成、处理不是线性流程，实际工作通常要在各步骤之间反复往返。
+            </p>
+            <p>
+              即使是同一模型，不同训练阶段也要教授不同能力，因此需要具有不同属性的数据。预训练数据量常以词元数衡量，监督微调则常按样例数衡量。但从高层看，它们遵循同一整理原则。本章重点是与应用开发者更相关的后训练数据，同时也会引用对后训练有启发的预训练经验。
+            </p>
+            <p>
+              有最佳实践和工具能自动化流程的一部分；不过，数据工作大多仍是苦活、眼泪和汗水。
+            </p>
+          </div>
+
+          <div class="quote" id="data-centric" data-layer="source">
+            <strong>以数据为中心的 AI</strong>
+            <p>AI 开发越来越重视数据，于是出现了与“以模型为中心”相对的“以数据为中心”：</p>
+            <ul>
+              <li><strong>以模型为中心：</strong>改进模型本身，包括设计新架构、扩大模型、开发新训练技术。</li>
+              <li><strong>以数据为中心：</strong>改进数据，包括开发处理技术、创建高质量数据集，以更少资源训练更好模型。</li>
+            </ul>
+            <p>
+              深度学习早期，很多基准以模型为中心：给定 ImageNet，大家用同一数据集训练尽可能好的模型。近年来更多基准转向数据中心：给定同一模型，大家开发能让该模型表现最好的数据集。
+            </p>
+            <p>
+              2021 年 Andrew Ng 发起数据中心 AI 竞赛，参赛者用修复错误标签、添加边缘样例、增强数据等手段改进同一基础数据集。
+            </p>
+            <p>
+              2023 年 DataComp（Gadre 等，2023）举办竞赛，目标是创建训练 CLIP（Radford 等，2021）的最佳数据集。标准脚本在每份提交数据上训练 CLIP，再按模型在 38 个下游任务上的表现评价数据集。2024 年又举办类似竞赛，评价用于 4.12 亿到 70 亿参数语言模型的数据集（Li 等，2024）。类似基准还有 DataPerf 与 dcbench。
+            </p>
+            <p>模型中心与数据中心的划分有助于指导研究；现实中的重大进步通常需要同时投资模型和数据。</p>
+          </div>
+        </section>
+
+        <section class="book-section" id="curation">
+          <span class="section-number">第一部分</span>
+          <h2>数据整理</h2>
+          <p class="section-en">Data Curation</p>
+          <div class="translation" data-layer="source">
+            <p>
+              并非所有 AI 问题都能靠数据解决，但数据通常是解决方案的关键。正确的数据能让模型更有能力、更安全、处理更长上下文；糟糕数据则会加重偏差和幻觉。数据错误既伤害模型，又浪费资源。
+            </p>
+            <p>
+              数据整理是一门科学，需要理解模型怎样学习、有哪些资源可帮助它学习。数据集建设者应与应用和模型开发者紧密协作。小团队中可能是同一人：负责训练模型的人也负责获取数据；数据需求高的组织则常设置专门岗位。
+            </p>
+            <p>需要什么数据取决于任务和想教给模型的内容：</p>
+            <ul>
+              <li>自监督微调需要数据序列；</li>
+              <li>指令微调需要“（指令，回答）”格式；</li>
+              <li>偏好微调需要“（指令，胜出回答，落败回答）”格式；</li>
+              <li>训练奖励模型可以沿用偏好格式，也可采用“（（指令，回答），分数）”格式。</li>
+            </ul>
+            <p>
+              训练数据应体现希望模型学会的行为。高质量标注一直很难获得；若要教思维链推理和工具使用等复杂行为，难度更高。
+            </p>
+
+            <h4>思维链</h4>
+            <p>
+              第 5 章提到，CoT 提示推动模型逐步解决问题再给最终答案。要教模型生成逐步回答，训练数据就要包含 CoT 回答。Chun 等人（2024）显示，在微调数据中加入逐步回答，能显著提高不同规模模型的 CoT 表现，某些任务准确率几乎翻倍。
+            </p>
+            <p>
+              多步骤回答枯燥且耗时：逐步解释数学题远比只给答案困难。下面两个例子来自该研究：
+            </p>
+          </div>
+          <pre data-layer="source"><code>指令：请回答问题：氮的沸点是多少？
+回答（无 CoT）：−320.4°F
+
+CoT 指令：逐步推理后回答。食堂原有 23 个苹果，
+午餐用了 20 个，又买了 6 个，现在有几个？
+回答（有 CoT）：食堂原有 23 个。午餐用了 20 个，
+还剩 23 − 20 = 3 个。又买了 6 个，所以共有 3 + 6 = 9 个。</code></pre>
+          <div class="translation" data-layer="source">
+            <p>因此，CoT 数据集比一般指令数据集少见。</p>
+
+            <h4>工具使用</h4>
+            <p>
+              模型预训练时获得海量知识，可能直觉上已经知道怎样使用部分工具；展示工具使用示例仍能改善能力。常见做法是让领域专家创建工具数据：每个提示是一项必须用工具的任务，回答是完成任务所需动作。例如训练个人助理模型，可以请职业助理说明日常任务、执行方式和所需工具。人类解释过程时可能因记忆偏差或认为某些步骤不重要而漏掉，因此往往必须观察真人操作。
+            </p>
+            <p>
+              但对人高效的方法不一定对 AI 高效，反之亦然。人可能偏爱 Web 界面，模型却更容易调用 API；人搜索时打开浏览器、粘贴查询、逐个点击结果，模型可以直接请求搜索 API，一次处理全部结果。因此，很多团队依赖模拟等合成技术生成工具数据。
+            </p>
+            <p>
+              工具数据还可能需要特殊格式。一般对话中，用户与 AI 轮流说话，每轮一条消息；工具使用时，AI 一轮里可能生成多条消息，分别发到不同位置，例如一条发给代码解释器，一条告知用户当前动作。Llama 3 作者为此设计多消息聊天格式，用消息头声明来源和目的地，用特殊终止词元标记人类与 AI 回合开始。
+            </p>
+            <p>
+              为对话界面整理数据时，还要决定需要单轮、多轮还是两者都要。单轮数据训练模型回应独立指令；多轮数据训练模型解决需要来回互动的现实任务。模型可能先澄清用户意图，再处理任务；用户又可能在回答后补充信息或纠正。单轮简单、易获得，多轮往往需要专门设计情景或更深入互动。
+            </p>
+            <p>
+              数据整理不只创建新数据、教授新行为，也包括删除旧数据、让模型忘掉坏行为。假设 ChatGPT 式聊天机器人显得傲慢、浪费用户词元：用户只要求核查一句话是否正确，它却说“陈述正确，但风格可以改进”，再擅自改写全文。
+            </p>
+            <p>
+              检查后发现训练数据里有多个主动给建议的标注样例，于是应删除它们，并获取只做事实核查、不擅自改写的新样例。
+            </p>
+            <p>
+              不同应用需要不同特征，不同训练阶段也需要不同数据混合。不过从高层看，数据整理围绕三项标准：质量、覆盖度、数量。若训练像烹饪，数据就是食材：质量是食材是否新鲜，覆盖度是配比是否正确，数量则是食材够不够。
+            </p>
+          </div>
+
+          <h3 id="quality">数据质量</h3>
+          <p class="section-en">Data Quality</p>
+          <div class="translation" data-layer="source">
+            <p>
+              少量高质量数据能胜过大量不相关、不一致的噪声数据。Yi 模型团队发现，精心编写的 1 万条指令优于数十万噪声指令（Young 等，2024）。
+            </p>
+            <p>
+              《LIMA: Less Is More for Alignment》（Zhou 等，2023）也显示，一个 650 亿参数 Llama 只用 1,000 条精心筛选的提示和回答微调，就有 43% 的回答被人工评为等同或优于 GPT-4。不过数据太少也有缺点：LIMA 不如产品级模型稳健。
+            </p>
+            <p>
+              Llama 3 团队得到相同结论。他们还发现，人工数据更容易出现错误和不一致，特别是细致安全政策，因此开发了 AI 辅助标注工具保证质量。
+            </p>
+            <p>
+              大家都知道质量重要，但高质量究竟是什么？简短答案是：能帮助你高效、可靠完成工作的数据。具体定义因人而异。一般可看六项特征：
+            </p>
+            <h4>相关</h4>
+            <p>训练样例应与任务相关。回答今天法律问题时，19 世纪法律数据可能无关；研究 19 世纪法律制度时，它又高度相关。</p>
+            <h4>符合任务要求</h4>
+            <p>
+              标注应对应任务要求。任务要求事实一致，标注就必须事实正确；要求创意，标注就应有创意；要求分数和理由，两者都要提供；要求简洁，标注也要简洁。这里用“符合”而非“准确”，因为准确回答未必就是某些任务的用户所需。
+            </p>
+            <h4>一致</h4>
+            <p>
+              样例和标注者之间应一致。两个标注者处理同一例子，不应差别太大；作文都得 3 分时，质量是否相当？不一致会让模型困惑、更难学习。完善的标注指南是兼顾任务要求与一致性的关键。
+            </p>
+            <h4>格式正确</h4>
+            <p>
+              全部样例应遵循模型预期格式。多余格式词元会干扰学习，应删除。例如抓取产品评论后，应清除 HTML 标签。还要注意行尾空格、换行、大小写和数值格式不一致。
+            </p>
+            <h4>足够唯一</h4>
+            <p>
+              训练数据中的重复会引入偏差和污染。说“足够唯一”，是因为不同用例可容忍的重复程度不同。
+            </p>
+            <h4>合规</h4>
+            <p>
+              数据必须符合所有内部外部政策，包括法律法规。例如不允许用 PII 训练时，数据中就不能含 PII。
+            </p>
+            <p>创建数据前，应明确这六项在自身场景中的具体含义。本章技术都以产生这些特征为目标。</p>
+          </div>
+
+          <h3 id="coverage">数据覆盖度</h3>
+          <p class="section-en">Data Coverage</p>
+          <div class="translation" data-layer="source">
+            <p>
+              训练数据应覆盖预计模型解决的问题范围。真实用户问题广泛，表达方式也千差万别。捕捉多样使用模式，是模型表现良好的关键；覆盖度需要足够的数据多样性，所以很多人直接把它叫数据多样性。
+            </p>
+            <p>
+              有些用户写带大量参考资料的详细指令，另一些只写短句，微调数据就应两者都有。用户查询常有错字，就加入错字示例；应用支持多种编程语言，就覆盖用户关心的语言。
+            </p>
+            <p>
+              不同应用的多样性维度不同。法译英工具不需要语言多样性，但可能需要主题、长度和说话风格多样；向全球客户推荐商品的机器人未必需要领域多样性，却很重视语言与文化多样性。
+            </p>
+            <p>
+              通用聊天机器人需要覆盖广泛主题和表达模式。Ding 等人（2023）认为，提高聊天语言模型最直接的方式，是提高训练数据质量和多样性。NVIDIA 开发 Nemotron 时关注任务、主题、指令多样性：不同输出格式和长度、开放回答与是非回答。Shen 等人（2024）也提醒，某些情况下加入更多异质数据反而让表现变差。
+            </p>
+            <p>
+              Meta 表示 Llama 3 架构与旧版差异不大，性能提升主要来自更好的质量、多样性和更大训练规模。Llama 3 论文详细说明预训练、监督微调和偏好微调三个阶段的覆盖度。
+            </p>
+            <p>
+              三阶段共同的多样性轴是领域，但“多样”的具体含义不同，如表 8-1。表中只有高层领域，不含数学下的几何等细粒度主题。后训练还有其他维度，例如上下文/回答词元数、轮次数，以及人工数据与 AI 数据比例。
+            </p>
+          </div>
+
+          <div class="book-table-wrap" data-layer="source">
+            <table class="book-table">
+              <thead><tr><th>领域</th><th>预训练</th><th>监督微调</th><th>偏好微调</th></tr></thead>
+              <tbody>
+                <tr><td>通用知识（英语）</td><td>50%</td><td>52.66%</td><td>81.99%</td></tr>
+                <tr><td>数学与推理</td><td>25%</td><td>21.19%</td><td>5.89%</td></tr>
+                <tr><td>编程</td><td>17%</td><td>14.89%</td><td>6.93%</td></tr>
+                <tr><td>多语言</td><td>8%</td><td>3.01%</td><td>5.19%</td></tr>
+                <tr><td>考试式内容</td><td>—</td><td>8.14%</td><td>—</td></tr>
+                <tr><td>长上下文</td><td>—</td><td>0.11%</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="section-en" data-layer="source">表 8-1　Llama 3 不同训练阶段有不同的最优领域配比。</p>
+
+          <div class="translation" data-layer="source">
+            <p>
+              预训练和监督微调中，数学、推理、代码合计占训练数据近一半，远高于作者猜测的互联网自然比例。Llama 3 作者发现，在退火阶段逐渐降低学习率、逐渐增加少量高质量代码与数学数据，可提升关键基准表现。这印证常见看法：高质量代码和数学数据比自然语言更能提升推理。
+            </p>
+            <p>
+              偏好微调中代码与数学合计只有 12.82%，可能因为其目标是反映用户偏好的真实分布。
+            </p>
+            <p>
+              怎样决定正确配比？简单方法是反映真实应用用量，也可通过实验找最优值。Meta 做了类似缩放定律的实验：对每个候选配比，训练数个小模型，再预测大模型采用该配比时的表现，最终选出实验推导的最佳猜测。
+            </p>
+            <p>
+              Zhou 等人（2023）为了评估质量和多样性，用三个同为 2,000 样例的数据集分别微调同一个 70 亿参数模型：第一组高质量但不多样，第二组多样但低质量，第三组既多样又高质量。图 8-1 展示三种模型的生成质量。
+            </p>
+          </div>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-1.webp" alt="高质量且多样的数据取得最佳生成质量" loading="lazy" />
+            <figcaption>
+              图 8-1　70 亿参数模型在兼具高质量与多样性的数据上微调后，优于只具其中一项的数据。图片来自 Zhou 等人（2023），采用 CC BY 4.0。
+            </figcaption>
+          </figure>
+
+          <h3 id="quantity">数据数量</h3>
+          <p class="section-en">Data Quantity</p>
+          <div class="translation" data-layer="source">
+            <p>
+              问需要多少数据，就像问需要多少钱：答案因情境而异。一个极端是 Jeremy Howard 和 Jonathan Whitaker 用有趣实验表明 LLM 能从一个例子学习；另一个极端是有些团队用数百万例子微调。
+            </p>
+            <p>
+              数百万听起来很多，与从零训练基础模型相比却很少。Llama 2 与 Llama 3 分别使用 2 万亿和 16 万亿词元；原书换算为约 10 亿和 150 亿个样例。
+            </p>
+          </div>
+
+          <div class="quote" data-layer="source">
+            <strong>说明：是否应从零训练</strong>
+            <p>
+              如果已有数百万样例，可以也应该评估从零训练是否会改善表现。基于预训练模型微调通常更高效，但数据很多时有时会更差，原因是<strong>固化</strong>：预训练会把权重“冻住”，使它们难以适应微调数据（Hernandez 等，2021）。小模型比大模型更容易固化。
+            </p>
+          </div>
+
+          <div class="translation" data-layer="source">
+            <p>除质量和多样性外，还有三项因素影响所需数据量：</p>
+            <h4>微调技术</h4>
+            <p>
+              全量微调承诺最佳表现，却比 LoRA 等 PEFT 方法需要多几个数量级的数据。拥有数万到数百万“（指令，回答）”时可尝试全量微调；只有几百到几千例时，PEFT 可能更好。
+            </p>
+            <h4>任务复杂度</h4>
+            <p>产品评论正负分类等简单任务，所需数据远少于针对财务申报文件的问答。</p>
+            <h4>基础模型表现</h4>
+            <p>
+              基础模型越接近目标，达到目标所需示例越少。假定大模型更好，微调大模型可能需要更少样例。这与预训练相反：预训练的大模型需要更多数据。
+            </p>
+            <p>
+              OpenAI 微调指南显示，只有 100 例时，更先进模型微调后表现更好，可能因为开箱表现本来就强；用 55 万例微调后，实验中五个模型表现相近，如图 8-2。
+            </p>
+          </div>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-2.webp" alt="少量样例时先进模型优势明显大量样例时趋同" loading="lazy" />
+            <figcaption>
+              图 8-2　100 个样例时，更先进模型微调后明显更好；55 万样例时，所有模型表现相近。实验使用 Stanford Natural Language Inference（SNLI）语料。
+            </figcaption>
+          </figure>
+
+          <div class="translation" data-layer="source">
+            <p>
+              简而言之，数据少时可在先进模型上用 PEFT；数据多时可对较小模型做全量微调。
+            </p>
+            <p>
+              投资大型数据集前，先用约 50 条精心设计的小数据集，看微调是否改善模型。若已经达到目标很好；若明显改善，更多数据通常还能继续提升；若毫无改善，大数据集往往也救不了。
+            </p>
+            <p>
+              但不要过早断定小数据微调无效。超参数（学习率过高或过低）、数据质量、提示写法等都会影响结果。绝大多数情况下，50～100 例微调后应能看到改善。
+            </p>
+          </div>
+
+          <div class="quote" data-layer="source">
+            <strong>用低质量或弱相关数据减少高质量数据需求</strong>
+            <ul>
+              <li><strong>自监督 → 监督：</strong>法律问答对很少、法律文档很多时，先在文档上自监督微调，再用问答对继续微调。</li>
+              <li><strong>弱相关 → 相关：</strong>产品评论情感数据少、推文情感数据多时，先学推文情感，再学产品评论。</li>
+              <li><strong>合成 → 真实：</strong>医疗数据因敏感而有限时，先用 AI 合成大量病例微调，再用真实数据继续微调。这个方法难做好，需要协调两次不同训练；操作不当可能花更多算力却得到更差模型。</li>
+            </ul>
+          </div>
+
+          <div class="translation" data-layer="source">
+            <p>
+              小数据实验还能估计还需多少数据。分别用当前数据的 25%、50%、100% 微调，绘制表现随大小变化的曲线。斜率陡说明数据翻倍会显著提升；平台期则说明翻倍只有小收益，见图 8-3。
+            </p>
+          </div>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-3.webp" alt="表现随数据集大小变化的收益曲线" loading="lazy" />
+            <figcaption>图 8-3　不同数据集大小的表现收益曲线，可帮助估计增加训练样例的影响。</figcaption>
+          </figure>
+
+          <div class="translation" data-layer="source">
+            <p>
+              图 8-3 的形状很典型：训练样例通常边际收益递减。前 1,000 例也许提高准确率 10 个百分点，再加 1,000 例可能只提高 5 个百分点。
+            </p>
+            <p>
+              数据更多一般会改善微调表现，但多样性同样重要。Chung 等人（2022）显示，微调任务数从 9 增至 282 时表现显著提高；超过 282 后趋于平台，但增至 1,836 时仍有小幅正向收益，如图 8-4。模型从接触多样任务中获益很大。
+            </p>
+            <p>
+              多样性可以体现在任务类型（摘要、问答）、主题（时尚、金融、科技）和输出格式（JSON、是非回答）等方面。
+            </p>
+          </div>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-4.webp" alt="微调任务数量的多样性影响模型表现" loading="lazy" />
+            <figcaption>
+              图 8-4　以任务数量衡量的微调数据多样性会影响模型表现。来自 Chung 等人（2022），采用 CC BY 4.0。
+            </figcaption>
+          </figure>
+
+          <div class="translation" data-layer="source">
+            <p>
+              微调数据量不仅由需要决定，也由预算决定。标注预算 1 万美元、每例 2 美元，最多得到 5,000 例；还要平衡数据与算力预算，数据花得越多，留给算力的越少，反之亦然。
+            </p>
+          </div>
+        </section>
+
+        <section class="book-section" id="acquisition">
+          <span class="section-number">第二部分</span>
+          <h2>数据获取与标注</h2>
+          <p class="section-en">Data Acquisition and Annotation</p>
+          <div class="translation" data-layer="source">
+            <p>
+              数据获取的目标，是在尊重用户隐私并遵守法规的前提下，产生足够大、具备所需质量和多样性的数据集。途径包括获取公开数据、购买专有数据、标注和合成。怎样在给定预算下获得满足具体要求的数据集，已成为小众但不断成长的研究领域。
+            </p>
+            <p>
+              最重要的数据源通常是自有应用。如果能建立<strong>数据飞轮</strong>，利用用户产生的数据持续改进产品，就会获得巨大优势。应用数据和任务完全相关、完全对齐，也就是与真正关心的数据分布一致；其他来源很难做到。用户数据可以是用户内容、使用过程中系统生成的数据或用户反馈。第 10 章讨论反馈系统设计。
+            </p>
+            <p>
+              投资自建数据前先检查已有数据。数据市场庞大，既有开源也有专有数据；幸运时恰好能找到所需，但更多时候要混合搭配。一个数据集可由多来源、多渠道构成。创建“（指令，回答）”数据集的流程可能是：
+            </p>
+            <ol>
+              <li>寻找具备所需特征的已有数据集，得到一个含 10,000 例的候选集；</li>
+              <li>删除低质量指令，剩 9,000 例；</li>
+              <li>把回答质量低的 3,000 例单独留下，剩 6,000 个高质量指令与回答；</li>
+              <li>人工为那 3,000 条高质量指令重写回答，恢复到 9,000 个高质量样例；</li>
+              <li>发现主题 X 数据不足，人工创建 100 个相关指令模板，再让 AI 合成 2,000 条指令；</li>
+              <li>人工标注 2,000 条合成指令，最终共 11,000 例。</li>
+            </ol>
+            <p>
+              这当然极度简化了真实整理流程。现实中可能发现大量标注无用，不得不更新指南、重新标注；也可能发现事实错误，要再聘标注者复核；或发现每个模板生成 100 条会损害多样性，必须增加模板、减少每模板样例。如此循环。
+            </p>
+          </div>
+
+          <div class="quote" data-layer="source">
+            <strong>公开数据集资源</strong>
+            <p>
+              可以利用已有数据，但绝不能完全信任，必须彻底检查验证。使用前始终核对许可证并尽量理解来源；即使数据集许可证允许商用，其中一部分仍可能来自不允许商用的来源。
+            </p>
+            <ol>
+              <li>Hugging Face、Kaggle 各托管数十万个数据集；</li>
+              <li>Google Dataset Search 很优秀，却常被低估；</li>
+              <li>政府是优质开放数据提供者：Data.gov 有数十万数据集，data.gov.in 有数万；</li>
+              <li>University of Michigan ICPSR 保存数万项社会研究的数据；</li>
+              <li>UC Irvine Machine Learning Repository 与 OpenML 各有数千数据集；</li>
+              <li>Open Data Network 可搜索数万个数据集；</li>
+              <li>云供应商常托管少量开放数据，最著名的是 AWS Open Data；</li>
+              <li>ML 框架通常提供小型内置数据集，如 TensorFlow Datasets；</li>
+              <li>评估工具可能托管足以做 PEFT 的基准数据，例如 EleutherAI lm-evaluation-harness 有 400 多个基准，平均每个 2,000 多例；</li>
+              <li>Stanford Large Network Dataset Collection 是优秀图数据仓库。</li>
+            </ol>
+          </div>
+
+          <div class="translation" data-layer="source">
+            <p>
+              微调经常需要自行标注。难点不只在标注过程，还在清晰指南的制定：必须明确好回答是什么、为什么好；回答能否正确却没用？3 分与 4 分差在哪？人工标注和 AI 标注都需要指南。
+            </p>
+            <p>
+              LinkedIn 等团队报告，标注指南是 AI 工程流水线最难的部分之一。人们常因耗时耗力，在中途放弃认真标注，希望模型自行弄清正确回答。强模型偶尔确实能做到，但对许多应用，依赖它自己猜风险太大。
+            </p>
+            <p>
+              好消息是，标注指南与第 4 章的评估数据指南相同。这也是应该加大投入整理评估指南和数据的理由。运气好时，评估样例还可增强，或用作合成新数据的种子。
+            </p>
+          </div>
+        </section>
+
+        <section class="book-section" id="augmentation-synthesis">
+          <span class="section-number">第三部分</span>
+          <h2>数据增强与合成</h2>
+          <p class="section-en">Data Augmentation and Synthesis</p>
+          <div class="translation" data-layer="source">
+            <p>
+              与算力和人才一起，数据是 AI 最难的挑战。行业长期目标是以程序化方式生成数据，常用两种过程：
+            </p>
+            <ul>
+              <li><strong>数据增强：</strong>从已有真实数据创建新数据。例如把一张真实猫图翻转，得到同一只猫的新图。</li>
+              <li><strong>数据合成：</strong>生成模拟真实数据属性的数据。例如模拟鼠标在网页上的运动，产生机器人鼠标轨迹。</li>
+            </ul>
+            <p>
+              换言之，增强数据派生自真实数据，合成数据本身不是真实数据。但两者都自动创建数据，所以术语有时混用。本章也常用“数据合成”统称两者。
+            </p>
+            <p>
+              人工生成数据在软件工程中历史悠久，最初用于生成测试假数据。Faker、Chance 等库能生成姓名、地址、电话、邮箱等简单格式。若开发收货地址解析程序，可生成不同国家、州和格式的地址，验证程序是否全都能解析。
+            </p>
+            <p>
+              AI 已能生成与人类数据难以区分的内容，于是可合成医生笔记、合同、财务报表、商品描述、图像、视频广告等复杂数据。这降低了生成难度，也打开了更多用例。
+            </p>
+            <p>
+              合成数据虽然大幅减轻人工数据压力，却不会完全替代人工数据。很多用例中，混合人工与 AI 数据价值最高。
+            </p>
+          </div>
+
+          <h3 id="why-synthesis">为什么合成数据</h3>
+          <p class="section-en">Why Data Synthesis</p>
+          <div class="translation" data-layer="source">
+            <p>合成数据很有吸引力，可以改善数量、覆盖度、质量“黄金三角”，还可减轻隐私问题并蒸馏模型。</p>
+
+            <h4>增加数据数量</h4>
+            <p>
+              最大理由是能够规模化生产，承诺为训练和测试提供丰富数据。理论上更多数据帮助模型泛化到更广任务，尤其适合真实数据稀少或难以获取的场景，例如罕见天气、深海探索、自驾事故。
+            </p>
+
+            <h4>增加覆盖度</h4>
+            <p>
+              可以生成具有目标特征的数据，以改善表现或教出具体行为：极短/极长文本，供毒性检测器使用的有毒对话，或在现实数据有毒时合成安全数据。还常用 AI 生成对抗样例，或生成稀有类别以处理类别不平衡。
+            </p>
+            <p>
+              Gekhman 等人（2022）的 TrueTeacher 用 LLM 生成事实不一致摘要，再训练模型检测事实不一致。Anthropic 的 Perez 等人（2022）讨论多种合成技术，为 154 种 AI 行为建立测试集，包括人格、政治观点、伦理立场、社会偏见。成对比较中，语言模型生成的数据集接近人工质量，有时甚至超过。
+            </p>
+
+            <h4>提高数据质量</h4>
+            <p>
+              人们通常认为合成数据质量低，但有时相反。人类的根本局限可能让人工数据更差，例如前述工具使用：人和 AI 操作模式、工具偏好不同；复杂数学题上，AI 还能生成远超普通人类专家构想的题目。
+            </p>
+            <p>
+              有些团队也偏爱 AI 生成偏好数据。单个人的偏好或许相对一致，不同人之间却差异巨大，还受情绪和动机影响；AI 生成的偏好评分反而更一致、更可靠。
+            </p>
+
+            <h4>减轻隐私担忧</h4>
+            <p>
+              因隐私无法使用人工数据的场景，合成往往是唯一选择。医疗法规使真实病历很难用于训练，可以生成不含敏感信息的合成病历；保险可用合成索赔替代包含个人和财务信息的真实索赔。
+            </p>
+
+            <h4>蒸馏模型</h4>
+            <p>
+              有时希望训练一个模型模仿另一个模型，常见目标是得到更便宜或更快、表现接近原模型的蒸馏模型。做法是用原模型生成的数据训练它。
+            </p>
+            <p>
+              这只是人们转向数据合成的五项理由。由于吸引力明确，越来越多模型使用合成数据，合成技术也不断发展。
+            </p>
+          </div>
+
+          <h3 id="traditional-synthesis">传统数据合成技术</h3>
+          <p class="section-en">Traditional Data Synthesis Techniques</p>
+          <div class="translation" data-layer="source">
+            <p>
+              数据合成不是 AI 独有，在软件测试、游戏、机器人中历史悠久。用算法生成数据也叫<strong>程序化生成</strong>，与手工生成相对。游戏常即时生成关卡、地图、物品和角色，这些技术大多也适用于 AI。
+            </p>
+            <p>
+              传统方法主要有规则和模拟；先进 AI 又使“用 AI 自身合成数据”成为新方法。先快速看两类传统技术。
+            </p>
+          </div>
+
+          <h3 id="rule-based">基于规则的数据合成</h3>
+          <p class="section-en">Rule-Based Data Synthesis</p>
+          <div class="translation" data-layer="source">
+            <p>
+              最简单的方法是预定义规则和模板。例如创建信用卡交易时，先写模板，再用 Faker 等随机生成器填充字段：
+            </p>
+          </div>
+          <pre data-layer="source"><code>交易 ID：[唯一标识]
+日期：[MM/DD/YYYY]
+时间：[HH:MM:SS]
+金额：[交易金额]
+商户名称：[商户/商店名称]
+商户类别：[类别代码]
+地点：[城市、州、国家]
+支付方式：[信用卡/借记卡/现金/在线]
+状态：[已完成/待处理/失败]
+描述：[交易描述]</code></pre>
+          <div class="translation" data-layer="source">
+            <p>
+              交易数据敏感，很多欺诈检测模型先用模板产生的合成交易证明可行性，再获得真实数据权限。
+            </p>
+            <p>
+              模板常用于生成具有固定结构的发票、简历、税表、银行对账单、活动日程、产品目录、合同、配置文件，也可生成遵循特定语法的正则表达式和数学方程。DeepMind 用 1 亿个合成样例训练奥赛级几何模型 AlphaGeometry（Trinh 等，2024）。
+            </p>
+            <p>
+              还可对真实数据施加简单变换。图像可随机旋转、裁剪、缩放、擦除；翻转的猫仍是猫，稍微裁剪的足球赛仍是足球赛。AlexNet 经典论文用这种方式增强 ImageNet。
+            </p>
+            <p>
+              文本可随机用近义词替换，前提是不改变含义或情感。“She’s a fantastic nurse”可变成“She’s a great nurse”。
+            </p>
+            <p>
+              这种方法还能减轻偏差。担心“nurse”与女性、“doctor”与男性关联时，可以把“she”换成“he”等反向性别词，见表 8-2。
+            </p>
+          </div>
+
+          <div class="book-table-wrap" data-layer="source">
+            <table class="book-table">
+              <thead><tr><th>原始数据</th><th>增强数据</th></tr></thead>
+              <tbody>
+                <tr><td>She’s a fantastic nurse.</td><td>He’s a fantastic nurse.</td></tr>
+                <tr><td>She’s a fantastic doctor.</td><td>He’s a fantastic doctor.</td></tr>
+                <tr><td>The CEO, Mr. Alex Wang, …</td><td>The CEO, Ms. Alexa Wang, …</td></tr>
+                <tr><td>Today, my mom made a casserole.</td><td>Today, my dad made a casserole.</td></tr>
+                <tr><td>Emily has always loved the violin.</td><td>Mohammed has always loved the violin.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="section-en" data-layer="source">表 8-2　数据增强可以帮助减轻数据中的某些偏差。</p>
+
+          <div class="translation" data-layer="source">
+            <p>
+              可从近义词词典找相似词，也可在词嵌入空间寻找距离近的词。还可让 AI 改写或翻译，超越简单替换。
+            </p>
+            <p>
+              一种有趣变换是<strong>扰动</strong>：向现有数据加噪声生成新数据。研究者最初发现，轻微扰动能诱骗模型误分类。例如在船图上加白噪声可能被判成汽车。Su 等人（2017）的“One Pixel Attack”只改一个像素，就让 Kaggle CIFAR-10 中 67.97% 的自然图像、ImageNet 中 16.04% 的测试图像误分类。这若被利用会造成严重风险：攻击者可让身份识别系统把自己当授权员工，或让自驾车把分隔带当车道。
+            </p>
+            <p>
+              用扰动数据训练既能改善表现，也能增强抗攻击稳健性。Hendrycks 与 Dietterich 2019 年通过亮度变化、加雪、改变对比度、加噪等 15 种视觉腐蚀创建 ImageNet-C 与 ImageNet-P。
+            </p>
+            <p>
+              文本也能扰动。BERT 训练时把 1.5% 的词元替换成随机词，带来小幅提升。视觉数据还能用更复杂算法增强：Snap（2022）为角色合成不同肤色、体型、发型、衣着、表情，以创建未覆盖的边缘案例并减轻隐性偏差，再用这些资产训练模型。
+            </p>
+          </div>
+
+          <h3 id="simulation">模拟</h3>
+          <p class="section-en">Simulation</p>
+          <div class="translation" data-layer="source">
+            <p>
+              现实实验昂贵或危险时，可以在虚拟环境模拟。测试自驾车遇到高速公路上的马，不能真把马放上路；应在模拟器中进行。自驾模拟引擎包括 CARLA、Waymo SimulationCity 和 Tesla 的旧金山模拟。
+            </p>
+            <p>
+              机器人训练也常用模拟。训练机器人倒咖啡，却不知道各关节怎样运动，可以模拟不同动作，只保留成功倒出咖啡的场景。
+            </p>
+            <p>
+              模拟能以很低成本运行大量实验，避免事故和物理损坏。模拟里成功的机器人未必现实可用，但模拟中失败的现实中大概率也失败。再复杂的模拟仍是现实简化；Sim2Real 子领域专门研究把模拟训练算法适配到现实。
+            </p>
+            <p>
+              模拟还常用于教模型使用工具。人工动作未必对 AI 最优，模拟可以发现人类忽略的行动。给定查询，模拟不同动作序列、执行并验证结果，再把最高效序列作为标注回答。
+            </p>
+            <p>
+              模拟对稀有事件尤其有价值。金融可模拟公司成功上市或重大破产，研究市场影响；制造业可模拟材料或装配缺陷，训练异常检测和质控模型；气候科学家可模拟地球系统，创建温度、降水、极端天气的变化，让 AI 学习更广泛的未来。
+            </p>
+            <p>
+              规则与模拟方法已服务很多场景，但直到 AI 能生成逼真、高质量数据，合成才真正爆发。
+            </p>
+          </div>
+        </section>
+
+        <section class="book-section" id="ai-synthesis">
+          <span class="section-number">第四部分</span>
+          <h2>AI 驱动的数据合成</h2>
+          <p class="section-en">AI-Powered Data Synthesis</p>
+          <div class="translation" data-layer="source">
+            <p>
+              人类生成数据的方式近乎无限，AI 也一样。本节技术并不穷尽所有方法，但足以提供概览。
+            </p>
+            <p>
+              强大 AI 为模拟打开新可能。AI 可以模拟任意程序输出。StableToolBench（Guo 等，2024）展示怎样不真正调用 API，就用 AI 模拟 API。若要训练模型与一组 API 交互，实际调用也许昂贵或缓慢，可让 AI 模拟预期结果。
+            </p>
+            <p>
+              AI 还能模拟人类。例如训练国际象棋机器人，人类一局太慢，AI 对局快得多。OpenAI 为训练 Dota 2 机器人使用模拟器，让它每天完成相当于约 180 年的游戏。机器人通过与自己对弈的<strong>自我博弈</strong>学习，逐步发展和改进策略（OpenAI，2019）。DeepMind 也用自我博弈收集数百万盘围棋数据训练 AlphaGo。
+            </p>
+            <p>
+              自我博弈不只适合游戏，也适合通用智能体。可以让多个 AI 用不同策略彼此谈判，判断哪种更好；或让一个版本扮演遇到问题的客户，另一个扮演客服。
+            </p>
+            <p>
+              AI 的改写与翻译能力可增强现有数据。查询“How to reset my password?”可以改写成：
+            </p>
+            <ol>
+              <li>“I forgot my password.”</li>
+              <li>“How can I change my password?”</li>
+              <li>“Steps to reset passwords.”</li>
+            </ol>
+            <p>
+              Yu 等人（2023）以不同方式改写 MATH 与 GSM-8K 的 15,000 个样例，创建近 40 万例的 MetaMath；在新数据上训练的模型在相关数学基准上超过更大模型。
+            </p>
+            <p>
+              还常把资源丰富语言的数据翻译成低资源语言，帮助训练克丘亚语、老挝语等小语种专用模型。
+            </p>
+            <p>
+              翻译质量可用<strong>回译</strong>验证。原英文句子是 X，老挝语译文是 Y；另一个模型把 Y 译回英文 X′，再比较 X′ 与 X。差别很大就说明 Y 可能很差。
+            </p>
+            <p>
+              AI 不只翻译自然语言，也能翻译编程语言。Llama 3 作者把 SFT 数据中的代码翻译成更多语言。实际上，Llama 3 训练高度依赖合成数据，并使用了许多创造性方法。
+            </p>
+            <p>
+              例如用回译生成代码解释和文档：从代码片段出发，让 AI 生成解释与文档，再根据解释和文档生成代码；只有当新代码忠实于原代码时，才把解释和文档用于微调。
+            </p>
+            <p>
+              AI 可以为预训练和后训练生成数据，但后训练会有意使用更多合成数据。可能原因是预训练旨在增加知识；AI 能把已有知识改成不同格式，却更难合成真正的新知识。
+            </p>
+            <p>
+              不过互联网正被 AI 内容淹没，依赖互联网的模型很可能已经在合成数据上预训练。也有专门合成数据集，例如 Cosmopedia（Allal 等，2024）：由 Mixtral-8x7B-Instruct-v0.1 生成的 250 亿词元教科书、博客、故事、帖子和 WikiHow 文章。
+            </p>
+            <p>
+              后训练数据——指令数据与偏好数据——通常最费力，因此更常合成。让 AI 从多个回答中选更好的相对直接，第 3 章已讨论。主要挑战是模型偏差，例如首位偏差。NVIDIA 研究者把回答顺序交换，让评委判断两次；只有两次选择同一胜者，才保留“（提示，胜者，败者）”三元组（NVIDIA，2024）。
+            </p>
+          </div>
+
+          <h3 id="instruction-synthesis">指令数据合成</h3>
+          <p class="section-en">Instruction Data Synthesis</p>
+          <div class="translation" data-layer="source">
+            <p>
+              指令微调的每个样例包含一条指令和一个回答。AI 可以合成指令、回答或两者。可以由 AI 生成指令、人工写回答，也可以人工写指令、AI 生成回答。
+            </p>
+            <ul>
+              <li><strong>生成指令：</strong>先列出希望覆盖的主题、关键词或指令类型，再为每项生成若干指令；也可从模板集合出发，每模板生成若干样例。主题清单和模板本身也可由 AI 生成。</li>
+              <li><strong>生成回答：</strong>每条指令可生成一个或多个回答。</li>
+            </ul>
+            <p>
+              为创建多轮对话数据集 UltraChat（Ding 等，2023），作者先让 ChatGPT 为科技、饮食、时尚、自然、教育、金融、旅行等日常方面生成 30 个主题，每主题再生成 30～50 个子主题，随后继续用同一模型生成相应指令与回答。
+            </p>
+            <p>
+              Stanford 训练 Alpaca（Taori 等，2023）时，从 Self-Instruct 种子数据的 175 个“（指令，回答）”开始。这些人工种子覆盖多样有趣用例，再用 GPT-3 模型 text-davinci-003 模仿种子生成 52,000 对，如图 8-5。
+            </p>
+          </div>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-5.webp" alt="Alpaca训练中的种子任务与生成任务" loading="lazy" />
+            <figcaption>图 8-5　训练 Alpaca 时使用的一项种子任务和一项生成任务。</figcaption>
+          </figure>
+
+          <div class="translation" data-layer="source">
+            <p>
+              还有很多创造性方式合成具有指定特征的数据。人类写长内容比短内容难，AI 生成高质量长回答也比短指令难；回答越长，幻觉机会越多。可以反过来使用人工长回答与 AI 指令。Köksal 等人、Li 等人、Chen 等人采用<strong>逆向指令</strong>：从故事、书籍、维基百科文章等高质量长内容出发，让 AI 生成能够引出这些内容的提示。这样可避免回答中的 AI 幻觉，得到更高质量指令数据。
+            </p>
+            <p>
+              理论上可以在不增加人工标注的情况下，用逆向指令持续强化模型。Li 等人（2023）的流程：
+            </p>
+            <ol>
+              <li>从少量种子样例开始训练弱模型；</li>
+              <li>让弱模型为已有高质量内容生成指令，创建高质量指令数据；</li>
+              <li>用新数据微调弱模型；</li>
+              <li>重复直到达到目标表现。</li>
+            </ol>
+            <p>
+              还可用合成数据微调长上下文能力。若当前模型最多处理 8K，希望扩到 128K：
+            </p>
+            <ol>
+              <li>把长文档切成不足 8K 的短块；</li>
+              <li>为每个短块生成若干“（问题，答案）”对；</li>
+              <li>训练每个问答时，把可能超过 8K、但短于目标长度的原始长文档作为上下文，让模型学会利用扩展上下文回答。</li>
+            </ol>
+            <p>
+              Llama 3 论文细节丰富，是指令合成的优秀案例。代码翻译与代码回译都从已有代码产生更多数据；作者也让 AI 从零生成编程指令：
+            </p>
+            <ol>
+              <li>生成覆盖多样主题的大量编程问题描述；</li>
+              <li>给定问题和编程语言生成解答。加入优秀编程通则与 CoT 推理可改善回答。</li>
+            </ol>
+            <p>为保证质量，他们使用严格的正确性分析与纠错流水线：</p>
+            <ol>
+              <li>把代码交给解析器和 linter，捕捉缺失导入、变量未初始化等语法问题；</li>
+              <li>用单元测试捕捉运行时错误；有趣的是，单元测试也由 AI 生成；</li>
+              <li>若任一步失败，把原问题、错误解答、解析器/linter/测试反馈放进提示，让模型修订。只有通过全部检查的样例才进入最终 SFT 数据。</li>
+            </ol>
+            <p>三种方法——代码翻译、回译和生成——组合后的 Llama 3 流水线：</p>
+            <ol>
+              <li>AI 生成问题描述；</li>
+              <li>AI 用多种编程语言生成每题解答；</li>
+              <li>AI 生成单元测试；</li>
+              <li>AI 修复合成代码错误；</li>
+              <li>AI 把代码翻译到其他语言，滤掉不能通过测试的译码；</li>
+              <li>AI 生成代码解释和文档等对话，滤掉不能通过回译验证的内容。</li>
+            </ol>
+            <p>
+              借助这套流水线，Dubey 等人生成了超过 270 万个编程相关合成样例，用于 Llama 3.1 监督微调。
+            </p>
+          </div>
+
+          <h3 id="verification">数据验证</h3>
+          <p class="section-en">Data Verification</p>
+          <div class="translation" data-layer="source">
+            <p>
+              数据质量对模型表现至关重要，必须有方法验证。AI 生成数据可以像其他 AI 输出一样，用功能正确性与 AI 评委衡量。虽然本节聚焦合成数据，大多数技术也适用于一般训练数据。
+            </p>
+            <p>
+              第 4 章讲评估驱动开发：公司更容易创建自己能评估的应用。同理，人们也倾向合成自己能验证的数据。编程之所以是热门基础模型用例，一项原因是可以做功能评估；同样，编程样例也是最常合成的数据。Llama 3 的大多数合成训练数据都与代码相关，三种合成方法都能通过代码执行与回译做程序化验证。
+            </p>
+            <p>
+              无法用功能正确性验证时，常用 AI 验证器：通用 AI 评委或专用评分器。最简单地给每例打 1～5 分，或分成好/坏；也可把质量要求描述给基础模型，让它判断是否符合。如果关心事实一致性，可用第 4 章方法滤掉可能含幻觉的样例。
+            </p>
+            <p>
+              还可以发挥创意。若合成数据要模仿真实数据，可看区分两者有多难：训练 AI 内容检测器，如果很容易分辨，合成数据就不好。若希望像高质量学术论文，可训练分类器预测论文是否会被 NeurIPS 等顶级会议录用，删除明显会被拒稿的内容。
+            </p>
+            <p>
+              还可以让模型检测每例主题，删除与任务无关的主题；若预期数据遵循相似模式，可用异常检测找离群点，离群样例可能质量低。
+            </p>
+            <p>
+              合成数据也能用启发式过滤。一般删除空样例和对应用而言太短的样例；太长则截断或删除。还可按关键词、用户/作者、创建日期、元数据或来源过滤。Self-Instruct 作者采用的启发式包括：
+            </p>
+            <ul>
+              <li>重复样例；</li>
+              <li>过长或过短的指令；</li>
+              <li>指令相同、回答不同的样例；</li>
+              <li>输出只是重复输入的样例。</li>
+            </ul>
+            <p>
+              即使技术很多，合成数据评估仍然很难。和其他 AI 应用一样，终极质量测试是现实表现：能否改善模型。对很多模型，合成数据已经通过这项测试。
+            </p>
+          </div>
+
+          <h3 id="synthetic-limitations">AI 生成数据的局限</h3>
+          <p class="section-en">Limitations to AI-Generated Data</p>
+          <div class="translation" data-layer="source">
+            <p>
+              合成数据越来越有用，让人憧憬彻底不再担心人工标注。但它即使继续变重要，也可能永远无法完全取代人工数据。四项主要原因是质量差异、模仿局限、潜在模型坍塌，以及数据血缘被掩盖。
+            </p>
+
+            <h4>质量控制</h4>
+            <p>
+              AI 数据可能质量低，“垃圾进，垃圾出”。无法验证质量时，人们会犹豫使用。开发可靠的数据评估方法和指标，是扩大合成数据价值的关键。
+            </p>
+
+            <h4>表面模仿</h4>
+            <p>
+              Gudibande 等人的《The False Promise of Imitating Proprietary LLMs》（2023）警告，模仿得到的表现可能很表面：学生模型善于模仿教师风格，却在事实准确性和训练数据以外任务的泛化上挣扎。
+            </p>
+            <p>
+              更糟的是，模仿会迫使学生模型幻觉。教师能解复杂数学题，所以回答看起来像完整解法；学生即使没有解题能力，在这些答案上训练后也会学会生成“像解法”的文本。研究者建议，要提高推理能力，应改善基础模型质量。
+            </p>
+
+            <h4>潜在模型坍塌</h4>
+            <p>
+              模型能在多少 AI 数据上训练仍不明确。一些研究表明，递归使用生成数据会给模型造成不可逆缺陷，随时间降低表现。Shumailov 等人（2023）把它命名为<strong>模型坍塌</strong>，并在 VAE、高斯混合模型、LLM 中演示；预训练和后训练都可能发生。
+            </p>
+            <p>
+              一种解释是，AI 更常生成高概率事件（没有癌症），较少生成低概率事件（患癌）。多轮后，常见事件过度代表，罕见事件代表不足，模型越来越只输出常见事件并忘掉稀有情况。
+            </p>
+            <p>
+              Gerstgrasser 等人的《Is Model Collapse Inevitable?》（2024）认为，全合成训练集一定会坍塌，但混合真实数据可以避免；其他研究也得到类似结果。不过都没有给出合成与真实数据比例的明确建议。
+            </p>
+            <p>
+              也有人用大量合成数据成功改善模型。Li 等人（2024）表明，数学微调 Llama 2-7B 时，合成数据几乎与真实数据一样有效，扩大到约 100 万例也没有明显饱和。Nemotron-4 340B-Instruct 在指令和偏好微调中使用 98% 合成数据。但这些实验都只做了一代模型，不能证明递归训练长期安全。
+            </p>
+            <p>
+              AI 数据还会延续偏差。Taori 与 Hashimoto（2023）表明，若训练集包含旧模型输出，原模型偏差会被放大；模型输出越忠实于原训练分布特征，反馈循环越稳定，偏差放大风险越小。
+            </p>
+
+            <h4>数据血缘不透明</h4>
+            <p>
+              AI 生成会掩盖数据血缘。模型受训练数据影响，有时在用户不知情时复述。若用模型 X 生成数据训练自有模型，而 X 的训练数据侵犯版权，自有模型也可能侵权。
+            </p>
+            <p>
+              又假设用基准 B 评估得到很强结果，但 X 也在 B 上训练过，那么 B 已污染。没有清晰血缘，就很难评估模型商业可用性或信任表现。
+            </p>
+            <p>
+              讨论完生成、评估和局限后，下面进入一种合成数据不只是补充、而是必需的特殊用例：模型蒸馏。
+            </p>
+          </div>
+        </section>
+
+        <section class="book-section" id="distillation">
+          <span class="section-number">第五部分</span>
+          <h2>模型蒸馏</h2>
+          <p class="section-en">Model Distillation</p>
+          <div class="translation" data-layer="source">
+            <p>
+              <strong>模型蒸馏</strong>（知识蒸馏）让小模型“学生”模仿大模型“教师”（Hinton 等，2015），把大模型知识蒸馏进小模型。
+            </p>
+            <p>
+              传统目标是产生更适合部署的小模型。大模型部署耗资源，蒸馏可得到更小、更快、表现接近教师的学生。例如从 BERT 蒸馏的 DistilBERT 体积缩小 40%，保留 97% 语言理解能力，速度提高 60%（Sanh 等，2019）。
+            </p>
+            <p>
+              学生可以像 DistilBERT 一样从零训练，也可以像 Alpaca 一样从预训练模型微调。2023 年 Taori 等人用 1,750 亿参数 text-davinci-003 生成的样例微调 70 亿参数 Llama，得到 Alpaca：行为与教师相近，大小只有教师 4%。
+            </p>
+          </div>
+
+          <div class="quote" data-layer="source">
+            <strong>说明</strong>
+            <p>并非所有模型都允许蒸馏。很多许可证禁止使用其输出训练其他模型，尤其是竞争模型。</p>
+          </div>
+
+          <div class="translation" data-layer="source">
+            <p>
+              合成指令数据常与 LoRA 等适配器技术配合。BuzzFeed 用 LoRA 和 text-davinci-003 生成的样例微调 Flan-T5，推理成本降低 80%，但模型表现如何并不清楚。
+            </p>
+            <p>
+              不是所有使用合成数据的训练都是蒸馏。蒸馏意味着教师表现是学生的黄金标准；但也可以用合成数据训练比教师更大、更强的学生。
+            </p>
+            <p>
+              前述逆向指令自举是一例。另一例是 NVIDIA Nemotron-4：研究者先预训练 3,400 亿参数基础模型，再用 560 亿参数 MoE 模型 Mixtral-8x7B-Instruct-v0.1 生成的指令和偏好数据微调。最终学生 Nemotron-4-340B-Instruct 在多项任务上超过教师。
+            </p>
+            <p>
+              Llama 3 论文指出，用更强模型生成的数据训练可显著改善表现；不加选择地用自生成数据训练则不会改善，甚至退化。但引入合成数据质量验证，只使用验证通过的数据后，模型可以借助自身生成持续进步。
+            </p>
+          </div>
+        </section>
+
+        <section class="book-section" id="processing">
+          <span class="section-number">第六部分</span>
+          <h2>数据处理</h2>
+          <p class="section-en">Data Processing</p>
+          <div class="translation" data-layer="source">
+            <p>
+              数据需要按具体用例要求处理。本节介绍一些常见步骤。披露数据集细节的模型论文很值得阅读，常包含研究者怎样整理、生成和处理数据的实用技巧。
+            </p>
+          </div>
+
+          <div class="quote" data-layer="source">
+            <strong>大数据处理的效率建议</strong>
+            <ul>
+              <li>数据多时每一步都可能耗费数小时甚至数天。可按节省时间与算力的顺序执行：若逐例清理比去重慢，就先去重；若去重比过滤低质量数据慢，就先过滤。</li>
+              <li>在全部数据上运行前，始终做小规模试跑，验证脚本符合预期。</li>
+              <li>避免原地修改，保留原始副本：其他团队可能需要用不同方式处理；脚本错误也可能损坏数据。</li>
+            </ul>
+          </div>
+
+          <h3 id="inspect">检查数据</h3>
+          <p class="section-en">Inspect Data</p>
+          <div class="translation" data-layer="source">
+            <p>
+              假设从公开和内部来源收集了原始数据，第一步是检查质量。了解信息与统计：数据来自哪里？怎样处理过？曾用于什么？
+            </p>
+            <p>
+              绘制词元分布、输入长度、回答长度等。是否使用特殊词元？能否得到主题与语言分布？这些主题和语言与任务多相关？
+            </p>
+            <p>
+              理解数据的统计可以很有创意。Microsoft 研究者（2023）用“（动词，直接宾语名词）”对和回答长度分布，比较 GPT-3、GPT-4 对同一组指令的生成差异，如图 8-6、8-7。这类分析既能评估数据，也能评估模型。
+            </p>
+          </div>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-6.webp" alt="数据中动词与直接宾语名词对的分布" loading="lazy" />
+            <figcaption>
+              图 8-6　一种可用统计是数据中的“（动词，直接宾语名词）”分布。来自 Peng 等人（2023）的《Instruction Tuning with GPT-4》。
+            </figcaption>
+          </figure>
+
+          <figure class="book-figure" data-layer="source">
+            <img src="figures/ch08/figure-8-7.webp" alt="GPT-4和GPT-3回答长度分布" loading="lazy" />
+            <figcaption>
+              图 8-7　GPT-4 与 GPT-3 的回答长度分布。来自 Peng 等人（2023）的《Instruction Tuning with GPT-4》。
+            </figcaption>
+          </figure>
+
+          <div class="translation" data-layer="source">
+            <p>
+              GPT-4 的动词—名词搭配范围似乎更广、更多样，也倾向生成更长回答。
+            </p>
+            <p>
+              按数据来源、时间、标注者等分别绘制分布。哪些问题模式得到更长/更短回答、更高/更低分？有无离群点？原因是什么？应怎样处理？
+            </p>
+            <p>
+              若分数预期服从正态分布，各标注者的分数是否都如此？可能发现某些标注者回答总是更短，或偏向高分，接下来要决定怎样处理其标注。
+            </p>
+            <p>
+              若每例有多条标注，应计算标注者间分歧，检查冲突样例并解决冲突。
+            </p>
+            <p>
+              数据探索工具很多，但不能取代人工查看。作者参与的每个项目中，只盯着数据看 15 分钟，往往就能得到省下数小时麻烦的洞见。OpenAI 联合创始人 Greg Brockman 说：“人工检查数据，可能是 ML 活动中价值与声望之比最高的一项。”
+            </p>
+            <p>
+              看样例是否合理。若有标注，挑几条自己标，看看是否和现有标注一致，以判断可信度。核查回答事实。样例有多唯一？有无同一查询对应不同回答？有无不同查询对应同一回答？
+            </p>
+          </div>
+
+          <h3 id="deduplicate">数据去重</h3>
+          <p class="section-en">Deduplicate Data</p>
+          <div class="translation" data-layer="source">
+            <p>
+              重复数据会扭曲分布并给模型引入偏差。表 8-3 中重复项可能让模型错误推断：所有红色商品都昂贵。重复还会污染测试集；拆分训练/测试集时，一个样例进入训练，其副本可能进入测试。
+            </p>
+          </div>
+
+          <div class="book-table-wrap" data-layer="source">
+            <table class="book-table">
+              <thead><tr><th>ID</th><th>输入（产品描述）</th><th>输出（价格）</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td><code>{item: pencil, color: red}</code></td><td>$20</td></tr>
+                <tr><td>2</td><td><code>{item: compass, color: green}</code></td><td>$2</td></tr>
+                <tr><td>3</td><td><code>{item: pencil, color: red}</code></td><td>$20</td></tr>
+                <tr><td>4</td><td><code>{item: pencil, color: red}</code></td><td>$20</td></tr>
+                <tr><td>5</td><td><code>{item: pencil, color: green}</code></td><td>$1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="section-en" data-layer="source">表 8-3　包含重复样例（原表灰色单元格）的玩具数据集。</p>
+
+          <div class="translation" data-layer="source">
+            <p>
+              多项研究显示训练数据重复会损害表现。Anthropic 研究表明，只把 0.1% 数据重复 100 次，就会让 8 亿参数模型退化到 4 亿参数模型水平，即使另外 90% 训练词元仍唯一。即便重复不损害表现，也浪费时间和算力。
+            </p>
+            <p>文档数据集有多种重复形式，检测难度不同：</p>
+            <ul>
+              <li><strong>整文重复：</strong>同一文档出现多次；</li>
+              <li><strong>文内重复：</strong>同一段落在文档内出现两次；</li>
+              <li><strong>跨文重复：</strong>同一热门引语出现在多份文档。</li>
+            </ul>
+            <p>
+              什么算重复还取决于定义。按文档、段落、句子还是词元？必须完全一致，还是 80% 重叠即可？两个列表元素相同但顺序不同，算不算重复？
+            </p>
+            <p>
+              去重可使用第 3 章的相似度技术。它也用于<strong>身份解析</strong>，判断两个身份（如社交账号）是否同一个。具体方法包括：
+            </p>
+            <h4>成对比较</h4>
+            <p>
+              计算每例与所有其他例子的相似度，用精确匹配、n-gram、模糊匹配或语义相似度；大数据集上成本很高。
+            </p>
+            <h4>哈希</h4>
+            <p>把样例映射到不同桶，只检查同桶样例；相关方法包括 MinHash 和 Bloom Filter。</p>
+            <h4>降维</h4>
+            <p>先用降维技术降低维数，再成对比较；第 6 章向量搜索的许多技术都可使用。</p>
+            <p>
+              可用去重库包括 dupeGuru、Dedupe、datasketch、TextDistance、TheFuzz 和 deduplicate-text-datasets。
+            </p>
+          </div>
+
+          <h3 id="clean-filter">清理与过滤数据</h3>
+          <p class="section-en">Clean and Filter Data</p>
+          <div class="translation" data-layer="source">
+            <p>
+              为模型表现和安全，需要清理数据。第一步可能是删除无关格式词元。公开数据常从互联网抓取，HTML 标签很多；除非要训练模型处理 HTML，否则应删除。Databricks 发现，清除无关 Markdown 与 HTML 词元后，模型准确率提高 20%，输入长度减少 60%。
+            </p>
+            <p>
+              还要清除任何不符合政策的内容，如 PII、敏感数据、版权数据、有毒数据；可使用第 4 章技术。删除不允许使用的字段，例如邮编、姓名、性别。
+            </p>
+            <p>
+              还可用“数据验证”一节方法删除低质量数据。此步骤人工检查尤其重要；盯着数据看会发现能检测低质量的非显而易见启发式。例如 Kern 等人（2024）发现，标注会话后半程产生的标注质量较低，可能因为无聊或疲劳。
+            </p>
+            <p>
+              若数据多于需求或算力预算，可继续过滤。主动学习可选择最有助模型学习的样例，重要性采样可找对任务最重要的样例；效率取决于能否良好评估每个训练样例的重要性。Meta 数据剪枝研究认为，找到好的剪枝指标能显著降低现代深度学习资源成本。
+            </p>
+          </div>
+
+          <h3 id="format">格式化数据</h3>
+          <p class="section-en">Format Data</p>
+          <div class="translation" data-layer="source">
+            <p>
+              去重与清理后，要转换成待微调模型预期格式。每个模型使用特定分词器和聊天模板（第 5 章）；模板错误会让模型出现奇怪故障。
+            </p>
+            <p>
+              监督微调数据通常是“（指令，回答）”，指令还可拆成“（系统提示，用户提示）”。从提示工程转向微调后，微调指令可能与原提示不同。微调时通常不需要任务描述和示例；训练例足够时，模型可直接从样例学会期望行为。
+            </p>
+            <p>例如基础模型做食物分类时，曾用三样本提示：</p>
+          </div>
+
+          <pre data-layer="source"><code>把下列项目标为 edible 或 inedible。
+Item: burger
+Label: edible
+Item: car
+Label: inedible
+Item: mushroom
+Label: edible
+Item: {INPUT}
+Label:</code></pre>
+
+          <div class="translation" data-layer="source">
+            <p>微调时，可把三个示例都转成训练样例，如表 8-4。</p>
+          </div>
+
+          <div class="book-table-wrap" data-layer="source">
+            <table class="book-table">
+              <thead><tr><th>样例 ID</th><th>输入</th><th>输出</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td><code>burger --&gt;</code></td><td>edible</td></tr>
+                <tr><td>2</td><td><code>car --&gt;</code></td><td>inedible</td></tr>
+                <tr><td>3</td><td><code>mushroom --&gt;</code></td><td>edible</td></tr>
+                <tr><td>…</td><td>…</td><td>…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="section-en" data-layer="source">表 8-4　食物分类任务的训练数据示例。</p>
+
+          <div class="translation" data-layer="source">
+            <p>模型微调后，提示可以简化为：</p>
+          </div>
+          <pre data-layer="source"><code>{INPUT} --&gt;</code></pre>
+          <div class="translation" data-layer="source">
+            <p>
+              它比基础模型提示短得多。如果担心指令输入词元成本，微调可以帮助控制。
+            </p>
+            <p>
+              不同微调数据格式会影响模型表现，值得实验确定最佳格式。使用微调模型时，提示必须匹配训练数据格式。训练使用 <code>burger --&gt;</code> 时，下列写法都可能出问题：
+            </p>
+            <ul>
+              <li><code>burger</code>：缺少结尾箭头；</li>
+              <li><code>Item: burger --&gt;</code>：多了前缀；</li>
+              <li><code>burger --&gt; </code>：末尾多一个空格。</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="book-section" id="summary">
+          <span class="section-number">本章结尾</span>
+          <h2>总结</h2>
+          <p class="section-en">Summary</p>
+          <div class="translation" data-layer="source">
+            <p>
+              创建训练数据的实际过程极其复杂，原则却出奇直接：先思考希望模型学会的行为，再设计展示这些行为的数据集。数据十分重要，团队正设置专门岗位，负责获取合适数据并确保隐私和合规。
+            </p>
+            <p>
+              需要什么数据不仅取决于用例，也取决于训练阶段。预训练、指令微调、偏好微调需要不同数据，但都共享质量、覆盖度、数量三项核心标准。
+            </p>
+            <p>
+              训练数据量最吸引眼球，质量和充分覆盖同样重要。少量高质量数据可以超过大量噪声数据，很多团队也发现提高多样性是改善表现的关键。
+            </p>
+            <p>
+              高质量数据难以获取，因此许多团队转向合成数据。程序化生成数据虽是长期目标，但直到 AI 能创建逼真复杂数据，合成才在更多用例中成为实用方案。本章讨论多种合成技术，并深入介绍微调指令数据合成。
+            </p>
+            <p>
+              合成数据和真实数据一样，训练前必须评价质量。评估 AI 数据和评估其他 AI 输出一样困难，人们也更愿意使用能够可靠评估的数据。
+            </p>
+            <p>
+              数据困难，是因为创建中的很多步骤不易自动化。标注很难，制定标注指南更难；生成自动化很难，验证自动化更难。合成可以增加数据，却不能自动替你思考究竟需要什么；很难自动制定指南，也不能自动化对细节的关注。
+            </p>
+            <p>
+              困难会催生创造性方案。作者研究本章时最深的印象，是数据集设计包含惊人的创造力：构造和评价数据有如此多方法。希望这些合成与验证技术能启发读者设计自己的数据集。
+            </p>
+            <p>
+              假设已经整理出优秀数据集并训练出卓越模型，下一步怎样提供模型服务？第 9 章将讨论怎样优化推理延迟与成本。
+            </p>
+          </div>
+          <div class="chapter-end"><strong>第 8 章结束</strong></div>
+        </section>
+
+        <section class="book-section" id="notes">
+          <span class="section-number">原书注释</span>
+          <h2>注释</h2>
+          <p class="section-en">Notes</p>
+          <div class="translation" data-layer="source">
+            <ol>
+              <li>从 GPT-3 到 GPT-4，数据投入的重要性显著上升。GPT-3 贡献名单中只有两人负责收集、过滤、去重和重叠分析；三年后 GPT-4 有 80 人参与不同数据流程，还不包括外包标注员。看似简单的 ChatML 格式也有 11 人参与，其中许多是高级研究者。OpenAI 联合创始人 Wojciech Zaremba 2016 年还曾说，他们计划主要使用公开数据集开展研究。</li>
+              <li>数据量很大时，仅确保合规就可能成为全职工作。</li>
+              <li>数据质量定义很多。IBM 给出完整性、唯一性、有效性、及时性、准确性、一致性、适用性七个维度；Wikipedia 又增加可访问性、可比性、可信度、灵活性、合理性。本章只聚焦微调数据质量。</li>
+              <li>作者记得一个痛苦 bug：浮点列被错误存为整数，数值被取整，造成令人困惑的行为。</li>
+              <li>“足够唯一”不是说数据必须为你独有；不过拥有别人没有的数据可能极有价值。</li>
+              <li>作者在《Designing Machine Learning Systems》中还介绍弱监督、半监督、主动学习等减少标注需求的方法。</li>
+              <li>太多公司在融资介绍中谈“数据飞轮”，以至作者开玩笑说，不提它似乎就不能合法创办 AI 初创公司。</li>
+              <li>《Designing Machine Learning Systems》第 4 章讨论数据增强。</li>
+              <li>一个明显例子是训练 AI 内容检测器：训练样例必须包括 AI 生成内容。</li>
+              <li>许多优秀游戏只有程序化生成才可能实现。Minecraft、No Man’s Sky 用噪声函数和分形算法创建广阔世界；《龙与地下城》可程序化生成地牢、任务和遭遇，增加不可预测性和无限可能。</li>
+              <li>理论上，逆向指令意味着可以训练不断自我改进的模型；实践中能否实现则是另一回事。</li>
+              <li>Llama 3 研究者观察到，约 20% 的解答起初错误但会自我修正，表明模型从执行反馈中学习并改善。</li>
+              <li>同样问题也会发生在人工标注：标注者若用模型没有的知识回答，实际上是在教模型幻觉。</li>
+              <li>相同作者后来在 2024 年 7 月 Nature 文章《AI Models Collapse When Trained on Recursively Generated Data》中再次解释模型坍塌。</li>
+              <li>把 Mixtral 这种 MoE 的参数量和 Nemotron-4 稠密模型直接比较并不公平，但教师 Mixtral 小于学生 Nemotron-4 这一点仍成立。</li>
+              <li>作者的开源库 lazyNLP 也支持用 Bloom Filter 估计重叠并去重。</li>
+            </ol>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="../js/sidebar.js"></script>
+  </body>
+</html>
