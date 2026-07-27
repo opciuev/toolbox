@@ -62,6 +62,22 @@ a:hover {
   font-size: 14px;
 }
 
+.header-right .workbench-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 8px;
+}
+
+.header-right .workbench-link:hover {
+  color: #fff;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.58);
+}
+
 .site-search {
   position: relative;
   flex: 0 1 360px;
@@ -1135,6 +1151,12 @@ h4.subsection-heading::before {
     display: none;
     white-space: nowrap;
     font-size: 13px;
+  }
+
+  .header-right > .workbench-link {
+    display: inline-flex;
+    min-height: 32px;
+    padding: 0 9px;
   }
 
   .site-search {
