@@ -412,19 +412,19 @@ from PySide6.QtWidgets import QWidget, QApplication, QMessageBox</div>
       <p class="content-text">在确定自定义事件类型的值后，需要调用 QEvent 类的静态方法 registerEventType 进行注册。事件注册后，若要触发事件，就可以调用 sendEvent 或 postEvent 方法将事件发送给目标 Qt 对象。</p>
       <p class="content-text">下面示例注册了两个自定义的事件——MyCustomEvent1 和 MyCustomEvent2。窗口上放置了两个按钮（QPushButton 部件），分别用于触发上述自定义事件。具体实现步骤如下。</p>
 
-      <p class="content-text">定义两个变量，设置自定义事件的值。</p>
+      <p class="content-text">（1）定义两个变量，设置自定义事件的值。</p>
       <div class="code-block">MyCustomEvent1 = QEvent.Type(QEvent.Type.User + 1)
 MyCustomEvent2 = QEvent.Type(QEvent.Type.User + 2)</div>
 
       <p class="content-text">注意，变量在赋值时要明确使用 QEvent.Type 数据类型。表达式 QEvent.Type.User + 1 和 QEvent.Type.User + 2 返回的值都会被解析为 int，因此要将其转换为 QEvent.Type 类型。</p>
-      <p class="content-text">定义 AppWindow 类，派生自 QWidget。在构造函数中调用 initUI 方法，初始化应用窗口的可视化对象。</p>
+      <p class="content-text">（2）定义 AppWindow 类，派生自 QWidget。在构造函数中调用 initUI 方法，初始化应用窗口的可视化对象。</p>
 
       <div class="code-block">def __init__(self):
     super().__init__(None)
     # 初始化用户界面
     self.initUI()</div>
 
-      <p class="content-text">下面是 initUI 方法的实现代码。</p>
+      <p class="content-text">（3）下面是 initUI 方法的实现代码。</p>
 
       <div class="code-block">def initUI(self):
     # 布局
@@ -432,8 +432,8 @@ MyCustomEvent2 = QEvent.Type(QEvent.Type.User + 2)</div>
     # 标签部件
     self.label = QLabel()
     # 按钮部件
-    self.btn1 = QPushButton("自定义事件 1")
-    self.btn2 = QPushButton("自定义事件 2")
+    self.btn1 = QPushButton("点这里，触发自定义事件1")
+    self.btn2 = QPushButton("点这里，触发自定义事件2")
 
     # 将以上部件添加到布局中
     layout.addWidget(self.label)
@@ -451,7 +451,7 @@ MyCustomEvent2 = QEvent.Type(QEvent.Type.User + 2)</div>
     self.resize(200, 160)</div>
 
       <p class="content-text">QLabel 部件用于显示文本信息，两个 QPushButton 部件被单击后会发出 clicked 信号，并由 onClicked1、onClicked2 接收。</p>
-      <p class="content-text">以下为 onClicked1 和 onClicked2 的实现代码。</p>
+      <p class="content-text">（4）以下为 onClicked1 和 onClicked2 的实现代码。</p>
 
       <div class="code-block">def onClicked1(self):
     QApplication.postEvent(self, QEvent(MyCustomEvent1))
@@ -459,26 +459,33 @@ MyCustomEvent2 = QEvent.Type(QEvent.Type.User + 2)</div>
 def onClicked2(self):
     QApplication.postEvent(self, QEvent(MyCustomEvent2))</div>
 
-      <p class="content-text">自定义事件发送给当前窗口后，需要重写 <code>event</code> 方法进行接收。已经处理的事件返回 <code>True</code>，其他事件继续交给基类。</p>
+      <p class="content-text">上述代码调用 postEvent 方法来发送自定义事件，事件的接收目标是当前窗口对象（AppWindow 实例）。</p>
+      <p class="content-text">（5）重写基类的 event 方法，接收并处理自定义事件。</p>
 
       <div class="code-block">def event(self, e: QEvent) -&gt; bool:
     if e.type() == MyCustomEvent1:
-        self.label.setText("自定义事件 1 已触发")
+        self.label.setText("自定义事件1已触发")
         return True
     if e.type() == MyCustomEvent2:
-        self.label.setText("自定义事件 2 已触发")
+        self.label.setText("自定义事件2已触发")
         return True
+    # 其余事件将交给基类处理
     return super().event(e)</div>
 
-      <p class="content-text">在创建应用程序对象前注册事件类型，然后显示窗口并进入消息循环。</p>
+      <p class="content-text">如果接收到的事件类型是 MyCustomEvent1，就设置标签的文本为“自定义事件1已触发”；如果接收到的是 MyCustomEvent2，就设置标签文本为“自定义事件2已触发”。事件处理完毕后应返回 True，其他未被处理的事件应交给基类去处理（调用基类的 event 方法）。</p>
+      <p class="content-text">（6）在初始化应用程序前，注册自定义事件。</p>
 
       <div class="code-block">QEvent.registerEventType(MyCustomEvent1)
-QEvent.registerEventType(MyCustomEvent2)
+QEvent.registerEventType(MyCustomEvent2)</div>
 
-app = QApplication()
-window = AppWindow()
-window.show()
+      <p class="content-text">（7）初始化应用程序，呈现 AppWindow 窗口。</p>
+
+      <div class="code-block">app = QApplication()
+wind = AppWindow()
+wind.show()
 app.exec()</div>
+
+      <p class="content-text">（8）运行示例代码，单击窗口上的按钮可触发自定义事件，如图 2-5 所示。</p>
 
       <div class="result-box">
         <span class="result-box-header">图 2-5</span>
@@ -488,311 +495,1254 @@ app.exec()</div>
         </div>
       </div>
 
-      <h3 class="subsection-heading">2.3.4 事件过滤器</h3>
-      <p class="content-text">事件过滤器让一个 QObject 监视另一个对象收到的事件，无需仅为了过滤事件而创建新的部件子类。被监视对象通过 <code>installEventFilter</code> 注册监视者；监视者重写 <code>eventFilter</code>。返回 <code>True</code> 表示拦截事件，返回 <code>False</code> 或调用基类实现则继续传递。</p>
-
-      <p class="content-text">下面的窗口监视文本输入框的按键事件，并拦截空格与“#”字符。</p>
+      <h3 class="subsection-heading" id="subsection-2-3-4"><span>2.3.4</span> 事件过滤器</h3>
+      <p class="content-text">虽然派生类可通过重写 event 方法来过滤事件（该方法若返回 False，则事件将不再传递给基类），但如果仅为了过滤事件而创建派生类，结果会产生许多不必要的新类型。因此，使用事件过滤器会更合适。</p>
+      <p class="content-text">事件过滤器能够实现一个对象监视另一个对象的事件，事件过滤器（监视者）会通过 eventFilter 方法的返回值来决定是否将事件发送给被监视对象。</p>
+      <p class="content-text">假设 A 对象需要监视（过滤）发送给 B 对象的事件，那么，监视者是 A 对象，被监视者是 B 对象。B 对象需要调用 installEventFilter 方法注册事件过滤器。调用时必须提供 A 对象的引用。A 对象需要重写 eventFilter 方法，如果方法返回 True，表示事件不会发送给 B 对象，否则返回 False。要解除对 B 对象的事件监视（过滤），请调用 B 对象的 removeEventFilter 方法。</p>
+      <p class="content-text">下面示例将从 QWidget 类派生一个自定义窗口类 MyWindow，并且该窗口类重写了 eventFilter 方法，可作为事件过滤器（监视者角色）使用。窗口上放置一个 QLineEdit 部件（单行文本输入框，被监视者角色）。MyWindow 类将监视 QLineEdit 对象的 KeyPress 和 KeyRelease 事件，如果出现空格或“#”字符，就把事件过滤掉。此方案可实现禁止用户输入特定字符的功能。</p>
 
       <div class="code-block">class MyWindow(QWidget):
     def __init__(self):
         super().__init__(None, Qt.Window)
+        # 窗口标题
         self.setWindowTitle("事件过滤")
+        # 窗口大小
         self.resize(200, 80)
-
+        # 初始化 UI 部件
         self.txtEdit = QLineEdit(self)
         self.txtEdit.move(15, 17)
+        # 安装事件过滤器
         self.txtEdit.installEventFilter(self)
 
     def eventFilter(self, watched: QObject, e: QEvent) -&gt; bool:
         if watched == self.txtEdit:
-            if e.type() in (QEvent.KeyPress, QEvent.KeyRelease):
-                key_event = QKeyEvent(e)
-                if key_event.key() in (Qt.Key_Space, Qt.Key_NumberSign):
+            # 检查是否为键盘事件
+            if e.type() == QEvent.KeyPress or e.type() == QEvent.KeyRelease:
+                keyev = QKeyEvent(e)
+                # 过滤“空格”键和“#”字符
+                if keyev.key() == Qt.Key_Space or keyev.key() == Qt.Key_NumberSign:
+                    # 直接返回 True，将跳过该事件
                     return True
         return super().eventFilter(watched, e)</div>
+
+      <p class="content-text">Qt.Key_Space 常量表示空格，Qt.Key_NumberSign 表示数字符号键，即“#”字符。</p>
+      <p class="content-text">运行上述示例代码后，在文本框输入内容时，会发现无法输入“#”字符和空格，如图 2-6 所示。</p>
 
       <div class="result-box">
         <span class="result-box-header">图 2-6</span>
         <div class="result-box-image">
           <img src="images/ch02/ch02_fig_11.png" alt="事件过滤器禁止输入井号和空格">
-          <div class="caption">事件过滤器拦截“#”字符和空格</div>
+          <div class="caption">无法输入“#”字符和空格</div>
         </div>
       </div>
 
-      <p class="content-text">同一个对象可以注册多个事件过滤器。过滤器的激活顺序与注册顺序相反：最后注册的过滤器最先收到事件。若不再需要监视，可调用 <code>removeEventFilter</code> 解除注册。</p>
+      <p class="content-text">若被监视对象注册了多个过滤器，过滤器的激活顺序与注册顺序相反，即最后注册的过滤器最先被激活。</p>
+      <p class="content-text">请思考以下示例：</p>
 
-      <div class="code-block">button.installEventFilter(filter1)
-button.installEventFilter(filter2)
-button.installEventFilter(filter3)
+      <div class="code-block">class EventFilter1(QObject):
+    # 构造函数
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-# 激活顺序：filter3 → filter2 → filter1
-button.removeEventFilter(filter2)</div>
+    # 重写事件过滤方法
+    def eventFilter(self, watched: QObject, e: QEvent) -&gt; bool:
+        if e.type() == QEvent.MouseButtonPress:
+            print("事件过滤器 - 1")
+        return super().eventFilter(watched, e)
+
+
+class EventFilter2(QObject):
+    # 构造函数
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    # 重写事件过滤方法
+    def eventFilter(self, watched: QObject, e: QEvent) -&gt; bool:
+        if e.type() == QEvent.MouseButtonPress:
+            print("事件过滤器 - 2")
+        return super().eventFilter(watched, e)
+
+
+class EventFilter3(QObject):
+    # 构造函数
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    # 重写事件过滤方法
+    def eventFilter(self, watched: QObject, e: QEvent) -&gt; bool:
+        if e.type() == QEvent.MouseButtonPress:
+            print("事件过滤器 - 3")
+        return super().eventFilter(watched, e)</div>
+
+      <p class="content-text">上述代码定义了三个类，均重写了 eventFilter 方法，对鼠标按下事件进行过滤。下面代码将上述三个类对象作为按钮部件的事件过滤器。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+    def __init__(self) -&gt; None:
+        super().__init__(None, Qt.Window)
+        # 窗口标题
+        self.setWindowTitle("Demo App")
+        # 窗口大小
+        self.resize(240, 70)
+        # 窗口位置
+        self.move(548, 438)
+        # 实例化按钮部件
+        self.btn = QPushButton("请单击这里", self)
+        # 设置按钮的位置
+        self.btn.move(20, 20)
+        # 实例化三个事件过滤器
+        self.evtFilter1 = EventFilter1(self)
+        self.evtFilter2 = EventFilter2(self)
+        self.evtFilter3 = EventFilter3(self)
+        # 注册事件过滤器
+        self.btn.installEventFilter(self.evtFilter1)
+        self.btn.installEventFilter(self.evtFilter2)
+        self.btn.installEventFilter(self.evtFilter3)</div>
+
+      <p class="content-text">事件过滤器的注册顺序为 EventFilter1→EventFilter2→EventFilter3，但它们被激活的顺序则是 EventFilter3→EventFilter2→EventFilter1。</p>
+      <p class="content-text">示例程序运行后，单击窗口上的按钮，控制台将输出以下内容：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">事件过滤器 - 3<br>事件过滤器 - 2<br>事件过滤器 - 1</div>
+      </div>
 
       <div class="section-heading" id="section-3">
         <span class="section-number">2.4</span>
         <h2>信号与槽</h2>
       </div>
 
-      <p class="content-text">信号与槽是 Qt 对象之间的通信机制。信号负责发出通知，槽负责接收通知并执行相应逻辑。在类中声明信号时使用 <code>Signal</code>，通过对象访问它时，实际得到的是可连接、断开和发送的信号实例。</p>
+      <p class="content-text">信号和槽是 Qt 对象之间的通信机制。信号是发送者，槽是接收者。</p>
+      <p class="content-text">信号对象用 Signal 类表示。由于该类的成员中存在 __get__ 方法，使其成为只读的描述器（Descriptor）。当通过类型来访问此描述器时，它返回的类型为 Signal（描述器自身的实例）；当通过类型实例来访问此描述器时，它将返回 SignalInstance 类型的对象实例。</p>
+      <p class="content-text">综上所述，在类中定义信号时使用的是 Signal 类，而操作信号时（如连接槽函数、发送信号等）所使用的实际类型为 SignalInstance。该类定义了以下方法。</p>
+      <ol class="content-list">
+        <li>connect：将当前信号与接收信号的槽连接。</li>
+        <li>disconnect：解除信号与槽的连接。</li>
+        <li>emit：发出信号。</li>
+      </ol>
+      <p class="content-text">信号的接收者称为槽，它通常是某个函数或某个类中的方法。信号对象必须先调用 connect 方法与槽对象建立连接，当信号发出后，槽对象就会被调用。</p>
+      <p class="content-text">下面示例代码将定义 Demo 类，类中包含名为 testSignal 的信号对象。</p>
 
-      <table class="content-table">
-        <thead>
-          <tr><th>方法</th><th>用途</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>connect(slot)</code></td><td>把信号连接到槽函数或另一个信号。</td></tr>
-          <tr><td><code>disconnect(slot)</code></td><td>解除已经建立的连接。</td></tr>
-          <tr><td><code>emit(...)</code></td><td>发出信号，并把参数传递给槽。</td></tr>
-        </tbody>
-      </table>
+      <div class="code-block">class Demo(QObject):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    # 信号
+    testSignal = Signal()</div>
+
+      <p class="content-text">定义一个名为 slotFunc 的函数，作为 testSignal 信号的槽。当 testSignal 信号发出后该函数会被调用。</p>
+
+      <div class="code-block">def slotFunc():
+    print('已收到信号')</div>
+
+      <p class="content-text">下面代码实例化 Demo 类，然后将 testSignal 信号与槽 slotFunc 进行连接。</p>
+
+      <div class="code-block">x = Demo()
+x.testSignal.connect(slotFunc)</div>
+
+      <p class="content-text">当调用信号对象的 emit 方法后将发出信号，已建立连接的槽对象就会被调用。</p>
+
+      <div class="code-block">x.testSignal.emit()</div>
+
+      <p class="content-text">上述代码执行后，若控制台输出“已收到信号”，说明信号与槽能正常通信。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-4-1"><span>2.4.1</span> 一个信号连接多个槽</h3>
+      <p class="content-text">当某个信号连接了多个槽对象后，槽对象被调用的顺序将与建立连接的顺序相同。请看下面示例：</p>
+
+      <div class="code-block">from PySide6.QtWidgets import QWidget, QPushButton, QApplication
+
+# 以下为槽函数
+def func1():
+    print("响应函数：1")
+
+def func2():
+    print("响应函数：2")
+
+def func3():
+    print("响应函数：3")
+
+if __name__ == '__main__':
+    app = QApplication()
+    # 程序窗口
+    window = QWidget(parent=None)
+    # 窗口标题
+    window.setWindowTitle("连接多个槽")
+    # 窗口位置及大小
+    window.setGeometry(766, 550, 230, 90)
+    # 按钮部件
+    button = QPushButton("请单击这里", window)
+    # 按钮在窗口中的位置
+    button.move(25, 20)
+    # clicked 信号连接三个槽对象
+    button.clicked.connect(func1)
+    button.clicked.connect(func2)
+    button.clicked.connect(func3)
+    # 显示窗口
+    window.show()
+    # 启动消息循环
+    app.exec()</div>
+
+      <p class="content-text">QPushButton 类表示常见的按钮部件，当用户单击后会发出 clicked 信号。将按钮的 clicked 信号与自定义函数连接，就可以实现响应按钮操作的逻辑代码。上述代码中，clicked 信号依次连接到三个函数上。只要按钮被单击，就会按照此顺序调用三个函数：func1→func2→func3。因此控制台将输出以下内容：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">响应函数：1<br>响应函数：2<br>响应函数：3</div>
+      </div>
+
+      <p class="content-text">如果将 clicked 信号连接三个函数的顺序修改一下：</p>
+
+      <div class="code-block">button.clicked.connect(func3)
+button.clicked.connect(func1)
+button.clicked.connect(func2)</div>
+
+      <p class="content-text">那么，按钮被单击后，控制台将输出以下内容：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">响应函数：3<br>响应函数：1<br>响应函数：2</div>
+      </div>
+
+      <p class="content-text">通过本示例可知，槽被调用的顺序与 connect 方法调用的顺序一致。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-4-2"><span>2.4.2</span> 带参数的信号</h3>
+      <p class="content-text">信号对象支持传递参数——作为附加数据提供给与信号连接的槽对象。请看下面例子，Test 类中包含 setName 信号。</p>
+
+      <div class="code-block">class Test(QObject):
+    # 信号
+    setName = Signal(str)</div>
+
+      <p class="content-text">当信号需要参数时，可以向 Signal 类的构造函数传递参数的类型。上述代码为 setName 信号设置了字符串（str）类型的参数。</p>
+      <p class="content-text">下面函数将与 setName 信号建立连接。函数必须包含一个参数。</p>
+
+      <div class="code-block">def onSetName(name):
+    print(f"设置了新名称：{name}")</div>
+
+      <p class="content-text">当 setName 调用 emit 方法发送信号时，需要传递一个字符串类型的参数值。该值将由 onSetName 函数的 name 参数接收。下面代码在发出信号时传递字符串常量“Jack”。</p>
+
+      <div class="code-block">x = Test()
+# 连接信号
+x.setName.connect(onSetName)
+# 发出信号
+x.setName.emit("Jack")</div>
+
+      <p class="content-text">以上示例运行后，控制台将输出以下内容：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">设置了新名称：Jack</div>
+      </div>
+
+      <p class="content-text">如果信号需要定义多个参数，可以为 Signal 类的构造函数提供各参数的类型，例如：</p>
+
+      <div class="code-block">class Test2(QObject):
+    def __init__(self):
+        super().__init__()
+
+    # 信号
+    demoSignal = Signal(int, float)</div>
+
+      <p class="content-text">Test2 类中包含 demoSignal 信号，它定义了两个参数：第一个参数是整数类型（int），第二个参数是浮点数类型（float）。因此，demoSignal 信号连接的槽函数必须能接收两个参数。</p>
+
+      <div class="code-block">def demoSlot(a: int, b: float):
+    print(f'第一个参数：{a:d}')
+    print(f'第二个参数：{b:.3f}')</div>
+
+      <p class="content-text">下面代码将实例化 Test2 类，并发出 demoSignal 信号。</p>
+
+      <div class="code-block">v = Test2()
+# 建立连接
+v.demoSignal.connect(demoSlot)
+# 发出信号
+v.demoSignal.emit(300, 100.0830655)</div>
+
+      <p class="content-text">emit 方法的参数个数是可变的。如上述代码，demoSignal 信号需要两个参数，因此在调用 emit 方法时要提供两个参数。运行后控制台的输出内容如下：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">第一个参数：300<br>第二个参数：100.083</div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-4-3"><span>2.4.3</span> 使用 C++ 成员方法的签名格式</h3>
+      <p class="content-text">在调用 connect 方法建立信号与槽的连接时，也可以直接使用字符串形式来指定对象的成员名称。其格式与 C++ 方法的签名相同。例如，滑动条部件（QSlider 类）在用户改变滑块的位置后会发出 valueChanged 信号。该信号包含一个整数类型的参数 value，表示当前滑动条的最新值。如果调用 connect 方法时希望使用字符串形式来指定 valueChanged 信号，则它的格式为：</p>
+
+      <div class="code-block">QSlider::valueChanged(int)</div>
+
+      <p class="content-text">不需要指定参数的名称，指明其类型即可。如果 connect 方法是在 QSlider 实例上调用的，则类型可以省略，即：</p>
+
+      <div class="code-block">valueChanged(int)</div>
+
+      <p class="content-text">槽对象的字符串形式与信号对象类似，例如：</p>
+
+      <div class="code-block">onChanged(int)</div>
+
+      <p class="content-text">下面以单行文本输入部件（QLineEdit 类）为例进行演示。</p>
+
+      <div class="code-block">from PySide6.QtWidgets import QApplication, QWidget, QLineEdit, QLabel
+from PySide6.QtCore import SIGNAL, SLOT
+
+class AppWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        # 设置窗口大小
+        self.resize(280, 90)
+        # 设置窗口标题
+        self.setWindowTitle("Demo App")
+        # 初始化单行文本输入部件
+        self.lineTxt = QLineEdit(self)
+        # 建立信号与槽的连接
+        self.lineTxt.connect(
+            SIGNAL('cursorPositionChanged(int,int)'),
+            self,
+            SLOT('onCursorPsChanged(int,int)')
+        )
+        # 初始化标签部件
+        self.lb = QLabel(self)
+        # 设置部件在窗口中的位置和大小
+        self.lineTxt.setGeometry(20, 15, 200, 25)
+        self.lb.setGeometry(20, 45, 160, 35)
+
+    # 接收 cursorPositionChanged 信号的槽
+    def onCursorPsChanged(self, oldPos, newPos):
+        msg = f'光标已从{oldPos}移动到{newPos}'
+        self.lb.setText(msg)</div>
+
+      <p class="content-text">QLineEdit 类在输入光标的位置发生改变后会发出 cursorPositionChanged 信号。此信号包含两个 int 类型的参数——第一个参数表示光标的旧位置，第二个参数表示光标的新位置。</p>
+      <p class="content-text">由于信号对象的 connect 方法并不是直接处理 str（字符串）类型的参数，因此在指定信号名称时要使用 SIGNAL 函数。同理，在指定槽的名称时要使用 SLOT 函数。</p>
+      <p class="content-text">下面代码初始化应用程序并显示 AppWindow 窗口。</p>
+
+      <div class="code-block">if __name__ == '__main__':
+    app = QApplication()
+    window = AppWindow()
+    # 显示窗口
+    window.show()
+    # 启动消息循环
+    app.exec()</div>
+
+      <p class="content-text">运行示例程序后，在文本输入框中随机输入一些字符，然后通过单击或按键盘上的左右方向键来移动输入光标。文本框下面的标签上会实时显示光标的位置，如图 2-7 所示。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-7</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_05.png" alt="实时显示输入光标的位置">
+          <div class="caption">实时显示输入光标的位置</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-4-4"><span>2.4.4</span> 信号的类型重载</h3>
+      <p class="content-text">在声明信号对象时，如果传递的类型参数为元组（Tuple）类型，表示该信号允许类型重载——可根据参数类型来选择版本，例如：</p>
+
+      <div class="code-block">x = Signal((int,), (bytes,))</div>
+
+      <p class="content-text">信号 x 具有两个类型重载版本：</p>
+      <ul class="content-list">
+        <li>x[int]：包含一个整数类型的参数。</li>
+        <li>x[bytes]：包含一个字符序列的参数。</li>
+      </ul>
+      <p class="content-text">若 x 信号的声明如下：</p>
+
+      <div class="code-block">x = Signal((int, int, int,), (str, int,))</div>
+
+      <p class="content-text">那么信号 x 将具有以下重载版本：</p>
+      <ul class="content-list">
+        <li>x[int,int,int]：包含 3 个参数，并且都是整数类型。</li>
+        <li>x[str,int]：包含两个参数，第一个参数为字符串类型，第二个参数为整数类型。</li>
+      </ul>
+      <p class="content-text">接下来请看一个示例。</p>
 
       <div class="code-block">from PySide6.QtCore import QObject, Signal
 
 class Demo(QObject):
-    message = Signal(str)
+    # 信号
+    testSignal = Signal((str, str,), (float,))
 
-demo = Demo()
-demo.message.connect(lambda text: print(f"收到：{text}"))
-demo.message.emit("hello")</div>
-
-      <h3 class="subsection-heading">2.4.1 一个信号连接多个槽</h3>
-      <p class="content-text">同一个信号可以连接多个槽。信号发出后，各个槽通常按照调用 <code>connect</code> 的先后顺序执行。这个特性适合把界面更新、日志记录等互不依赖的操作拆开处理。</p>
-
-      <div class="code-block">button.clicked.connect(save_data)
-button.clicked.connect(update_status)
-button.clicked.connect(write_log)</div>
-
-      <h3 class="subsection-heading">2.4.2 带参数的信号与重载</h3>
-      <p class="content-text">把参数类型传给 <code>Signal</code> 即可声明带参数信号。槽函数应当能够接收相同数量的参数。一个信号还可以提供多个参数类型版本，连接和发送时通过方括号选择所需的重载。</p>
-
-      <div class="code-block">class Worker(QObject):
-    progress = Signal(int, str)
-    valueChanged = Signal((int,), (str,))
-
-worker = Worker()
-worker.progress.connect(
-    lambda value, text: print(value, text)
-)
-worker.progress.emit(60, "处理中")
-
-worker.valueChanged[int].connect(print)
-worker.valueChanged[int].emit(42)</div>
-
-      <h3 class="subsection-heading">2.4.3 自动连接槽</h3>
-      <p class="content-text"><code>QMetaObject.connectSlotsByName</code> 可以按照对象名和槽方法名自动完成连接。子对象要先通过 <code>setObjectName</code> 设置名称，槽则按 <code>on_对象名_信号名</code> 命名，并使用 <code>Slot</code> 装饰器标注。</p>
-
-      <div class="code-block">from PySide6.QtCore import QMetaObject, Slot
-
-self.button.setObjectName("myButton")
-QMetaObject.connectSlotsByName(self)
-
-@Slot()
-def on_myButton_clicked(self):
-    print("按钮被单击")</div>
-
-      <div class="result-box">
-        <span class="result-box-header">图 2-7 ～ 图 2-9</span>
-        <div class="result-box-image figure-pair">
-          <div>
-            <img src="images/ch02/ch02_fig_05.png" alt="实时显示输入光标的位置">
-            <div class="caption">使用信号参数显示输入光标的位置</div>
-          </div>
-          <div>
-            <img src="images/ch02/ch02_fig_06.png" alt="自动连接按钮的槽并弹出消息框">
-            <div class="caption">自动连接按钮的槽</div>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="subsection-heading">2.4.4 自定义信号与信号阻绝器</h3>
-      <p class="content-text">自定义信号可以传递 QColor 等 Qt 类型。下面的思路是在按钮槽中选择颜色，再通过 <code>setColor</code> 信号把颜色交给另一个槽，从而修改窗口调色板。</p>
-
-      <div class="code-block">class ColorWindow(QWidget):
-    setColor = Signal(QColor)
+    # 槽
+    def testSlot(self, arg1, arg2=None):
+        if isinstance(arg1, str) and isinstance(arg2, str):
+            print(f'字符串参数：{arg1}、{arg2}')
+        if isinstance(arg1, float):
+            print(f'浮点数参数：{arg1}')
 
     def __init__(self):
         super().__init__()
-        self.setColor.connect(self.applyColor)
+        # 建立信号和槽之间的连接
+        self.testSignal[str, str].connect(self.testSlot)
+        self.testSignal[float].connect(self.testSlot)
 
-    def applyColor(self, color):
-        palette = self.palette()
-        palette.setColor(QPalette.Window, color)
-        self.setPalette(palette)</div>
+    # 发送信号
+    def sendFloat(self):
+        self.testSignal[float].emit(0.55)
+
+    def sendStr(self):
+        self.testSignal[str, str].emit("hello", "world")</div>
+
+      <p class="content-text">Demo 类中包含 testSignal 信号，它具有以下类型重载：</p>
+      <ul class="content-list">
+        <li>testSignal[str,str]：包含两个字符串类型的参数。</li>
+        <li>testSignal[float]：包含一个浮点数类型的参数。</li>
+      </ul>
+      <p class="content-text">testSlot 方法将作为 testSignal 信号连接的槽对象，并且是两个重载版本共用的槽对象。因此 testSlot 方法包含两个参数，其中 arg2 为可选参数。如果使用的信号版本为单个 float 类型参数，那么仅使用 arg1 参数即可，arg2 参数保留默认值 None。如果使用的信号版本是两个 str 类型的参数，那么 arg1、arg2 分别存放两个参数的值。</p>
+      <p class="content-text">为了分辨信号的重载版本，testSlot 方法中使用了 isinstance 函数来检查 arg1 和 arg2 的实际类型。若两个参数均为 str 类型，那么连接 testSlot 的信号是 testSignal[str,str]；若 arg1 的类型为 float，那么连接的信号就是 testSignal[float]。</p>
+      <p class="content-text">示例运行后控制台将输出以下内容：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">字符串参数：hello、world<br>浮点数参数：0.55</div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-4-5"><span>2.4.5</span> 让信号与槽自动建立连接</h3>
+      <p class="content-text">QMetaObject 类有一个名为 connectSlotsByName 的静态方法。调用方法时需要提供一个 QObject 类型或其子类的对象。connectSlotsByName 方法会遍历指定对象的子级对象集合，为每个子对象的信号成员查找匹配的槽，然后自动建立连接。</p>
+      <p class="content-text">要使用上述功能，必须为对象分配一个名称（调用 setObjectName 方法）。虽然多个对象允许设置相同的名称，但是只有匹配的第一个对象才会自动建立信号与槽的连接。因此，建议不要在同一个对象树层次中分配重复的对象名称。</p>
+      <p class="content-text">槽对象必须符合以下命名规则才会被自动连接：</p>
+
+      <div class="code-block">on_&lt;对象名称&gt;_&lt;信号&gt;(&lt;参数列表&gt;)</div>
+
+      <p class="content-text">假设某 Qt 对象分配了名称 txtAge，并希望它的 textUpdated 信号能自动连接槽对象，那么用作槽的成员应当命名为 on_txtAge_textUpdated(…)。</p>
+      <p class="content-text">下面示例将在窗口中放置一个按钮部件（QPushButton 类），它的 clicked 信号能够自动连接槽对象。</p>
+
+      <div class="code-block">class AppWindow(widgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        # 窗口标题
+        self.setWindowTitle('Demo')
+        # 窗口大小
+        self.resize(220, 65)
+        # 初始化按钮部件
+        self.btn = widgets.QPushButton("Click Me", self)
+        # 设置按钮的位置
+        self.btn.move(35, 20)
+        # 设置对象的名称
+        self.btn.setObjectName("myButton")
+        # 信号与槽的自动绑定
+        core.QMetaObject.connectSlotsByName(self)</div>
+
+      <p class="content-text">在初始化 AppWindow 类时，一定要调用 QMetaObject.connectSlotsByName，这样当前对象的所有子对象都能够自动完成信号与槽的连接。本示例中按钮部件被命名为 myButton，所以 AppWindow 类中要用作槽的方法必须命名为 on_myButton_clicked，而且要加上 Slot 装饰器。</p>
+
+      <div class="code-block">@core.Slot()
+def on_myButton_clicked(self):
+    # 弹出消息框
+    widgets.QMessageBox.information(
+        self,
+        "提示",
+        "你单击了按钮",
+        widgets.QMessageBox.Ok
+    )</div>
+
+      <p class="content-text">上述代码实现当按钮被单击后弹出一个消息框。运行结果如图 2-8 和图 2-9 所示。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">图 2-8 / 图 2-9</span>
+        <div class="result-box-image">
+          <img src="images/ch02/ch02_fig_06.png" alt="单击按钮前和单击按钮后弹出消息框">
+          <div class="caption">单击按钮前；单击按钮后弹出消息框</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-4-6"><span>2.4.6</span> 示例：随机变换窗口的背景颜色</h3>
+      <p class="content-text">本示例将实现单击按钮后随机更换窗口背景颜色的功能。</p>
+      <p class="content-text">首先，使用列表类型定义一组 QColor 对象，每次更换窗口背景颜色时，将从此列表中随机取出一个元素来填充窗口。</p>
+
+      <div class="code-block">colorList = [
+    QColor(15, 165, 80),
+    QColor(200, 0, 12),
+    QColor(5, 100, 60),
+    QColor(13, 13, 80),
+    QColor(20, 189, 255),
+    QColor(10, 10, 0),
+    QColor(120, 50, 95),
+    QColor(58, 0, 0),
+    QColor(100, 105, 16),
+    QColor(0, 0, 200),
+    QColor(199, 20, 150),
+    QColor(40, 50, 88),
+    QColor(118, 10, 0),
+    QColor(55, 160, 28),
+    QColor(0, 240, 17),
+    QColor(91, 145, 28),
+    QColor(33, 36, 125),
+    QColor(88, 135, 201),
+    QColor(232, 18, 52),
+    QColor(42, 218, 50),
+    QColor(89, 10, 180)
+]</div>
+
+      <p class="content-text">在实例化 QColor 对象时，可以使用 R、G、B 三个整数值来确定颜色。随机选取颜色可以调用 choice 函数。此函数的功能是从一个非空集合中随机取出一个元素并返回。</p>
+      <p class="content-text">接着，从 QWidget 类派生出自定义类型 MyWindow，它表示应用程序窗口。</p>
+
+      <div class="code-block">class MyWindow(QWidget):
+    # 设置颜色的信号
+    setColor = Signal(QColor)
+
+    # 构造函数
+    def __init__(self):
+        super().__init__()
+        # 窗口标题
+        self.setWindowTitle("随机更换背景色")
+        # 窗口大小
+        self.resize(300, 200)
+        # 初始化按钮部件
+        self.btn = QPushButton("换颜色", self)
+        # 设置按钮位置
+        self.btn.move(15, 15)
+        # 连接 clicked 信号
+        self.btn.clicked.connect(self.onClicked)
+        # 连接 setColor 信号
+        self.setColor.connect(self.onColorPicked)
+
+    # 响应按钮部件的 clicked 信号
+    def onClicked(self):
+        # 随机选一个颜色
+        selColor = choice(colorList)
+        # 发送 setColor 信号
+        self.setColor.emit(selColor)
+
+    # 响应 setColor 信号
+    def onColorPicked(self, color):
+        # 修改当前窗口背景色
+        p = QPalette()
+        p.setColor(QPalette.Window, color)
+        self.setPalette(p)</div>
+
+      <p class="content-text">窗口中包含一个按钮部件（QPushButton 对象），被单击时会发出 clicked 信号，对应的槽是 onClicked 方法。在此方法中调用 choice 函数随机获取一个 QColor 对象，然后发出 setColor 信号。setColor 信号带有一个 QColor 类型的参数，将用于设置窗口背景色。</p>
+      <p class="content-text">setColor 信号对应的槽是 onColorPicked 方法。在该方法中通过修改调色板对象（QPalette 类）的参数来设置窗口背景颜色。这里有两种修改调色板的方法。</p>
+      <p class="content-text">（1）声明一个变量并获取当前窗口的调色板对象，修改后调用 setPalette 方法为窗口重新设置调色板。</p>
+
+      <div class="code-block">p = self.palette()
+p.setColor(QPalette.Window, color)
+self.setPalette(p)</div>
+
+      <p class="content-text">（2）创建新的调色板实例，修改参数后，调用 setPalette 方法设置新的调色板。应用程序会自动合并新旧调色板的参数。</p>
+
+      <div class="code-block">p = QPalette()
+p.setColor(QPalette.Window, color)
+self.setPalette(p)</div>
+
+      <p class="content-text">最后，实例化 MyWindow 窗口，显示窗口并启动主消息循环。</p>
+
+      <div class="code-block">if __name__ == "__main__":
+    app = QApplication()
+    # 实例化窗口
+    window = MyWindow()
+    # 显示窗口
+    window.show()
+    # 开始消息循环
+    app.exec()</div>
+
+      <p class="content-text">运行本示例，呈现窗口的初始颜色，如图 2-10 所示。单击“换颜色”按钮后，窗口会随机切换背景色，如图 2-11 所示。</p>
 
       <div class="result-box">
         <span class="result-box-header">图 2-10 / 图 2-11</span>
         <div class="result-box-image">
-          <img src="images/ch02/ch02_fig_07.png" alt="随机更换窗口背景颜色">
-          <div class="caption">发出自定义信号后更换窗口背景颜色</div>
+          <img src="images/ch02/ch02_fig_07.png" alt="窗口初始颜色与随机更换背景色">
+          <div class="caption">窗口的初始颜色；随机更换背景色</div>
         </div>
       </div>
 
-      <p class="content-text"><code>QSignalBlocker</code> 用于临时阻止某个对象发出信号。它支持上下文管理器语法，退出 <code>with</code> 代码块后会自动恢复原来的信号状态。</p>
+      <h3 class="subsection-heading" id="subsection-2-4-7"><span>2.4.7</span> 信号阻绝器</h3>
+      <p class="content-text">SignalBlocker（本书将其翻译为“信号阻绝器”）是一个用于暂时阻止对象发出信号的组件，对应类型是 QSignalBlocker 类。</p>
+      <p class="content-text">QSignalBlocker 在初始化后会自动阻止目标对象的信号。当 QSignalBlocker 对象发生析构时，会自动恢复目标对象的信号状态。QSignalBlocker 类定义了 __enter__ 和 __exit__ 方法，因此在实例化时可以放到 with 代码块中。</p>
+      <p class="content-text">下面示例通过定时器组件（QTimer 类）让标签部件（QLabel）每隔 1 秒显示/隐藏一次——实现标签文字闪烁的效果。当单击“暂停10秒”按钮后，标签文字会停止闪烁 10 秒。其原理是使用 QSignalBlocker 类阻止 QTimer 对象的 timeout 信号，等待 10 秒后恢复。</p>
 
-      <div class="code-block">with QSignalBlocker(self.timer):
-    loop = QEventLoop(self)
-    QTimer.singleShot(10_000, loop.quit)
-    loop.exec()</div>
+      <div class="code-block">import PySide6.QtCore as core
+import PySide6.QtWidgets as widgets
+import PySide6.QtGui as gui
+
+class AppWindow(widgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        # 设置窗口标题
+        self.setWindowTitle('My App')
+        # 设置窗口大小
+        self.resize(265, 98)
+        # 初始化按钮部件
+        self.btn = widgets.QPushButton('暂停10秒', self)
+        # 设置按钮在窗口中的位置
+        self.btn.move(20, 12)
+        # 建立 clicked 信号与槽的连接
+        self.btn.clicked.connect(self.onBtnClicked)
+        # 初始化标签部件
+        self.lb = widgets.QLabel(self)
+        # 设置标签文本
+        self.lb.setText('示例文本')
+        # 设置字体
+        font = gui.QFont('仿宋', 15, gui.QFont.Bold)
+        self.lb.setFont(font)
+        # 设置标签在窗口上的位置
+        self.lb.move(20, 50)
+        # 初始化定时器
+        self.timer = core.QTimer(self)
+        # 建立 timeout 信号与槽的连接
+        self.timer.timeout.connect(self.onTimeout)
+        # 启动定时器，每隔1秒触发一次
+        self.timer.start(1000)
+
+    # 槽：接收 timeout 信号
+    def onTimeout(self):
+        # 显示或隐藏标签部件
+        if self.lb.isVisible():
+            self.lb.setVisible(False)
+        else:
+            self.lb.setVisible(True)
+
+    # 槽：接收 clicked 信号
+    def onBtnClicked(self):
+        # 阻止定时器上的信号，10秒后恢复
+        with core.QSignalBlocker(self.timer):
+            # 构建新的事件循环
+            evloop = core.QEventLoop(self)
+            # 启动一次性定时器
+            # 10秒后执行 quit 方法，退出事件循环
+            core.QTimer.singleShot(10 * 1000, evloop.quit)
+            # 事件循环开始，exec 方法一直处于等待状态
+            # 直到 quit 方法被调用才会返回
+            # 作用是实现延时10秒
+            evloop.exec()
+
+if __name__ == '__main__':
+    app = widgets.QApplication()
+    # 实例化窗口
+    window = AppWindow()
+    # 显示窗口
+    window.show()
+    # 开始消息循环
+    app.exec()</div>
+
+      <p class="content-text">QTimer 对象在调用 start 方法后开始循环计时，间隔为 1000 毫秒，即 1 秒。每次计时周期结束时会发出一个 timeout 信号。实例化 QSignalBlocker 对象时通过构造函数传递 QTimer 对象，timeout 信号会被阻止。</p>
+      <p class="content-text">在 with 语句内，先创建一个新的消息循环（QEventLoop），接着调用 QTimer 类的静态方法 singleShot 产生单次定时器，延时 10000 毫秒（10 秒）后触发。触发时调用 quit 方法退出事件循环。随后退出 with 语句，QSignalBlocker 对象恢复 timeout 信号。</p>
+      <p class="content-text">运行效果如图 2-12 所示。</p>
 
       <div class="result-box">
         <span class="result-box-header">图 2-12</span>
         <div class="result-box-image">
-          <img src="images/ch02/ch02_fig_08.png" alt="临时阻止定时器信号">
-          <div class="caption">临时阻止定时器的 timeout 信号</div>
+          <img src="images/ch02/ch02_fig_08.png" alt="让文本暂停闪烁">
+          <div class="caption">让文本暂停闪烁</div>
         </div>
       </div>
 
       <div class="section-heading" id="section-4">
         <span class="section-number">2.5</span>
-        <h2>字节序列——QByteArray</h2>
+        <h2>字节序列 QByteArray</h2>
       </div>
 
-      <p class="content-text"><code>QByteArray</code> 用于保存和处理字节序列。它可以追加数据、替换内容、进行数值与字符串转换，也提供切片、Base64 编解码、拆分和频数统计等操作。在纯 Python 代码中也可以使用 <code>bytes</code>，但许多 Qt API 会直接返回或接收 <code>QByteArray</code>。</p>
+      <p class="content-text">QByteArray 类既可用于处理字节序列，也可以对字符串做简单处理。</p>
+      <p class="content-text">QByteArray 类的构造函数有多个重载，最简单的方法是调用无参数的构造函数，创建一个空的字节序列。请看下面例子：</p>
 
       <div class="code-block">from PySide6.QtCore import QByteArray
 
-data = QByteArray()
-data.append(b"\x25\x6c\x82")
-data.append(b"\x45\xa6\xd7")
+x = QByteArray()
+# 此时序列中没有数据，大小为0
+print(f'初始大小：{x.size()}')
+# 追加3字节数据
+x.append(b'\x25\x6c\x82')
+# 再追加3字节
+x.append(b'\x45\xa6\xd7')
+# 再次打印字节序列的大小
+print(f'追加数据后的大小：{x.size()}')
+# 打印序列中所有字节的十六进制表示方式
+print(f"数据内容：{x.toHex()}")</div>
 
-print(data.size())   # 6
-print(data.toHex())  # b'256c8245a6d7'</div>
+      <p class="content-text">append 方法可以向序列追加数据。由于此方法调用后会返回 QByteArray 实例自身，因此可以“链条式”调用 append 方法，例如：</p>
 
-      <h3 class="subsection-heading">2.5.1 替换与数值转换</h3>
-      <p class="content-text"><code>replace</code> 可以替换字节内容；<code>number</code> 可以把整数或浮点数转换成字节形式的字符串；<code>toInt</code>、<code>toFloat</code> 和 <code>toDouble</code> 则执行反向转换。数值转换方法会同时返回转换结果和是否成功的布尔值。</p>
+      <div class="code-block">x.append(b'\x20\x5f').append(b'\x60').append(b'\xb9\x42')</div>
 
-      <div class="code-block">word = QByteArray("fine")
-word.replace(QByteArray("ne"), QByteArray("sh"))
-print(word.toStdString())  # fish
+      <p class="content-text">x 变量初始化完成后，由于里面没有数据，所以 size 方法返回 0。当调用 append 方法追加 6 字节后，size 方法将返回 6。最后在打印数据内容时，调用了 toHex 方法，将 x 中的所有数据转换为十六进制表示的字符串（1 字节由两个字符组成），即“256c8245a6d7”。</p>
+      <p class="content-text">也可以调用以下构造函数，在初始化 QByteArray 对象时设置默认大小，以及填充字节。</p>
 
-hex_text = QByteArray.number(28, 16)
-print(hex_text.toStdString())  # 1c
+      <div class="code-block">def __init__(self, size: int, c: int)</div>
 
-value, ok = QByteArray("1011").toInt(2)
-print(value, ok)  # 11 True</div>
+      <p class="content-text">size 参数表示新创建的 QByteArray 对象的默认大小，c 参数表示用于填充默认分配空间的字节。下面是一个例子：</p>
 
-      <h3 class="subsection-heading">2.5.2 截取、切片与重复</h3>
-      <p class="content-text"><code>chop</code> 会直接从末尾移除指定数量的字节，<code>chopped</code> 返回处理后的副本；<code>first</code> 与 <code>last</code> 分别从两端截取；<code>sliced</code> 可从任意偏移量提取数据。<code>repeated</code> 返回重复指定次数的新序列。</p>
+      <div class="code-block">k = QByteArray(3, 16)
+# 此时初始大小为3
+print(f'初始大小：{k.size()}')
+# 追加5字节
+k.append(b'\x12\x30\x3a\x67\xe4')
+# 原有的3字节加上新的字节，此时大小为8
+print(f'追加数据后的大小：{k.size()}')</div>
 
-      <div class="code-block">data = QByteArray("workstation")
-print(data.sliced(2, 4).toStdString())  # rkst
-print(data.sliced(7).toStdString())     # tion
+      <p class="content-text">创建的新序列大小为 3，并用 16 来填充默认空间，即前三个元素均为 16。随后，调用 append 方法追加 5 字节。序列的最终大小为 8。</p>
+      <p class="content-text">在 C++ 语言中，QByteArray 类可以更方便地操作字符串（char 数组，char[] 或 char*）。对于 Python 语言，可以选择使用 Python 内置的如 str、bytes 等类型，而不是 QByteArray 类。</p>
 
-copy = QByteArray("一二三").repeated(3)
-print(copy.toStdString())</div>
+      <h3 class="subsection-heading" id="subsection-2-5-1"><span>2.5.1</span> 替换字符串</h3>
+      <p class="content-text">要在 QByteArray 中进行字符串替换，需要调用 replace 方法，比较常用的有以下重载：</p>
 
-      <h3 class="subsection-heading">2.5.3 Base64、拆分和统计</h3>
-      <p class="content-text">调用 <code>toBase64</code> 与 <code>fromBase64</code> 可以完成 Base64 编解码。若结果用于 URL，可指定 <code>Base64UrlEncoding</code>。<code>split</code> 按分隔符拆分数据，<code>count</code> 用于统计子串出现次数。</p>
+      <div class="code-block">replace(
+    before: Union[QByteArray, bytes],
+    after: Union[QByteArray, bytes]
+) -&gt; QByteArray</div>
 
-      <div class="code-block">source = QByteArray("watermelon")
-encoded = source.toBase64()
-decoded = QByteArray.fromBase64(encoded)
-print(encoded.toStdString())
-print(decoded.toStdString())
+      <p class="content-text">before 参数指定要被替换的字符串，after 参数指定新的字符串。参数既可以使用 QByteArray 对象，也可以使用 Python 内置的 bytes 类型。方法调用后会返回当前 QByteArray 实例。</p>
+      <p class="content-text">下面示例将通过 replace 方法将单词 fine 变成 fish。</p>
 
-parts = QByteArray("D301%542168%K7").split("%")
-print([part.toStdString() for part in parts])</div>
+      <div class="code-block">from PySide6.QtCore import QByteArray
+
+# 创建 QByteArray 对象
+x = QByteArray('fine')
+print(f'原单词：{x.toStdString()}')
+# 被替换的内容
+a = QByteArray('ne')
+# 新内容
+b = QByteArray('sh')
+# 执行替换
+x.replace(a, b)
+print(f'替换后：{x.toStdString()}')</div>
+
+      <p class="content-text">对于汉字字符串，上述方法也适用（默认使用 UTF-8 编码）。下面示例将“此心安处是天堂”改为“此心安处是吾乡”。</p>
+
+      <div class="code-block"># 创建新的 QByteArray 实例
+ostr = QByteArray('此心安处是天堂')
+print(f"替换前：{ostr.toStdString()}")
+a = QByteArray('天堂')
+b = QByteArray('吾乡')
+# 替换
+ostr.replace(a, b)
+print(f"替换后：{ostr.toStdString()}")</div>
+
+      <p class="content-text">结果如下：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">替换前：此心安处是天堂<br>替换后：此心安处是吾乡</div>
+      </div>
+
+      <p class="content-text">如果使用的字符编码不是默认的 UTF-8，则需要保证编码/解码时使用一致的编码格式。例如，下面示例将“一路向南”改为“一路向北”（使用 GB2312 编码）。</p>
+
+      <div class="code-block"># 原字符串，要手动将字符串编码改为 GB2312
+d = QByteArray('一路向南'.encode('gb2312'))
+print(f'替换前：{d.data().decode("gb2312")}')
+# 编码格式要一致
+a = QByteArray('南'.encode('gb2312'))
+b = QByteArray('北'.encode('gb2312'))
+# 替换
+d.replace(a, b)
+print(f'替换后：{d.data().decode("gb2312")}')</div>
+
+      <h3 class="subsection-heading" id="subsection-2-5-2"><span>2.5.2</span> 数值到字符串的转换</h3>
+      <p class="content-text">调用 QByteArray 类的 number 静态方法，可以将整数或浮点数值转换为字符串。对于整数值，可以通过 base 参数来设定进制（默认为 10，即十进制）。</p>
+      <p class="content-text">下面示例将整数值 28 分别转换为二进制、八进制、十进制、十六进制的字符串。</p>
+
+      <div class="code-block"># 整数值
+num = 28
+# 二进制
+x1 = QByteArray.number(num, base=2)
+print(f'二进制：{x1.toStdString()}')
+# 八进制
+x2 = QByteArray.number(num, base=8)
+print(f'八进制：{x2.toStdString()}')
+# 十进制
+x3 = QByteArray.number(num, base=10)
+print(f'十进制：{x3.toStdString()}')
+# 十六进制
+x4 = QByteArray.number(num, base=16)
+print(f'十六进制：{x4.toStdString()}')</div>
+
+      <p class="content-text">上述代码的执行结果如下：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">二进制：11100<br>八进制：34<br>十进制：28<br>十六进制：1c</div>
+      </div>
+
+      <p class="content-text">对于浮点数值，number 方法可通过 format 参数设置浮点数的格式控制符，默认为 'g'。precision 参数表示小数位精度。方法签名如下：</p>
+
+      <div class="code-block">number(arg__1, format='g', precision=6)</div>
+
+      <p class="content-text">下面例子将保留三位小数。</p>
+
+      <div class="code-block">number = 439.682145
+b = QByteArray.number(number, 'f', 3)</div>
+
+      <p class="content-text">'f' 表示浮点数，转换为字符串的结果为“439.682”。将格式控制符设置为 'E'，可以显示为科学记数法。</p>
+
+      <div class="code-block">number = 439.682145
+b = QByteArray.number(number, 'E', 3)
+# 结果：4.397E+02</div>
+
+      <h3 class="subsection-heading" id="subsection-2-5-3"><span>2.5.3</span> 字符串到数值的转换</h3>
+      <p class="content-text">QByteArray 类提供了一组方法，可以将表示数值的字符串转换为对应的数值。</p>
+      <ol class="content-list">
+        <li>toInt：将当前字符串转换为对应的有符号整数值。</li>
+        <li>toUInt：将当前 QByteArray 中的字符串转换为对应的无符号整数值。</li>
+        <li>toFloat：转换为浮点数值。</li>
+        <li>toDouble：转换为双精度数值。</li>
+      </ol>
+      <p class="content-text">这些方法都有一个 base 参数，指的是原字符串所表示数值的进制，2 表示二进制，8 表示八进制等。方法调用后会返回一个包含两个元素的元组对象。其中，第一个元素表示转换结果（数值），第二个元素是布尔值（bool），若为 True 表示转换成功，否则表示失败。</p>
+      <p class="content-text">下面是两个示例。</p>
+
+      <div class="code-block"># 二进制
+b = QByteArray('1011')
+val, res = b.toInt(2)
+if res:
+    print(val)
+# 输出：11
+
+# 十二进制
+b = QByteArray('433')
+val, res = b.toInt(12)
+if res:
+    print(val)
+# 输出：615</div>
+
+      <p class="content-text">第一个例子中，调用 toInt 方法时指明“1011”为二进制数值，转换后的整数值为 11（print 函数默认打印的是十进制）。第二个例子中，“433”为十二进制数值，转换后的整数值为 615，计算过程为：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">计算过程</span>
+        <div class="result-box-content">615 = 4×12² + 3×12¹ + 3×12⁰</div>
+      </div>
+
+      <p class="content-text">下面的两个例子将转换并输出浮点数值和双精度数值。</p>
+
+      <div class="code-block"># 浮点数值
+b = QByteArray('123.456')
+val, res = b.toFloat()
+if res:
+    print(val)
+# 输出：123.45600128173828
+
+# 双精度数值
+b = QByteArray('92998.520453115')
+val, res = b.toDouble()
+if res:
+    print(val)
+# 输出：92998.520453115</div>
+
+      <p class="content-text">在调用 toFloat 方法后得到的浮点数由于二进制的存储误差，123.456 后面的小数位并没有全部置 0。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-5-4"><span>2.5.4</span> 重复字符串</h3>
+      <p class="content-text">repeated 方法可以复制原 QByteArray 对象中的内容，并重复指定的次数。请看下面的例子：</p>
+
+      <div class="code-block">x = QByteArray('一二三')
+x = x.repeated(3)
+# 输出：一二三一二三一二三
+print(x.toStdString())</div>
+
+      <p class="content-text">上述代码中，原字符为“一二三”，重复 3 次后变为“一二三一二三一二三”。此处要注意，repeated 方法不直接修改原有的内容，而是复制原内容后再做重复处理。新的字符串内容将从 repeated 方法返回。因此，x 变量要用 repeated 方法返回的 QByteArray 实例再次赋值。</p>
+      <p class="content-text">若调用 repeated 方法时向参数传递了 0，即重复 0 次，那么方法将返回包含空字符串的 QByteArray 对象。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-5-5"><span>2.5.5</span> 数据截取</h3>
+      <p class="content-text">要从 QByteArray 对象所包含的数据中提取部分字节序列，可以使用以下几种方法。</p>
+      <p class="content-text">（1）chop：直接从原数据中移除字节。移除的量将从数据的末尾开始计算。例如下面例子，原数据中包含 7 字节，chop(4) 将移除最后 4 字节。</p>
+
+      <div class="code-block">x = QByteArray(b'\x12\x5e\x40\x65\x18\xa1\x7c')
+# 移除后面4字节
+x.chop(4)
+# 打印结果
+msg = ','.join(f'0x{i:x}' for i in x.data())
+# 输出：0x12,0x5e,0x40
+print(msg)</div>
+
+      <p class="content-text">（2）chopped：此方法不会直接处理原数据，而是复制原数据并从末尾移除指定数量的字节。下面的例子先创建包含 8 字节的 QByteArray 实例，然后调用 chopped 方法移除最后 3 字节并且返回新的 QByteArray 实例。</p>
+
+      <div class="code-block"># 8字节
+arr = QByteArray(b'\xd2\x19\xc3\x55\x28\xe4\x75\x3f')
+# 移除后3字节，并返回新的 QByteArray 实例
+arrc = arr.chopped(3)
+# 输出：0xd2,0x19,0xc3,0x55,0x28
+print(','.join(f'0x{i:x}' for i in arrc.data()))</div>
+
+      <p class="content-text">（3）first：从原数据的开始处提取指定数量的字节，并返回新的 QByteArray 实例。下面的代码将提取数据的前 3 字节。</p>
+
+      <div class="code-block">d = QByteArray(b'\x84\xed\xa6\x9f\x24\x73\xb6')
+# 提取前3字节
+d2 = d.first(3)
+# 输出：0x84,0xed,0xa6
+print(','.join(f'0x{n:x}' for n in d2.data()))</div>
+
+      <p class="content-text">（4）last：从数据的末尾提取指定的字节数，并返回新的 QByteArray 实例。下面代码演示了从原数据的末尾提取 2 字节。</p>
+
+      <div class="code-block"># 6字节
+x = QByteArray(b'\x66\x32\x8b\x96\x51\x13')
+# 提取最后2字节
+y = x.last(2)
+# 输出：0x51,0x13
+print(','.join(f'0x{n:x}' for n in y.data()))</div>
+
+      <h3 class="subsection-heading" id="subsection-2-5-6"><span>2.5.6</span> 切片</h3>
+      <p class="content-text">切片也是截取数据的另一种方法，sliced 方法可以从 QByteArray 对象原有数据的任意位置，提取出任意长度的字节，组成新的 QByteArray 对象返回。</p>
+      <p class="content-text">sliced 方法有两个重载。</p>
+      <ol class="content-list">
+        <li>sliced(pos)：从 pos 参数所指定的位置开始提取，直到数据末尾。pos 将从 0 开始计算。例如，若要从第一字节开始提取，pos 参数为 0；若要从第三字节处开始提取，pos 参数的值为 2。</li>
+        <li>sliced(pos,n)：pos 参数指定要提取数据的起点位置，基于 0 计算。即第二字节为 1，第五字节为 4，等等。n 参数指定要提取的字节数。</li>
+      </ol>
+      <p class="content-text">下面示例将从原数据中提取出两个切片。</p>
+
+      <div class="code-block">da = QByteArray('workstation')
+# 切片1：从第三字节起，连续提取4字节
+sl1 = da.sliced(2, 4)
+# 输出：rkst
+print(sl1.toStdString())
+# 切片2：从第八字节起提取，直到末尾
+sl2 = da.sliced(7)
+# 输出：tion
+print(sl2.toStdString())</div>
+
+      <p class="content-text">第一个切片从第三字节起（“r”），提取 4 字节，得到“rkst”；第二个切片则从第八字节处开始，直到数据的末尾，即从第二个“t”开始到最后一个字符“n”，得到“tion”。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-5-7"><span>2.5.7</span> Base64 字符串</h3>
+      <p class="content-text">QByteArray 类提供了 toBase64 实例方法，可将当前字符串进行 Base64 编码。编码后返回新的 QByteArray 实例。解码时可以调用 fromBase64 静态方法。</p>
+      <p class="content-text">下面的示例是典型用法。</p>
+
+      <div class="code-block"># 原字符串
+arr = QByteArray('watermelon')
+# 获得 Base64 字符串
+bs = arr.toBase64()
+# 输出：d2F0ZXJtZWxvbg==
+print(bs.toStdString())
+# 从 Base64 字符串中还原
+arr2 = QByteArray.fromBase64(bs)
+# 输出：watermelon
+print(arr2.toStdString())</div>
+
+      <p class="content-text">字符串“watermelon”编码后得到 Base64 字符串“d2F0ZXJtZWxvbg==”，末尾的两个“=”起填充作用。如果希望忽略末尾的填充符号，可以在调用 toBase64 方法时指定 OmitTrailingEquals 选项。</p>
+
+      <div class="code-block">bs = arr.toBase64(QByteArray.OmitTrailingEquals)</div>
+
+      <p class="content-text">这样便可获得不带“=”的 Base64 字符串。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">编码结果</span>
+        <div class="result-box-content">d2F0ZXJtZWxvbg</div>
+      </div>
+
+      <p class="content-text">如果编码后的 Base64 字符串用于 URL，需要对一些字符做特殊处理。例如，将字符串“鸿雁不堪愁里听，云山况是客中过”进行常规的 Base64 编码，得到以下结果：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">常规 Base64 编码</span>
+        <div class="result-box-content">6bi/6ZuB5LiN5aCq5oSB6YeM5ZCs77yM5LqR5bGx5Ya15piv5a6i5Lit6L+H</div>
+      </div>
+
+      <p class="content-text">其中的“/”“+”字符若用在 URL 上会被编码为“%2F”“%2B”。为了避免错误（“%”在 SQL 语句中表示通配符，不能直接存入数据库），在调用 toBase64 方法时可以指定 Base64UrlEncoding 选项。解码时同理。</p>
+
+      <div class="code-block">srcData = QByteArray('鸿雁不堪愁里听，云山况是客中过')
+# 编码
+enc = srcData.toBase64(QByteArray.Base64UrlEncoding)
+# 输出：6bi_6ZuB5LiN5aCq5oSB6YeM5ZCs77yM5LqR5bGx5Ya15piv5a6i5Lit6L-H
+print(enc.toStdString())
+# 解码
+decData = QByteArray.fromBase64(enc, QByteArray.Base64UrlEncoding)
+# 输出：鸿雁不堪愁里听，云山况是客中过
+print(decData.toStdString())</div>
+
+      <p class="content-text">这时候，“/”字符被替换为“_”，“+”被替换为“-”。编码后的 Base64 字符可直接用在 URL 上，例如：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">URL 示例</span>
+        <div class="result-box-content">https://somesite.com/query?key=6bi_6ZuB5LiN5aCq5oSB6YeM5ZCs77yM5LqR5bGx5Ya15piv5a6i5Lit6L-H</div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-5-8"><span>2.5.8</span> 拆分字符串</h3>
+      <p class="content-text">使用 split 方法将字符串拆分成若干子串，在调用方法时需要指定一个分隔符。拆分后，分隔符被移除，并返回一个 QByteArray 对象列表。</p>
+      <p class="content-text">下面的例子将字符串“D301%542168%K7”以“%”为分隔符进行拆分。</p>
+
+      <div class="code-block">v = QByteArray("D301%542168%K7")
+# 以“%”为分隔符，拆分字符串
+nList = v.split('%')
+# 打印拆分后各部分的内容
+print(*[val.toStdString() for val in nList], sep=',')</div>
+
+      <p class="content-text">拆分后会得到以下三个子字符串：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">拆分结果</span>
+        <div class="result-box-content">D301, 542168, K7</div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-5-9"><span>2.5.9</span> 频数统计</h3>
+      <p class="content-text">count 方法用于统计指定的内容在当前 QByteArray 对象中出现的次数（频数）。请看下面的例子，将统计“apple”在原字符串中出现的次数。</p>
+
+      <div class="code-block">arr = QByteArray('apple and pineapple')
+# 要统计的子串
+key = QByteArray('apple')
+# 统计子串出现的次数
+n = arr.count(key)
+# 输出：apple出现了2次
+print(f'apple出现了{n}次')</div>
 
       <div class="section-heading" id="section-5">
         <span class="section-number">2.6</span>
         <h2>QBuffer</h2>
       </div>
 
-      <p class="content-text"><code>QBuffer</code> 为 <code>QByteArray</code> 提供类似文件的读写接口。读写前要调用 <code>open</code> 指定模式；使用后调用 <code>close</code>。它既能维护自己的字节数组，也可以操作已有的 <code>QByteArray</code>。</p>
+      <p class="content-text">QBuffer 类封装了一组 API，以类似于文件的方式访问 QByteArray 对象。这使得 QByteArray 的读写操作变得更简单。</p>
+      <p class="content-text">在初始化 QBuffer 实例时，其内部会自动创建 QByteArray 实例，用于存储字节序列。</p>
 
-      <table class="content-table">
-        <thead>
-          <tr><th>打开模式</th><th>含义</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>ReadOnly</code></td><td>只读。</td></tr>
-          <tr><td><code>WriteOnly</code></td><td>只写，并清除原数据。</td></tr>
-          <tr><td><code>Append</code></td><td>从原数据末尾追加。</td></tr>
-          <tr><td><code>Text</code></td><td>以平台对应的文本换行规则读写。</td></tr>
-        </tbody>
-      </table>
+      <div class="code-block">mybuff = QBuffer()</div>
+
+      <p class="content-text">由于 QBuffer 也是 QObject 的子类，因此在调用其构造函数时可以传递父对象的引用。</p>
+
+      <div class="code-block">mybuff = QBuffer(parent=rootObj)</div>
+
+      <p class="content-text">若希望使用现有的 QByteArray 对象，也可以在调用 QBuffer 构造函数时传递现有 QByteArray 对象。</p>
+
+      <div class="code-block">arr = QByteArray('abc')
+buffer = QBuffer(arr)</div>
+
+      <p class="content-text">也可以在实例化 QBuffer 对象后，调用 setBuffer 方法设置关联的 QByteArray 对象。</p>
+
+      <div class="code-block">arr = QByteArray('abc')
+buffer = QBuffer()
+buffer.setBuffer(arr)</div>
+
+      <h3 class="subsection-heading" id="subsection-2-6-1"><span>2.6.1</span> 基本的读写操作</h3>
+      <p class="content-text">QBuffer 对象可以调用 write 方法或 putChar 方法写入数据。write 方法可以一次性写入多字节，而 putChar 只写入 1 字节（或 ASCII 字符）。</p>
+      <p class="content-text">下面的例子先实例化一个 QBuffer 对象，然后调用 write 方法写入一组字节序列（由字符串“abcd”组成），接着写入单个字符“M”。</p>
+
+      <div class="code-block">from PySide6.QtCore import QBuffer
+
+buff = QBuffer()
+# 打开 buffer
+buff.open(QBuffer.WriteOnly)
+# 第一次写入
+buff.write(b'abcd')
+# 第二次写入
+buff.putChar('M')
+# 输出：b'abcdM'
+print(buff.buffer())
+# 使用后可以关闭 buffer
+buff.close()</div>
+
+      <p class="content-text">QBuffer 对象在读写之前需要调用 open 方法将其打开。调用时需要指定一个打开模式——在 QIODeviceBase 类中定义的 OpenMode 枚举。由于 QBuffer 类间接派生自 QIODeviceBase 类，因此可以通过 QBuffer 类来访问 OpenMode 类型的值。上述代码中使用了 WriteOnly，表示本次仅对 QBuffer 对象进行写入操作。OpenMode 枚举常用的值如下。</p>
+      <ol class="content-list">
+        <li>ReadOnly：只读模式。</li>
+        <li>WriteOnly：写入模式。注意此模式会清除原有的数据。</li>
+        <li>Append：追加模式。从原有数据的末尾开始写入，不会清除旧的数据。</li>
+        <li>Truncate：此模式会清除原有的数据。</li>
+        <li>Text：文本模式。在读取数据时，会自动将文本行末尾的换行符统一转换为“\n”；在写入数据时，会将换行符转换为平台所需要的字符，如在 Windows 下会转换为“\r\n”。</li>
+        <li>ExistingOnly：此模式主要用于文件操作，要求目标文件必须存在，否则会出错。</li>
+        <li>NewOnly：此模式也是用于文件操作。创建新的文件，若文件已存在，就会出错。</li>
+      </ol>
+      <p class="content-text">要从 QBuffer 对象中读出已写入的数据，可以使用 read、readLine、readAll 等方法。readLine 方法每次调用时都读取一行文本；而 readAll 方法是一次性读取所有数据；read 方法只读取其中一部分（或全部）数据。read 方法可以通过 maxlen 参数指定允许读取的最大字节数，调用后返回实际读取的字节数。</p>
+      <p class="content-text">下面的例子将从 QBuffer 对象中读出前 5 字节。</p>
+
+      <div class="code-block">buffer = QBuffer()
+if buffer.open(QBuffer.WriteOnly):
+    # 写入10字节
+    buffer.write(b'ktx5dW3Pyb')
+    # 关闭 buffer
+    buffer.close()
+
+# 以只读方式重新打开 buffer
+if buffer.open(QBuffer.ReadOnly):
+    # 读出5字节
+    data = buffer.read(5)
+    # 输出：b'ktx5d'
+    print(data)
+    # 关闭 buffer
+    buffer.close()</div>
+
+      <h3 class="subsection-heading" id="subsection-2-6-2"><span>2.6.2</span> 使用已有的 QByteArray 对象</h3>
+      <p class="content-text">在调用 QBuffer 类的构造函数时，可以通过参数传递来使用现有的 QByteArray 对象。在 QBuffer 对象中进行写入操作后，被关联的 QByteArray 对象中的数据也会同时改变。QBuffer 对象仅引用 QByteArray 对象，并不控制其生命周期。因此，为了保证读写操作能顺利进行，在 QBuffer 对象关闭（或调用 setBuffer 切换到其他 QByteArray 对象）前，代码调用者必须确保关联的 QByteArray 对象是可用的。</p>
+      <p class="content-text">下面的例子先创建一个 QByteArray 实例，并将数据初始化为“abc”。随后以此 QByteArray 对象为基础创建 QBuffer 实例，再通过 QBuffer 对象在“abc”的后面写入“xyz”。</p>
 
       <div class="code-block">from PySide6.QtCore import QByteArray, QBuffer
 
-data = QByteArray("abc")
-buffer = QBuffer(data)
-buffer.open(QBuffer.Append)
-buffer.write(b"xyz")
-buffer.close()
+# 初始数据为“abc”
+arr = QByteArray('abc')
+# 创建 QBuffer 实例
+buff = QBuffer(arr)
+# 打开 QBuffer 对象
+buff.open(QBuffer.Append)
+# 写入“xyz”
+buff.write(b'xyz')
+# 关闭 QBuffer 对象
 
-print(data.toStdString())  # abcxyz</div>
+# 检查一下 QByteArray 对象是否已改变
+# 输出：b'abcxyz'
+print(arr)</div>
 
-      <p class="content-text"><code>seek</code> 用于设置当前读写偏移量。下面先从索引 5 开始写入，再从索引 3 开始读取 3 个字节。</p>
+      <p class="content-text">QByteArray 对象已存在字符串 abc，通过 QBuffer 对象写入 xyz 后，最终的数据变为 abcxyz。</p>
 
-      <div class="code-block">data = QByteArray("abcdeopq")
-buffer = QBuffer(data)
+      <h3 class="subsection-heading" id="subsection-2-6-3"><span>2.6.3</span> 设置读写位置</h3>
+      <p class="content-text">使用 seek 方法可以设定当前的读（或写）位置（偏移量）。偏移量的计算以 0 为基础，即 seek(0) 表示 QBuffer 对象将从数据的开头读取（或写入）内容。若要从第三字节处写入数据，可以调用 seek(2)。</p>
+      <p class="content-text">下面的示例先创建 QByteArray 实例，初始数据为字符串 abcdeopq。随后创建 QBuffer 实例，从第六字节处（偏移量为 5）写入 4 字节，最终字符串变为 abcdefghi。读出数据时，将读取的偏移量设置为 3（第四字节），连续读入 3 字节，得到字符串 def。</p>
+
+      <div class="code-block">from PySide6.QtCore import QByteArray, QBuffer
+
+arr = QByteArray('abcdeopq')
+# 输出：abcdeopq
+print(f'原字符串：{arr.toStdString()}')
+
+# 创建 QBuffer 实例
+buffer = QBuffer(arr)
+# 打开 QBuffer 实例
 buffer.open(QBuffer.WriteOnly)
+# 定位读写位置
 buffer.seek(5)
-buffer.write(b"fghi")
+# 写入4字节
+buffer.write(b'fghi')
+# 关闭 QBuffer 对象
 buffer.close()
+# 输出：abcdefghi
+print(f'写入后：{arr.toStdString()}')
 
-buffer.open(QBuffer.ReadOnly)
-buffer.seek(3)
-print(buffer.read(3).toStdString())  # def
-buffer.close()</div>
+# 读取数据
+bufRead = QBuffer(arr)
+bufRead.open(QBuffer.ReadOnly)
+# 设置读写位置
+bufRead.seek(3)
+# 读入3字节
+arr2 = bufRead.read(3)
+# 输出：def
+print(f'读到的部分内容：{arr2.toStdString()}')</div>
 
       <div class="section-heading" id="section-6">
         <span class="section-number">2.7</span>
-        <h2>位序列——QBitArray</h2>
+        <h2>位序列 QBitArray</h2>
       </div>
 
-      <p class="content-text"><code>QBitArray</code> 的每个元素只有 <code>True</code> 或 <code>False</code> 两种状态。构造函数可指定长度和默认值；<code>setBit</code> 设置某一位，<code>clearBit</code> 把某一位清为 <code>False</code>，<code>at</code> 读取某一位。</p>
+      <p class="content-text">QBitArray 类与 QByteArray 相似，但 QBitArray 是面向二进制位的。也就是说，QBitArray 对象中的元素只有两个值：True（1）或者 False（0）。在初始化 QBitArray 实例时，可以通过构造函数指定数组的大小，例如：</p>
 
-      <div class="code-block">from PySide6.QtCore import QBitArray
+      <div class="code-block">bits = QBitArray(3)</div>
 
-bits = QBitArray(8, True)
-bits.setBit(1, False)
-bits.clearBit(4)
+      <p class="content-text">上述代码将创建新的 QBitArray 实例，并指定其中包含 3 个元素，所有元素默认为 False。若希望初始化时将所有元素填充为 True，可以通过构造函数的第二个参数来设置。</p>
 
-values = [bits.at(i) for i in range(bits.size())]
-print(values)
-print(bits.count(False))</div>
+      <div class="code-block">bits = QBitArray(4, True)</div>
 
-      <div class="note-box">
-        <span class="note-icon">i</span>
-        <span><code>clearBit(index)</code> 只清除指定位置；<code>clear()</code> 会清空整个数组，使长度变为 0。</span>
+      <p class="content-text">上述代码初始化 QBitArray 实例，设置数组大小为 4，所有元素的默认值皆为 True。</p>
+      <p class="content-text">要打印 QBitArray 中各元素的值，可以使用以下代码：</p>
+
+      <div class="code-block">print(*[bits.at(i) for i in range(0, bits.size())], sep=',')</div>
+
+      <p class="content-text">at 方法可以获取指定索引处元素的值。索引是基于 0 的，即第一个元素的索引为 0，最后一个元素的索引为 n-1。上面代码执行后会输出以下信息：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">True, True, True, True</div>
       </div>
+
+      <h3 class="subsection-heading" id="subsection-2-7-1"><span>2.7.1</span> 设置和清除二进制位</h3>
+      <p class="content-text">设置指定元素的值应调用 setBit 方法，它有两个重载。</p>
+      <ol class="content-list">
+        <li>setBit(i)：将索引为 i 的元素的值设置为 True。</li>
+        <li>setBit(i, val)：将索引为 i 的元素的值设置为 val。val 参数为布尔类型。</li>
+      </ol>
+      <p class="content-text">下面代码先创建一个包含 4 个元素的 QBitArray 实例，所有元素均初始化为 False。然后调用 setBit 方法将第三个元素的值设置为 True。</p>
+
+      <div class="code-block">bt = QBitArray(4, False)
+# 设置第三个元素的值为 True
+bt.setBit(2)
+# 输出：False, False, True, False
+print(*[bt.at(i) for i in range(0, bt.size())], sep=', ')</div>
+
+      <p class="content-text">下面的例子初始化包含 8 个元素的 QBitArray 对象，所有元素的默认值都设置为 True，然后分别设置第 2、5、6 个元素的值为 False。</p>
+
+      <div class="code-block">barr = QBitArray(8, True)
+# 将第2、5、6个元素的值设置为 False
+barr.setBit(1, False)
+barr.setBit(4, False)
+barr.setBit(5, False)
+# 输出：True, False, True, True, False, False, True, True
+print(*[barr.at(x) for x in range(0, barr.size())], sep=',')</div>
+
+      <p class="content-text">若要清除某个元素的值（设置为 False），除了可以使用 setBit(x, False)，也可以通过 clearBit 方法来实现，例如：</p>
+
+      <div class="code-block">bitarr = QBitArray(10, True)
+# 清除第1、3、5、7、9个元素的值
+bitarr.clearBit(0)
+bitarr.clearBit(2)
+bitarr.clearBit(4)
+bitarr.clearBit(6)
+bitarr.clearBit(8)
+# 输出：False, True, False, True, False, True, False, True, False, True
+elements = [bitarr.at(n) for n in range(0, bitarr.size())]
+print(*elements, sep=',')</div>
+
+      <p class="content-text">调用 clearBit 方法只要指定元素的索引即可，QBitArray 对象会自动将元素的值设置为 False。</p>
+      <p class="content-text">需要注意的是，如果调用的是 clear 方法，它会清除 QBitArray 对象中的所有元素，而不是修改元素的值。调用 clear 方法后，QBitArray 对象的 size 方法将返回 0，isEmpty 方法将返回 True。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-7-2"><span>2.7.2</span> 频数统计</h3>
+      <p class="content-text">此功能与 QByteArray 类的 count 方法相同，用于统计某个布尔值在 QBitArray 对象中出现的次数，例如：</p>
+
+      <div class="code-block">bits = QBitArray(10)
+# 设置第一、四、五、九个元素的值为 True
+bits.setBit(0, True)
+bits.setBit(3, True)
+bits.setBit(4, True)
+bits.setBit(8, True)
+# 统计 False 出现的次数
+n = bits.count(False)
+# 输出：False出现了6次
+print(f"{False}出现了{n}次")</div>
+
+      <p class="content-text">count 方法还有一个无参数的重载，其功能与 size 方法相同，用于获取当前 QBitArray 实例中的元素个数。</p>
 
       <div class="section-heading" id="section-7">
         <span class="section-number">2.8</span>
         <h2>QSysInfo</h2>
       </div>
 
-      <p class="content-text"><code>QSysInfo</code> 提供操作系统、内核和 CPU 架构等只读信息，适合在诊断页面、日志或条件分支中使用。</p>
+      <p class="content-text">QSysInfo 类用于获取系统的基础信息，如 CPU 架构、操作系统内核、系统版本等。下面代码将在控制台打印系统和 CPU 的基本信息。</p>
 
       <div class="code-block">from PySide6.QtCore import QSysInfo
 
-print("系统：", QSysInfo.productType(), QSysInfo.productVersion())
-print("内核：", QSysInfo.kernelType(), QSysInfo.kernelVersion())
-print("CPU：", QSysInfo.currentCpuArchitecture())</div>
+# 系统名称
+sysname = QSysInfo.productType()
+# 系统版本
+sysver = QSysInfo.productVersion()
+# 内核名称
+kername = QSysInfo.kernelType()
+# 内核版本
+kerver = QSysInfo.kernelVersion()
+# CPU 架构
+cpuarch = QSysInfo.currentCpuArchitecture()
+# 打印系统信息
+print(f'系统：{sysname} {sysver}')
+print(f'内核：{kername}({kerver})')
+print(f'CPU架构：{cpuarch}')</div>
+
+      <p class="content-text">其运行结果如下：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">系统：windows 11<br>内核：winnt(10.0.22621)<br>CPU架构：x86_64</div>
+      </div>
 
       <div class="section-heading" id="section-8">
         <span class="section-number">2.9</span>
         <h2>Qt 的动态属性</h2>
       </div>
 
-      <p class="content-text">所有 <code>QObject</code> 子类都可以在运行阶段增加动态属性。<code>setProperty</code> 写入属性，<code>property</code> 读取属性，<code>dynamicPropertyNames</code> 返回当前对象上所有动态属性的名称。</p>
+      <p class="content-text">此处所说的动态属性并非指 Python 自身的属性系统，而是 Qt 的属性系统。凡是从 QObject 类派生的类型，都可以设置动态属性。动态属性不需要在类定义时声明，可以在代码中通过 setProperty 方法直接设置。属性名称为字符串类型，而属性值既可以是内置类型的值，也可以是自定义类型的实例。</p>
+      <p class="content-text">获取属性值可以使用 property 方法，调用时需要传递属性名称。调用 dynamicPropertyNames 方法可以获得当前对象中所有动态属性的名称列表。属性名称用 QByteArray 类表示。</p>
+      <p class="content-text">请看一个示例。</p>
 
-      <div class="code-block">from PySide6.QtCore import QObject
-
-obj = QObject()
+      <div class="code-block">obj = QObject()
+# 设置动态属性
 obj.setProperty("prop1", 500)
-obj.setProperty("prop2", "abc")
+obj.setProperty("prop2", 'abc')
+# 获取动态属性的名称列表
+props = obj.dynamicPropertyNames()
+for x in props:
+    # 打印属性名称与对应的值
+    propName = x.toStdString()
+    print(f'{propName} = {obj.property(propName)}')</div>
 
-for name in obj.dynamicPropertyNames():
-    key = name.toStdString()
-    print(key, "=", obj.property(key))</div>
+      <p class="content-text">上述代码先在 obj 对象上设置两个动态属性，属性名分别为 prop1、prop2，然后调用 dynamicPropertyNames 方法获得动态属性的名称列表，最后打印动态属性的名称和对应的值。</p>
+      <p class="content-text">示例运行后将输出以下结果：</p>
 
-      <p class="content-text"><code>setProperty</code> 也能写入 Qt 类型本身已经声明的属性。下面通过统一的属性接口设置标签的标题、大小与文本。</p>
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">prop1 = 500<br>prop2 = abc</div>
+      </div>
 
-      <div class="code-block">label.setProperty("windowTitle", "Demo App")
-label.setProperty("size", QSize(250, 130))
-label.setProperty("text", "示例文本")</div>
+      <p class="content-text">property 和 setProperty 方法也可用来读写 Qt 对象的非动态属性。下面以 QLabel 类为例，通过 setProperty 方法设置它的 windowTitle、size 和 text 属性。</p>
+
+      <div class="code-block">from PySide6.QtWidgets import QApplication, QLabel
+from PySide6.QtCore import QSize
+
+if __name__ == '__main__':
+    app = QApplication()
+    lb = QLabel()
+    # 设置属性
+    # windowTitle：窗口标题
+    # size：窗口大小
+    # text：标签上呈现的文本
+    lb.setProperty('windowTitle', 'Demo App')
+    lb.setProperty('size', QSize(250, 130))
+    lb.setProperty('text', '示例文本')
+    lb.show()
+    app.exec()</div>
+
+      <p class="content-text">windowTitle 属性对应 windowTitle 和 setWindowTitle 方法，size 属性对应 size 和 resize 方法，text 属性对应 text 和 setText 方法。</p>
+      <p class="content-text">运行效果如图 2-13 所示。</p>
 
       <div class="result-box">
         <span class="result-box-header">图 2-13</span>
@@ -807,22 +1757,137 @@ label.setProperty("text", "示例文本")</div>
         <h2>生成随机数</h2>
       </div>
 
-      <p class="content-text">Qt 项目可以使用 <code>QRandomGenerator</code> 生成随机整数或 0～1 之间的浮点数。直接构造的实例使用固定种子，适合可重复测试；一般业务更适合使用全局共享实例。</p>
+      <p class="content-text">生成随机数值，可以使用 Python 内置的随机数生成函数（例如 random 模块下的 randint、random 等函数），但对于 Qt 项目，建议使用 QtCore 模块中的 QRandomGenerator 类。</p>
+      <p class="content-text">下面是 QRandomGenerator 类的最简单用法——实例化后直接调用 generate 方法。</p>
 
       <div class="code-block">from PySide6.QtCore import QRandomGenerator
 
-random = QRandomGenerator.global_()
+# 实例化
+rand = QRandomGenerator()
+n = 0
+while n &lt; 7:
+    # 生成一个随机数
+    r = rand.generate()
+    print(r, end=' ')
+    n += 1</div>
 
-print(random.generate())
-print(random.generateDouble())
-print(random.bounded(0, 100))  # 0～99</div>
+      <p class="content-text">generate 方法每次调用都会返回一个随机的整数值。上述代码通过 while 循环生成 7 个随机整数，并打印到控制台。结果如下：</p>
 
-      <h3 class="subsection-heading">2.10.1 种子与内置实例</h3>
-      <p class="content-text">伪随机序列由种子决定，相同种子会产生相同序列。<code>global_()</code> 返回共享实例，适合大多数场景；<code>securelySeeded()</code> 每次创建新的、由系统安全初始化的实例；<code>system()</code> 则直接使用操作系统提供的随机源。涉及密码、令牌或验证码时，应采用专门的密码学安全方案，不应只依赖普通伪随机序列。</p>
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">853323747 2396352728 3025954838 2985633182 2815751046 340588426 3587208406</div>
+      </div>
 
-      <div class="code-block">shared = QRandomGenerator.global_()
-secure = QRandomGenerator.securelySeeded()
-system_random = QRandomGenerator.system()</div>
+      <p class="content-text">也可以调用 generateDouble 方法生成浮点数。</p>
+
+      <div class="code-block">n = 0
+while n &lt; 7:
+    # 生成一个随机数
+    r = rand.generateDouble()
+    print(r, end=' ')
+    n += 1</div>
+
+      <p class="content-text">生成的浮点数值在 0～1 范围内，例如：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">0.557944348128205 0.6951468956434482 0.07929942259928047 0.06940391353220021<br>0.8479977992079486 0.1860916562717726 0.14888814171680542</div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-10-1"><span>2.10.1</span> 设置随机数的种子</h3>
+      <p class="content-text">直接实例化 QRandomGenerator 类时，默认设置的种子是 1，因此每次运行应用程序后都会生成相同的随机数。可以用下面的代码来验证。</p>
+
+      <div class="code-block">from PySide6.QtCore import QRandomGenerator
+
+def genRandInt():
+    rand = QRandomGenerator()
+    # 生成5个随机数
+    for i in range(0, 5):
+        print(rand.generate(), end=' ')
+    # 换行
+    print()
+
+if __name__ == "__main__":
+    # 执行三次
+    for x in range(0, 3):
+        genRandInt()</div>
+
+      <p class="content-text">genRandInt 是自定义函数，用于生成 5 个随机整数，在运行阶段连续三次调用该函数。从控制台的输出可以看到，三次实例化 QRandomGenerator 对象后所产生的随机数都是一样的。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">输出结果</span>
+        <div class="result-box-content">853323747 2396352728 3025954838 2985633182 2815751046<br>853323747 2396352728 3025954838 2985633182 2815751046<br>853323747 2396352728 3025954838 2985633182 2815751046</div>
+      </div>
+
+      <p class="content-text">这些随机数是通过算法生成的（也称伪随机数），并非真正意义上的随机，因此具有规律性。如果生成的随机数是用于安全方面的，如加密、短信验证码等，攻击者可以根据规律预知下一个随机数值，从而进行恶意提交数据或信息轰炸等。</p>
+      <p class="content-text">为了增加推测随机数的难度，可以考虑在实例化 QRandomGenerator 对象时指定一个种子（每次实例化时所指定的种子均不同）。常用的方法是使用时间值，如当前时间的总秒数、总毫秒数，或当前日期的总小时数等。</p>
+      <p class="content-text">下面的示例将使用当前时间与 00:00:00 的时间差（总秒数）来设置随机数的种子。</p>
+
+      <div class="code-block">from PySide6.QtCore import QRandomGenerator, QTime
+
+# 当前时间
+currTime = QTime.currentTime()
+# 0时
+zero = QTime(0, 0, 0)
+# 得到时差的总秒数
+totalSecs = zero.secsTo(currTime)
+# 实例化 QRandomGenerator
+rand = QRandomGenerator(totalSecs)
+# 生成5个随机数
+for i in range(0, 5):
+    n = rand.generate()
+    print(n, end=' ')</div>
+
+      <p class="content-text">可以尝试多次运行应用程序，此时发现每次生成的随机数并不相同，规律性不明显，安全性有所提高。</p>
+
+      <div class="result-box">
+        <span class="result-box-header">四次运行结果</span>
+        <div class="result-box-content">第一次运行：1230926884 3838824595 3655569805 4008070190 770077286<br>第二次运行：1634385072 325323857 460065842 2846913223 1289398778<br>第三次运行：3630061071 1570905298 29361579 188463289 985322278<br>第四次运行：3934119818 2439380856 2303324033 1630700456 3603977815</div>
+      </div>
+
+      <h3 class="subsection-heading" id="subsection-2-10-2"><span>2.10.2</span> 使用内置的 QRandomGenerator 实例</h3>
+      <p class="content-text">尽管使用时间差设置随机数种子具备一定程度的安全性，但攻击者只要算出时间差也是可以预测下一个随机数的。因此，如果代码对安全要求比较高，那就得通过系统层面所提供的功能来生成随机数（包括通过硬件来生成随机数，如环境电压、鼠标/键盘的操作，或与计算机连接的信号噪声等）。这些基于系统层面的随机数算法比较综合且复杂，很难找到规律，可预测难度大。</p>
+      <p class="content-text">QRandomGenerator 类公开以下三个静态成员，可以获取特定的实例。</p>
+      <ol class="content-list">
+        <li>global 方法：返回一个共享的 QRandomGenerator 实例，该实例由基于系统层面的、具有一定安全性的种子创建，并且实例是共享的，访问时性能优越，占用资源少。大多数情况下推荐使用此实例来生成离散型随机数。</li>
+        <li>securelySeeded 方法：使用系统层面的算法生成随机数，且具有可靠的安全性。此方法与 global 方法相似，但此方法返回的不是共享的对象实例，每次调用都会创建新的 QRandomGenerator 实例。因此，securelySeeded 方法比较消耗资源，只在需要生成大量随机数时使用。一般情况下使用 global 方法更佳。</li>
+        <li>system 方法：此方法返回的也是共享的 QRandomGenerator 实例。此方法将使用操作系统层面的算法（包括硬件生成）来生成随机数。此方法通常用于设置种子，再以此种子为基础使用伪随机数算法生成随机数。</li>
+      </ol>
+      <p class="content-text">下面的示例将使用全局共享的 QRandomGenerator 对象来生成 9 个随机数。</p>
+
+      <div class="code-block"># 获取全局共享的实例
+rand = QRandomGenerator.global_()
+# 生成9个随机数
+for i in range(1, 10):
+    num = rand.generate()
+    print(num, end='\n' if i % 3 == 0 else ' ')</div>
+
+      <p class="content-text">将上述代码运行三次后，得到以下结果：</p>
+
+      <div class="result-box">
+        <span class="result-box-header">三次运行结果</span>
+        <div class="result-box-content">第一次：<br>2254275905 2000608760 2058096574<br>998133270 1454645182 895832046<br>2932870971 1599245497 1648096071<br><br>第二次：<br>4156177851 2575768562 343431902<br>1631767061 2481187429 1193912935<br>4089031774 1959297329 919304449<br><br>第三次：<br>4289980107 1241748556 4152402115<br>301445846 3235752732 1789050098<br>201142820 1187791119 1525500384</div>
+      </div>
+
+      <p class="content-text">根据上述结果可以看出，每次执行代码，所生成的整数是不重复的。</p>
+
+      <h3 class="subsection-heading" id="subsection-2-10-3"><span>2.10.3</span> 指定随机数的范围</h3>
+      <p class="content-text">bounded 方法可以指定生成随机数的“边界”——限定最小值（包含）和最大值（不包含）。</p>
+      <p class="content-text">下面的示例将生成 8 个 0～99 的随机整数。</p>
+
+      <div class="code-block">rand = QRandomGenerator.global_()
+# 生成0～99的随机整数
+nums = []
+for c in range(0, 7):
+    n = rand.bounded(0, 100)
+    nums.append(n)
+# 打印生成的随机数
+# 输出：37,50,78,47,21,98,91
+print(*nums, sep=',')</div>
+
+      <p class="content-text">上述代码中，由于限定随机数的最小值为 0，可以省略该值，仅指定最大值（不包含）即可。</p>
+
+      <div class="code-block">n = rand.bounded(100)</div>
 
       <div class="page-nav">
         <a href="index.html#chapter-1">
