@@ -217,10 +217,10 @@ wsub.setGeometry(123, 100, 160, 100)</code></pre>
 </div>
 <div class="source-page" data-book-page="78">
 <figure class="result-box">
-<span class="result-box-header">图 5-3</span>
+<span class="result-box-header">图 5-3 / 图 5-4</span>
 <div class="result-box-image">
 <img alt="图 5-3 窗口默认的显示方式 图 5-4 窗口全屏显示" loading="lazy" src="images/ch05/ch05_fig_03.png"/>
-<figcaption class="caption">图 5-3 窗口默认的显示方式 图 5-4 窗口全屏显示</figcaption>
+<figcaption class="caption">图 5-3 窗口默认的显示方式<br/>图 5-4 窗口全屏显示</figcaption>
 </div>
 </figure>
 <div class="section-heading" id="section-2">
@@ -233,10 +233,10 @@ wsub.setGeometry(123, 100, 160, 100)</code></pre>
 <p class="content-text">QWidget类（包括它的子类）默认是不支持拖放的，将数据拖放到组件（或窗口）上时，鼠标指针会显示为“禁用”图标，如图5-5所示。</p>
 <p class="content-text">调用 setAcceptDrops(True)方法使窗口组件支持放置操作后，再把数据拖进去，窗口不再显示“禁用”图标，如图 5-6所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 5-5</span>
+<span class="result-box-header">图 5-5 / 图 5-6</span>
 <div class="result-box-image">
 <img alt="图 5-5 禁止放置操作 图 5-6 窗口支持拖放" loading="lazy" src="images/ch05/ch05_fig_04.png"/>
-<figcaption class="caption">图 5-5 禁止放置操作 图 5-6 窗口支持拖放</figcaption>
+<figcaption class="caption">图 5-5 禁止放置操作<br/>图 5-6 窗口支持拖放</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>5.3.1</span> QMimeData 类</h3>
@@ -357,10 +357,10 @@ def exec(supportedActions: Qt.DropAction, defaultAction: Qt.DropAction) -&gt;Qt.
 <p class="content-text">如果 exec 方法返回DropAction.IgnoreAction，表明拖放操作被取消或被忽略，其他值则表明数据已传递。拖放操作完成后调用QMessageBox类的静态方法弹出对话框，显示操作结果。</p>
 <p class="content-text">运行示例程序后，打开一个支持拖放的文本编辑器（例如记事本)，然后使用鼠标左键按住示例窗口中电灯泡图像并拖动到文本编辑器，如图5-7所示。最后文本编辑器将接收到文本“电灯泡”，如图 5-8 所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 5-7</span>
+<span class="result-box-header">图 5-7 / 图 5-8</span>
 <div class="result-box-image">
 <img alt="图 5-7 拖动窗口中的电灯图标 图 5-8 成功传递文本数据" loading="lazy" src="images/ch05/ch05_fig_06.png"/>
-<figcaption class="caption">图 5-7 拖动窗口中的电灯图标 图 5-8 成功传递文本数据</figcaption>
+<figcaption class="caption">图 5-7 拖动窗口中的电灯图标<br/>图 5-8 成功传递文本数据</figcaption>
 </div>
 </figure>
 </div>
@@ -477,10 +477,10 @@ def exec(supportedActions: Qt.DropAction, defaultAction: Qt.DropAction) -&gt;Qt.
 </div>
 <div class="source-page" data-book-page="85">
 <figure class="result-box">
-<span class="result-box-header">图 5-9</span>
+<span class="result-box-header">图 5-9 / 图 5-10</span>
 <div class="result-box-image">
 <img alt="图 5-9 预览图像 图 5-10 拖放完成后显示图像" loading="lazy" src="images/ch05/ch05_fig_07.png"/>
-<figcaption class="caption">图 5-9 预览图像 图 5-10 拖放完成后显示图像</figcaption>
+<figcaption class="caption">图 5-9 预览图像<br/>图 5-10 拖放完成后显示图像</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>5.3.12</span> 示例：拖放取色器</h3>
@@ -597,10 +597,10 @@ layout.setRowMinimumHeight(1,36)</code></pre>
 <pre class="code-block"><code>window.show()</code></pre>
 <p class="content-text">运行示例程序后，用鼠标将窗口下方的颜色块拖到窗口上半部分的黑色面板内，如图5-11所示，然后释放鼠标，会看到面板的背景变成与被拖动色块相同的颜色，如图5-12所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 5-11</span>
+<span class="result-box-header">图 5-11 / 图 5-12</span>
 <div class="result-box-image">
 <img alt="图 5-11 拖动颜色块 图 5-12 面板颜色发生改变" loading="lazy" src="images/ch05/ch05_fig_08.png"/>
-<figcaption class="caption">图 5-11 拖动颜色块 图 5-12 面板颜色发生改变</figcaption>
+<figcaption class="caption">图 5-11 拖动颜色块<br/>图 5-12 面板颜色发生改变</figcaption>
 </div>
 </figure>
 <div class="section-heading" id="section-3">
@@ -683,10 +683,10 @@ def _on_clear(self):
 <li>单击“清空剪贴板”按钮，再单击“粘贴”按钮，此时，被粘贴文本为空白字符，如图5-14所示。这是因为剪贴板中的内容已被清除。</li>
 </ol>
 <figure class="result-box">
-<span class="result-box-header">图 5-13</span>
+<span class="result-box-header">图 5-13 / 图 5-14</span>
 <div class="result-box-image">
 <img alt="图 5-13 复制和粘贴文本 图 5-14 粘贴的内容为空" loading="lazy" src="images/ch05/ch05_fig_09.png"/>
-<figcaption class="caption">图 5-13 复制和粘贴文本 图 5-14 粘贴的内容为空</figcaption>
+<figcaption class="caption">图 5-13 复制和粘贴文本<br/>图 5-14 粘贴的内容为空</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>5.4.2</span> 示例：监视剪贴板的数据变化</h3>
@@ -727,10 +727,10 @@ def _on_clear(self):
 <p class="content-text">运行示例程序，从其他应用程序复制一些文本（例如网页上的内容)，随后回到示例程序界面，被复制的文本已自动显示在窗口上了，如图5-15所示。</p>
 <p class="content-text">如果复制的内容是图像数据，则QLabel组件中将显示该图像，如图5-16所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 5-15</span>
+<span class="result-box-header">图 5-15 / 图 5-16</span>
 <div class="result-box-image">
 <img alt="图 5-15自动粘贴文本 图 5-16自动粘贴图像" loading="lazy" src="images/ch05/ch05_fig_10.png"/>
-<figcaption class="caption">图 5-15自动粘贴文本 图 5-16自动粘贴图像</figcaption>
+<figcaption class="caption">图 5-15自动粘贴文本<br/>图 5-16自动粘贴图像</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>5.4.3</span> 示例：复制和粘贴自定义数据</h3>
@@ -1044,10 +1044,10 @@ int])</code></pre>
 <li>单击窗口上任意按钮切换颜色主题，如图5-20所示。</li>
 </ol>
 <figure class="result-box">
-<span class="result-box-header">图 5-19</span>
+<span class="result-box-header">图 5-19 / 图 5-20</span>
 <div class="result-box-image">
 <img alt="图 5-19 默认主题 图 5-20 切换主题" loading="lazy" src="images/ch05/ch05_fig_13.png"/>
-<figcaption class="caption">图 5-19 默认主题 图 5-20 切换主题</figcaption>
+<figcaption class="caption">图 5-19 默认主题<br/>图 5-20 切换主题</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>5.6.2</span> 示例：带纹理的背景画刷</h3>
@@ -1096,10 +1096,10 @@ self.setPalette(pal)</code></pre>
 <p class="content-text">CustWindow 继承了QScrollArea 类，并且 QScrollArea 类的内容区域是通过 setWidget 方法设置的—窗口的内容必须是单个QWidget对象。因此，上述代码先创建一个QWidget实例（container变量）作为子级组件的容器，然后调用setLayout方法设置布局对象，其结构如图5-21所示。</p>
 <p class="content-text">示例的运行效果如图5-22所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 5-21</span>
+<span class="result-box-header">图 5-21 / 图 5-22</span>
 <div class="result-box-image">
 <img alt="图 5-21 窗口组件结构 图 5-22 带纹理的输入框背景" loading="lazy" src="images/ch05/ch05_fig_14.png"/>
-<figcaption class="caption">图 5-21 窗口组件结构 图 5-22 带纹理的输入框背景</figcaption>
+<figcaption class="caption">图 5-21 窗口组件结构<br/>图 5-22 带纹理的输入框背景</figcaption>
 </div>
 </figure>
 </div>

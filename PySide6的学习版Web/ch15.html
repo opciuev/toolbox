@@ -33,7 +33,7 @@
       <h1 class="chapter-title">目录与文件</h1>
       <div class="chapter-meta">本章共 6 个小节 &middot; PySide6 Basic Tutorial</div>
 
-      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>QDir</li><li>QFile 与 QSaveFile</li><li>QTextStream</li><li>QDataStream</li></ol></div>
+      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>QDir;</li><li>QFile 与 QSaveFile;</li><li>QTextStream;</li><li>QDataStream。</li></ol></div>
 
       <div class="section-heading" id="section-0"><span class="section-number">15.1</span><h2>QDir</h2></div>
 
@@ -66,13 +66,13 @@ models</div>
 
       <p class="content-text">QDir类公开了3个重载的构造函数：</p>
 
-      <div class="code-block">                def __init__(arg__1: Union[QDir, str])
-                def __init__(path: Union[str, bytes, os.PathLike, NoneType])
+      <div class="code-block">def __init__(arg__1: Union[QDir, str])
+def __init__(path: Union[str, bytes, os.PathLike, NoneType])
 def __init__(
-        path: Union[str, bytes, os.PathLike],
-        nameFilter: str,
-        sort: QDir.SortFlag
-        filter: QDir.Filter = ...)</div>
+    path: Union[str, bytes, os.PathLike],
+    nameFilter: str,
+    sort: QDir.SortFlag = ...,
+    filter: QDir.Filter = ...)</div>
 
       <p class="content-text">第一个重载是通过现有的QDir对象来创建新的实例；第二个重载用得比较多，直接指定目录路径来实例化 QDir类，可以指定不存在的路径；第三个重载指定了筛选和排序的设置，nameFilter和 filter参数结合起来，约束path参数所提供的目录能够列出哪些子目录和文件。本示例将使用第二个重载版本的构造函数。</p>
 
@@ -163,19 +163,19 @@ print(f&quot;目录是否存在？{&#x27;是&#x27;if d.exists() else&#x27;否&#x
       <p class="content-text">两个QLineEdit组件分别用于输入源路径和目标路径。两个按钮依次实现复制和移动功能。下面的代码实现 onDirCopy 方法：</p>
 
       <div class="code-block">def onDirCopy(self):
-        srcPath = self.mTxtSrc.text()
-        destPath = self.mTxtDest.text()
-        if len(srcPath) == 0 or len(destPath) == 0:
-                return
-        #源目录必须存在
-        dir = QDir(srcPath)
-        if dir.exists() == False:
-                return
-        #复制目录
-        try:
-                copytree(srcPath, destPath)
-        except FileExistsError:
-                print(&quot;目标已存在&quot;)</div>
+    srcPath = self.mTxtSrc.text()
+    destPath = self.mTxtDest.text()
+    if len(srcPath) == 0 or len(destPath) == 0:
+        return
+    #源目录必须存在
+    dir = QDir(srcPath)
+    if dir.exists() == False:
+        return
+    #复制目录
+    try:
+        copytree(srcPath, destPath)
+    except FileExistsError:
+        print(&quot;目标已存在&quot;)</div>
 
       <p class="content-text">QDir类未提供复制目录的功能，本示例将使用 shutil模块中的 copytree函数。该函数会递归复制目录和文件。</p>
 
@@ -198,9 +198,9 @@ print(f&quot;目录是否存在？{&#x27;是&#x27;if d.exists() else&#x27;否&#x
 
       <p class="content-text">示例运行后，在第一个文本框中输入源路径，在第二个文本框中输入目标路径。注意此处要输入完整路径。</p>
 
-      <p class="content-text">如图15-1所示，源路径为 D:\Example\Full，目标路径为 D:\Example\Out\Full。如果执行复制操作，就是将 Full 目录复制到 Out 目录下；若执行移动操作，则会将 Full 目录移动到 Out 目录下。</p>
+      <p class="content-text">如图15-1所示，源路径为 D:\Example\Full，目标路径为 D:\Example\Out\Full。如果执行复制操作，那就是将Full目录复制到Out目录下；若执行的是移动操作，那么Full目录将移动到Out目录下。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 15-1</span><div class="result-box-image"><img src="images/ch15/ch15_fig_01.png" alt="目录将移动到Out目录下。 图 15-1 输入目录路径" loading="lazy"><div class="caption">目录将移动到Out目录下。 图 15-1 输入目录路径</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 15-1</span><div class="result-box-image"><img src="images/ch15/ch15_fig_01.png" alt="图 15-1 输入目录路径" loading="lazy"><div class="caption">图 15-1 输入目录路径</div></div></div>
 
       <h3 class="subsection-heading"><span>15.1.3</span> 枚举目录和文件</h3>
 
@@ -209,25 +209,25 @@ print(f&quot;目录是否存在？{&#x27;是&#x27;if d.exists() else&#x27;否&#x
       <ol class="content-list" start="1"><li>entryList方法。该方法将以字符串列表的形式返回目录或文件，即仅包含路径。entryList方法的声明如下：</li></ol>
 
       <div class="code-block">def entryList(
-        filters: Filter =
-        sort: SortFlag =
+    filters: Filter = ...,
+    sort: SortFlag = ...
 ) -&gt; List[str]
 def entryList(
-        nameFilters: Sequence[str],
-        filters: Filter =
-        sort: SortFlag =
+    nameFilters: Sequence[str],
+    filters: Filter = ...,
+    sort: SortFlag = ...
 ) -&gt; List[str]</div>
 
       <ol class="content-list" start="2"><li>entryInfoList 方法。该方法返回的是 QFileInfo 对象列表。QFileInfo 类包含列表详细的目录或文件信息，如绝对路径、创建时间、文件大小等。entryInfoList方法的声明如下：</li></ol>
 
       <div class="code-block">def entryInfoList(
-        filters: Filter =
-        sort: SortFlag =
+    filters: Filter = ...,
+    sort: SortFlag = ...
 ) -&gt; List[QFileInfo]
 def entryInfoList(
-        nameFilters: Sequence[str],
-        filters: Filter =
-        sort: SortFlag =
+    nameFilters: Sequence[str],
+    filters: Filter = ...,
+    sort: SortFlag = ...
 ) -&gt; List[QFileInfo]</div>
 
       <p class="content-text">nameFilters、filters和 sort 参数都是可选的，如果未指定，则默认使用 setNameFilters、setFilter 和setSorting方法所设置的值。</p>
@@ -262,7 +262,7 @@ def entryInfoList(
 
       <ol class="content-list" start="13"><li>Executable：列出当前应用程序能够执行的文件。通常是可执行文件或脚本文件。</li></ol>
 
-      <ol class="content-list" start="14"><li>Modified：列出被修改过的文件（UNIX上无效）。</li></ol>
+      <ol class="content-list" start="14"><li>Executable：列出被修改过的文件（UNIX上无效）。</li></ol>
 
       <ol class="content-list" start="15"><li>Hidden：列出时包含隐藏文件。</li></ol>
 
@@ -299,18 +299,18 @@ def entryInfoList(
 winDir = QDir(&quot;C:\\Windows\\system32&quot;)
 #枚举文件
 fileList = winDir.entryInfoList(
-        [&quot;*.dll&quot;],
-        QDir.Filter.Files | QDir.Filter.Readable,
-        QDir.SortFlag.Size
+    [&quot;*.dll&quot;],
+    QDir.Filter.Files | QDir.Filter.Readable,
+    QDir.SortFlag.Size
 )
 if len(fileList) &gt; 0:
-        print(f&#x27;{&quot;文件名&quot;:^70s}{&quot;大小&quot;:^20s}&#x27;)
-        print(&#x27;-&#x27; * 100)
-        #打印文件信息
-        for f in fileList:
-                print(&quot;{0:&lt;70s}{1:15d}&quot;.format(f.fileName(), f.size()))
+    print(f&#x27;{&quot;文件名&quot;:^70s}{&quot;大小&quot;:^20s}&#x27;)
+    print(&#x27;-&#x27; * 100)
+    #打印文件信息
+    for f in fileList:
+        print(&quot;{0:&lt;70s}{1:15d}&quot;.format(f.fileName(), f.size()))
 else:
-        print(&quot;未列出任何文件&quot;)</div>
+    print(&quot;未列出任何文件&quot;)</div>
 
       <p class="content-text">示例运行后，控制台窗口将输出如图15-2所示的文本。</p>
 
@@ -325,29 +325,29 @@ else:
       <ol class="content-list" start="1"><li>从QWidget类派生出自定义窗口类。</li></ol>
 
       <div class="code-block">class DemoWindow(QWidget):
-                ....</div>
+    ....</div>
 
       <ol class="content-list" start="2"><li>在__init__方法中初始化用户界面。</li></ol>
 
       <div class="code-block">def __init__(self):
-        super().__init__()
-        #窗口布局
-        rootLayout = QVBoxLayout()
-        self.setLayout(rootLayout)
-        #标签
-        rootLayout.addWidget(QLabel(&quot;请输入目录名称：&quot;, self))
-        #输入框
-        self.txtInput = QLineEdit(self)
-        rootLayout.addWidget(self.txtInput)
-        rootLayout.addStretch(1)
-        #按钮
-        btnMkDir = QPushButton(&quot;创建目录&quot;, self)
-        btnRmDir = QPushButton(&quot;删除目录&quot;, self)
-        rootLayout.addWidget(btnMkDir)
-        rootLayout.addWidget(btnRmDir)
-        #连接信号
-        btnMkDir.clicked.connect(self.onMkDir)
-        btnRmDir.clicked.connect(self.onRmDir)</div>
+    super().__init__()
+    #窗口布局
+    rootLayout = QVBoxLayout()
+    self.setLayout(rootLayout)
+    #标签
+    rootLayout.addWidget(QLabel(&quot;请输入目录名称：&quot;, self))
+    #输入框
+    self.txtInput = QLineEdit(self)
+    rootLayout.addWidget(self.txtInput)
+    rootLayout.addStretch(1)
+    #按钮
+    btnMkDir = QPushButton(&quot;创建目录&quot;, self)
+    btnRmDir = QPushButton(&quot;删除目录&quot;, self)
+    rootLayout.addWidget(btnMkDir)
+    rootLayout.addWidget(btnRmDir)
+    #连接信号
+    btnMkDir.clicked.connect(self.onMkDir)
+    btnRmDir.clicked.connect(self.onRmDir)</div>
 
       <ol class="content-list" start="3"><li>实现onMkDir方法，当“创建目录”按钮被单击后执行。</li></ol>
 
@@ -366,7 +366,8 @@ else:
     res = cd.mkdir(name)
     msgbox = QMessageBox(
         QMessageBox.Icon.Information if res else QMessageBox.Icon.Warning,
-        &quot;操作结果&quot;, &quot;目录创建成功&quot; if res else &quot;目录创建失败&quot;,
+        &quot;操作结果&quot;,
+        &quot;目录创建成功&quot; if res else &quot;目录创建失败&quot;,
         QMessageBox.StandardButton.Ok,
         self
     )
@@ -375,19 +376,19 @@ else:
       <ol class="content-list" start="4"><li>实现onRmDir方法，“删除目录”按钮被单击后会被调用。</li></ol>
 
       <div class="code-block">def onRmDir(self):
-        #获取输入的目录名称
-        dirname = self.txtInput.text()
-        #获取当前目录
-        currdir = QDir.current()
-        #确定输入的目录有效且目录是存在的
-        if len(dirname) == 0 or not currdir.exists(dirname):
-                return
-        #删除目录
-        res = currdir.rmdir(dirname)
-        if res:
-                QMessageBox.information(self, &quot;操作结果&quot;, &quot;目录已删除&quot;)
-        else:
-                QMessageBox.warning(self, &quot;操作结果&quot;, &quot;删除目录失败&quot;)</div>
+    #获取输入的目录名称
+    dirname = self.txtInput.text()
+    #获取当前目录
+    currdir = QDir.current()
+    #确定输入的目录有效且目录是存在的
+    if len(dirname) == 0 or not currdir.exists(dirname):
+        return
+    #删除目录
+    res = currdir.rmdir(dirname)
+    if res:
+        QMessageBox.information(self, &quot;操作结果&quot;, &quot;目录已删除&quot;)
+    else:
+        QMessageBox.warning(self, &quot;操作结果&quot;, &quot;删除目录失败&quot;)</div>
 
       <p class="content-text">运行示例程序，如图15-3所示。</p>
 
@@ -432,32 +433,32 @@ else:
       <p class="content-text">以WriteOnly模式打开文件，写入 5字节。</p>
 
       <div class="code-block">if file.open(QFile.OpenModeFlag.WriteOnly):
-        #5字节
-        content = b&#x27;\x13\x2f\x57\xe7\x16&#x27;
-        #写入
-        file.write(content)
-        #关闭文件
-        file.close()</div>
+    #5字节
+    content = b&#x27;\x13\x2f\x57\xe7\x16&#x27;
+    #写入
+    file.write(content)
+    #关闭文件
+    file.close()</div>
 
       <p class="content-text">以Append模式打开文件，写入3字节。此处不能用 WriteOnly模式，那样会把前面写的 5字节清空，造成数据丢失。代码如下：</p>
 
       <div class="code-block">if file.open(QFile.OpenModeFlag.Append):
-        #3字节
-        content = b&#x27;\xa5\x83\x27&#x27;
-        #写入
-        file.write(content)
-        #关闭文件
-        file.close()</div>
+    #3字节
+    content = b&#x27;\xa5\x83\x27&#x27;
+    #写入
+    file.write(content)
+    #关闭文件
+    file.close()</div>
 
       <p class="content-text">把文件的所有内容一次性读出。</p>
 
       <div class="code-block">if file.open(QFile.OpenModeFlag.ReadOnly):
-        #全部读出
-        content = file.readAll()
-        #关闭文件
-        file.close()
-        #输出读到的数据
-        print(&quot;读到的文件内容：&quot;, content.data().hex())</div>
+    #全部读出
+    content = file.readAll()
+    #关闭文件
+    file.close()
+    #输出读到的数据
+    print(&quot;读到的文件内容：&quot;, content.data().hex())</div>
 
       <p class="content-text">readAll方法返回的对象是 QByteArray 类型，其 data 方法将返回 Python 的内置类型 bytes，然后调用hex方法返回十六进制的表示形式，即“132f57e716a58327”。</p>
 
@@ -470,30 +471,30 @@ else:
       <ol class="content-list" start="1"><li>定义窗口类 DemoWindow，基类是 QWidget。</li></ol>
 
       <div class="code-block">class DemoWindow(QWidget):
-                ......</div>
+    ......</div>
 
       <ol class="content-list" start="2"><li>在__init__方法中初始化应用程序界面。</li></ol>
 
       <div class="code-block">def __init__(self):
-        super().__init__()
-        #文本框
-        self.mEdit = QPlainTextEdit(self)
-        #按钮
-        btnSave = QPushButton(&quot;保存&quot;, self)
-        btnLoad = QPushButton(&quot;加载&quot;, self)
-        btnClear = QPushButton(&quot;清空&quot;, self)
-        #网格布局
-        layout = QGridLayout()
-        self.setLayout(layout)
-        layout.addWidget(self.mEdit, 0, 0, 1, 3)
-        layout.addWidget(btnSave, 1, 0)
-        layout.addWidget(btnLoad, 1,.1)
-        layout.addWidget(btnClear, 1, 2)
-        layout.setRowStretch(0, 1)
-        #连接信号
-        btnSave.clicked.connect(self.onSave)
-        btnLoad.clicked.connect(self.onLoad)
-        btnClear.clicked.connect(self.onClear)</div>
+    super().__init__()
+    #文本框
+    self.mEdit = QPlainTextEdit(self)
+    #按钮
+    btnSave = QPushButton(&quot;保存&quot;, self)
+    btnLoad = QPushButton(&quot;加载&quot;, self)
+    btnClear = QPushButton(&quot;清空&quot;, self)
+    #网格布局
+    layout = QGridLayout()
+    self.setLayout(layout)
+    layout.addWidget(self.mEdit, 0, 0, 1, 3)
+    layout.addWidget(btnSave, 1, 0)
+    layout.addWidget(btnLoad, 1,.1)
+    layout.addWidget(btnClear, 1, 2)
+    layout.setRowStretch(0, 1)
+    #连接信号
+    btnSave.clicked.connect(self.onSave)
+    btnLoad.clicked.connect(self.onLoad)
+    btnClear.clicked.connect(self.onClear)</div>
 
       <p class="content-text">示例窗口使用网格布局。第一行是QPlainTextEdit组件，可输入多行文本；第二行是3个按钮，“保存”按钮将文本内容写入文件，“加载”按钮从文本文件中读取内容并显示在QPlainTextEdit组件中，“清空”按钮用于清除QPlainTextEdit组件中的文本。</p>
 
@@ -552,7 +553,7 @@ else:
       <ol class="content-list" start="5"><li>实现 onClear 方法，清空 QPlainTextEdit 组件中所有文本。</li></ol>
 
       <div class="code-block">def onClear(self):
-        self.mEdit.clear()</div>
+    self.mEdit.clear()</div>
 
       <p class="content-text">运行示例程序后，在文本框中输入测试文本。单击“保存”按钮保存为test.txt文件。随后单击“清空”按钮清除文本框中的内容。最后单击“加载”按钮，选择保存的test.txt文件，文本内容被读出，重新显示在文本框中，如图15-4所示。</p>
 
@@ -568,20 +569,20 @@ else:
 file = QFile(&quot;demo.tda&quot;)
 #如果文件已存在，先删除
 if file.exists():
-        file.remove()
+    file.remove()
 #打开文件
 if file.open(QFile.OpenModeFlag.WriteOnly):
-        #写入一些数据
-        data=b&#x27;\x91\x20\xa4\x48\xf7\x60\x11\x9b\xd2\x24\x36&#x27;
-        file.write(data)
-        #关闭文件
-        file.close()
+    #写入一些数据
+    data=b&#x27;\x91\x20\xa4\x48\xf7\x60\x11\x9b\xd2\x24\x36&#x27;
+    file.write(data)
+    #关闭文件
+    file.close()
 #检测当前平台
 from platform import system
 if system() == &quot;Windows&quot;:
-        linkName = &quot;test.lnk&quot;
+    linkName = &quot;test.lnk&quot;
 else:
-        linkName = &quot;test&quot;
+    linkName = &quot;test&quot;
 #为文件创建链接
 file.link(linkName)</div>
 
@@ -631,11 +632,11 @@ if file.open(QSaveFile.OpenModeFlag.WriteOnly):
 if buffer.open(QBuffer.OpenModeFlag.WriteOnly):
     #写入数据
     bts = bytes([0x05, 0x4e, 0x91, 0xf4, 0x77, 0x6b, 0x38, 0x31, 0xaf, 0x9e, 0x7d, 0x19,
-                 0x42, 0xf8, 0x04, 0x12, 0x83, 0x37, 0x72, 0x6a, 0x88, 0x55, 0xff, 0x70, 0x06, 0x18, 0xa9,
-                 0x8d, 0x68])
+0x42, 0xf8, 0x04, 0x12, 0x83, 0x37, 0x72, 0x6a, 0x88, 0x55, 0xff, 0x70, 0x06, 0x18, 0xa9,
+0x8d, 0x68])
     buffer.write(bts)
     #关闭buffer
-    buffer.close()
+    buffer.close
 #以只读方式打开buffer
 if buffer.open(QBuffer.OpenModeFlag.ReadOnly):
     #读取数据
@@ -643,7 +644,7 @@ if buffer.open(QBuffer.OpenModeFlag.ReadOnly):
         bs = buffer.read(5).data()
         #打印
         for i in range(len(bs)):
-            print(f&#x27;{bs[i]:02x}&#x27;, end=&#x27;&#x27;)
+            print(f&#x27;{bs[i]:02x}&#x27;, end=&#x27; &#x27;)
     #关闭buffer
     buffer.close()</div>
 
@@ -740,7 +741,7 @@ print(arr.toStdString())</div>
 
       <p class="content-text">示例程序执行后，将得到这样的文本：</p>
 
-      <div class="code-block output-block" data-block-label="程序输出">==Hello+++++++++++++All++++++++++++++</div>
+      <div class="code-block output-block" data-block-label="程序输出">===============Hello+++++++++++++All++++++++++++++</div>
 
       <h3 class="subsection-heading"><span>15.5.3</span> 示例：写入不同进制的整数</h3>
 
@@ -807,41 +808,39 @@ print(arr.toStdString())</div>
 
       <h3 class="subsection-heading"><span>15.6.1</span> 示例：简单的读写操作</h3>
 
-      <p class="content-text">本示例将依次向文件写入8位无符号整数、字符串、浮点数，随后将数据读出来并打印在屏幕上。</p>
-
-      <p class="content-text">完整代码如下：</p>
+      <p class="content-text">本示例将依次向文件写入8位无符号整数、字符串、浮点数，随后将数据读出来并打印在屏幕上。完整代码如下：</p>
 
       <div class="code-block">file = QFile(&quot;something.bin&quot;)
 #如果文件已存在，则删除
 if file.exists():
-        file.remove()
+    file.remove()
 #打开文件，用于写操作
 if file.open(QFile.OpenModeFlag.WriteOnly):
-        #实例化 QDataStream 对象
-        stream = QDataStream(file)
-        #1.写入8位无符号整数
-        stream.writeUInt8(127)
-        #2. 写入字符串
-        stream.writeString(&quot;马到成功&quot;)
-        #3. 写入浮点数
-        stream.writeFloat(192.0627)
-        #关闭文件
-        file.close()
+    #实例化 QDataStream 对象
+    stream = QDataStream(file)
+    #1.写入8位无符号整数
+    stream.writeUInt8(127)
+    #2. 写入字符串
+    stream.writeString(&quot;马到成功&quot;)
+    #3. 写入浮点数
+    stream.writeFloat(192.0627)
+    #关闭文件
+    file.close()
 #打开文件，用于读操作
 if file.open(QFile.OpenModeFlag.ReadOnly):
-        #实例化 QDataStream 对象
-        stream = QDataStream(file)
-        #1. 读出8位无符号整数
-        val = stream.readUInt8()
-        print(f&quot;Uint8: {val}&quot;)
-        #2. 读出字符串
-        val = stream.readString()
-        print(f&quot;String: {val}&quot;)
-        #3. 读出浮点数
-        val = stream.readFloat()
-        print(f&quot;Float: {val}&quot;)
-        #关闭文件
-        file.close()</div>
+    #实例化 QDataStream 对象
+    stream = QDataStream(file)
+    #1. 读出8位无符号整数
+    val = stream.readUInt8()
+    print(f&quot;Uint8: {val}&quot;)
+    #2. 读出字符串
+    val = stream.readString()
+    print(f&quot;String: {val}&quot;)
+    #3. 读出浮点数
+    val = stream.readFloat()
+    print(f&quot;Float: {val}&quot;)
+    #关闭文件
+    file.close()</div>
 
       <p class="content-text">QDataStream类使用起来并不复杂，写入时调用write*方法，读取时调用read*方法。但一定要注意的是：读出数据的顺序必须要与写入时相同。例如在上述代码中，先写入的是8位无符号整数，接着是字符串，在读取时也要先读出8位无符号整数，再读字符串。</p>
 
@@ -870,19 +869,19 @@ Float:192.0626983642578</div>
       <ol class="content-list" start="3"><li>在__init__方法中，检查数据文件是否存在。如果存在，读取文件并重新设置窗口的调色板。</li></ol>
 
       <div class="code-block">def __init__(self):
-        super().__init__()
-        dataFile = QFile(DemoWindow.DATA_FILE)
-        if dataFile.exists():
-                #打开文件
-                if dataFile.open(QFile.OpenModeFlag.ReadOnly):
-                    #实例化 QDataStream 对象
-                    stream = QDataStream(dataFile)
-                    #创建调色板实例
-                    palette = self.palette()
-                    #还原调色板
-                    stream &gt;&gt; palette
-                    #重新设置调色板
-                    self.setPalette(palette)</div>
+    super().__init__()
+    dataFile = QFile(DemoWindow.DATA_FILE)
+    if dataFile.exists():
+        #打开文件
+        if dataFile.open(QFile.OpenModeFlag.ReadOnly):
+            #实例化 QDataStream 对象
+            stream = QDataStream(dataFile)
+            #创建调色板实例
+            palette = self.palette()
+            #还原调色板
+            stream &gt;&gt; palette
+            #重新设置调色板
+            self.setPalette(palette)</div>
 
       <p class="content-text">QPalette类重载了“&gt;&gt;”运算符，使用它可以从QDataStream对象读取调色板数据，并赋值给palette变量。</p>
 
@@ -900,27 +899,27 @@ layout.addWidget(self.btn2)
 layout.addWidget(self.btn3)
 layout.addStretch(1)
 #连接按钮的clicked信号
-self.btn1.clicked.connect(self.onStylel)
+self.btn1.clicked.connect(self.onStyle1)
 self.btn2.clicked.connect(self.onStyle2)
 self.btn3.clicked.connect(self.onStyle3)</div>
 
       <ol class="content-list" start="5"><li>实现onStyle1等3个方法。这3个方法的代码逻辑是相同的，区别在于为窗口背景和按钮文本设置不同的颜色。</li></ol>
 
-      <div class="code-block">def onStylel(self):
-        p = self.palette()
-        p.setColor(QPalette.ColorRole.Window, QColor(&quot;green&quot;))
-        p.setColor(QPalette.ColorRole.ButtonText, QColor(&quot;darkblue&quot;))
-        self.setPalette(p)
+      <div class="code-block">def onStyle1(self):
+    p = self.palette()
+    p.setColor(QPalette.ColorRole.Window, QColor(&quot;green&quot;))
+    p.setColor(QPalette.ColorRole.ButtonText, QColor(&quot;darkblue&quot;))
+    self.setPalette(p)
 def onStyle2(self):
-        p = self.palette()
-        p.setColor(QPalette.ColorRole.Window, QColor(&quot;blue&quot;))
-        p.setColor(QPalette.ColorRole.ButtonText, QColor(&quot;purple&quot;))
-        self.setPalette(p)
+    p = self.palette()
+    p.setColor(QPalette.ColorRole.Window, QColor(&quot;blue&quot;))
+    p.setColor(QPalette.ColorRole.ButtonText, QColor(&quot;purple&quot;))
+    self.setPalette(p)
 def onStyle3(self):
-        p = self.palette()
-        p.setColor(QPalette.ColorRole.Window, QColor(&quot;gray&quot;))
-        p.setColor(QPalette.ColorRole.ButtonText, QColor(&quot;black&quot;))
-        self.setPalette(p)</div>
+    p = self.palette()
+    p.setColor(QPalette.ColorRole.Window, QColor(&quot;gray&quot;))
+    p.setColor(QPalette.ColorRole.ButtonText, QColor(&quot;black&quot;))
+    self.setPalette(p)</div>
 
       <ol class="content-list" start="6"><li>重写closeEvent方法，在窗口即将关闭时，把调色板数据写入文件。</li></ol>
 
@@ -942,7 +941,7 @@ def onStyle3(self):
     #调用基类成员
     super().closeEvent(event)</div>
 
-      <p class="content-text">QDataStream类重载了“&lt;&lt;”运算符，可用于写入数据。在写入文件后，应该调用基类（QWidget)的closeEvent方法，以便窗口在关闭前执行默认操作。</p>
+      <p class="content-text">QSataStream类重载了“&lt;&lt;”运算符，可用于写入数据。在写入文件后，应该调用基类（QWidget)的closeEvent方法，以便窗口在关闭前执行一行默认操作。</p>
 
       <p class="content-text">运行示例程序，在窗口上随机单击一个按钮，改变调色板的参数，然后关闭应用程序。重新运行示例程序，此时会看到窗口已将调色板还原至关闭前的状态，如图15-5所示。</p>
 

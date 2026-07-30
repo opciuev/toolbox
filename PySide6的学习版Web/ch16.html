@@ -33,7 +33,7 @@
       <h1 class="chapter-title">动画</h1>
       <div class="chapter-meta">本章共 5 个小节 &middot; PySide6 Basic Tutorial</div>
 
-      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>基于属性的动画</li><li>关键帧动画</li><li>动画分组</li></ol></div>
+      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>基于属性的动画；</li><li>关键帧动画；</li><li>动画分组。</li></ol></div>
 
       <div class="section-heading" id="section-0"><span class="section-number">16.1</span><h2>与动画有关的类型</h2></div>
 
@@ -43,7 +43,7 @@
 
       <div class="result-box figure-box"><span class="result-box-header">图 16-1</span><div class="result-box-image"><img src="images/ch16/ch16_fig_01.png" alt="图16-1 动画相关类型的继承关系" loading="lazy"><div class="caption">图16-1 动画相关类型的继承关系</div></div></div>
 
-      <ol class="content-list" start="1"><li>QAbstractAnimation：所有动画类的抽象基类，仅实现了一些公共的方法，如播放和暂停动画。</li></ol>
+      <ol class="content-list" start="1"><li>QAbstractAnimation：所有动画类的抽象基类，仅实现了一些公共的方法，如放播和暂停动画。</li></ol>
 
       <ol class="content-list" start="2"><li>QVariantAnimation：内插值动画的基类。</li></ol>
 
@@ -60,9 +60,10 @@
       <p class="content-text">属性动画只能应用于 Qt 对象—QObject 类或 QObject 的派生类。在实例化 QPropertyAnimation类时，可以使用以下构造函数：</p>
 
       <div class="code-block">def __init__(
-        target: QObject,
-        propertyName: QByteArray | bytes,
-        parent: QObject | None = ..</div>
+    target: QObject,
+    propertyName: QByteArray | bytes,
+    parent: QObject | None = ...
+)</div>
 
       <p class="content-text">target参数指定要产生动画的 Qt 对象，propertyName指定要产生动画的属性名称，parent 参数引用父级 Qt 对象。</p>
 
@@ -74,7 +75,8 @@
 
       <ol class="content-list" start="1"><li>从 QWidget类派生出 DemoWindow类，作为示例程序的窗口。</li></ol>
 
-      <div class="code-block">class DemoWindow(QWidget):</div>
+      <div class="code-block">class DemoWindow(QWidget):
+    ......</div>
 
       <ol class="content-list" start="2"><li>实例化 QFrame 组件和 QLabel 组件，QLabel 组件位于 QFrame 组件内。</li></ol>
 
@@ -114,37 +116,39 @@ self.btnStop.clicked.connect(self.onStop)</div>
       <ol class="content-list" start="6"><li>单击“开始”按钮后，开始运行动画（调用start方法启动动画）。</li></ol>
 
       <div class="code-block">def onStart(self):
-        #启动动画
-        self.animat.start()
-        #禁用&quot;开始&quot;按钮
-        self.btnStart.setEnabled(False)
-        #启用&quot;停止&quot;按钮
-        self.btnStop.setEnabled(True)</div>
+    #启动动画
+    self.animat.start()
+    #禁用&quot;开始&quot;按钮
+    self.btnStart.setEnabled(False)
+    #启用&quot;停止&quot;按钮
+    self.btnStop.setEnabled(True)</div>
 
       <ol class="content-list" start="7"><li>单击“停止”按钮停止正在运行的动画（调用 stop方法)。</li></ol>
 
       <div class="code-block">def onStop(self):
-        #停止动画
-        self.animat.stop()
-        #启用&quot;开始“按钮
-        self.btnStart.setEnabled(True)
-        #禁用&quot;停止&quot;按钮
-        self.btnStop.setEnabled(False)</div>
+    # 停止动画
+    self.animat.stop()
+    # 启用&quot;开始&quot;按钮
+    self.btnStart.setEnabled(True)
+    # 禁用&quot;停止&quot;按钮
+    self.btnStop.setEnabled(False)</div>
 
       <ol class="content-list" start="8"><li>动画结束后会发出finished信号。应用程序需要连接此信号，以便在动画结束后恢复两个按钮的状态。</li></ol>
 
       <div class="code-block">#连接finished信号，在动画结束时发出
 self.animat.finished.connect(self.onFinished)
+......
+
 def onFinished(self):
-        #动画结束后，恢复按钮状态
-        self.btnStart.setEnabled(True)
-        self.btnStop.setEnabled(False)</div>
+    #动画结束后，恢复按钮状态
+    self.btnStart.setEnabled(True)
+    self.btnStop.setEnabled(False)</div>
 
       <p class="content-text">运行示例程序后，单击“开始”按钮激活动画，Hello标签开始移动，如图16-2所示。</p>
 
       <p class="content-text">Hello标签移动到(200,200)处会停止，动画结束，如图16-3所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 16-2、图 16-3</span><div class="result-box-image"><img src="images/ch16/ch16_fig_02.png" alt="图 16-2 Hello 标签开始移动 图 16-3 Hello标签已停止移动" loading="lazy"><div class="caption">图 16-2 Hello 标签开始移动 图 16-3 Hello标签已停止移动</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 16-2、图 16-3</span><div class="result-box-image"><img src="images/ch16/ch16_fig_02.png" alt="图 16-2 Hello 标签开始移动 图 16-3 Hello标签已停止移动" loading="lazy"><div class="caption">图 16-2 Hello 标签开始移动<br>图 16-3 Hello标签已停止移动</div></div></div>
 
       <h3 class="subsection-heading"><span>16.2.2</span> 示例：stateChanged 信号</h3>
 
@@ -154,7 +158,8 @@ def onFinished(self):
 
       <ol class="content-list" start="1"><li>从 QWidget 类派生出自定义窗口 MyWindow。</li></ol>
 
-      <div class="code-block">class MyWindow(QWidget):</div>
+      <div class="code-block">class MyWindow(QWidget):
+    ......</div>
 
       <ol class="content-list" start="2"><li>本示例产生动画的目标是QFrame对象，先将其初始化。</li></ol>
 
@@ -204,34 +209,37 @@ self.animat.setEndValue(QSize(245, 180))</div>
 self.btnPause.clicked.connect(self.onPause)
 self.btnResume.clicked.connect(self.onResume)
 self.btnStop.clicked.connect(self.onStop)
+......
+
 def onStart(self):
-        self.animat.start()
+    self.animat.start()
+
 def onPause(self):
-        self.animat.pause()
+    self.animat.pause()
+
 def onResume(self):
-        self.animat.resume()
+    self.animat.resume()
+
 def onStop(self):
-        self.animat.stop()</div>
+    self.animat.stop()</div>
 
       <ol class="content-list" start="7"><li>连接动画对象的 stateChanged信号，当状态改变后显示文本提示。</li></ol>
 
       <div class="code-block">self.animat.stateChanged.connect(self.onAnimatStateChanged)
 ......
 def onAnimatStateChanged(self, newState: QAbstractAnimation.State,
-                         oldState: QAbstractAnimation.State):
+oldState: QAbstractAnimation.State):
     # 旧状态
-    _from = (&quot;正在运行&quot; if oldState == QAbstractAnimation.State.Running
-             else &quot;已停止&quot; if oldState == QAbstractAnimation.State.Stopped
-             else &quot;已暂停&quot; if oldState == QAbstractAnimation.State.Paused
-             else &quot;未知&quot;)
+    _from = &quot;正在运行&quot; if oldState == QAbstractAnimation.State.Running
+else &quot;已停止&quot; if oldState == QAbstractAnimation.State.Stopped else &quot;已暂停&quot; if oldState ==
+QAbstractAnimation.State.Paused else &quot;未知&quot;
     # 新状态
-    _to = (&quot;正在运行&quot; if newState == QAbstractAnimation.State.Running
-           else &quot;已停止&quot; if newState == QAbstractAnimation.State.Stopped
-           else &quot;已暂停&quot; if newState == QAbstractAnimation.State.Paused
-           else &quot;未知&quot;)
+    _to = &quot;正在运行&quot; if newState == QAbstractAnimation.State.Running
+else &quot;已停止&quot; if newState == QAbstractAnimation.State.Stopped else &quot;已
+暂停&quot; if newState == QAbstractAnimation.State.Paused else &quot;未知&quot;
     # 组织消息文本
     msg = f&quot;状态变化：{_from} -&gt; {_to}&quot;
-    # 更新 QLabel 组件
+    # 更新 QLabel组件
     self.lbmsg.setText(msg)</div>
 
       <p class="content-text">运行示例程序后，单击窗口上的控制按钮，窗口底部的标签会显示状态的变化，如图16-4所示。</p>
@@ -246,16 +254,19 @@ def onAnimatStateChanged(self, newState: QAbstractAnimation.State,
     def __init__(self):
         self._x = 0
         self._y = 0
+
     #读写X属性的方法
     def getX(self):
         return self._x
     def setX(self, val):
         self._x = val
+
     #读写Y属性的方法
     def getY(self):
         return self._y
     def setY(self, val):
         self._y = val
+
     #定义属性
     X = property(getX, setX)
     Y = property(getY, setY)</div>
@@ -275,23 +286,26 @@ obj.Y = 230</div>
       <p class="content-text">于是，上文中提到的Demo类可以进行以下修改。</p>
 
       <div class="code-block">class Demo(QObject):
-        def __init__(self, parent: QObject = None):
-                super().__init__(parent)
-                self._x = 0
-                self._y = 0
-        #读写X属性的方法
-        def getX(self):
-            return self._x
-        def setX(self, val):
-                self._x = val
-        #读写￥属性的方法
-        def getY(self):
-                return self._y
-        def setY(self, val):
-                self._y = val
-        #定义属性
-        X = Property(int, getX, setX)
-        Y = Property(int, getY, setY)</div>
+    def __init__(self, parent: QObject = None):
+        super().__init__(parent)
+        self._x = 0
+        self._y = 0
+
+    #读写X属性的方法
+    def getX(self):
+        return self._x
+    def setX(self, val):
+        self._x = val
+
+    #读写Y属性的方法
+    def getY(self):
+        return self._y
+    def setY(self, val):
+        self._y = val
+
+    #定义属性
+    X = Property(int, getX, setX)
+    Y = Property(int, getY, setY)</div>
 
       <p class="content-text">Property构造函数的第一个参数是type，用于指定属性值的数据类型，上述代码中是int。type参数之后，还可以使用以下参数。</p>
 
@@ -310,20 +324,25 @@ obj.Y = 230</div>
         super().__init__(parent)
         #存储属性值的字段
         self.__bg = QColor(&quot;black&quot;)
+
     def getBgColor(self):
         return self.__bg
+
     def setBgColor(self, color: QColor):
         self.__bg = color
         self.update()
+
     def resetBgColor(self):
         self.__bg = QColor(&quot;black&quot;)
         self.update()
+
     #属性
     backgroundColor = Property(
         type=QColor,
         fget=getBgColor,
         fset=setBgColor,
         freset=resetBgColor)
+
     def paintEvent(self, event: QPaintEvent):
         #获取矩形区域
         rect = event.rect()
@@ -340,29 +359,30 @@ obj.Y = 230</div>
       <p class="content-text">随后，可以在另一个窗口组件中使用Rectangle类，并对 backgroundColor属性进行动画处理。代码如下：</p>
 
       <div class="code-block">class MyWindow(QWidget):
-        def __init__(self):
-                super().__init__()
-                #自定义组件
-                self.custWidg = Rectangle(self)
-                #设置背景颜色
-                self.custWidg.backgroundColor = QColor(&quot;yellow&quot;)
-                *==*
-                #动画对象
-                self.animat = QPropertyAnimation(self)
-                #动画时长
-                self.animat.setDuration(5600)
-            #初值
-                self.animat.setStartValue(self.custWidg.backgroundColor)
-                #终值
-                self.animat.setEndValue(QColor(&quot;red&quot;))
-                #目标属性
-                self.animat.setPropertyName(b&quot;backgroundColor&quot;)
-                #目标对象
-                self.animat.setTargetObject(self.custWidg)</div>
+    def __init__(self):
+        super().__init__()
+        #自定义组件
+        self.custWidg = Rectangle(self)
+        #设置背景颜色
+        self.custWidg.backgroundColor = QColor(&quot;yellow&quot;)
+        ......
+
+        #动画对象
+        self.animat = QPropertyAnimation(self)
+        #动画时长
+        self.animat.setDuration(5600)
+        #初值
+        self.animat.setStartValue(self.custWidg.backgroundColor)
+        #终值
+        self.animat.setEndValue(QColor(&quot;red&quot;))
+        #目标属性
+        self.animat.setPropertyName(b&quot;backgroundColor&quot;)
+        #目标对象
+        self.animat.setTargetObject(self.custWidg)</div>
 
       <p class="content-text">动画过程是将Rectangle对象的背景颜色从黄色变为红色，如图16-5和图16-6所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 16-5、图 16-6</span><div class="result-box-image"><img src="images/ch16/ch16_fig_04.png" alt="图 16-5 动画正在过渡 图 16-6 动画已结束" loading="lazy"><div class="caption">图 16-5 动画正在过渡 图 16-6 动画已结束</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 16-5、图 16-6</span><div class="result-box-image"><img src="images/ch16/ch16_fig_04.png" alt="图 16-5 动画正在过渡 图 16-6 动画已结束" loading="lazy"><div class="caption">图 16-5 动画正在过渡<br>图 16-6 动画已结束</div></div></div>
 
       <div class="section-heading" id="section-3"><span class="section-number">16.4</span><h2>关键帧动画</h2></div>
 
@@ -373,11 +393,13 @@ obj.Y = 230</div>
       <p class="content-text">QVariantAnimation类公开了两个可以设置关键帧的方法成员。</p>
 
       <div class="code-block">def setKeyValueAt(
-        step: float,
-        value: Any
+    step: float,
+    value: Any
 )
+
 def setKeyValues(
-        values: Sequence[Tuple[float, Any]]</div>
+    values: Sequence[Tuple[float, Any]]
+)</div>
 
       <p class="content-text">setKeyValueAt方法单次调用只插入一个关键帧，step参数的取值范围是[0.0,1.0]，0.0是动画的开始时间，1.0则表示动画的结束时间。若 step参数的值为0.5，就表示动画时长的中间值。因此，step参数指定的是动画的相对进度。value参数则是要插入的值。</p>
 
@@ -423,9 +445,7 @@ animation.start()</div>
 
       <div class="section-heading" id="section-4"><span class="section-number">16.5</span><h2>动画分组</h2></div>
 
-      <p class="content-text">在复杂应用场景下，将若干动画对象放进一个容器中，可以进行统一控制（开始、暂停、停止）。</p>
-
-      <p class="content-text">QAnimationGroup是动画分组的抽象基类，定义了一些通用成员。</p>
+      <p class="content-text">在复杂应用场景下，将若干动画对象放进一个容器中，可以进行统一控制（开始、暂停、停止）。QAnimationGroup是动画分组的抽象基类，定义了一些通用成员。</p>
 
       <ol class="content-list" start="1"><li>addAnimation：将动画对象添加到分组中。</li></ol>
 
@@ -503,11 +523,9 @@ group.addAnimation(anim2)</div>
 
       <div class="code-block">btn.clicked.connect(group.start)</div>
 
-      <p class="content-text">运行示例程序后，单击按钮。动画分组启动后，先对按钮的大小进行动画处理，如图16-7所示。</p>
+      <p class="content-text">运行示例程序后，单击按钮。动画分组启动后，先对按钮的大小进行动画处理，如图16-7所示。随后处理按钮的位置变化，如图16-8所示。</p>
 
-      <p class="content-text">随后处理按钮的位置变化，如图16-8所示。</p>
-
-      <div class="result-box figure-box"><span class="result-box-header">图 16-7、图 16-8</span><div class="result-box-image"><img src="images/ch16/ch16_fig_05.png" alt="图16-7 动画改变按钮的大小 图16-8 动画改变按钮的位置" loading="lazy"><div class="caption">图16-7 动画改变按钮的大小 图16-8 动画改变按钮的位置</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 16-7、图 16-8</span><div class="result-box-image"><img src="images/ch16/ch16_fig_05.png" alt="图16-7 动画改变按钮的大小 图16-8 动画改变按钮的位置" loading="lazy"><div class="caption">图16-7 动画改变按钮的大小<br>图16-8 动画改变按钮的位置</div></div></div>
 
       <h3 class="subsection-heading"><span>16.5.2</span> 示例：并行的动画分组</h3>
 
@@ -564,7 +582,7 @@ group.addAnimation(animat2)</div>
 
       <p class="content-text">运行示例程序后，单击按钮开始播放动画。此时按钮的大小和位置是同时改变的，如图16-9与图 16-10 所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 16-9、图 16-10</span><div class="result-box-image"><img src="images/ch16/ch16_fig_06.png" alt="图 16-9 动画启动前 图16-10 动画开始后按钮的大小和位置同步改变" loading="lazy"><div class="caption">图 16-9 动画启动前 图16-10 动画开始后按钮的大小和位置同步改变</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 16-9、图 16-10</span><div class="result-box-image"><img src="images/ch16/ch16_fig_06.png" alt="图 16-9 动画启动前 图16-10 动画开始后按钮的大小和位置同步改变" loading="lazy"><div class="caption">图 16-9 动画启动前<br>图16-10 动画开始后按钮的大小和位置同步改变</div></div></div>
 
       <div class="page-nav"><a href="ch15.html"><span>&larr;</span><span><div class="nav-label">上一章</div><div class="nav-title">第 15 章 目录与文件</div></span></a><a href="ch17.html"><span><div class="nav-label">下一章 &rarr;</div><div class="nav-title">第 17 章 Qt 样式表</div></span></a></div>
     </main>

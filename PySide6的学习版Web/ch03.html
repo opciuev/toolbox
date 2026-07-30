@@ -530,7 +530,7 @@ else:
 <h2>图形化应用程序</h2>
 </div>
 <p class="content-text">若应用程序使用了窗口对象以及窗口中的各种可视化组件，那么应用程序类要选择QGuiApplication(位于 QtGui 模块）或 QApplication（位于 QtWidgets 模块)。</p>
-<p class="content-text">最常用的是 QApplication，它可直接使用 QWidget 类以及其子类来构建图形界面。QWidget 以组件（或叫控件）方式封装各种可视化对象，易于管理和扩展。再配合信号、槽或事件等应用程序机制，可轻松实现用户与应用程序的交互逻辑。例如，用户单击按钮后弹出一个对话框，显示一条提示信息。窗口上需要一个 QPushButton 组件，并将它的 clicked 信号（被单击后会发出此信号）连接到一个自定义函数。在该函数中调用 QMessageBox 类的 information 方法显示提示信息（如图 3-2 所示）。</p>
+<p class="content-text">最常用的是 QApplication，它可直接使用 QWidget 类以及其子类来构建图形界面。QWidget 以组件（或叫控件）方式封装各种可视化对象，易于管理和扩展。再配合信号、槽或事件等应用程序机制，可轻松实现用户与应用程序的交互逻辑。例如，用户单击了按钮后，弹出一个对话框，显示一条提示信息。那么，窗口上需要一个 QPushButton 组件，并将它的 clicked 信号（被单击后会发出此信号）连接到一个自定义函数。在该函数中调用 QMessageBox 类的 information 方法显示提示信息（如图 3-2 所示）。</p>
 <figure class="result-box">
 <span class="result-box-header">图 3-2</span>
 <div class="result-box-image">

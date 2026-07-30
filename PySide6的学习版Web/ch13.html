@@ -123,7 +123,7 @@ btn.clicked.connect(onClicked)</div>
 
       <p class="content-text">输入整数后，单击“确定”按钮隐藏对话框，返回到应用程序窗口，标签组件就会显示输入的值，如图13-2所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-1、图 13-2</span><div class="result-box-image"><img src="images/ch13/ch13_fig_01.png" alt="图 13-1 自定义对话框 图 13-2 已输入的整数值" loading="lazy"><div class="caption">图 13-1 自定义对话框 图 13-2 已输入的整数值</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-1、图 13-2</span><div class="result-box-image"><img src="images/ch13/ch13_fig_01.png" alt="图 13-1 自定义对话框 图 13-2 已输入的整数值" loading="lazy"><div class="caption">图 13-1 自定义对话框<br>图 13-2 已输入的整数值</div></div></div>
 
       <h3 class="subsection-heading"><span>13.1.2</span> 示例：异步对话框</h3>
 
@@ -204,7 +204,7 @@ window.showNormal()</div>
 
       <p class="content-text">输入姓名与年龄后，单击“确定”按钮隐藏对话框，回到应用程序窗口。标签组件将显示已输入的内容，如图13-4所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-3、图 13-4</span><div class="result-box-image"><img src="images/ch13/ch13_fig_02.png" alt="图 13-3 自定义对话框 图 13-4 输入的内容" loading="lazy"><div class="caption">图 13-3 自定义对话框 图 13-4 输入的内容</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-3、图 13-4</span><div class="result-box-image"><img src="images/ch13/ch13_fig_02.png" alt="图 13-3 自定义对话框 图 13-4 输入的内容" loading="lazy"><div class="caption">图 13-3 自定义对话框<br>图 13-4 输入的内容</div></div></div>
 
       <div class="section-heading" id="section-1"><span class="section-number">13.2</span><h2>QInputDialog</h2></div>
 
@@ -335,7 +335,7 @@ def onClickedInt():
 
       <p class="content-text">输入整数值，然后单击“确定”按钮，回到主窗口。输入的内容会显示在按钮右边的标签组件上，如图13-7所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-5、图 13-6、图 13-7</span><div class="result-box-image"><img src="images/ch13/ch13_fig_03.png" alt="图 13-5 QInputDialog 示例程序的主窗口 图 13-6 输入对话框 图 13-7 显示输入的内容" loading="lazy"><div class="caption">图 13-5 QInputDialog 示例程序的主窗口 图 13-6 输入对话框 图 13-7 显示输入的内容</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-5、图 13-6、图 13-7</span><div class="result-box-image"><img src="images/ch13/ch13_fig_03.png" alt="图 13-5 QInputDialog 示例程序的主窗口 图 13-6 输入对话框 图 13-7 显示输入的内容" loading="lazy"><div class="caption">图 13-5 QInputDialog 示例程序的主窗口<br>图 13-6 输入对话框<br>图 13-7 显示输入的内容</div></div></div>
 
       <h3 class="subsection-heading"><span>13.2.2</span> QInputDialog 的信号</h3>
 
@@ -405,7 +405,7 @@ dialog.rejected.connect(onRejected)</div>
 
       <p class="content-text">随后输入“海北”，单击OK按钮完成输入，主窗口显示“输入完毕文本内容：天南海北”，如图 13-10 所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-8、图 13-9、图 13-10</span><div class="result-box-image"><img src="images/ch13/ch13_fig_04.png" alt="图 13-8 输入第一个字符 图 13-9 输入第二个字符 图 13-10 输入结束" loading="lazy"><div class="caption">图 13-8 输入第一个字符 图 13-9 输入第二个字符 图 13-10 输入结束</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-8、图 13-9、图 13-10</span><div class="result-box-image"><img src="images/ch13/ch13_fig_04.png" alt="图 13-8 输入第一个字符 图 13-9 输入第二个字符 图 13-10 输入结束" loading="lazy"><div class="caption">图 13-8 输入第一个字符<br>图 13-9 输入第二个字符<br>图 13-10 输入结束</div></div></div>
 
       <h3 class="subsection-heading"><span>13.2.4</span> 示例：使用下拉列表框完成文本输入</h3>
 
@@ -445,8 +445,7 @@ inputDialog.setCancelButtonText(&quot;放弃&quot;)</div>
 
       <p class="content-text">调用 setComboBoxItems 方法设置下拉列表。</p>
 
-      <div class="code-block">items = [&quot;3~5平方米&quot;, &quot;6~8平方米&quot;, &quot;9~10平方米&quot;,
-         &quot;11~15平方米&quot;, &quot;15平方米以上&quot;]</div>
+      <div class="code-block">list = [&quot;3~5平方米&quot;, &quot;6~8平方米&quot;, &quot;9~10平方米&quot;, &quot;11~15平方米&quot;, &quot;15平方米以上&quot;]</div>
 
       <div class="code-block">inputDialog.setComboBoxItems(list)</div>
 
@@ -464,7 +463,7 @@ btn.clicked.connect(onClicked)</div>
 
       <p class="content-text">单击“确定”按钮，回到程序窗口，显示输入的文本如图13-12所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-11、图 13-12</span><div class="result-box-image"><img src="images/ch13/ch13_fig_05.png" alt="图13-11 从下拉列表中选择 图 13-12 显示输入文本" loading="lazy"><div class="caption">图13-11 从下拉列表中选择 图 13-12 显示输入文本</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-11、图 13-12</span><div class="result-box-image"><img src="images/ch13/ch13_fig_05.png" alt="图13-11 从下拉列表中选择 图 13-12 显示输入文本" loading="lazy"><div class="caption">图 13-11 从下拉列表中选择<br>图 13-12 显示输入文本</div></div></div>
 
       <h3 class="subsection-heading"><span>13.2.5</span> 便捷方法</h3>
 
@@ -540,7 +539,7 @@ def getItem(
                 inputMethodHints: Qt.InputMethodHint = ...)
         -&gt; Tuple[str, bool]</div>
 
-      <p class="content-text">items参数指定一个字符串列表，作为下拉列表框的数据来源。current参数指定下拉列表框中默认选择的项（索引）。editable参数指定下拉列表框是否允许编辑：如果允许，用户可以手动输入内容；若禁止编辑，用户只能从列表中选择一项。其他参数的含义与getText方法相同。</p>
+      <p class="content-text">items参数指定一个字符串列表，作为下拉列表框的数据来源。current参数指定下拉列表框中默认选择的项（索引)。editable参数指定下拉列表框是否允许编辑，如果允许，则用户可以手动输入内容；若禁止编辑，用户只能从列表中选择一项。其他参数的含义与getText方法相同。</p>
 
       <h3 class="subsection-heading"><span>13.2.6</span> 示例：使用便捷方法打开输入对话框</h3>
 
@@ -579,7 +578,7 @@ btnText.clicked.connect(onBtnTextClicked)</div>
 
       <p class="content-text">getInt方法返回的第一个值是用户输入的内容，第二个值表示输入是否被确认。因此，在显示输入结果时，需要判断第二个返回值是否为True。</p>
 
-      <p class="content-text">运行示例程序，单击“输入整数”按钮，打开输入对话框。输入一个整数值并确认后返回程序窗口，显示的输入结果如图13-13所示。</p>
+      <p class="content-text">运行示例程序，单击“输入整数”按钮，打开输入对话框。输入一个整数值后并确认，返回程序窗口，显示的输入结果如图13-13所示。</p>
 
       <p class="content-text">“输入文本”按钮的测试方法类似，此处不再赘述。</p>
 
@@ -639,7 +638,7 @@ window.show()</div>
 
       <p class="content-text">选择好颜色后，单击OK按钮确认，QLabel组件的文本颜色就会发生改变，如图13-15所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-14、图 13-15</span><div class="result-box-image"><img src="images/ch13/ch13_fig_07.png" alt="图13-14 选择颜色对话框 图13-15 标签文本的颜色已更新" loading="lazy"><div class="caption">图13-14 选择颜色对话框 图13-15 标签文本的颜色已更新</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-14、图 13-15</span><div class="result-box-image"><img src="images/ch13/ch13_fig_07.png" alt="图13-14 选择颜色对话框 图13-15 标签文本的颜色已更新" loading="lazy"><div class="caption">图13-14 选择颜色对话框<br>图13-15 标签文本的颜色已更新</div></div></div>
 
       <h3 class="subsection-heading"><span>13.3.2</span> 自定义颜色区域</h3>
 
@@ -802,7 +801,7 @@ fileDialog.fileSelected.connect(onSelectedFile)</div>
       <div class="code-block">def onSelectedFiles(list):
         s =&#x27;已选择的文件：\n&#x27;
         for f in list:
-                s += f + &quot;\n&quot;
+                s += f+&quot;\n&quot;
         lb.setText(s)
 fileDialog.filesSelected.connect(onSelectedFiles)</div>
 
@@ -859,7 +858,7 @@ fileDialog.filesSelected.connect(onSelectedFiles)</div>
 
       <p class="content-text">选择文件。主要有两个方法：getOpenFileName与getOpenFileNames。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-19、图 13-20</span><div class="result-box-image"><img src="images/ch13/ch13_fig_11.png" alt="图 13-19目录列表 图13-20 显示被选择的目录" loading="lazy"><div class="caption">图 13-19目录列表 图13-20 显示被选择的目录</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-19、图 13-20</span><div class="result-box-image"><img src="images/ch13/ch13_fig_11.png" alt="图 13-19目录列表 图13-20 显示被选择的目录" loading="lazy"><div class="caption">图 13-19目录列表<br>图13-20 显示被选择的目录</div></div></div>
 
       <p class="content-text">getOpenFileName方法用于选择单个文件，其声明如下：</p>
 
@@ -963,7 +962,7 @@ def getSaveFileName(
 msg = f&#x27;文件： {saveFile}\n&#x27;
 msg += f&#x27;过滤器：{theFilter}&#x27;</div>
 
-      <p class="content-text">……上述代码中定义了三个过滤器（文本文件、HTML页面文件和XML文件)，默认选择XML文件，即选择的文件名默认追加.xml扩展名。</p>
+      <p class="content-text">上述代码中定义了三个过滤器（文本文件、HTML页面文件和XML文件)，默认选择XML文件，即选择的文件名默认追加.xml扩展名。</p>
 
       <div class="section-heading" id="section-4"><span class="section-number">13.5</span><h2>QFontDialog</h2></div>
 
@@ -1028,7 +1027,7 @@ msg += f&#x27;过滤器：{theFilter}&#x27;</div>
 
       <p class="content-text">单击OK按钮关闭对话框，QLabel组件的文本将应用被选择的字体，如图13-22所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-21、图 13-22</span><div class="result-box-image"><img src="images/ch13/ch13_fig_12.png" alt="图 13-21 字体对话框 图 13-22 应用被选择的字体" loading="lazy"><div class="caption">图 13-21 字体对话框 图 13-22 应用被选择的字体</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-21、图 13-22</span><div class="result-box-image"><img src="images/ch13/ch13_fig_12.png" alt="图 13-21 字体对话框 图 13-22 应用被选择的字体" loading="lazy"><div class="caption">图 13-21 字体对话框<br>图 13-22 应用被选择的字体</div></div></div>
 
       <h3 class="subsection-heading"><span>13.5.2</span> 示例：使用便捷方法</h3>
 
@@ -1177,13 +1176,13 @@ def getFont(
 
       <p class="content-text">单击任一按钮，关闭对话框。程序窗口将显示操作结果，如图13-25所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-24、图 13-25</span><div class="result-box-image"><img src="images/ch13/ch13_fig_14.png" alt="图 13-24 对话框中的 Yes 和 No 按钮 图 13-25 显示对话框结果" loading="lazy"><div class="caption">图 13-24 对话框中的 Yes 和 No 按钮 图 13-25 显示对话框结果</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-24、图 13-25</span><div class="result-box-image"><img src="images/ch13/ch13_fig_14.png" alt="图 13-24 对话框中的 Yes 和 No 按钮 图 13-25 显示对话框结果" loading="lazy"><div class="caption">图 13-24 对话框中的 Yes 和 No 按钮<br>图 13-25 显示对话框结果</div></div></div>
 
       <h3 class="subsection-heading"><span>13.6.3</span> 标准按钮</h3>
 
       <p class="content-text">标准按钮将自动套用系统默认定义的文本和角色，由StandardButton枚举定义，它的成员如下。</p>
 
-      <ol class="content-list"><li>No：表示“否”（No）按钮，对应的按钮角色是 NoRole。</li>
+      <ol class="content-list"><li>NoButton：表示“否”（No）按钮，对应的按钮角色是NoRole。</li>
         <li>Yes：表示“是”（Yes）按钮，对应的按钮角色是YesRole。</li>
         <li>Ok：表示“确定”按钮，对应 AcceptRole。</li>
         <li>Open：表示“打开”（Open）按钮，对应AcceptRole。</li>
@@ -1307,7 +1306,7 @@ QApplication.exec()</div>
 
       <p class="content-text">单击Apply按钮，QLabel组件会显示相关信息，如图13-28所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-27、图 13-28</span><div class="result-box-image"><img src="images/ch13/ch13_fig_16.png" alt="图 13-27 自定义对话框 图 13-28 Apply 按钮被单击后" loading="lazy"><div class="caption">图 13-27 自定义对话框 图 13-28 Apply 按钮被单击后</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-27、图 13-28</span><div class="result-box-image"><img src="images/ch13/ch13_fig_16.png" alt="图 13-27 自定义对话框 图 13-28 Apply 按钮被单击后" loading="lazy"><div class="caption">图 13-27 自定义对话框<br>图 13-28 Apply 按钮被单击后</div></div></div>
 
       <h3 class="subsection-heading"><span>13.6.6</span> 示例：用户注册对话框</h3>
 
@@ -1425,7 +1424,7 @@ window.show()</div>
 
       <p class="content-text">单击“注册”按钮，回到主窗口，显示新用户信息，如图13-30所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-29、图 13-30</span><div class="result-box-image"><img src="images/ch13/ch13_fig_17.png" alt="图 13-29 注册用户对话框 图 13-30 显示用户信息" loading="lazy"><div class="caption">图 13-29 注册用户对话框 图 13-30 显示用户信息</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-29、图 13-30</span><div class="result-box-image"><img src="images/ch13/ch13_fig_17.png" alt="图 13-29 注册用户对话框 图 13-30 显示用户信息" loading="lazy"><div class="caption">图 13-29 注册用户对话框<br>图 13-30 显示用户信息</div></div></div>
 
       <p class="content-text">程序界面不应该直接显示用户密码，此处仅用于演示。</p>
 
@@ -1481,7 +1480,7 @@ wz.addPage(createPage2(wz))</div>
 
       <p class="content-text">单击Next按钮，将跳转到第二页，如图13-32所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-31、图 13-32</span><div class="result-box-image"><img src="images/ch13/ch13_fig_18.png" alt="图 13-31向导对话框的第一个页面 图 13-32 向导对话框的第二个页面" loading="lazy"><div class="caption">图 13-31向导对话框的第一个页面 图 13-32 向导对话框的第二个页面</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-31、图 13-32</span><div class="result-box-image"><img src="images/ch13/ch13_fig_18.png" alt="图 13-31向导对话框的第一个页面 图 13-32 向导对话框的第二个页面" loading="lazy"><div class="caption">图 13-31向导对话框的第一个页面<br>图 13-32 向导对话框的第二个页面</div></div></div>
 
       <p class="content-text">此时，单击Finish按钮可关闭对话框；单击Back按钮可以回到第一页。</p>
 
@@ -1582,7 +1581,9 @@ wizard.rejected.connect(lambda: print(&quot;向导被取消&quot;))</div>
 
       <h3 class="subsection-heading"><span>13.7.4</span> 示例：重写 nextId 方法</h3>
 
-      <p class="content-text">不管是 QWizard类还是 QWizardPage类，都有nextId方法，该方法会返回下一个页面的编号。默认实现是返回比当前页面更大的编号。addPage方法添加页面后会返回页面编号，此编号默认是按添加的顺序递增的。例如，第一个页面的编号是0，第二个页面的编号是1……如果调用setPage方法来添加页面，则可以自定义页面编号。然后重写nextId方法，返回下一个页面的编号。QWizard 和QWizardPage类都可以重写 nextId 方法。本示例将重写 QWizardPage类的 nextId方法，实现在单击“Next”按钮后跳过“输入注册码”页面。</p>
+      <p class="content-text">不管是 QWizard类还是 QWizardPage类，都有nextId方法，该方法会返回下一个页面的编号。默认实现是返回比当前页面更大的编号。addPage方法添加页面后会返回页面编号，此编号默认是按添加的顺序递增的。例如，第一个页面的编号是0，第二个页面的编号是1……</p>
+
+      <p class="content-text">如果调用setPage方法来添加页面，则可以自定义页面编号。然后重写nextId方法，返回下一个页面的编号。QWizard 和QWizardPage类都可以重写 nextId 方法。本示例将重写 QWizardPage类的 nextId方法，实现在单击“Next”按钮后跳过“输入注册码”页面。</p>
 
       <p class="content-text">示例的实现步骤如下。</p>
 
@@ -1772,7 +1773,7 @@ wizard.addPage(PageB())</div>
 
       <p class="content-text">单击Next按钮跳转到第二个页面，显示上一个页面中输入的内容，如图13-37所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-36、图 13-37</span><div class="result-box-image"><img src="images/ch13/ch13_fig_22.png" alt="图 13-36 输入内容 图13-37 显示上一个页面中输入的内容" loading="lazy"><div class="caption">图 13-36 输入内容 图13-37 显示上一个页面中输入的内容</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-36、图 13-37</span><div class="result-box-image"><img src="images/ch13/ch13_fig_22.png" alt="图 13-36 输入内容 图13-37 显示上一个页面中输入的内容" loading="lazy"><div class="caption">图 13-36 输入内容<br>图13-37 显示上一个页面中输入的内容</div></div></div>
 
       <h3 class="subsection-heading"><span>13.7.6</span> 向导风格与图标</h3>
 
@@ -1781,8 +1782,8 @@ wizard.addPage(PageB())</div>
       <ol class="content-list">
         <li>ClassicStyle：Windows 传统风格。</li>
         <li>ModernStyle：Windows 现代风格。</li>
-        <li>AeroStyle：Windows 的 Aero 风格（Windows Vista/7 以上版本）。</li>
-        <li>MacStyle：macOS 风格。</li>
+        <li>AeroStyle：Windows 的 Aero 风格（Windows Vista/7 以上版本)。</li>
+        <li>MacStyle:MacOS 风格。</li>
       </ol>
 
       <p class="content-text">同时，WizardPixmap枚举定义了QWizard组件的各部位的图标。这些图标是否呈现将受到WizardStyle的影响，不同风格的向导对话框在外观上有所差异。</p>
@@ -2100,7 +2101,7 @@ button.clicked.connect(onclicked)</div>
 
       <p class="content-text">单击对话框中的Yes（是）按钮，回到程序窗口，标签组件显示的文本如图13-42所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 13-41、图 13-42</span><div class="result-box-image"><img src="images/ch13/ch13_fig_26.png" alt="图 13-41消息对话框 图13-42 显示消息框中被单击的按钮" loading="lazy"><div class="caption">图 13-41消息对话框 图13-42 显示消息框中被单击的按钮</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 13-41、图 13-42</span><div class="result-box-image"><img src="images/ch13/ch13_fig_26.png" alt="图 13-41消息对话框 图13-42 显示消息框中被单击的按钮" loading="lazy"><div class="caption">图 13-41消息对话框<br>图13-42 显示消息框中被单击的按钮</div></div></div>
 
       <h3 class="subsection-heading"><span>13.9.2</span> 示例：使用标准图标</h3>
 

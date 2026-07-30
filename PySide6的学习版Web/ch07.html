@@ -131,10 +131,10 @@ self.btnGp.idToggled.connect(self.onIdToggled)</code></pre>
 </div>
 <div class="source-page" data-book-page="122">
 <figure class="result-box">
-<span class="result-box-header">图 7-1</span>
+<span class="result-box-header">图 7-1 / 图 7-2</span>
 <div class="result-box-image">
 <img alt="图 7-1 按钮从左到右排列 图 7-2 按钮从下到上排列" loading="lazy" src="images/ch07/ch07_fig_01.png"/>
-<figcaption class="caption">图 7-1 按钮从左到右排列 图 7-2 按钮从下到上排列</figcaption>
+<figcaption class="caption">图 7-1 按钮从左到右排列<br/>图 7-2 按钮从下到上排列</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>7.2.2</span> 两个便捷类型</h3>
@@ -172,10 +172,10 @@ class MyWindow(QWidget):
 </div>
 <div class="source-page" data-book-page="123">
 <figure class="result-box">
-<span class="result-box-header">图 7-3</span>
+<span class="result-box-header">图 7-3 / 图 7-4</span>
 <div class="result-box-image">
 <img alt="图 7-3 水平布局 图 7-4 垂直布局" loading="lazy" src="images/ch07/ch07_fig_02.png"/>
-<figcaption class="caption">图 7-3 水平布局 图 7-4 垂直布局</figcaption>
+<figcaption class="caption">图 7-3 水平布局<br/>图 7-4 垂直布局</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>7.2.3</span> 拉伸比例</h3>
@@ -197,10 +197,10 @@ layout.setStretch(3,3)</code></pre>
 </div>
 </figure>
 <figure class="result-box">
-<span class="result-box-header">图 7-6</span>
+<span class="result-box-header">图 7-6 / 图 7-7</span>
 <div class="result-box-image">
 <img alt="图7-6 组件的高度不变所处的空间仍存在拉伸比例 图 7-7 各子项的高度" loading="lazy" src="images/ch07/ch07_fig_04.png"/>
-<figcaption class="caption">图7-6 组件的高度不变所处的空间仍存在拉伸比例 图 7-7 各子项的高度</figcaption>
+<figcaption class="caption">图7-6 组件的高度不变所处的空间仍存在拉伸比例<br/>图 7-7 各子项的高度</figcaption>
 </div>
 </figure>
 </div>
@@ -262,10 +262,10 @@ window.show()</code></pre>
 <pre class="code-block"><code>layout.insertStretch(0, 1)</code></pre>
 <p class="content-text">此时按钮会被“压”到窗口的底部排列，如图7-10所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 7-9</span>
+<span class="result-box-header">图 7-9 / 图 7-10</span>
 <div class="result-box-image">
 <img alt="图7-9 按钮被“挤”到窗口顶部 图7-10按钮被“压”到窗口底部" loading="lazy" src="images/ch07/ch07_fig_06.png"/>
-<figcaption class="caption">图7-9 按钮被“挤”到窗口顶部 图7-10按钮被“压”到窗口底部</figcaption>
+<figcaption class="caption">图7-9 按钮被“挤”到窗口顶部<br/>图7-10按钮被“压”到窗口底部</figcaption>
 </div>
 </figure>
 <div class="section-heading" id="section-2">
@@ -321,13 +321,13 @@ window.show()</code></pre>
 <p class="content-text">最终效果如图7-12所示。</p>
 <h3 class="subsection-heading"><span>7.3.2</span> 跨行/跨列布局</h3>
 <p class="content-text">QGridLayout 类的 addWidget 方法有以下重载：</p>
-<pre class="code-block"><code>def addWidget(widget: QWidget, row: int, column: int, rowSpan: int, columnSpan: int, …..)</code></pre>
+<pre class="code-block"><code>def addWidget(widget: QWidget, row: int, column: int, rowSpan: int, columnSpan: int, ......)</code></pre>
 <p class="content-text">rowSpan参数设置子项连续占用的行数，columnSpan参数设置连续占用的列数。如果 rowSpan或columnSpan参数设置为小于0的值，Qt程序会统一改为-1。此时，行会向下增长，列将向右增长。一直增长到可用空间的最后一行或最后一列。如图7-13所示，第一列有两个矩形，分别放在第一行和第四行；而第二列的矩形放在第一行，但是rowSpan参数设置为-1，于是矩形的高度会向下增长，连续占用4行空间。</p>
 <figure class="result-box">
-<span class="result-box-header">图 7-12</span>
+<span class="result-box-header">图 7-12 / 图 7-13</span>
 <div class="result-box-image">
 <img alt="图 7-12 3 行 3 列的网格布局 图 7-13 rowSpan 参数为 -1 时布局" loading="lazy" src="images/ch07/ch07_fig_08.png"/>
-<figcaption class="caption">图 7-12 3 行 3 列的网格布局 图 7-13 rowSpan 参数为 -1 时布局</figcaption>
+<figcaption class="caption">图 7-12 3 行 3 列的网格布局<br/>图 7-13 rowSpan 参数为 -1 时布局</figcaption>
 </div>
 </figure>
 </div>
@@ -403,7 +403,7 @@ for i in range(4):
     layout.addWidget(labels[i * 2], i, 0)
     #右列
     layout.addWidget(labels[i * 2 + 1], i, 1)</code></pre>
-<p class="content-text">8 个 QLabel 实例被存放到一个列表中（labels 变量）。布局时，使用了一个 for 循环。</p>
+<p class="content-text">8个 QLabel 实例被存放到1个列表中（labels变量）。布局时，使用了1个 for循环。</p>
 <pre class="code-block"><code>for i in range(4):
     #左列
     layout.addWidget(labels[i * 2], i, 0)
@@ -717,10 +717,10 @@ def makePage3(self):
 <li>按下【→】键，此时显示“页面B”，如图7-19所示。</li>
 </ol>
 <figure class="result-box">
-<span class="result-box-header">图 7-18</span>
+<span class="result-box-header">图 7-18 / 图 7-19</span>
 <div class="result-box-image">
 <img alt="图 7-18 显示第一个组件 图 7-19 显示第二个组件" loading="lazy" src="images/ch07/ch07_fig_15.png"/>
-<figcaption class="caption">图 7-18 显示第一个组件 图 7-19 显示第二个组件</figcaption>
+<figcaption class="caption">图 7-18 显示第一个组件<br/>图 7-19 显示第二个组件</figcaption>
 </div>
 </figure>
 </div>
@@ -778,10 +778,10 @@ btnGroup.idClicked.connect(stackedWg.setCurrentIndex)</code></pre>
 <p class="content-text">示例运行后，默认显示的是复选按钮（QCheckBox)，如图7-20所示。</p>
 <p class="content-text">单击“标签”按钮，将显示标签组件，如图7-21所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 7-20</span>
+<span class="result-box-header">图 7-20 / 图 7-21</span>
 <div class="result-box-image">
 <img alt="图 7-20 显示复选按钮 图 7-21 显示标签组件" loading="lazy" src="images/ch07/ch07_fig_16.png"/>
-<figcaption class="caption">图 7-20 显示复选按钮 图 7-21 显示标签组件</figcaption>
+<figcaption class="caption">图 7-20 显示复选按钮<br/>图 7-21 显示标签组件</figcaption>
 </div>
 </figure>
 </div>

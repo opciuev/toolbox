@@ -117,7 +117,7 @@
 
       <figure class="book-figure">
         <img src="images/ch08/ch08_fig_01.png" alt="图 8-1 QLineEdit 组件示例 图 8-2 显示输入的内容" loading="lazy">
-        <figcaption>图 8-1 QLineEdit 组件示例 图 8-2 显示输入的内容</figcaption>
+        <figcaption>图 8-1 QLineEdit 组件示例<br/>图 8-2 显示输入的内容</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>8.1.1</span> setText 方法和 insert 方法的区别</h3>
@@ -161,8 +161,8 @@
       <p class="content-text">可见setText方法会完全替换原有的内容。对于第二个文本框，也采用相同的测试方法，即输入光标定位在 B的后面，再单击 insert 按钮。此时，新文本 Sample Text 将插入 B 和 C之间，变成 ABSample TextCD，如图8-5所示。</p>
 
       <figure class="book-figure">
-        <img src="images/ch08/ch08_fig_02.png" alt="图 8-3 两个文本框都输入 ABCD 图 8-4 文本被替换为 Sample Text 图 8-5 Sample Text 插入 B" loading="lazy">
-        <figcaption>图 8-3 两个文本框都输入 ABCD 图 8-4 文本被替换为 Sample Text 图 8-5 Sample Text 插入 B</figcaption>
+        <img src="images/ch08/ch08_fig_02.png" alt="图 8-3 两个文本框都输入 ABCD 图 8-4 文本被替换为 Sample Text 图 8-5 Sample Text 插入 B 和 C 之间" loading="lazy">
+        <figcaption>图 8-3 两个文本框都输入 ABCD<br/>图 8-4 文本被替换为 Sample Text<br/>图 8-5 Sample Text 插入 B 和 C 之间</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>8.1.3</span> 示例：限制最大字符数</h3>
@@ -206,25 +206,25 @@ myapp.exec()</div>
         <caption>表 8-1 输入掩码格式</caption>
         <thead><tr><th>掩码</th><th>说明</th><th>示例</th></tr></thead>
         <tbody>
-          <tr><td>A</td><td>要求出现字母，即 A~Z、a~z，包含大小写</td><td>abcDEF</td></tr>
-          <tr><td>a</td><td>字母，与 A 相同，但字符可选</td><td>xyZ</td></tr>
-          <tr><td>N</td><td>要求出现字母或数字，即 A~Z、a~z、0~9</td><td>Ydf07</td></tr>
-          <tr><td>n</td><td>与 N 相同，但字符可选</td><td>x78E</td></tr>
+          <tr><td>A</td><td>要求出现字母，即A~Z、a~z，包含大小写</td><td>abcDEF</td></tr>
+          <tr><td>a</td><td>字母，与A相同，但字符可选</td><td>xyZ</td></tr>
+          <tr><td>N</td><td>要求出现字母或数字，即A~Z、a~z、0~9</td><td>Ydf07d</td></tr>
+          <tr><td>n</td><td>与N相同，但字符为可选</td><td>x78E</td></tr>
           <tr><td>X</td><td>要求任何非空字符</td><td>12三4五</td></tr>
-          <tr><td>x</td><td>与 X 相同，但字符可选</td><td>xT3p</td></tr>
-          <tr><td>9</td><td>要求出现数字，即 0~9</td><td>32150</td></tr>
-          <tr><td>0</td><td>与 9 相同，但字符可选</td><td>01025</td></tr>
-          <tr><td>D</td><td>数字，但必须大于 0，即 1~9</td><td>5125</td></tr>
-          <tr><td>d</td><td>与 D 相同，但字符可选</td><td>813</td></tr>
-          <tr><td>#</td><td>数字 0~9，也可以出现“+”或“-”</td><td>100、-45</td></tr>
-          <tr><td>H</td><td>十六进制数值符号，即 0~9、A~F、a~f</td><td>e6FF2d4</td></tr>
-          <tr><td>h</td><td>与 H 相同，但字符可选</td><td>6e7AB</td></tr>
-          <tr><td>B</td><td>二进制数值，即 0~1</td><td>1001101</td></tr>
-          <tr><td>b</td><td>与 B 相同，但字符可选</td><td>1100</td></tr>
-          <tr><td>&gt;</td><td>在“&gt;”之后的所有字符要大写</td><td>—</td></tr>
-          <tr><td>&lt;</td><td>在“&lt;”之后的所有字符要小写</td><td>—</td></tr>
-          <tr><td>!</td><td>取消大/小写切换，可以与“&lt;”“&gt;”一起使用</td><td>—</td></tr>
-          <tr><td>;c</td><td>结束掩码，并设置空白字符的占位符 c</td><td>第00页;X → 第XX页</td></tr>
+          <tr><td>x</td><td>与X相同，但字符为可选</td><td>xT3p</td></tr>
+          <tr><td>9</td><td>要求出现数字，即0~9</td><td>3215</td></tr>
+          <tr><td>0</td><td>与9相同，但字符是可选的</td><td>01025</td></tr>
+          <tr><td>D</td><td>数字，但必须大于0，即1~9</td><td>5125</td></tr>
+          <tr><td>d</td><td>与D相同，但字符是可选的</td><td>813</td></tr>
+          <tr><td>#</td><td>数字0~9，可以出现“+”或“-”</td><td>100、-45</td></tr>
+          <tr><td>H</td><td>十六进制数值符号，即0~9、A~F、a~f</td><td>e6FF2d4</td></tr>
+          <tr><td>h</td><td>与H相同，但字符为可选</td><td>6e7A</td></tr>
+          <tr><td>B</td><td>二进制数值，即0~1</td><td>1001101</td></tr>
+          <tr><td>b</td><td>与B相同，但字符是可选的</td><td>1100</td></tr>
+          <tr><td>&gt;</td><td>在“&gt;”之后的所有字符要大写</td><td>无</td></tr>
+          <tr><td>&lt;</td><td>在“&lt;”之后的所有字符要小写</td><td>无</td></tr>
+          <tr><td>!</td><td>取消大/小写切换，可以与“&lt;”“&gt;”一起使用</td><td>无</td></tr>
+          <tr><td>;c</td><td>结束掩码，并设置空白字符的占位符c</td><td>第00页;X→第XX页</td></tr>
         </tbody>
       </table>
 
@@ -272,7 +272,7 @@ window.show()</div>
 
       <figure class="book-figure">
         <img src="images/ch08/ch08_fig_04.png" alt="图 8-7 日期的输入掩码 图 8-8 填入日期数字" loading="lazy">
-        <figcaption>图 8-7 日期的输入掩码 图 8-8 填入日期数字</figcaption>
+        <figcaption>图 8-7 日期的输入掩码<br/>图 8-8 填入日期数字</figcaption>
       </figure>
 
       <p class="content-text">在响应按钮组件的 clicked信号的代码中，分别将 text 属性和 displayText属性的值打印到控制台窗口。单击按钮后，屏幕输出如下文本：</p>
@@ -365,7 +365,7 @@ win.show()</div>
         <tbody>
           <tr><td>PopupCompletion</td><td>以弹出式窗口呈现列表视图</td></tr>
           <tr><td>UnfilteredPopupCompletion</td><td>以弹出式窗口呈现列表视图，并且不会进行输入筛选，即呈现完整的自动完成列表</td></tr>
-          <tr><td>InlineCompletion</td><td>以内联方式自动完成；输入文本的剩余部分将自动追加到内容末尾，并且处于选中状态</td></tr>
+          <tr><td>InlineCompletion</td><td>内联方式自动完成，输入文本的剩余部分将自动追加到内容末尾，并且处于选中状态</td></tr>
         </tbody>
       </table>
 
@@ -426,7 +426,7 @@ window.show()</div>
 
       <figure class="book-figure">
         <img src="images/ch08/ch08_fig_06.png" alt="图 8-10 列表项将依据输入内容进行过滤 图 8-11 自动完成列表不会进行过滤" loading="lazy">
-        <figcaption>图 8-10 列表项将依据输入内容进行过滤 图 8-11 自动完成列表不会进行过滤</figcaption>
+        <figcaption>图 8-10 列表项将依据输入内容进行过滤<br/>图 8-11 自动完成列表不会进行过滤</figcaption>
       </figure>
 
       <p class="content-text">当使用InlineCompletion模式时，不会显示弹出式列表，QCompleter会根据所输入的内容筛选出最匹配的列表项，自动将剩余的文本追加到QLineEdit组件中，并且追加的文本被选中（按【BackSpace】键或【Delete】键可删除自动追加的内容)，如图8-12所示。</p>
@@ -769,7 +769,7 @@ edit.show()</div>
 
       <p class="content-text">当输入的内容改变后，QSpinBox 和 QDoubleSpinBox 组件都会发出 textChanged、valueChanged 信号。textChanged信号传递的参数为 str类型，而 valueChanged信号所传递的是特定类型的数值。例如，QDoubleSpinBox组件发送的 valueChanged 信号，它传递的值就是 float类型。</p>
 
-      <p class="content-text">若要获取用户输入的数值，请访问 value 方法。调用 setValue 方法可以设置组件的数值。调用 text 方法可以获取 QSpinBox 或 QDoubleSpinBox 组件中包含的文本。文本包含输入的数值，以及前缀、后缀文本。</p>
+<p class="content-text">若要获取用户输入的数值，请访问 value 方法。调用 setValue 方法可以设置组件的数值。调用 text 方法可以获取 QSpnBox 或 QDoubleSpinBox 组件中包含的文本。文本包含输入的数值，以及前缀、后缀文本。</p>
 
       <h3 class="subsection-heading"><span>8.3.1</span> 示例：QSpinBox 与 QDoubleSpinBox 的使用</h3>
 
@@ -941,7 +941,7 @@ window.show()</div>
 
       <figure class="book-figure">
         <img src="images/ch08/ch08_fig_15.png" alt="图 8-20 QSpinBox 组件上显示不同的按钮符号 图 8-21 回旋数字" loading="lazy">
-        <figcaption>图 8-20 QSpinBox 组件上显示不同的按钮符号 图 8-21 回旋数字</figcaption>
+        <figcaption>图 8-20 QSpinBox 组件上显示不同的按钮符号<br/>图 8-21 回旋数字</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>8.3.4</span> 示例：“回旋”数值</h3>
@@ -1015,7 +1015,7 @@ spinbox.show()</div>
 
       <figure class="book-figure">
         <img src="images/ch08/ch08_fig_17.png" alt="图 8-23 初始值为 25 图 8-24 当前数值变为 20 图 8-25数值变为35" loading="lazy">
-        <figcaption>图 8-23 初始值为 25 图 8-24 当前数值变为 20 图 8-25数值变为35</figcaption>
+        <figcaption>图 8-23 初始值为 25<br/>图 8-24 当前数值变为 20<br/>图 8-25数值变为35</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>8.3.7</span> QDoubleSpinBox 组件的精度</h3>
@@ -1204,7 +1204,7 @@ QApplication.exec()</div>
 
       <figure class="book-figure">
         <img src="images/ch08/ch08_fig_20.png" alt="图 8-28 弹出日历组件 图 8-29 日历中弹出日期编辑器" loading="lazy">
-        <figcaption>图 8-28 弹出日历组件 图 8-29 日历中弹出日期编辑器</figcaption>
+        <figcaption>图 8-28 弹出日历组件<br/>图 8-29 日历中弹出日期编辑器</figcaption>
       </figure>
 
       <p class="content-text">默认情况下，当用户停止编辑日期1.5秒（1500毫秒）后，日期编辑器会自动确认并关闭。可以调用 setDateEditAcceptDelay方法修改等待确认时间，单位为毫秒。例如，下面的代码将设置日期编辑器的确认时间为10秒。</p>

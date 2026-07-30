@@ -70,7 +70,7 @@
 <li>QPushButton：常规按钮，也是用得最多的按钮类型。通过鼠标单击或快捷键触发，从而执行特定的任务。例如，单击“播放”按钮开始播放音频。</li>
 <li>QCheckBox：即复选按钮，可以在On和Off两种状态之间循环切换。一般用于实现多选功能，每个按钮都可以独立切换状态。某个QCheckBox按钮是否处于选中（On）状态不会影响其他QCheckBox组件。</li>
 <li>QRadioButton：单选按钮，实现“多选一”功能。同属于一个 QWidget或 QButtonGroup 内的QRadioButton实例之间是互斥关系，即同一时刻只能有一项被选中。</li>
-<li>QToolButton：工具栏按钮。它是一种特殊按钮，通常位于工具栏内。在许多应用程序里，工具栏按钮只显示一个小图标。</li>
+<li>QToolButton：工具栏按钮。它是一种特殊按钮，通常位工具栏内。在许多应用程序里，工具栏按钮只显示一个小图标。</li>
 </ol>
 <p class="content-text">下面代码定义了MyButton类，基类是QAbstractButton，实现了自定义按钮组件。</p>
 <pre class="code-block"><code>class MyButton(QAbstractButton):
@@ -144,10 +144,10 @@ QPalette.ColorRole.ButtonText)
 <p class="content-text">MyButton类在__init__ 方法中修改默认的调色板参数，上述代码提供了两组颜色方案——Active（正常状态）和Disabled（禁用状态)，随后重写了paintEvent方法，绘制自定义按钮的外观，包括背景、聚焦框、文本，以及按钮被按下时显示的覆盖层。覆盖层实际上是在背景之上绘制了一个半透明的矩形。</p>
 <p class="content-text">自定义按钮在正常状态下如图6-1所示，在禁用状态下如图6-2所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 6-1</span>
+<span class="result-box-header">图 6-1 / 图 6-2</span>
 <div class="result-box-image">
 <img alt="图 6-1 正常状态下的自定义按钮 图 6-2 禁用状态下的自定义按钮" loading="lazy" src="images/ch06/ch06_fig_01.png"/>
-<figcaption class="caption">图 6-1 正常状态下的自定义按钮 图 6-2 禁用状态下的自定义按钮</figcaption>
+<figcaption class="caption">图 6-1 正常状态下的自定义按钮<br/>图 6-2 禁用状态下的自定义按钮</figcaption>
 </div>
 </figure>
 </div>
@@ -225,10 +225,10 @@ window.show()</code></pre>
         label.setText('按钮处于【OFF】状态')</code></pre>
 <p class="content-text">运行示例程序，然后单击按钮，通过 QLabel 组件可以直观地看到 checkable 状态的变化，如图 6-4 所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 6-3</span>
+<span class="result-box-header">图 6-3 / 图 6-4</span>
 <div class="result-box-image">
 <img alt="图 6-3 第二个按钮发出了 clicked 信号 图6-4带“开关”状态的按钮" loading="lazy" src="images/ch06/ch06_fig_02.png"/>
-<figcaption class="caption">图 6-3 第二个按钮发出了 clicked 信号 图6-4带“开关”状态的按钮</figcaption>
+<figcaption class="caption">图 6-3 第二个按钮发出了 clicked 信号<br/>图6-4带“开关”状态的按钮</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>6.2.3</span> 重复按钮</h3>
@@ -367,10 +367,10 @@ self.btnB.setAutoRepeatInterval(200)</code></pre>
 <p class="content-text">运行示例程序后，用单击按钮组件右侧的下拉箭头，会弹出菜单列表，如图6-6所示。</p>
 <p class="content-text">单击执行其中一个菜单项，应用程序会弹出如图6-7所示的消息对话框。</p>
 <figure class="result-box">
-<span class="result-box-header">图 6-6</span>
+<span class="result-box-header">图 6-6 / 图 6-7</span>
 <div class="result-box-image">
 <img alt="图 6-6 下拉菜单 图 6-7 弹出消息对话框" loading="lazy" src="images/ch06/ch06_fig_04.png"/>
-<figcaption class="caption">图 6-6 下拉菜单 图 6-7 弹出消息对话框</figcaption>
+<figcaption class="caption">图 6-6 下拉菜单<br/>图 6-7 弹出消息对话框</figcaption>
 </div>
 </figure>
 <div class="section-heading" id="section-2">
@@ -378,13 +378,14 @@ self.btnB.setAutoRepeatInterval(200)</code></pre>
 <h2>QCheckBox</h2>
 </div>
 <p class="content-text">QCheckBox组件表示复选框，可用于“开启”或“关闭”某项程序功能。例如，可以用QCheckBox组件实现供用户选择“是否自动更新应用程序”。每个QCheckBox实例的选择状态都是独立的，互不影响。</p>
-<p class="content-text">通常，QCheckBox 组件有两种状态：Checked 表示组件已选中，Unchecked 表示组件未选中。可以调用 isChecked 方法确定 QCheckBox 是否已选中，它返回一个布尔值，True 表示选中，False 表示未选中。要修改选择状态，应调用 setChecked 方法。</p>
-<p class="content-text">如果需要，还可以通过 setTristate 方法开启第三种状态 PartiallyChecked。此状态介于选中与未选中之间，表示“不明确的状态”。三种状态如图 6-8 所示。</p>
+<p class="content-text">通常，QCheckBox组件有两种状态：Checked表示组件已选中，Unchecked表示组件未选中。可以调用 isChecked 方法以确定 QCheckBox组件是否已选中，它返回一个布尔值，True表示选中，False表示未选中。要修改QCheckBox组件的选择状态，应调用 setChecked方法。</p>
+<p class="content-text">另外，如果需要，还可以通过setTristate方法开启“第三状态”，即PartiallyChecked状态。此状态介于选中与不选中之间，其含义为“不明确的状态”。</p>
+<p class="content-text">QCheckBox组件的三种状态如图6-8所示。</p>
 <figure class="result-box">
 <span class="result-box-header">图 6-8</span>
 <div class="result-box-image">
-<img alt="图 6-8 QCheckBox 组件的三种状态 QCheckBox组件的三种状态如图6-8所示。" loading="lazy" src="images/ch06/ch06_fig_05.png"/>
-<figcaption class="caption">图 6-8 QCheckBox 组件的三种状态 QCheckBox组件的三种状态如图6-8所示。</figcaption>
+<img alt="图 6-8 QCheckBox 组件的三种状态" loading="lazy" src="images/ch06/ch06_fig_05.png"/>
+<figcaption class="caption">图 6-8 QCheckBox 组件的三种状态</figcaption>
 </div>
 </figure>
 </div>
@@ -450,10 +451,10 @@ QGuiApplication.exec()</code></pre>
 <p class="content-text">在与“提交”按钮的 clicked 信号绑定的函数内，先创建一个空白的列表对象，随后依次验证 6 个 QCheckBox 对象的 isChecked 方法以确定是否被选中。如果 isChecked 方法返回 True，就把相关 QCheckBox 对象的文本添加到列表中。最后用 join 方法把列表中的所有元素以“、”为分隔符串联成单个字符串实例。QMessageBox 类负责弹出消息对话框。</p>
 <p class="content-text">运行示例程序，通过单击选择喜欢的早餐，如图6-9所示，然后单击“提交”按钮，应用程序会弹出选择结果，如图6-10所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 6-9</span>
+<span class="result-box-header">图 6-9 / 图 6-10</span>
 <div class="result-box-image">
 <img alt="图 6-9 选择多种早餐 图 6-10 显示选择结果" loading="lazy" src="images/ch06/ch06_fig_06.png"/>
-<figcaption class="caption">图 6-9 选择多种早餐 图 6-10 显示选择结果</figcaption>
+<figcaption class="caption">图 6-9 选择多种早餐<br/>图 6-10 显示选择结果</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>6.3.2</span> 示例：让 QCheckBox 对象之间相互排斥</h3>
@@ -496,7 +497,8 @@ QGuiApplication.exec()</code></pre>
 </div>
 <div class="source-page" data-book-page="107">
 
-<p class="content-text">initUI 方法负责初始化窗口中的可视化对象。4 个 QCheckBox 实例通过列表创建，再用 for 循环分别添加到 QVBoxLayout 和 QButtonGroup。onToggled 方法与 QButtonGroup 的 buttonToggled 信号连接；任一复选框状态改变时都会调用该方法。button 参数表示状态已更新的 QCheckBox，checked 表示它是否被选中；若为 True，就在 QLabel 中显示该复选框的文本。</p>
+<p class="content-text">initUI方法的功能是初始化窗口组件内的可视化对象。其中，4个QCheckBox实例是通过列表对象来创建的，再通过 for 循环将它们分别添加到 QVBoxLayout 布局对象和 QButtonGroup 对象中。同时将 onToggled 方法成员与 QButtonGroup 对象的 buttonToggled 信号建立连接，当 QButtonGroup 中任何 QCheckBox 对象的选择状态发生改变后都会发出 buttonToggled 信号，进而调用 onToggled 方法。onToggled方法中，button参数表示已更新状态的 QCheckBox 对象，checked参数表示该QCheckBox对象是否处于被选中状态。如果是，就在 QLabel组件中显示它的文本内容。</p>
+<p class="content-text">示例的运行效果如图6-11所示。</p>
 <figure class="result-box">
 <span class="result-box-header">图 6-11</span>
 <div class="result-box-image">
@@ -550,9 +552,9 @@ _g2Layout.addStretch(1)</code></pre>
 </div>
 <div class="source-page" data-book-page="108">
 
-<p class="content-text">本示例先创建一个 QWidget 实例 window 作为主窗口，再使用 QHBoxLayout 让两个 QGroupBox 水平排列。第一个 QGroupBox 中包含 3 个 QRadioButton，第二个 QGroupBox 中包含 4 个 QRadioButton。</p>
-<p class="content-text">示例运行效果如图 6-12 所示。</p>
-<p class="content-text">第一组中的 3 个 QRadioButton 相互排斥，第二组中的 4 个 QRadioButton 也相互排斥。但“选项-3”与“选项-4”属于不同分组，因此并不互斥，它们可以同时被选中，因为它们属于不同的分组。</p>
+<p class="content-text">本示例先创建一个QWidget实例 window，作为应用程序的主窗口。接着使用布局类QHBoxLayout，让两个QGroupBox组件水平排列。其中，第一个QGroupBox中包含三个QRadioButton组件，第二个QGroupBox中包含四个QRadioButton组件。</p>
+<p class="content-text">示例运行效果如图6-12所示。</p>
+<p class="content-text">第一组中三个QRadioButton组件之间是相互排斥的，第二组中四个QRadioButton组件之间也是相互排斥的。但“选项-3”与“选项-4”之间并不排斥，它们可以同时被选中，因为它们属于不同的分组。</p>
 <figure class="result-box">
 <span class="result-box-header">图 6-12</span>
 <div class="result-box-image">
@@ -565,7 +567,7 @@ _g2Layout.addStretch(1)</code></pre>
 <p class="content-text">下面是本示例的核心代码：</p>
 <pre class="code-block"><code>#顶层窗口
 window = QWidget()
-…....
+......
 #窗口的子级组件使用垂直布局
 rootLayout = QVBoxLayout(window)
 #--- 第一个分组 ---</code></pre>
@@ -583,12 +585,12 @@ group1 = QButtonGroup(window)
 group1.addButton(op1)
 group1.addButton(op2)
 group1.addButton(op3)
-…..…...
+......
 #--- 第二个分组 ---</code></pre>
 </div>
 <div class="source-page" data-book-page="109">
 
-<pre class="code-block"><code>rootLayout.addWidget(QLabel('2. “淝水之战”发生在哪个朝代？'))</code></pre>
+<pre class="code-block"><code>rootLayout.addWidget(QLabel("2. “泗水之战”发生在哪个朝代?"))</code></pre>
 <pre class="code-block"><code>#三个选项
 op4 = QRadioButton("东晋", window)
 op5 = QRadioButton("北宋", window)
@@ -820,7 +822,7 @@ State_Enabled), button-&gt;text, QPalette::ButtonText);
 case CE_CheckBoxLabel:
             if(const QStyleOptionButton *btn = qstyleoption_cast&lt;const QStyleOptionButton
 *&gt;(opt)) {
-                ….....
+                ......
                 if(!btn-&gt;icon.isNull()) {
                     pix = btn-&gt;icon.pixmap(btn-&gt;iconSize, p-&gt;device()-&gt;devicePixelRatio(),
 btn-&gt;state &amp; State_Enabled ? QIcon::Normal : QIcon::Disabled);
@@ -864,8 +866,9 @@ btn-&gt;state &amp; State_Enabled ? QIcon::Normal : QIcon::Disabled);
         btn3d = QPushButton(QIcon('03.png'), "按钮3：禁用", self)
         btn3d.setEnabled(False)
         rootLayout.addWidget(btn3d)</code></pre>
-<p class="content-text">上述代码在窗口组件中创建了 6 个按钮。前两个按钮都使用 01.png，接下来的两个按钮使用 02.png，最后两个按钮使用 03.png。每组第一个按钮为常规状态，第二个按钮调用 setEnabled(False) 进入禁用状态，以便直观比较两种状态下的图标外观。</p>
-<p class="content-text">运行结果如图 6-16 所示。由此可以看到，QIcon 类会根据当前主题自动处理图标，在本示例中禁用状态下的图标会自动变成灰色。</p>
+<p class="content-text">上述代码在窗口组件中创建了6个按钮。其中，第一个按钮使用图像文件01.png作为图标，第二个按钮使用02.png文件。它们使用相同的图标，不同点在于第一个按钮是常规状态，第二个按钮是禁用状态（调用setEnabled(False)禁用组件）。后面4个按钮也类似。这是为了能直观地对比出图标在常规状态和禁用状态下的外观差异。</p>
+<p class="content-text">运行结果如图6-16所示。</p>
+<p class="content-text">通过该示例会发现，QIcon类默认会根据当前主题自动处理图标。在本示例中，当按钮处于禁用状态时，图标自动变成灰色。</p>
 <figure class="result-box">
 <span class="result-box-header">图 6-16</span>
 <div class="result-box-image">
@@ -899,10 +902,10 @@ btn-&gt;state &amp; State_Enabled ? QIcon::Normal : QIcon::Disabled);
 <p class="content-text">示例程序运行后的初始状态为Normal，QPushButton组件的呈现效果如图6-17所示。</p>
 <p class="content-text">请读者注意，图标中剪刀的方向是向右的。随后，单击一下按钮，按钮会进入禁用状态（处理clicked信号时调用了setEnabled(False))。此时，图标中的剪刀方向是向左的，说明图标已从cut.png文件切换到cut_disabled.png 文件，如图 6-18 所示。</p>
 <figure class="result-box">
-<span class="result-box-header">图 6-17</span>
+<span class="result-box-header">图 6-17 / 图 6-18</span>
 <div class="result-box-image">
 <img alt="图6-17 常规状态下的图标 图 6-18 禁用状态下的图标" loading="lazy" src="images/ch06/ch06_fig_13.png"/>
-<figcaption class="caption">图6-17 常规状态下的图标 图 6-18 禁用状态下的图标</figcaption>
+<figcaption class="caption">图6-17 常规状态下的图标<br/>图 6-18 禁用状态下的图标</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>6.6.3</span> 示例：QPushButton的“开关”图标</h3>
@@ -934,10 +937,10 @@ btn-&gt;state &amp; State_Enabled ? QIcon::Normal : QIcon::Disabled);
 </div>
 <div class="source-page" data-book-page="117">
 <figure class="result-box">
-<span class="result-box-header">图 6-19</span>
+<span class="result-box-header">图 6-19 / 图 6-20</span>
 <div class="result-box-image">
 <img alt="图 6-19 按钮处于 Unchecked 状态时显示的图标 图 6-20 按钮处于 Checked 状态时显示的图标" loading="lazy" src="images/ch06/ch06_fig_14.png"/>
-<figcaption class="caption">图 6-19 按钮处于 Unchecked 状态时显示的图标 图 6-20 按钮处于 Checked 状态时显示的图标</figcaption>
+<figcaption class="caption">图 6-19 按钮处于 Unchecked 状态时显示的图标<br/>图 6-20 按钮处于 Checked 状态时显示的图标</figcaption>
 </div>
 </figure>
 <h3 class="subsection-heading"><span>6.6.4</span> 示例：手动绘制图标</h3>
@@ -992,22 +995,22 @@ btn-&gt;state &amp; State_Enabled ? QIcon::Normal : QIcon::Disabled);
     alen: int
 ):</code></pre>
 <p class="content-text">参数a表示扇形的初始角度，而alen参数是指扇形要跨越的度数。</p>
-<p class="content-text">假设初始角度为 30°，跨度为 60°，那么扇形的终止角在 30°+60°=90°。</p>
-<p class="content-text">另外还要注意的是参数 a、alen 表示的单位是 1/16°，即 a=16 为 1°。</p>
-<p class="content-text">所以，若初始角度为 30°，那么 a 的值应该是 30×16=480。</p>
+<p class="content-text">假设初始角度为30°，跨度为60，那么扇形的终止角在30°+60°=90°。</p>
+<p class="content-text">另外还要注意的是参数a、alen表示的单位是（1/16）°，即 a=16为1°。</p>
+<p class="content-text">所以，若初始角度为30°，那么a的值应该是30×16=480。</p>
+<p class="content-text">示例运行效果如图6-21所示。</p>
 <figure class="result-box">
 <span class="result-box-header">图 6-21</span>
 <div class="result-box-image">
-<img alt="图 6-21 手动绘制的图标 示例运行效果如图6-21所示。" loading="lazy" src="images/ch06/ch06_fig_15.png"/>
-<figcaption class="caption">图 6-21 手动绘制的图标 示例运行效果如图6-21所示。</figcaption>
+<img alt="图 6-21 手动绘制的图标" loading="lazy" src="images/ch06/ch06_fig_15.png"/>
+<figcaption class="caption">图 6-21 手动绘制的图标</figcaption>
 </div>
 </figure>
 <div class="section-heading" id="section-6">
 <span class="section-number">6.7</span>
 <h2>按钮与快捷键</h2>
 </div>
-<p class="content-text">按钮组件的 shortcut 属性（对应方法成员为 shortcut 和 setShortcut）用于设置关联的快捷键。快捷键由按键序列对象QKeySequence描述，在调用其构造函数时，可以直接使用字符串来指定快捷键（不区分大小写)，如 Ctrl+H、Alt+W等；也可以用 Qt.Modifier 和 Qt.Key的组合来表示快捷键，如下：</p>
-<pre class="code-block"><code>Qt.Modifier.SHIFT | Qt.Key.Key_D  # Shift+D</code></pre>
+<p class="content-text">按钮组件的 shortcut 属性（对应方法成员为 shortcut 和 setShortcut）用于设置关联的快捷键。快捷键由按键序列对象QKeySequence描述，在调用其构造函数时，可以直接使用字符串来指定快捷键（不区分大小写)，如 Ctrl+H、Alt+W等；也可以用 Qt.Modifier 和 Qt.Key的组合来表示快捷键，如 Qt.Modifier.SHIFT | Qt.Key.Key_D，即 Shift+D。</p>
 <p class="content-text">下面的代码在自定义窗口中创建两个按钮组件，并指定各自的快捷键。</p>
 <pre class="code-block"><code>class MyWindow(QWidget):
     def __init__(self):

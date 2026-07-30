@@ -33,7 +33,7 @@
       <h1 class="chapter-title">QML 基础</h1>
       <div class="chapter-meta">本章共 12 个小节 &middot; PySide6 Basic Tutorial</div>
 
-      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>QML 与 QtQuick 的关系</li><li>QML文档的加载方法</li><li>布局与常用控件</li></ol></div>
+      <div class="chapter-intro">本章要点：<ol class="content-list" style="margin-top:8px;margin-bottom:0"><li>QML 与 QtQuick 的关系；</li><li>QML文档的加载方法；</li><li>布局与常用控件。</li></ol></div>
 
       <div class="section-heading" id="section-0"><span class="section-number">19.1</span><h2>QML 与 QtQuick</h2></div>
 
@@ -46,21 +46,28 @@
       <div class="code-block">// 引入 QtQuick 模块
 import QtQuick
 
+// Window 表示应用程序窗口
 Window {
+    // id属性为对象分配唯一标识
     id: myWindow
+    // title属性表示窗口标题
     title: &quot;My Application&quot;
+    // width 属性表示窗口宽度
     width: 300
+    // height 表示窗口高度
     height: 280
+    // visible属性设置窗口是否可见，true表示显示窗口
     visible: true
 
+    // Rectangle 表示一个矩形
     Rectangle {
-        width: 120
-        height: 80
-        color: &quot;green&quot;
+        width: 120          // 宽度
+        height: 80          // 高度
+        color: &quot;green&quot;     // 填充颜色
     }
 }</div>
 
-      <p class="content-text">上述例子用 Window 定义窗口的标题、尺寸与可见性，并在窗口中声明一个宽 120、高 80、绿色填充的矩形，效果如图 19-1 所示。</p>
+      <p class="content-text">上述例子用Window元素定义了窗口的属性（标题、高度等），并设置在运行后显示窗口（visible属性为true)。窗口中定义了一个宽120、高80、用绿色填充的矩形。效果如图19-1所示。</p>
 
       <div class="result-box figure-box"><span class="result-box-header">图 19-1</span><div class="result-box-image"><img src="images/ch19/ch19_fig_01.png" alt="图 19-1窗口中包含一个绿色矩形" loading="lazy"><div class="caption">图 19-1窗口中包含一个绿色矩形</div></div></div>
 
@@ -611,7 +618,7 @@ Window {
 
       <p class="content-text">本示例的运行结果如图19-9所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 19-8、图 19-9</span><div class="result-box-image"><img src="images/ch19/ch19_fig_08.png" alt="图 19-8 Grid 中子对象的排列方向 图 19-9 三列两行的 Grid 布局" loading="lazy"><div class="caption">图 19-8 Grid 中子对象的排列方向 图 19-9 三列两行的 Grid 布局</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 19-8、图 19-9</span><div class="result-box-image"><img src="images/ch19/ch19_fig_08.png" alt="图 19-8 Grid 中子对象的排列方向 图 19-9 三列两行的 Grid 布局" loading="lazy"><div class="caption">图 19-8 Grid 中子对象的排列方向<br>图 19-9 三列两行的 Grid 布局</div></div></div>
 
       <h3 class="subsection-heading"><span>19.5.6</span> 示例：RowLayout</h3>
 
@@ -663,7 +670,7 @@ Window {
 
       <p class="content-text">注意第二个矩形的宽度不是固定的，如果拉伸窗口的宽度，RowLayout对象会自动调整该矩形的宽度，让它始终填满所有可用空间，如图19-11所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 19-10、图 19-11</span><div class="result-box-image"><img src="images/ch19/ch19_fig_09.png" alt="图 19-10 3 个矩形水平排列 图19-11 第二个矩形的宽度将自动拉伸" loading="lazy"><div class="caption">图 19-10 3 个矩形水平排列 图19-11 第二个矩形的宽度将自动拉伸</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 19-10、图 19-11</span><div class="result-box-image"><img src="images/ch19/ch19_fig_09.png" alt="图 19-10 3 个矩形水平排列 图19-11 第二个矩形的宽度将自动拉伸" loading="lazy"><div class="caption">图 19-10 3 个矩形水平排列<br>图19-11 第二个矩形的宽度将自动拉伸</div></div></div>
 
       <h3 class="subsection-heading"><span>19.5.7</span> 示例：在 GridLayout 中定位子对象</h3>
 
@@ -787,11 +794,11 @@ ApplicationWindow {
         }
 }</div>
 
-      <p class="content-text">使用 Qt Quick 控件前，需要先导入 QtQuick.Controls 子模块。为了配合控件功能，QML 文档的根对象建议使用 ApplicationWindow；该对象还可以设置菜单栏、工具栏等。</p>
+      <p class="content-text">要使用 Qt Quick 控件需要先导入 QtQuick.Controls 子模块。为了配合控件功能，QML文档的根对象建议改用ApplicationWindow。该对象包含可以设置菜单栏、工具栏等功能。</p>
 
       <div class="result-box figure-box"><span class="result-box-header">图 19-13</span><div class="result-box-image"><img src="images/ch19/ch19_fig_12.png" alt="图 19-13 Control 对象中包含简单文本" loading="lazy"><div class="caption">图 19-13 Control 对象中包含简单文本</div></div></div>
 
-      <p class="content-text">上述 QML 文档声明了 Control 对象。background 属性用于设置控件背景，此处使用 Rectangle 对象；contentItem 属性定义控件的内容区域，此处使用 Text 对象显示文本。contentItem 将呈现在 background 之上。</p>
+      <p class="content-text">上述 QML文档声明了Control 对象，呈现效果可参考图 19-13。background 属性用于设置控件的背景，此处使用了Rectangle对象；contentItem 属性定义控件的内容区域，此处使用的是Text对象，在控件上显示文本。contentItem 将呈现在 background之上。</p>
 
       <h3 class="subsection-heading"><span>19.6.1</span> 示例：处理鼠标单击事件</h3>
 
@@ -876,15 +883,17 @@ txt.text = &quot;已单击&quot;</div>
 
       <p class="content-text">此时，单击一下控件，随后控件的背景会变成红色，显示的文本变为“已单击”，如图19-15所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 19-14、图 19-15</span><div class="result-box-image"><img src="images/ch19/ch19_fig_13.png" alt="图 19-14 单击控件前 图 19-15 单击控件后" loading="lazy"><div class="caption">图 19-14 单击控件前 图 19-15 单击控件后</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 19-14、图 19-15</span><div class="result-box-image"><img src="images/ch19/ch19_fig_13.png" alt="图 19-14 单击控件前 图 19-15 单击控件后" loading="lazy"><div class="caption">图 19-14 单击控件前<br>图 19-15 单击控件后</div></div></div>
 
       <h3 class="subsection-heading"><span>19.6.2</span> 示例：处理键盘事件</h3>
 
       <p class="content-text">控件接收键盘事件可以使用Keys对象（该对象适用于所有可视化对象)。Keys对象不需要在QML文档中声明，它的成员将作为附加属性公开，控件（或其他可视化对象）可以直接引用。</p>
 
-      <p class="content-text">当用户按下键盘上某个键时，Keys 对象就会发出 pressed 信号（QML 引用名称为 onPressed)；当释放按键时会发出 released 信号（QML 文档引用名称为 onReleased)。信号发出时会携带一个 KeyEvent对象，它包含详细的按键信息，如按下了哪个键，是否同时按下Ctrl、Shift等按键，等等。</p>
+      <p class="content-text">当用户按下键盘上某个键时，Keys 对象就会发出 pressed 信号（QML 引用名称为 onPressed)；当释放按键时会发出 released 信号（QML 文档引用名称为 onReleased)。信号发出时会携带一个 KeyEvent对象，它包含详细的按键信息，如按下了哪个键，是否同时按下Ctr、Shitf等按键，等等。</p>
 
-      <p class="content-text">另外，Keys对象还为一些特殊的按键定义了专用信号。例如，当用户按下【Enter】键时会发出enterPressed信号，当按下 Tab 键时会发出 tabPressed信号，当按下数字 9时会发出 digit9Pressed 信号……本示例所演示的控件中包含3个矩形，它们默认填充为黑色。通过数字按键改变矩形的填充颜色，规则如下。</p>
+      <p class="content-text">另外，Keys对象还为一些特殊的按键定义了专用信号。例如，当用户按下【Enter】键时会发出enterPressed信号，当按下 Tab 键时会发出 tabPressed信号，当按下数字 9时会发出 digit9Pressed 信号……</p>
+
+      <p class="content-text">本示例所演示的控件中包含3个矩形，它们默认填充为黑色。通过数字按键改变矩形的填充颜色，规则如下。</p>
 
       <ol class="content-list" start="1"><li>按下数字1时，第一个矩形变成粉红色，其他矩形变成黑色。</li></ol>
 
@@ -977,7 +986,7 @@ Keys.onDigit3Pressed: {
 
       <p class="content-text">此时，按下数字键2，中间的矩形会变成蓝色，如图19-17所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 19-16、图 19-17</span><div class="result-box-image"><img src="images/ch19/ch19_fig_14.png" alt="图 19-16 3 个矩形的初始颜色 图19-17 第二个矩形变成蓝色" loading="lazy"><div class="caption">图 19-16 3 个矩形的初始颜色 图19-17 第二个矩形变成蓝色</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 19-16、图 19-17</span><div class="result-box-image"><img src="images/ch19/ch19_fig_14.png" alt="图 19-16 3 个矩形的初始颜色 图19-17 第二个矩形变成蓝色" loading="lazy"><div class="caption">图 19-16 3 个矩形的初始颜色<br>图19-17 第二个矩形变成蓝色</div></div></div>
 
       <div class="section-heading" id="section-6"><span class="section-number">19.7</span><h2>按钮控件</h2></div>
 
@@ -1050,11 +1059,13 @@ ApplicationWindow {
 
       <div class="result-box figure-box"><span class="result-box-header">图 19-18</span><div class="result-box-image"><img src="images/ch19/ch19_fig_15.png" alt="图19-18 单击按钮后控制台会输出文本" loading="lazy"><div class="caption">图19-18 单击按钮后控制台会输出文本</div></div></div>
 
-      <p class="content-text">anchors.bottom属性表示RowLayout对象的下边沿，它的值引用parent.bottom，表示与父级对象的下边沿重合（对齐）。parent即RowLayout对象的parent属性。在本示例中，RowLayout对象的父级就是窗口对象（ApplicationWindow）。同理，parent.top表示对齐父级对象的顶部边沿。</p>
+      <p class="content-text">anchors.bottom属性表示 RowLayout 对象的下边沿，它的值引用parent.bottom 表示与父级对象的下边沿重合（对齐)。parent 即 RowLayout 对象的 parent属性。在本示例中，RowLayout 对象的父级就是窗口对象（ApplicationWindow)。同理，parent.top就是对齐父级对象的顶部边沿。</p>
 
-      <p class="content-text">top、left、right、bottom、horizontalCenter、verticalCenter等是Item类的内部属性，只能在QML文档中访问。Button对象的text属性设置要显示在按钮上的文本，onClicked即clicked信号。console.log继承了JavaScript的对象命名，可用于向控制台输出日志。</p>
+      <p class="content-text">top、left、right、bottom、horizontalCenter、verticalCenter等是Item类的内部属性，只能在QML文档中访问。</p>
 
-      <p class="content-text">运行示例程序，然后单击窗口下方的Yes或No按钮，控制台会打印对应的内容，如图19-18所示。</p>
+      <p class="content-text">Button 对象的 text 属性设置要显示在按钮上的文本，onClicked 即 clicked 信号。console.log 继承了 JavaScript的对象命名，可用于向控制台输出日志。</p>
+
+      <p class="content-text">运行示例程序，然后单击窗口下方的 Yes或No按钮，控制台会打印对应的内容，如图19-18所示。</p>
 
       <h3 class="subsection-heading"><span>19.7.2</span> 示例： CheckBox</h3>
 
@@ -1549,7 +1560,7 @@ ApplicationWindow {
 
       <p class="content-text">Menu对象单独声明时，可作为弹出菜单（上下文菜单），也可以添加到菜单栏（MenuBar）中。菜单项由MenuItem对象表示，它的基类是AbstractButton，继承了text等属性。但作为菜单项，一般不需要处理 clicked信号，而是处理 triggered信号（MenuItem 对象被单击后会发出该信号)。</p>
 
-      <p class="content-text">Menu的基类是Popup，可在用户界面上方弹出一个浮动层。可以使用x、y、width、height等属性设置Popup对象的位置和大小。下面是一个简单的Popup示例，单击按钮后弹出浮动层（如图19-28所示），随后可以单击“关闭”按钮（或单击弹出层以外的地方）将其关闭。</p>
+      <p class="content-text">Menu的基类是Popup，可在用户界面上方弹出一个浮动层。可以使用x、y、width、height等属性设置Popup对象的位置和大小。下面是一个简单的Popup示例，单击按钮后弹出浮动层(如图19-28所示)，随后可以单击“关闭”按钮（或单击弹出层以外的地方）将其关闭。</p>
 
       <div class="result-box figure-box"><span class="result-box-header">图 19-28</span><div class="result-box-image"><img src="images/ch19/ch19_fig_25.png" alt="图 19-28 Popup 对象" loading="lazy"><div class="caption">图 19-28 Popup 对象</div></div></div>
 
@@ -1675,7 +1686,7 @@ MenuItem {
         }
 }</div>
 
-      <p class="content-text">示例在Menu对象内添加了3个菜单项，同时处理它们的triggered信号，通过JavaScript代码修改Rectangle对象的width、height属性。</p>
+      <p class="content-text">示例在 Menu 对象内添加了 3 个菜单，同时处理它们的 triggered 信号，通过 JavaScript 代码修改Rectangle 对象的 width、height 属性。</p>
 
       <p class="content-text">运行示例程序，在窗口中右击，便可以通过上下文菜单改变矩形的大小了，如图19-29所示。</p>
 
@@ -1794,9 +1805,9 @@ Action {
 }
 }</div>
 
-      <p class="content-text">上下文菜单由于不显示标题，可以不设置 title 属性；但菜单栏（MenuBar）中的菜单需要显示标题，因此应设置 title 属性。直接在 MenuBar 中声明 Menu 对象即可添加菜单，Menu 对象内可以使用 Action 或 MenuItem 添加菜单项。ApplicationWindow 公开了专门用于设置菜单栏的 menuBar 属性，不要把 MenuBar 声明为 ApplicationWindow 的普通子级对象，否则会造成布局问题。</p>
+      <p class="content-text">上下文菜单由于不显示标题，可以不设置title属性。但菜单栏（MenuBar）中的菜单需要显示标题，因此应当设置 title属性。MenuBar中直接声明 Menu 对象就可以添加菜单，菜单（Menu）对象内可以用 Action 或 MenuItem 对象来添加菜单项。ApplicationWindow 类公开专门用于设置菜单栏的 menuBar属性，不要把 MenuBar声明为ApplicationWindow的子级对象，那样会造成布局问题。</p>
 
-      <p class="content-text">上述 QML 中，第二组菜单的各个菜单项均将 checkable 属性设置为 true，使其具有类似 CheckBox 控件的选择效果；单击菜单项即可切换选中状态。</p>
+      <p class="content-text">上述 QML 中，第二组菜单中的各项均设置了 checkable 属性为 True，表示菜单项启用 check 功能，菜单项将实现类似 CheckBox控件的效果，单击后可以切换check 状态。</p>
 
       <p class="content-text">运行示例程序，效果如图 19-31 所示。</p>
 
@@ -1815,7 +1826,7 @@ Action {
         }
 }</div>
 
-      <p class="content-text">本示例将通过 MenuItem 对象创建 6 个带图标的菜单项。图标文件位于应用程序目录下，使用 source 属性加载图标。完整的 QML 文档如下：</p>
+      <p class="content-text">本示例将通过 MenuItem 对象创建 6 个带图标的菜单项。图标文件位置应用程序目录下—使用source属性加载图标。完整的 QML文档如下：</p>
 
       <div class="code-block">import QtQuick
 import QtQuick.Controls
@@ -1859,7 +1870,7 @@ MenuItem {
 
       <p class="content-text">建议使用尺寸为16×16或24×24的图标。示例的运行效果如图19-32所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 19-32</span><div class="result-box-image"><img src="images/ch19/ch19_fig_28.png" alt="图 19-32带有图标的菜单项" loading="lazy"><div class="caption">图 19-32带有图标的菜单项</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 19-32</span><div class="result-box-image"><img src="images/ch19/ch19_fig_28.png" alt="图 19-32 带有图标的菜单项" loading="lazy"><div class="caption">图 19-32 带有图标的菜单项</div></div></div>
 
       <div class="section-heading" id="section-9"><span class="section-number">19.10</span><h2>工具栏</h2></div>
 
@@ -2031,7 +2042,7 @@ ToolButton.TextUnderIcon</div>
 
       <h3 class="subsection-heading"><span>19.11.1</span> ListModel</h3>
 
-      <p class="content-text">ListModel 是最常用的数据列表模型。它内部包含一组 ListElement 对象，每个 ListElement 对象代表一个数据项实例。ListElement对象内部是动态定义的数据角色（role）列表，用于描述列表项数据，功能上与对象属性相似。其格式类型为字典集合，例如：</p>
+      <p class="content-text">ListModel 是最常用的数据列表模型。它内部包含一组 ListElement 对象，每个 ListElement 对象代表一个数据项实例。ListElement对象内部的是动态定义的数据角色（role）列表，用于描述列表项数据，功能上与对象属性相似。其格式类型为字典集合，例如：</p>
 
       <div class="code-block">ListElement {
         name: &quot;Orange&quot;
@@ -2141,7 +2152,7 @@ ToolButton.TextUnderIcon</div>
 
       <p class="content-text">效果如图19-36所示。</p>
 
-      <div class="result-box figure-box"><span class="result-box-header">图 19-35、图 19-36</span><div class="result-box-image"><img src="images/ch19/ch19_fig_31.png" alt="图 19-35 text 属性绑定到 en、cn 字段 图 19-36 调用 padEnd 填充字符串的末尾" loading="lazy"><div class="caption">图 19-35 text 属性绑定到 en、cn 字段 图 19-36 调用 padEnd 填充字符串的末尾</div></div></div>
+      <div class="result-box figure-box"><span class="result-box-header">图 19-35、图 19-36</span><div class="result-box-image"><img src="images/ch19/ch19_fig_31.png" alt="图 19-35 text 属性绑定到 en、cn 字段 图 19-36 调用 padEnd 填充字符串的末尾" loading="lazy"><div class="caption">图 19-35 text 属性绑定到 en、cn 字段<br>图 19-36 调用 padEnd 填充字符串的末尾</div></div></div>
 
       <h3 class="subsection-heading"><span>19.11.4</span> XmlListModel</h3>
 
@@ -2272,7 +2283,7 @@ Item {
     }
 }</div>
 
-      <p class="content-text">x_color 是 Item 的自定义 color 属性，初值为蓝色。Rectangle 和 Text 的 color 属性都与它绑定；修改 x_color 后，两者会同步更新。</p>
+      <p class="content-text">x_color 是 Item 对象的自定义属性，类型为 color，初始颜色设置为蓝色。Rectangle 和 Text 对象的color 属性都与 x_color 属性绑定。当 x_color属性被改变后，Rectangle 和 Text 对象的颜色也会同步更新。</p>
 
       <p class="content-text">以下步骤将完成示例程序的主体代码。</p>
 
@@ -2329,7 +2340,7 @@ window.show()
 #启动事件循环
 QApplication.exec()</div>
 
-      <p class="content-text">运行应用程序，矩形和文本的默认颜色是蓝色。单击窗口右侧的三个按钮，可分别把矩形和文本改为金色、灰色或深绿色，效果如图19-38所示。</p>
+      <p class="content-text">运行应用程序，矩形和文本的默认颜色是蓝色。单击窗口右侧的按钮可以改变颜色，如图19-38所示。</p>
 
       <div class="result-box figure-box"><span class="result-box-header">图 19-38</span><div class="result-box-image"><img src="images/ch19/ch19_fig_33.png" alt="图19-38 单击按钮改变矩形和文本的颜色" loading="lazy"><div class="caption">图19-38 单击按钮改变矩形和文本的颜色</div></div></div>
 

@@ -130,13 +130,15 @@
                 theAction = QAction(&quot;选项-1&quot;, self)
                 #连接triggered信号
                 theAction.triggered.connect(
-                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;你选择了“选项1”&quot;))
+                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;你选择了&quot;选项1&quot;&quot;)
+                )
                 menu.addAction(theAction)
                 #第二种方法，调用 addAction 的便捷版重载，返回 QAction 实例
                 theAction = menu.addAction(&quot;选项-2&quot;)
                 #再连接QAction.triggered信号
                 theAction.triggered.connect(
-                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;你选择了“选项2”&quot;))
+                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;你选择了&quot;选项2&quot;&quot;)
+                )
                 #显示菜单
                 menu.popup(self.btn.mapToGlobal(self.btn.rect().bottomRight()))</div>
 
@@ -150,7 +152,7 @@
 
       <figure class="book-figure">
         <img src="images/ch10/ch10_fig_01.png" alt="图10-1 菜单在按钮的右下角出现 图 10-2 响应 QAction 的 triggered 信号" loading="lazy">
-        <figcaption>图10-1 菜单在按钮的右下角出现 图 10-2 响应 QAction 的 triggered 信号</figcaption>
+        <figcaption>图 10-1 菜单在按钮的右下角出现<br>图 10-2 响应 QAction 的 triggered 信号</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>10.1.2</span> 示例：处理 QMenu 的 triggered 信号</h3>
@@ -209,7 +211,7 @@ button.clicked.connect(onClicked)</div>
 
       <figure class="book-figure">
         <img src="images/ch10/ch10_fig_02.png" alt="图 10-3 弹出的菜单 图 10-4 显示选择结果" loading="lazy">
-        <figcaption>图 10-3 弹出的菜单 图 10-4 显示选择结果</figcaption>
+        <figcaption>图 10-3 弹出的菜单<br>图 10-4 显示选择结果</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>10.1.3</span> 示例：exec 方法和popup 方法的区别</h3>
@@ -411,7 +413,7 @@ menuBar.addMenu(menu)</div>
 
       <figure class="book-figure">
         <img src="images/ch10/ch10_fig_06.png" alt="图 10-8带图标的菜单" loading="lazy">
-        <figcaption>图 10-8带图标的菜单</figcaption>
+        <figcaption>图10-8 带图标的菜单</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>10.2.5</span> 带 check 标记的菜单</h3>
@@ -468,9 +470,9 @@ actionB.toggled.connect(onToggledB)</div>
 
       <p class="content-text">接下来，在窗口中添加两个按钮组件，调用toggle方法来修改菜单项的check状态。代码如下：</p>
 
-      <div class="code-block">btn1 = QPushButton(&quot;切换“自动刷新”菜单&quot;, mainWindow)
+      <div class="code-block">btn1 = QPushButton(&quot;切换&quot;自动刷新&quot;菜单&quot;, mainWindow)
 btn1.clicked.connect(lambda: actionA.toggle())
-btn2 = QPushButton(&quot;切换“自动下载”菜单&quot;, mainWindow)
+btn2 = QPushButton(&quot;切换&quot;自动下载&quot;菜单&quot;, mainWindow)
 btn2.clicked.connect(lambda: actionB.toggle())
 #设置两个按钮的坐标
 btn1.move(22, 35)
@@ -600,7 +602,7 @@ toolBar.actionTriggered.connect(onActionTriggered)</div>
 
       <figure class="book-figure">
         <img src="images/ch10/ch10_fig_08.png" alt="图10-10 停靠于窗口左右两侧的工具栏 图10-11 通过拖动调整工具栏的位置" loading="lazy">
-        <figcaption>图10-10 停靠于窗口左右两侧的工具栏 图10-11 通过拖动调整工具栏的位置</figcaption>
+        <figcaption>图10-10 停靠于窗口左右两侧的工具栏<br>图10-11 通过拖动调整工具栏的位置</figcaption>
       </figure>
 
       <div class="section-heading" id="section-3">
@@ -756,7 +758,7 @@ self.statusBar.setSizeGripEnabled(False)</div>
 
       <div class="code-block">    def resizeEvent(self, event: QResizeEvent):
         newSize = event.size()
-        msg = f&quot;当前大小: {newSize.width()}×{newSize.height()}&quot;
+        msg = f&quot;当前大小：{newSize.width()}×{newSize.height()}&quot;
         #显示状态信息
         self.statusBar.showMessage(msg)
         #调用基类的成员
@@ -855,40 +857,44 @@ seqKey5 = QKeySequence(
 
       <p class="content-text">本示例将演示 QKeySequence 类的基本用法。QAction 对象需要调用 setShortcut 方法来引用QKeySequence 对象。</p>
 
-      <p class="content-text">示例程序的主窗口派生自 QMainWindow 类。在 __init__ 方法中初始化 4 个 QAction 对象，每个 QAction 对象都设置了快捷键。代码如下：</p>
+      <p class="content-text">示例程序的主窗口派生自 QMainWindow 类。在 __init__ 方法中，初始化 4 个 QAction 对象，每个 QAction 对象都设置了快捷。代码如下：</p>
 
       <div class="code-block">class MainWindow(QMainWindow):
         def __init__(self):
                 super().__init__(None)
                 #先创建QAction对象，菜单栏与工具栏共用
-                #&quot;查找&quot;命令
+                # &quot;查找&quot;命令
                 self.actFind = QAction(QIcon(&quot;find.png&quot;), &quot;查找&quot;)
                 #快捷键：Alt + F
                 self.actFind.setShortcut(QKeySequence(&quot;Alt+F&quot;))
                 #连接信号
                 self.actFind.triggered.connect(
-                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了“查找”命令&quot;))
-                #&quot;修改&quot;命令
+                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了&quot;查找&quot;命令&quot;)
+                )
+                # &quot;修改&quot;命令
                 self.actModify = QAction(QIcon(&quot;pen.png&quot;), &quot;修改&quot;)
                 #快捷键：Ctrl + E
                 self.actModify.setShortcut(QKeySequence(&quot;Ctrl+E&quot;))
                 #连接信号
                 self.actModify.triggered.connect(
-                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了“修改”命令&quot;))
-                #&quot;取消&quot;命令
+                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了&quot;修改&quot;命令&quot;)
+                )
+                # &quot;取消&quot;命令
                 self.actCancel = QAction(QIcon(&quot;cancel.png&quot;), &quot;取消&quot;)
                 #快捷键：Shift + Alt + C
                 self.actCancel.setShortcut(QKeySequence(&quot;Shift+Alt+C&quot;))
                 #连接信号
                 self.actCancel.triggered.connect(
-                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了“取消”命令&quot;))
-                #&quot;移动&quot;命令
+                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了&quot;取消&quot;命令&quot;)
+                )
+                # &quot;移动&quot;命令
                 self.actMove = QAction(QIcon(&quot;move.png&quot;), &quot;移动&quot;)
                 #快捷键：Alt + M
                 self.actMove.setShortcut(QKeySequence(&quot;Alt+M&quot;))
                 #连接信号
                 self.actMove.triggered.connect(
-                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了“移动”命令&quot;))</div>
+                        lambda: QMessageBox.information(self, &quot;提示&quot;, &quot;执行了&quot;移动&quot;命令&quot;)
+                )</div>
 
       <p class="content-text">接着，创建菜单栏和工具栏。代码如下：</p>
 
@@ -981,7 +987,7 @@ self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.toolBar)</div>
 
       <figure class="book-figure">
         <img src="images/ch10/ch10_fig_13.png" alt="图 10-16 字号变大 图 10-17 字号变小" loading="lazy">
-        <figcaption>图 10-16 字号变大 图 10-17 字号变小</figcaption>
+        <figcaption>图 10-16 字号变大<br>图 10-17 字号变小</figcaption>
       </figure>
 
       <div class="section-heading" id="section-6">
@@ -999,7 +1005,7 @@ self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.toolBar)</div>
 
       <p class="content-text">本示例将通过 QWidgetAction 类实现在菜单中显示 QSlider 组件。</p>
 
-      <p class="content-text">定义 MyWindow 类，从 QMainWindow 类派生。在 __init__ 方法中创建菜单栏，先添加三个普通菜单项，最后用 QWidgetAction 对象封装 QSlider 组件，让它可以显示在菜单列表中。具体代码如下：</p>
+      <p class="content-text">定义 MyWindow 类，从 QMainWindow 类派生。在 __init__ 方法中，创建菜单栏。先添加三个普通菜单项，最后用 QWidgetAction 对象封装 QSlider 组件，让它可以显示在菜单列表中。具体代码如下：</p>
 
       <div class="code-block">class MyWindow(QMainWindow):
         def __init__(self):
@@ -1082,8 +1088,6 @@ self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.toolBar)</div>
         #返回自定义组件
         return container</div>
 
-      <ol class="content-list" start="5"><li>处理按钮组的 idClicked 信号，保存当前字符并手动触发 CustAction。</li></ol>
-
       <div class="code-block">def onIdClicked(self, _id: int):
         self._char = self._preChars[_id]
         self.trigger()</div>
@@ -1092,7 +1096,7 @@ self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.toolBar)</div>
 
       <p class="content-text">在 onIdClicked 方法中，将当前选择的字符赋值给_char字段，然后调用 trigger 方法，使 CustAction对象发出 triggered信号，即手动激活 CustAction。</p>
 
-      <p class="content-text">定义 CustTextEdit类，基类是 QTextEdit类。</p>
+      <ol class="content-list" start="5"><li>定义 CustTextEdit类，基类是 QTextEdit类。</li></ol>
 
       <div class="code-block">class CustTextEdit(QTextEdit):
             ......</div>
@@ -1104,7 +1108,8 @@ self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.toolBar)</div>
         #自定义action
         self.myaction = CustAction(self)
         self.myaction.triggered.connect(
-                lambda: self.insertPlainText(self.myaction.char())</div>
+                lambda: self.insertPlainText(self.myaction.char())
+        )</div>
 
       <ol class="content-list" start="7"><li>重写 QTextEdit 类的 contextMenuEvent 方法，在标准菜单的前面插入 CustAction 对象。</li></ol>
 

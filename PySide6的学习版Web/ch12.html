@@ -123,7 +123,7 @@ pb1.setValue(67)
 #第二个进度条，垂直方向
 pb2 = QProgressBar(window)
 #最大值40，最小值1
-pb2.setMaximum(40)
+pb2.setMaximum(40),
 pb2.setMinimum(1)
 #设置当前值
 pb2.setValue(13)
@@ -159,16 +159,16 @@ window.show()</div>
 
       <ol class="content-list" start="3"><li>定义 setData 方法，用于接收来自主线程的数据（进度的最小值和最大值）。</li></ol>
 
-      <div class="code-block">def setData(self, minimum: int, maximum: int):
-        self._max = maximum
-        self._min = minimum</div>
+      <div class="code-block">def setData(self, min: int, max: int):
+        self._max = max
+        self._min = min</div>
 
       <ol class="content-list" start="4"><li>重写 run 方法，实现模拟的耗时任务。</li></ol>
 
       <div class="code-block">def run(self):
-        if not hasattr(self, &#x27;_max&#x27;):
+        if not getattr(self, &#x27;_max&#x27;):
                 self._max = 100
-        if not hasattr(self, &#x27;_min&#x27;):
+        if not getattr(self, &#x27;_min&#x27;):
                 self._min = 0
         #模拟长时间运行的任务
         current = self._min
@@ -224,7 +224,7 @@ window.show()</div>
       <div class="code-block">        def setProgress(self, p: int):
                 self.pb.setValue(p)</div>
 
-      <ol class="content-list" start="12"><li>与 MyThread 对象的 started、finished 信号（从 QThread 类继承）连接。在新线程启动或完成时改变 QPushButton 组件的可用状态（任务执行过程中禁用按钮，任务完成后恢复）。</li></ol>
+      <ol class="content-list" start="12"><li>与 MyThread 对象的 started、finished 信号（从 QThread 类继承）信号连接。在新线程启动或完成时改变 QPushButton 组件的可用状态（任务执行过程中禁用按钮，任务完成后恢复）。</li></ol>
 
       <div class="code-block">        self.theThread.started.connect(self.onStarted)
         self.theThread.finished.connect(self.onFinished)
@@ -233,16 +233,16 @@ window.show()</div>
                 self.btn.setEnabled(False)
         def onFinished(self):
                 self.btn.setEnabled(True)
-                self.pb.reset() #重置进度条</div>
+                self.pb.reset()       # 重配进度条</div>
 
       <ol class="content-list" start="13"><li>连接 QPushButton 组件的 clicked 信号，在按钮被单击后启动耗时任务。</li></ol>
 
       <div class="code-block">        self.btn.clicked.connect(self.onBtnClicked)
         ......
         def onBtnClicked(self):
-        #发出 sendData信号，告知新线程进度的最小值和最大值
-                self.sendData.emit(self.pb.minimum(), self.pb.maximum())
-        #启动新线程
+                # 发出 sendData 信号，告知新线程进度的最小值和最大值
+                self.sendData.emit(self.pb.minimum(),self.pb.maximum())
+                # 启动新线程
                 self.theThread.start()</div>
 
       <ol class="content-list" start="14"><li>初始化和显示窗口。</li></ol>
@@ -271,11 +271,11 @@ wind.show()</div>
 
       </ol>
 
-      <p class="content-text">假设进度条的最大值为80，最小值为0，当前值为20，那么三个占位符对应的内容如下：</p>
+      <p class="content-text">假设进度条的最大值为 80，最小值为 0，当前值为 20，那么</p>
 
-      <div class="code-block">%p:25
-%v：20
-%m：80</div>
+      <div class="code-block">%p: 25
+%v: 20
+%m: 80</div>
 
       <p class="content-text">若setFormat方法设置的格式字符串为“已完成%v步，共%m步”，最后呈现出来的结果是“已完成20步，共80步”。</p>
 
@@ -299,8 +299,8 @@ pb.setMaximum(120)
 #设置当前值
 pb.setValue(48)
 #3个按钮
-btn1 = QPushButton(&quot;格式1&quot;, window)
-btn2 = QPushButton(&quot;格式2&quot;, window)
+btn1 = QPushButton(&quot;格式 1&quot;, window)
+btn2 = QPushButton(&quot;格式 2&quot;, window)
 btn3 = QPushButton(&quot;格式 3&quot;, window)
 layout.addWidget(btn1, 1, 0)
 layout.addWidget(btn2, 1, 1)
@@ -318,7 +318,7 @@ window.show()</div>
 
       <figure class="book-figure">
         <img src="images/ch12/ch12_fig_03.png" alt="图 12-3 实际进度值 图 12-4当前进度和总进度" loading="lazy">
-        <figcaption>图 12-3 实际进度值 图 12-4当前进度和总进度</figcaption>
+        <figcaption>图 12-3 实际进度值<br>图 12-4 当前进度和总进度</figcaption>
       </figure>
 
       <div class="section-heading" id="section-1">
@@ -511,7 +511,7 @@ spboxPageStep = QSpinBox(content)
 spboxPageStep.setRange(3, 20)
 #连接信号
 spboxPageStep.valueChanged.connect(self.slider.setPageStep)
-layout.addRow(&quot;页面步长：&quot;, spboxPageStep)</div>
+layout.addRow(&quot;页面步长:&quot;, spboxPageStep)</div>
 
       <ol class="content-list" start="5"><li>initDockWindows 方法的完整代码如下：</li></ol>
 
@@ -567,7 +567,7 @@ win.show()</div>
 
       <figure class="book-figure">
         <img src="images/ch12/ch12_fig_06.png" alt="图 12-7 设置 QSlider 的步长 图 12-8 QSlider 组件的最新值" loading="lazy">
-        <figcaption>图 12-7 设置 QSlider 的步长 图 12-8 QSlider 组件的最新值</figcaption>
+        <figcaption>图 12-7 设置 QSlider 的步长<br>图 12-8 QSlider 组件的最新值</figcaption>
       </figure>
 
       <div class="section-heading" id="section-2">
@@ -597,7 +597,7 @@ layout.addWidget(dial, 1)
 lb = QLabel(window)
 layout.addWidget(lb, 0)
 #连接valueChanged 信号
-dial.valueChanged.connect(lambda val: lb.setText(f&quot;当前数值：{val}&quot;))
+dial.valueChanged.connect(lambda val: lb.setText(f&quot;当前数值: {val}&quot;))
 #显示窗口
 window.show()</div>
 
@@ -684,7 +684,7 @@ ckbWrapping.toggled.connect(dial.setWrapping)</div>
 
       <figure class="book-figure">
         <img src="images/ch12/ch12_fig_09.png" alt="图 12-11 QDial 的 wrapping 属性为 False 图 12-12 QDial 的 wrapping 属性为 True" loading="lazy">
-        <figcaption>图 12-11 QDial 的 wrapping 属性为 False 图 12-12 QDial 的 wrapping 属性为 True</figcaption>
+        <figcaption>图 12-11 QDial 的 wrapping 属性为 False<br>图 12-12 QDial 的 wrapping 属性为 True</figcaption>
       </figure>
 
       <div class="section-heading" id="section-3">
@@ -696,9 +696,9 @@ ckbWrapping.toggled.connect(dial.setWrapping)</div>
 
       <p class="content-text">要设置 QLCDNumber 组件的显示内容，应调用 display 方法，该方法有以下 3个重载：</p>
 
-      <div class="code-block">def display(num: float): ...
-def display(num: int): ...
-def display(text: str): ...</div>
+      <div class="code-block">def display(num: float)
+def display(num: int)
+def display(str: str)</div>
 
       <p class="content-text">前两个重载分别向参数传递整型和浮点数值，第3个重载向参数传递的是字符串内容。字符串内容中如果存在不支持的字符，QLCDNumber组件将用空格替代。</p>
 
@@ -774,7 +774,7 @@ setDecMode #十进制</div>
 
       <figure class="book-figure">
         <img src="images/ch12/ch12_fig_11.png" alt="图12-14 显示十进制数值 图12-15 显示二进制数值" loading="lazy">
-        <figcaption>图12-14 显示十进制数值 图12-15 显示二进制数值</figcaption>
+        <figcaption>图12-14 显示十进制数值<br>图12-15 显示二进制数值</figcaption>
       </figure>
 
       <div class="section-heading" id="section-4">
@@ -829,7 +829,7 @@ btnHide.clicked.connect(hideIcon)</div>
 
       </ol>
 
-      <h3 class="subsection-heading"><span>12.5.2</span> 示例：添加上下文菜单</h3>
+      <h3 class="subsection-heading"><span>12.5.2</span> 示例：添加上下文件菜单</h3>
 
       <p class="content-text">本示例将演示在托盘图标上添加上下文菜单，用户右击系统托盘上的图标即可调出上下文菜单。</p>
 
@@ -853,11 +853,11 @@ trayIco.show()
 #默认显示窗口
 action1.setChecked(True)</div>
 
-      <p class="content-text">第一个菜单项“显示/隐藏主窗口”通过 setCheckable 方法开启 check 功能，再把 QAction 对象的 toggled 信号连接到窗口对象的 setVisible 方法，就可以用菜单项的 check 状态控制窗口显示或隐藏。另外两个菜单项均处理 triggered 信号，并用消息对话框显示文本信息。</p>
+      <p class="content-text">第一个菜单项（“显示/隐藏主窗口”）要使用 setCheckable 方法打开 check 功能，然后 QAction 对象的 toggled 信号连接到窗口对象的 setVisible 方法。这样就可以实现用菜单项的 check 状态来控制窗口的显示或隐藏。另外两个菜单项均处理 triggered 信号，并用消息对话框显示文本信息。</p>
 
       <p class="content-text">在初始化上下文菜单后，必须调用 QSystemTrayIcon 对象的 setContextMenu 方法进行关联，否则托盘图标无法显示菜单。</p>
 
-      <p class="content-text">示例程序运行后，桌面的系统托盘中会显示应用程序图标。右击图标，会弹出上下文菜单，如图 12-16 所示。</p>
+      <p class="content-text">当示例程序运行后，在桌面的系统托盘中会看到应用程序设置的图标，右击图标，会弹出上下文菜单，如图12-16所示。</p>
 
       <figure class="book-figure">
         <img src="images/ch12/ch12_fig_12.png" alt="图12-16 托盘图标的上下文菜单" loading="lazy">
@@ -903,7 +903,7 @@ def showMessage(
                 layout.addRow(&quot;标题：&quot;, self.titleEdit)
                 #消息内容
                 self.bodyEdit = QLineEdit(self)
-                layout.addRow(&quot;内容：&quot;, self.bodyEdit)
+                layout.addRow(&quot;内容:&quot;, self.bodyEdit)
                 #消息持续时间
                 self.slidOn = QSlider(Qt.Orientation.Horizontal, self)
                 #范围：2~10秒
@@ -919,8 +919,8 @@ def showMessage(
                 self.btnGroup.idClicked.connect(self.onButtonClicked)
                 #布局按钮
                 btnlayout = QHBoxLayout()
-                for button in self.btnGroup.buttons():
-                        btnlayout.addWidget(button)
+                for b in self.btnGroup.buttons():
+                        btnlayout.addWidget(b)
                 layout.addRow(btnlayout)
                 #托盘图标
                 self.trayIco = QSystemTrayIcon(QIcon(&quot;wel.png&quot;), self)
@@ -928,21 +928,13 @@ def showMessage(
                 self.trayIco.setVisible(True)
 
         #QButtonGroup.idClicked信号连接到此方法
-        def onButtonClicked(self, button_id: int):
+        def onButtonClicked(self, id: int):
                 title = self.titleEdit.text()
                 content = self.bodyEdit.text()
                 #确定所使用的图标
-                icons = [
-                        QSystemTrayIcon.MessageIcon.NoIcon,
-                        QSystemTrayIcon.MessageIcon.Information,
-                        QSystemTrayIcon.MessageIcon.Warning,
-                        QSystemTrayIcon.MessageIcon.Critical
-                ]
-                icon = icons[button_id] if 0 &lt;= button_id &lt; len(icons) else icons[0]
-                #显示提示消息，QSystemTrayIcon 使用毫秒
-                self.trayIco.showMessage(
-                        title, content, icon, self.slidOn.value() * 1000
-                )</div>
+                icon = QSystemTrayIcon.MessageIcon.NoIcon if id == 0 else QSystemTrayIcon.MessageIcon.Information if id == 1 else QSystemTrayIcon.MessageIcon.Warning if id == 2 else QSystemTrayIcon.MessageIcon.Critical if id == 3 else QSystemTrayIcon.MessageIcon.NoIcon
+                #显示提示消息
+                self.trayIco.showMessage(title, content, icon, self.slidOn.value())</div>
 
       <p class="content-text">4个按钮（QPushButton）组件由QButtonGroup 对象管理，idClicked 信号连接 onButtonClicked方法，然后根据id的值来确定显示消息时所使用的系统图标。</p>
 
@@ -1031,7 +1023,7 @@ window.show()</div>
                 #被监听对象是 QRadioButton 类型
                 rdButton: QRadioButton = watched
                 #提示文本
-                tipText = &quot;Nothing&quot;
+                tipText = &quot;Nonthing&quot;
                 #看看被拦截的是哪个 QRadioButton 实例
                 if rdButton is self.rd1:
                         tipText = &quot;模式1：仅睡眠，不关机&quot;
@@ -1050,19 +1042,15 @@ window.show()</div>
         ......
 if rdButton is self.rd2:
         ......
-if rdButton is self.rd3:</div>
+if rdButton is self.rd3:
+        ......</div>
 
       <p class="content-text">手动显示工具提示需要调用QToolTip.showText静态方法。该方法的声明如下：</p>
 
-      <div class="code-block">def showText(
-        pos: QPoint,
-        text: str,
-        w: Optional[QWidget] = ...,
-        rect: QRect = ...,
-        msecShowTime: int = ...
-)</div>
+      <div class="code-block">def showText(pos: QPoint, text: str, w: Optional[QWidget] = ..., rect: QRect = ...,
+msecShowTime: int = ...)</div>
 
-      <p class="content-text">pos 参数是提示信息显示的位置，需要指定全局坐标（屏幕坐标）。text 参数是要显示的文本。</p>
+      <p class="content-text">pos 参数是提示信息显示的位置，需要指定全局坐标（屏幕坐标)。text 参数是要显示的文本。</p>
 
       <p class="content-text">w和 rect参数需要一起使用。w指的是要显示提示信息的对象，在本示例中是QRadioButton。rect是w内的某个矩形区域。这两个参数的含义是：当鼠标指针移出 rect所指定的区域后，工具提示就会隐藏。w和 rect参数都是可选的，调用 showText方法时可以忽略。</p>
 
@@ -1079,7 +1067,7 @@ if rdButton is self.rd3:</div>
         <figcaption>图 12-19 QRadioButton 的提示信息</figcaption>
       </figure>
 
-      <h3 class="subsection-heading"><span>12.6.3</span> 示例：在工具提示中使用HTML</h3>
+      <h3 class="subsection-heading"><span>12.6.3</span> 示例：在工具提示中使用 HTML</h3>
 
       <p class="content-text">Qt的工具提示文本支持使用HTML。本示例将创建一个包含3个字段的表单窗口，其中“货号”和“数量”字段的输入框设置了工具提示。</p>
 
@@ -1104,7 +1092,7 @@ layout.addRow(&quot;备注：&quot;,txtRem)</div>
 &lt;table&gt;
         &lt;tr&gt;
                 &lt;td&gt;[品类]: &lt;/td&gt;
-                &lt;td&gt;用两个字母表示货物类型，如服装类货物就使用&quot;Fz&quot;，工艺品类就用&quot;GY&quot;&lt;/td&gt;
+                &lt;td&gt;用两个字母表示货物类型，如服装类货物就使用&quot;FZ&quot;，工艺品类就用&quot;GY&quot;&lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
                 &lt;td&gt;[日期]:&lt;/td&gt;
@@ -1135,7 +1123,7 @@ txtQty.setToolTip(html)</div>
 
       <figure class="book-figure">
         <img src="images/ch12/ch12_fig_16.png" alt="图12-20“货号”字段的提示文本 图12-21 “数量”字段的工具提示" loading="lazy">
-        <figcaption>图12-20“货号”字段的提示文本 图12-21 “数量”字段的工具提示</figcaption>
+        <figcaption>图 12-20 “货号”字段的提示文本<br>图 12-21 “数量”字段的工具提示</figcaption>
       </figure>
 
       <h3 class="subsection-heading"><span>12.6.4</span> 示例：修改调色板</h3>
@@ -1165,7 +1153,8 @@ txtQty.setToolTip(html)</div>
                 #设置工具提示
                 self.chBox1.setToolTip(&quot;程序启动时读取上一次的阅读记录&quot;)
                 self.chBox2.setToolTip(&quot;自动下载正在阅读的资料的最新消息&quot;)
-                self.chBox3.setToolTip(&quot;程序退出时保存资料的阅读记录&quot;)</div>
+                self.chBox3.setToolTip(&quot;程序退出时保存资料的阅读记录&quot;)
+                ......</div>
 
       <p class="content-text">修改工具提示的调色板需要在初始化窗口之前完成。由于某些系统主题会导致工具提示的调色板失效（例如“WindowsVista”主题），所以需要先修改应用程序的默认主题。代码如下：</p>
 
