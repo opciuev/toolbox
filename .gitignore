@@ -20,6 +20,8 @@ out/
 # 缓存文件
 .cache/
 .parcel-cache/
+__pycache__/
+*.py[cod]
 
 # IDE 和编辑器
 .vscode/
@@ -57,3 +59,4 @@ opencv/output/
 opencv/OpenCV程序实例代码/
 ai-engineering/output/
 PySide6的学习版Web/第二章/
+PySide6的学习版Web/*OCR可搜索.pdf
