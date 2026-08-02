@@ -102,9 +102,100 @@ function toggleNav(el) {
   el.classList.toggle("active");
 }
 
-function toggleSidebar() {
+const sidebarBreakpoint = window.matchMedia("(max-width: 768px)");
+const sidebarStorageKey = "pyside6-sidebar-collapsed";
+
+function readSidebarPreference() {
+  try {
+    return window.localStorage.getItem(sidebarStorageKey) === "true";
+  } catch (_error) {
+    return false;
+  }
+}
+
+function storeSidebarPreference(collapsed) {
+  try {
+    window.localStorage.setItem(sidebarStorageKey, String(collapsed));
+  } catch (_error) {
+    // The menu still works when storage is unavailable (for example file://).
+  }
+}
+
+function updateSidebarToggle() {
+  const button = document.querySelector(".menu-toggle");
+  const sidebar = document.querySelector(".sidebar");
+  if (!button || !sidebar) return;
+
+  const isOpen = sidebarBreakpoint.matches
+    ? sidebar.classList.contains("open")
+    : !document.body.classList.contains("sidebar-collapsed");
+
+  button.type = "button";
+  button.setAttribute("aria-controls", sidebar.id);
+  button.setAttribute("aria-expanded", String(isOpen));
+  button.setAttribute("aria-label", isOpen ? "收起章节目录" : "展开章节目录");
+  button.title = isOpen ? "收起章节目录" : "展开章节目录";
+  button.textContent = isOpen ? "×" : "☰";
+}
+
+function setSidebarOpen(open, persist = true) {
   const sidebar = document.querySelector(".sidebar");
   const overlay = document.querySelector(".overlay");
-  if (sidebar) sidebar.classList.toggle("open");
-  if (overlay) overlay.classList.toggle("show");
+  if (!sidebar) return;
+
+  if (sidebarBreakpoint.matches) {
+    document.body.classList.remove("sidebar-collapsed");
+    document.body.classList.toggle("sidebar-overlay-open", open);
+    sidebar.classList.toggle("open", open);
+    if (overlay) overlay.classList.toggle("show", open);
+  } else {
+    sidebar.classList.remove("open");
+    document.body.classList.remove("sidebar-overlay-open");
+    if (overlay) overlay.classList.remove("show");
+    document.body.classList.toggle("sidebar-collapsed", !open);
+    if (persist) storeSidebarPreference(!open);
+  }
+
+  updateSidebarToggle();
 }
+
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+
+  const isOpen = sidebarBreakpoint.matches
+    ? sidebar.classList.contains("open")
+    : !document.body.classList.contains("sidebar-collapsed");
+  setSidebarOpen(!isOpen);
+}
+
+function initializeSidebarControls() {
+  const sidebar = document.querySelector(".sidebar");
+  const nav = document.getElementById("sidebar-nav");
+  if (!sidebar) return;
+
+  if (!sidebar.id) sidebar.id = "chapter-sidebar";
+  setSidebarOpen(sidebarBreakpoint.matches ? false : !readSidebarPreference(), false);
+
+  if (nav) {
+    nav.addEventListener("click", (event) => {
+      if (sidebarBreakpoint.matches && event.target.closest("a")) {
+        setSidebarOpen(false, false);
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const isOpen = sidebarBreakpoint.matches
+      ? sidebar.classList.contains("open")
+      : !document.body.classList.contains("sidebar-collapsed");
+    if (isOpen) setSidebarOpen(false);
+  });
+
+  sidebarBreakpoint.addEventListener("change", (event) => {
+    setSidebarOpen(event.matches ? false : !readSidebarPreference(), false);
+  });
+}
+
+initializeSidebarControls();

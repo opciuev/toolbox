@@ -5,6 +5,56 @@
  * this file can affect the workbench, OpenCV tutorial, or an unlisted page.
  */
 
+/*
+ * The chapter menu is available at every viewport width. On phones the
+ * existing off-canvas treatment hides it automatically; on wider screens the
+ * same button collapses the fixed sidebar and gives the reading area the room
+ * back. The desktop preference is restored when the reader changes chapters.
+ */
+body.tutorial-reading-page .menu-toggle {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  border-radius: 8px;
+  font-size: 25px;
+  line-height: 1;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+body.tutorial-reading-page .menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+body.tutorial-reading-page .menu-toggle:active {
+  transform: scale(0.94);
+}
+
+body.tutorial-reading-page .menu-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+body.tutorial-reading-page .sidebar,
+body.tutorial-reading-page .main-content,
+body.tutorial-reading-page .footer {
+  transition: transform 0.28s ease, margin-left 0.28s ease;
+}
+
+@media (min-width: 769px) {
+  body.tutorial-reading-page.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+  }
+
+  body.tutorial-reading-page.sidebar-collapsed .main-content,
+  body.tutorial-reading-page.sidebar-collapsed .footer {
+    margin-left: 0;
+  }
+}
+
 body.tutorial-reading-page:is(
   .chapter-01, .chapter-02, .chapter-03, .chapter-04, .chapter-05,
   .chapter-06, .chapter-07, .chapter-08, .chapter-09, .chapter-10,
@@ -175,6 +225,14 @@ body.tutorial-reading-page:is(
 }
 
 @media (max-width: 768px) {
+  body.tutorial-reading-page .menu-toggle {
+    margin-right: 0;
+  }
+
+  body.tutorial-reading-page.sidebar-overlay-open {
+    overflow: hidden;
+  }
+
   body.tutorial-reading-page:is(
     .chapter-01, .chapter-02, .chapter-03, .chapter-04, .chapter-05,
     .chapter-06, .chapter-07, .chapter-08, .chapter-09, .chapter-10,
